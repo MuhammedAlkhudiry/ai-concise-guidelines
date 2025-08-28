@@ -1,10 +1,4 @@
----
-trigger: always_on
-description: 
-globs: 
----
-
-After finished any task: 
+After finishing tasks apply these rules: 
 
 - Run relavent checking commands, examples: npm run typecheck && npm run lint && npm run format.
 - If project has i18n translations, check for any un-translated strings.
