@@ -1,6 +1,6 @@
 After finishing tasks apply these rules: 
 
-- Run relevant checking commands, examples: npm run typecheck && npm run lint && npm run format.
+- Run relevant checking commands, examples: npm run typecheck && npm run lint && npm run format. (Fix only related issues to the task, ignore the rest)
 - If the project has i18n translations, check for any untranslated strings.
 - Use guard clauses and early returns to handle errors and edge cases upfront, keeping nesting shallow (≤2–3 levels) so normal logic stays clear.
 - Review your comments, apply this: [Write comments only to explain complex or non-obvious logic (the why), keep them concise above the code, avoid trivial notes, and never leave unfinished TODOs].
