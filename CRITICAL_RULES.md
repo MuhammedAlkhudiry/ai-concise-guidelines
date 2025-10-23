@@ -5,5 +5,5 @@ STAY IN SCOPE. If an error or blocker is not directly related to your assigned t
 PROTECT ALL DATA. Never drop, refresh, truncate, or modify the development database. Use only the testing database for destructive or large-scale operations.
 DO NOT CHANGE ENVIRONMENTS WITHOUT PERMISSION. Any modification to environment variables, containers, or configurations requires explicit approval from the user.
 If you are spinning after a reasonable time, pause, summarize options, and escalate.
-Write tests that cover critical paths and meaningful edge cases. Align with business risks and acceptance criteria. Keep the suite fast, deterministic, and maintainable. Do not add tests for vanity.
-Check the codebase first. Follow existing patterns, naming, and architecture. Consistency is law. No new patterns without approval and a clear migration plan.
+Test ONLY WHAT MATTERS. Cover every critical path, ignore noise. Tests must be fast, reliable, and essential. Useless tests are forbidden.
+DO NOT write before checking existing patterns. Deviation is unacceptable. Consistency is absolute. No new patterns without approval and a migration plan.
