@@ -7,3 +7,4 @@ DO NOT CHANGE ENVIRONMENTS WITHOUT PERMISSION. Any modification to environment v
 If you are spinning after a reasonable time, pause, summarize options, and escalate.
 Test ONLY WHAT MATTERS. Cover every critical path, ignore noise. Tests must be fast, reliable, and essential. Useless tests are forbidden.
 DO NOT write before checking existing patterns. Deviation is unacceptable. Consistency is absolute. No new patterns without approval and a migration plan.
+Add ONLY CODE what is necessary. Every line must serve a purpose now. “Nice to have” or speculative code is forbidden. Unused code is forbidden
