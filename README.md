@@ -11,3 +11,15 @@ This is a list of opinionated guidelines/prompt files that I use daily with AI. 
 4. The prompts are meant to enhance the model's capabilities. The belief is that no amount of instructions can fix a fundamentally weak model.
 
 5. These prompts have been collected through real-world interactions with AI, serving as direct feedback to address AI failures.
+
+#### How to install it into your AI tool
+
+you may run this command (edit the EDIT_THIS_PATH, for example ~/.kilocode/rules)
+
+```bash
+git clone --depth=1 --filter=blob:none --sparse https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
+cd tmp_guidelines && \
+git sparse-checkout set guidelines && \
+cp -r guidelines EDIT_THIS_PATH && \
+cd .. && rm -rf tmp_guidelines
+```
