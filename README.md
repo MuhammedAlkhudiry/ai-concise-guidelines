@@ -1,9 +1,11 @@
+# Opinionated Guidelines for Daily AI Use
+
 ### Opinionated Guidelines for Daily AI Use
 
 This is a list of opinionated guidelines/prompt files that I use daily with AI. They have been carefully curated based on the following principles:
 
 1. The prompts are designed to be brief, avoiding unnecessary noise that could overload the AI context window.
-   
+
 2. Each guideline targets a particular behavior. Generic instructions (e.g., "be good," "think hard," "follow user prompt") are avoided, as it is assumed that the AI is already equipped with common sense.
 
 3. Assuming that the AI model is already about 80% effective, these prompts are intended to push it further.
@@ -12,12 +14,13 @@ This is a list of opinionated guidelines/prompt files that I use daily with AI. 
 
 5. These prompts have been collected through real-world interactions with AI, serving as direct feedback to address AI failures.
 
-#### How to install it into your AI tool
+## Install
 
-you may run this command (edit the EDIT_THIS_PATH, for example ~/.kilocode/rules)
+Run (edit EDIT_THIS_PATH, e.g., ~/.kilocode/rules):
 
 ```bash
-git clone --depth=1 --filter=blob:none --sparse https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
+git clone --depth=1 --filter=blob:none --sparse \
+  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
 cd tmp_guidelines && \
 git sparse-checkout set guidelines && \
 cp -r guidelines EDIT_THIS_PATH && \

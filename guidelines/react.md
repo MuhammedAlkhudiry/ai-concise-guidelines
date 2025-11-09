@@ -1,6 +1,8 @@
+# React guidelines
+
 Hooks first, always at top level. Never in loops/conditions.
 
-Hooks should grouped by concern (e.g. useState -> useQuery -> useMemo).
+Hooks should be grouped by concern (e.g., useState → useQuery → useMemo).
 
 Order inside component: hooks → state → derived values → handlers → JSX.
 
@@ -16,12 +18,12 @@ Stable keys for lists, never array indexes (unless static).
 
 Render stays pure: no side-effects, no hidden mutations.
 
-Avoid using UseEffect as much as possible
+Avoid useEffect when possible.
 
-Minimize using useState.
+Minimize use of useState.
 
-Never select everything from a store (e.g. Zustand: const state = useStore()),  ALWAYS use a selector
+Never select entire store (e.g., Zustand: `const state = useStore()`). ALWAYS use a selector.
 
-Prefer using hooks library over implementing custom logic (e.g. useInterval over setInterval)
+Prefer hooks libraries over custom logic (e.g., useInterval over setInterval).
 
-Do conditional render (e.g. return null if no data) at the end of the component's logic just before returning jsx, NOT in the middle of the component.
+Do conditional render (e.g., return null if no data) at the end of component logic, just before returning JSX, NOT mid-component.
