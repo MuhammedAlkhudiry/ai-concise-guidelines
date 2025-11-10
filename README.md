@@ -43,3 +43,14 @@ git sparse-checkout set guidelines && \
 } >> "$HOME/.claude/CLAUDE.md" && \
 cd .. && rm -rf tmp_guidelines
 ```
+
+### Copy workflows into claude custom commands
+
+```bash
+ git clone --depth=1 --filter=blob:none --sparse \
+  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
+cd tmp_guidelines && \
+git sparse-checkout set workflows && \
+cp -r workflows ~/.claude/commands && \ 
+cd .. && rm -rf tmp_guidelines
+```
