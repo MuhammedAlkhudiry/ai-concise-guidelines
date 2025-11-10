@@ -16,13 +16,30 @@ This is a list of opinionated guidelines/prompt files that I use daily with AI. 
 
 ## Install
 
-Run (edit EDIT_THIS_PATH, e.g., ~/.kilocode/rules):
+### Copy all .md files into .md files inside your AI tool folder
 
+Run (edit EDIT_THIS_PATH, e.g., ~/.kilocode/rules):
 ```bash
 git clone --depth=1 --filter=blob:none --sparse \
   https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
 cd tmp_guidelines && \
 git sparse-checkout set guidelines && \
 cp -r guidelines EDIT_THIS_PATH && \
+cd .. && rm -rf tmp_guidelines
+```
+
+### Copy the content of all .md files into a single file (e.g. CLAUDE.md)
+
+```bash
+mkdir -p "$HOME/.claude" && touch "$HOME/.claude/CLAUDE.md" && \
+git clone --depth=1 --filter=blob:none --sparse \
+  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
+cd tmp_guidelines && \
+git sparse-checkout set guidelines && \
+{ find guidelines -type f -print0 | sort -z | while IFS= read -r -d '' f; do
+    printf '\n\n'
+    cat "$f"
+  done
+} >> "$HOME/.claude/CLAUDE.md" && \
 cd .. && rm -rf tmp_guidelines
 ```
