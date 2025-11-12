@@ -57,11 +57,7 @@ cd .. && rm -rf tmp_guidelines
 
 ### Copy workflows into windsurf workflows
 
-(Note: we are adding 
----
-description: 
----
-at the top of each file so windsurf can detect it)
+(Note: we are adding ---description: --- at the top of each file so windsurf can detect it)
 
 ```bash
 rm -rf tmp_guidelines && \
