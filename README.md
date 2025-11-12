@@ -54,3 +54,30 @@ git sparse-checkout set workflows && \
 cp -r workflows ~/.claude/commands && \ 
 cd .. && rm -rf tmp_guidelines
 ```
+
+### Copy workflows into windsurf workflows
+
+(Note: we are adding 
+---
+description: 
+---
+at the top of each file so windsurf can detect it)
+
+```bash
+rm -rf tmp_guidelines && \
+git clone --depth=1 --filter=blob:none --sparse \
+  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
+cd tmp_guidelines && \
+git sparse-checkout set workflows && \
+for file in workflows/*; do
+  if [ -f "$file" ]; then
+    # Add front matter at the top of each file
+    { echo "---"; echo "description: "; echo "---"; echo ""; cat "$file"; } > "${file}.tmp"
+    mv "${file}.tmp" "$file"
+  fi
+done && \
+cp -r workflows ~/.codeium/global_workflows && \
+cd .. && \
+rm -rf tmp_guidelines
+
+```
