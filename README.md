@@ -1,7 +1,5 @@
 # Opinionated Guidelines for Daily AI Use
 
-### Opinionated Guidelines for Daily AI Use
-
 This is a list of opinionated guidelines/prompt files that I use daily with AI. They have been carefully curated based on the following principles:
 
 1. The prompts are designed to be brief, avoiding unnecessary noise that could overload the AI context window.
@@ -14,66 +12,33 @@ This is a list of opinionated guidelines/prompt files that I use daily with AI. 
 
 5. These prompts have been collected through real-world interactions with AI, serving as direct feedback to address AI failures.
 
-## Install
+## Install 
+[Disclaimer: written by AI]
 
-### Copy all .md files into .md files inside your AI tool folder
+### Quick Install (Recommended)
 
-Run (edit EDIT_THIS_PATH, e.g., ~/.kilocode/rules):
-```bash
-git clone --depth=1 --filter=blob:none --sparse \
-  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
-cd tmp_guidelines && \
-git sparse-checkout set guidelines && \
-cp -r guidelines EDIT_THIS_PATH && \
-cd .. && rm -rf tmp_guidelines
-```
-
-### Copy the content of all .md files into a single file (e.g. CLAUDE.md)
+Run the interactive installer that guides you through all options:
 
 ```bash
-mkdir -p "$HOME/.claude" && touch "$HOME/.claude/CLAUDE.md" && \
-git clone --depth=1 --filter=blob:none --sparse \
-  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
-cd tmp_guidelines && \
-git sparse-checkout set guidelines && \
-{ find guidelines -type f -print0 | sort -z | while IFS= read -r -d '' f; do
-    printf '\n\n'
-    cat "$f"
-  done
-} >> "$HOME/.claude/CLAUDE.md" && \
-cd .. && rm -rf tmp_guidelines
+curl -sSL https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh | bash
 ```
 
-### Copy workflows into claude custom commands
+Or download and inspect first:
 
 ```bash
- git clone --depth=1 --filter=blob:none --sparse \
-  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
-cd tmp_guidelines && \
-git sparse-checkout set workflows && \
-cp -r workflows ~/.claude/commands && \ 
-cd .. && rm -rf tmp_guidelines
+curl -O https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh
+chmod +x init.sh
+./init.sh
 ```
 
-### Copy workflows into windsurf workflows
+The installer supports:
+- **Guidelines**: Multiple files or single merged file
+- **Workflows**: With optional Windsurf frontmatter
+- **Both**: Guidelines + Workflows in one run
+- **Custom paths**: Choose your own destination directories
 
-(Note: we are adding ---description: --- at the top of each file so windsurf can detect it)
+---
 
-```bash
-rm -rf tmp_guidelines && \
-git clone --depth=1 --filter=blob:none --sparse \
-  https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git tmp_guidelines && \
-cd tmp_guidelines && \
-git sparse-checkout set workflows && \
-for file in workflows/*; do
-  if [ -f "$file" ]; then
-    # Add front matter at the top of each file
-    { echo "---"; echo "description: "; echo "---"; echo ""; cat "$file"; } > "${file}.tmp"
-    mv "${file}.tmp" "$file"
-  fi
-done && \
-cp -r workflows ~/.codeium/global_workflows && \
-cd .. && \
-rm -rf tmp_guidelines
+### Manual Install
 
-```
+If you prefer manual installation, you can simply clone/copy any file you need.
