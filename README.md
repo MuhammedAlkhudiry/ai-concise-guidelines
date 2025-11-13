@@ -31,7 +31,7 @@ Then run with your desired options:
 ./init.sh --guidelines-destination-path ~/.windsurf/rules
 
 # Install guidelines as a single merged file
-./init.sh --merge-guidelines-into-single-file=~/GUIDELINES.md
+./init.sh --merge-guidelines-into-single-file ~/GUIDELINES.md
 
 # Install workflows with Windsurf frontmatter
 ./init.sh --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
@@ -45,7 +45,7 @@ Then run with your desired options:
 #### Options
 
 - `--guidelines-destination-path PATH` — Copy guidelines as multiple files to PATH directory
-- `--merge-guidelines-into-single-file=PATH` — Merge all guidelines into a single file at PATH
+- `--merge-guidelines-into-single-file PATH` — Merge all guidelines into a single file at PATH
 - `--workflows-destination-path PATH` — Copy workflows to PATH directory
 - `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
 - `--help`, `-h` — Show help message

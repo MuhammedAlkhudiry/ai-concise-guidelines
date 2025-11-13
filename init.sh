@@ -76,7 +76,7 @@ Options:
   --guidelines-destination-path PATH
       Copy guidelines as multiple files to PATH directory
 
-  --merge-guidelines-into-single-file=PATH
+  --merge-guidelines-into-single-file PATH
       Merge all guidelines into a single file at PATH
 
   --workflows-destination-path PATH
@@ -93,7 +93,7 @@ Examples:
   $0 --guidelines-destination-path ~/.windsurf/rules
 
   # Merge guidelines into single file
-  $0 --merge-guidelines-into-single-file=~/GUIDELINES.md
+  $0 --merge-guidelines-into-single-file ~/GUIDELINES.md
 
   # Copy workflows with Windsurf headers
   $0 --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
@@ -297,9 +297,9 @@ main() {
                 guidelines_dest="$2"
                 shift 2
                 ;;
-            --merge-guidelines-into-single-file=*)
-                guidelines_merged="${1#*=}"
-                shift
+            --merge-guidelines-into-single-file)
+                guidelines_merged="$2"
+                shift 2
                 ;;
             --workflows-destination-path)
                 workflows_dest="$2"
