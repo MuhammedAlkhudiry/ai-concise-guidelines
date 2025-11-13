@@ -40,6 +40,50 @@ print_warning() {
     echo -e "${YELLOW}$1${NC}"
 }
 
+# Show usage information
+show_usage() {
+    cat << EOF
+${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}
+${BLUE}║   AI Concise Guidelines - Installer                      ║${NC}
+${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}
+
+Usage: $0 [OPTIONS]
+
+Options:
+  --guidelines-destination-path PATH
+      Copy guidelines as multiple files to PATH directory
+
+  --merge-guidelines-into-single-file=PATH
+      Merge all guidelines into a single file at PATH
+
+  --workflows-destination-path PATH
+      Copy workflows to PATH directory
+
+  --add-windsurf-header
+      Add Windsurf-compatible frontmatter to workflow files
+
+  --help, -h
+      Show this help message
+
+Examples:
+  # Copy guidelines as multiple files
+  $0 --guidelines-destination-path ~/.windsurf/rules
+
+  # Merge guidelines into single file
+  $0 --merge-guidelines-into-single-file=~/GUIDELINES.md
+
+  # Copy workflows with Windsurf headers
+  $0 --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
+
+  # Copy everything
+  $0 --guidelines-destination-path ~/.windsurf/rules \\
+     --workflows-destination-path ~/.windsurf/workflows \\
+     --add-windsurf-header
+
+EOF
+    exit 0
+}
+
 # Check prerequisites
 check_prerequisites() {
     if ! command -v git >/dev/null 2>&1; then
@@ -48,60 +92,17 @@ check_prerequisites() {
     fi
 }
 
-# Validate user input
-validate_choice() {
-    local input="$1"
-    local valid_options="$2"
-    
-    # Use word boundary matching to prevent partial matches
-    if echo " $valid_options " | grep -q " $input "; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Prompt user for selection
-prompt_selection() {
-    local prompt="$1"
-    local valid_options="$2"
-    local default="$3"
-    local response
-    
-    while true; do
-        if [ -n "$default" ]; then
-            read -p "$prompt (default: $default): " response
-            response=${response:-$default}
-        else
-            read -p "$prompt: " response
-        fi
-        
-        if validate_choice "$response" "$valid_options"; then
-            echo "$response"
-            return 0
-        else
-            print_error "Invalid choice. Please select from: $valid_options"
-        fi
-    done
-}
-
-# Check if path exists and is writable
+# Validate and prepare destination path
 validate_destination_path() {
     local path="$1"
     local parent_dir=$(dirname "$path")
     
-    # Check if parent directory exists and is writable
+    # Create parent directory if it doesn't exist
     if [ ! -d "$parent_dir" ]; then
-        print_warning "Parent directory $parent_dir does not exist."
-        read -p "Create it? [y/n]: " create
-        if [ "$create" = "y" ]; then
-            mkdir -p "$parent_dir" || {
-                print_error "Failed to create directory $parent_dir"
-                return 1
-            }
-        else
+        mkdir -p "$parent_dir" || {
+            print_error "Failed to create directory $parent_dir"
             return 1
-        fi
+        }
     fi
     
     # Check write permissions
@@ -259,116 +260,103 @@ copy_workflows() {
 
 # Main function
 main() {
-    echo -e "${BLUE}"
-    echo "╔═══════════════════════════════════════════════════════════╗"
-    echo "║   AI Concise Guidelines - Interactive Installer          ║"
-    echo "╚═══════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-    
     check_prerequisites
     
-    # Step 1: What to copy?
-    echo ""
-    print_info "Step 1: What would you like to copy?"
-    echo "  g - Guidelines only"
-    echo "  w - Workflows only"
-    echo "  b - Both guidelines and workflows"
-    copy_what=$(prompt_selection "Your choice [g/w/b]" "g w b" "b")
+    # Parse arguments
+    local guidelines_dest=""
+    local guidelines_merged=""
+    local workflows_dest=""
+    local add_frontmatter="n"
     
-    # Variables to track selections
-    copy_guidelines=false
-    copy_workflows=false
-    guidelines_format=""
-    guidelines_dest=""
-    workflows_dest=""
-    add_frontmatter=""
-    folders=""
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --guidelines-destination-path)
+                guidelines_dest="$2"
+                shift 2
+                ;;
+            --merge-guidelines-into-single-file=*)
+                guidelines_merged="${1#*=}"
+                shift
+                ;;
+            --workflows-destination-path)
+                workflows_dest="$2"
+                shift 2
+                ;;
+            --add-windsurf-header)
+                add_frontmatter="y"
+                shift
+                ;;
+            --help|-h)
+                show_usage
+                ;;
+            *)
+                print_error "Unknown option: $1"
+                echo ""
+                show_usage
+                ;;
+        esac
+    done
     
-    # Handle guidelines
-    if [ "$copy_what" = "g" ] || [ "$copy_what" = "b" ]; then
+    # Validate arguments
+    if [ -n "$guidelines_dest" ] && [ -n "$guidelines_merged" ]; then
+        print_error "Cannot use both --guidelines-destination-path and --merge-guidelines-into-single-file"
+        echo "Please choose one option for guidelines."
+        exit 1
+    fi
+    
+    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ]; then
+        print_error "No destination specified. At least one destination is required."
+        echo ""
+        show_usage
+    fi
+    
+    # Expand tilde in paths
+    [ -n "$guidelines_dest" ] && guidelines_dest="${guidelines_dest/#\~/$HOME}"
+    [ -n "$guidelines_merged" ] && guidelines_merged="${guidelines_merged/#\~/$HOME}"
+    [ -n "$workflows_dest" ] && workflows_dest="${workflows_dest/#\~/$HOME}"
+    
+    # Validate destination paths
+    if [ -n "$guidelines_dest" ]; then
+        validate_destination_path "$guidelines_dest" || exit 1
+    fi
+    if [ -n "$guidelines_merged" ]; then
+        validate_destination_path "$guidelines_merged" || exit 1
+    fi
+    if [ -n "$workflows_dest" ]; then
+        validate_destination_path "$workflows_dest" || exit 1
+    fi
+    
+    # Determine what folders to clone
+    local folders=""
+    local copy_guidelines=false
+    local copy_workflows=false
+    
+    if [ -n "$guidelines_dest" ] || [ -n "$guidelines_merged" ]; then
         copy_guidelines=true
         folders="guidelines"
-        
-        echo ""
-        print_info "Step 2: Guidelines format?"
-        echo "  m - Multiple files (separate .md files)"
-        echo "  s - Single merged file (all content in one file)"
-        guidelines_format=$(prompt_selection "Your choice [m/s]" "m s" "m")
-        
-        echo ""
-        if [ "$guidelines_format" = "m" ]; then
-            print_info "Step 3: Enter destination directory for guidelines"
-            echo "  Example: ~/.windsurf/rules or ~/.claude/guidelines"
-        else
-            print_info "Step 3: Enter destination file path for merged guidelines"
-            echo "  Example: ~/.claude/GUIDELINES.md or ~/ai-rules.md"
-        fi
-        
-        while true; do
-            read -p "Destination path: " guidelines_dest
-            guidelines_dest="${guidelines_dest/#\~/$HOME}"
-            
-            if [ -z "$guidelines_dest" ]; then
-                print_error "Destination path cannot be empty"
-                continue
-            fi
-            
-            if validate_destination_path "$guidelines_dest"; then
-                break
-            fi
-        done
     fi
     
-    # Handle workflows
-    if [ "$copy_what" = "w" ] || [ "$copy_what" = "b" ]; then
+    if [ -n "$workflows_dest" ]; then
         copy_workflows=true
-        
-        if [ -n "$folders" ]; then
-            folders="$folders workflows"
-        else
-            folders="workflows"
-        fi
-        
-        step_num=2
-        [ "$copy_what" = "b" ] && step_num=4
-        
-        echo ""
-        print_info "Step $step_num: Enter destination directory for workflows"
-        echo "  Example: ~/.claude/commands or ~/.codeium/global_workflows"
-        
-        while true; do
-            read -p "Destination path: " workflows_dest
-            workflows_dest="${workflows_dest/#\~/$HOME}"
-            
-            if [ -z "$workflows_dest" ]; then
-                print_error "Destination path cannot be empty"
-                continue
-            fi
-            
-            if validate_destination_path "$workflows_dest"; then
-                break
-            fi
-        done
-        
-        step_num=$((step_num + 1))
-        echo ""
-        print_info "Step $step_num: Add Windsurf-compatible frontmatter to workflow files?"
-        echo "  (Adds '---\\ndescription: \\n---' at the top of each file)"
-        add_frontmatter=$(prompt_selection "Your choice [y/n]" "y n" "n")
+        [ -n "$folders" ] && folders="$folders workflows" || folders="workflows"
     fi
     
-    # Summary
+    # Show summary
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════╗"
+    echo "║   AI Concise Guidelines - Installer                      ║"
+    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
     echo ""
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
     print_info "Installation Summary:"
-    if [ "$copy_guidelines" = true ]; then
-        if [ "$guidelines_format" = "m" ]; then
-            echo "  • Guidelines: Multiple files → $guidelines_dest"
-        else
-            echo "  • Guidelines: Single merged file → $guidelines_dest"
-        fi
+    if [ -n "$guidelines_dest" ]; then
+        echo "  • Guidelines: Multiple files → $guidelines_dest"
     fi
-    if [ "$copy_workflows" = true ]; then
+    if [ -n "$guidelines_merged" ]; then
+        echo "  • Guidelines: Single merged file → $guidelines_merged"
+    fi
+    if [ -n "$workflows_dest" ]; then
         echo "  • Workflows: Multiple files → $workflows_dest"
         if [ "$add_frontmatter" = "y" ]; then
             echo "    (with Windsurf frontmatter)"
@@ -377,25 +365,18 @@ main() {
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
-    read -p "Proceed with installation? [y/n]: " confirm
-    if [ "$confirm" != "y" ]; then
-        print_info "Installation cancelled"
-        exit 0
-    fi
-    
     # Execute installation
-    echo ""
     clone_repository "$folders"
     
-    if [ "$copy_guidelines" = true ]; then
-        if [ "$guidelines_format" = "m" ]; then
-            copy_guidelines_multiple "$guidelines_dest"
-        else
-            copy_guidelines_merged "$guidelines_dest"
-        fi
+    if [ -n "$guidelines_dest" ]; then
+        copy_guidelines_multiple "$guidelines_dest"
     fi
     
-    if [ "$copy_workflows" = true ]; then
+    if [ -n "$guidelines_merged" ]; then
+        copy_guidelines_merged "$guidelines_merged"
+    fi
+    
+    if [ -n "$workflows_dest" ]; then
         copy_workflows "$workflows_dest" "$add_frontmatter"
     fi
     
@@ -406,10 +387,13 @@ main() {
     echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
     print_info "Next steps:"
-    if [ "$copy_guidelines" = true ]; then
+    if [ -n "$guidelines_dest" ]; then
         echo "  • Configure your AI tool to load guidelines from: $guidelines_dest"
     fi
-    if [ "$copy_workflows" = true ]; then
+    if [ -n "$guidelines_merged" ]; then
+        echo "  • Configure your AI tool to load guidelines from: $guidelines_merged"
+    fi
+    if [ -n "$workflows_dest" ]; then
         echo "  • Restart your IDE/tool to load workflows from: $workflows_dest"
     fi
     echo ""

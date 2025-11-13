@@ -17,25 +17,40 @@ This is a list of opinionated guidelines/prompt files that I use daily with AI. 
 
 ### Quick Install (Recommended)
 
-Run the interactive installer that guides you through all options:
-
-```bash
-curl -sSL https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh | bash
-```
-
-Or download and inspect first:
+Download the installer script:
 
 ```bash
 curl -O https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh
 chmod +x init.sh
-./init.sh
 ```
 
-The installer supports:
-- **Guidelines**: Multiple files or single merged file
-- **Workflows**: With optional Windsurf frontmatter
-- **Both**: Guidelines + Workflows in one run
-- **Custom paths**: Choose your own destination directories
+Then run with your desired options:
+
+```bash
+# Install guidelines as multiple files
+./init.sh --guidelines-destination-path ~/.windsurf/rules
+
+# Install guidelines as a single merged file
+./init.sh --merge-guidelines-into-single-file=~/GUIDELINES.md
+
+# Install workflows with Windsurf frontmatter
+./init.sh --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
+
+# Install everything
+./init.sh --guidelines-destination-path ~/.windsurf/rules \
+          --workflows-destination-path ~/.windsurf/workflows \
+          --add-windsurf-header
+```
+
+#### Options
+
+- `--guidelines-destination-path PATH` — Copy guidelines as multiple files to PATH directory
+- `--merge-guidelines-into-single-file=PATH` — Merge all guidelines into a single file at PATH
+- `--workflows-destination-path PATH` — Copy workflows to PATH directory
+- `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
+- `--help`, `-h` — Show help message
+
+**Note**: `--guidelines-destination-path` and `--merge-guidelines-into-single-file` are mutually exclusive.
 
 ---
 
