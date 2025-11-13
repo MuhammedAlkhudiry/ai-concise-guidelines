@@ -40,6 +40,29 @@ print_warning() {
     echo -e "${YELLOW}$1${NC}"
 }
 
+# Prompt user for selection
+prompt_selection() {
+    local prompt="$1"
+    local valid_options="$2"
+    local default="$3"
+    local response
+    
+    while true; do
+        read -p "$prompt [default=$default]: " response
+        response="${response:-$default}"
+        
+        # Check if response is valid
+        for option in $valid_options; do
+            if [ "$response" = "$option" ]; then
+                echo "$response"
+                return 0
+            fi
+        done
+        
+        print_warning "Invalid option. Valid options are: $valid_options"
+    done
+}
+
 # Show usage information
 show_usage() {
     cat << EOF
