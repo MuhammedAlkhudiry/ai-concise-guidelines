@@ -77,3 +77,19 @@ If you prefer manual installation, you can simply clone/copy any file you need.
           --workflows-destination-path ~/.codeium/global_workflows \         
           --add-windsurf-header
 ```
+
+### Alias for Quick Refresh
+
+Add this alias to your shell configuration (`.bashrc`, `.zshrc`, etc.) to refresh guidelines with overwrite action:
+
+```bash
+alias refresh-windsurf-guidelines='./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \
+          --workflows-destination-path ~/.codeium/global_workflows \
+          --add-windsurf-header \
+          --merge-guidelines-into-single-file-action overwrite'
+```
+
+Then simply run:
+```bash
+refresh-windsurf-guidelines
+```

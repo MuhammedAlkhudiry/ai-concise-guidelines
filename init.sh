@@ -85,6 +85,9 @@ Options:
   --add-windsurf-header
       Add Windsurf-compatible frontmatter to workflow files
 
+  --merge-guidelines-into-single-file-action ACTION
+      Action when file exists: overwrite, append, or skip (default: prompt)
+
   --help, -h
       Show this help message
 
@@ -187,6 +190,7 @@ copy_guidelines_multiple() {
 # Copy guidelines as single merged file
 copy_guidelines_merged() {
     local dest="$1"
+    local action="$2"
     
     print_info "Merging guidelines into single file..."
     
@@ -198,18 +202,26 @@ copy_guidelines_merged() {
     # Check if destination file exists
     if [ -f "$dest" ]; then
         print_warning "File $dest already exists."
-        local action=$(prompt_selection "Choose action [o=overwrite, a=append, s=skip]" "o a s" "s")
+        
+        # Use provided action or prompt user
+        if [ -z "$action" ]; then
+            action=$(prompt_selection "Choose action [o=overwrite, a=append, s=skip]" "o a s" "s")
+        fi
         
         case $action in
-            s)
+            s|skip)
                 print_info "Skipping guidelines merge"
                 return 0
                 ;;
-            o)
+            o|overwrite)
                 > "$dest"
                 ;;
-            a)
+            a|append)
                 echo -e "\n\n# --- Appended $(date) ---\n" >> "$dest"
+                ;;
+            *)
+                print_error "Invalid action: $action. Valid options are: overwrite, append, skip"
+                return 1
                 ;;
         esac
     else
@@ -288,6 +300,7 @@ main() {
     # Parse arguments
     local guidelines_dest=""
     local guidelines_merged=""
+    local guidelines_merged_action=""
     local workflows_dest=""
     local add_frontmatter="n"
     
@@ -299,6 +312,10 @@ main() {
                 ;;
             --merge-guidelines-into-single-file)
                 guidelines_merged="$2"
+                shift 2
+                ;;
+            --merge-guidelines-into-single-file-action)
+                guidelines_merged_action="$2"
                 shift 2
                 ;;
             --workflows-destination-path)
@@ -396,7 +413,7 @@ main() {
     fi
     
     if [ -n "$guidelines_merged" ]; then
-        copy_guidelines_merged "$guidelines_merged"
+        copy_guidelines_merged "$guidelines_merged" "$guidelines_merged_action"
     fi
     
     if [ -n "$workflows_dest" ]; then
