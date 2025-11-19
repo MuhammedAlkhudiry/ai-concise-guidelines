@@ -57,3 +57,23 @@ Then run with your desired options:
 ### Manual Install
 
 If you prefer manual installation, you can simply clone/copy any file you need.
+
+
+--- 
+
+### Examples
+
+- Windsurf Editor
+```bash
+./init.sh --merge-guidelines-into-single-file ~/.codeium/windsurf/memories/global_rules.md \
+          --workflows-destination-path ~/.codeium/windsurf/global_workflows \
+          --add-windsurf-header
+```
+
+
+- Windsurf Jetbrains
+```bash
+ ./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \         
+          --workflows-destination-path ~/.codeium/global_workflows \         
+          --add-windsurf-header
+```
