@@ -10,7 +10,7 @@ Use for small features, tweaks, or bugfixes. Read relevant code. Do not echo use
 2. **Change** — 2–5 bullets: exact behavior change.
 3. **Impact** — key files/areas to touch.
 4. **Edge cases** — bullets only.
-5. **Tests** — checks (unit/integration/manual).
+5. **Tests** — list tests to be updated or new tests to be created, with file names (unit/integration/manual).
 6. **Risks** — 1–3 bullets max.
 7. **Rollout** — flags/migrations/logs, if any.
 
