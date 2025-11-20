@@ -115,5 +115,5 @@ alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains'
 
 Then simply run:
 ```bash
-refresh-windsurf-guidelines
+refresh-windsurf
 ```
