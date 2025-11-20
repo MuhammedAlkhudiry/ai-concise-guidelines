@@ -84,24 +84,26 @@ Add this alias to your shell configuration (`.bashrc`, `.zshrc`, etc.) to refres
 
 - Windsurf Editor
 ```bash
-alias refresh-windsurf-editor='curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+alias refresh-windsurf-editor='(cd /tmp && \
+          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
           chmod +x init.sh && \
           ./init.sh --merge-guidelines-into-single-file ~/.codeium/windsurf/memories/global_rules.md \
                     --workflows-destination-path ~/.codeium/windsurf/global_workflows \
                     --add-windsurf-header \
                     --merge-guidelines-into-single-file-action overwrite && \
-          rm init.sh'
+          rm init.sh)'
 ```
 
 - Windsurf Jetbrains
 ```bash
-alias refresh-windsurf-jetbrains='curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+alias refresh-windsurf-jetbrains='(cd /tmp && \
+          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
           chmod +x init.sh && \
           ./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \
                     --workflows-destination-path ~/.codeium/global_workflows \
                     --add-windsurf-header \
                     --merge-guidelines-into-single-file-action overwrite && \
-          rm init.sh'
+          rm init.sh)'
 ```
 
 - Windsurf (both)
