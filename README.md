@@ -82,11 +82,31 @@ If you prefer manual installation, you can simply clone/copy any file you need.
 
 Add this alias to your shell configuration (`.bashrc`, `.zshrc`, etc.) to refresh guidelines with overwrite action:
 
+- Windsurf Editor
 ```bash
-alias refresh-windsurf-guidelines='./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \
-          --workflows-destination-path ~/.codeium/global_workflows \
-          --add-windsurf-header \
-          --merge-guidelines-into-single-file-action overwrite'
+alias refresh-windsurf-editor='curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+          chmod +x init.sh && \
+          ./init.sh --merge-guidelines-into-single-file ~/.codeium/windsurf/memories/global_rules.md \
+                    --workflows-destination-path ~/.codeium/windsurf/global_workflows \
+                    --add-windsurf-header \
+                    --merge-guidelines-into-single-file-action overwrite && \
+          rm init.sh'
+```
+
+- Windsurf Jetbrains
+```bash
+alias refresh-windsurf-jetbrains='curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+          chmod +x init.sh && \
+          ./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \
+                    --workflows-destination-path ~/.codeium/global_workflows \
+                    --add-windsurf-header \
+                    --merge-guidelines-into-single-file-action overwrite && \
+          rm init.sh'
+```
+
+- Windsurf (both)
+```bash
+alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains' 
 ```
 
 Then simply run:
