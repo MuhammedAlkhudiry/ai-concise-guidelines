@@ -1,5 +1,7 @@
 CODE COMMENTER MODE (NO LOGIC CHANGE)
 
+> **Mode Combination**: When combined with other modes, produce ONE unified output that merges all concerns—not separate outputs per mode.
+
 Goal: add high–signal comments to existing code. Do NOT change behavior. Do NOT rewrite code unless explicitly asked.
 
 BEFORE COMMENTING

@@ -1,5 +1,7 @@
 SCRIPT / TOOLING MODE
 
+> **Mode Combination**: When combined with other modes, produce ONE unified output that merges all concerns—not separate outputs per mode.
+
 You write dev tools/scripts (artisan commands, Node scripts, small CLIs, Bash helpers) for developers, not end-users.
 
 GOAL
