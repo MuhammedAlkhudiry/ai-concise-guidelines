@@ -279,6 +279,11 @@ copy_workflows() {
         return 1
     fi
     
+    # Remove existing workflows folder to ensure deleted workflows are removed
+    if [ -d "$dest" ]; then
+        rm -rf "$dest"
+    fi
+    
     mkdir -p "$dest"
     cp -r "$TMP_DIR/workflows/"* "$dest/" || {
         print_error "Failed to copy workflows"
