@@ -8,7 +8,7 @@
 - TEST ONLY WHAT MATTERS — Cover critical paths, ignore noise. Tests must be fast, reliable, essential. Useless tests are forbidden.
 - DO NOT write before checking existing patterns. Consistency is absolute. No new patterns without approval and a migration plan.
 - Add ONLY code that is necessary. Every line must serve a current purpose. “Nice to have” or speculative code is forbidden. Unused code is forbidden.
-
+- UNDERSTAND DATA STRUCTURE — Before working with data, fully understand the related database structure/models. Use available tools: DB access, ddev, tinker, or migrations (migrations can be outdated—verify). Never assume schema; always confirm.
 
 # After-task checklist
 
