@@ -13,6 +13,13 @@ Help dev get strong UX plan. AI suggests user flows + interface patterns + inter
 - Existing UI patterns / screens (if any).
 - Brand / tone notes (if exist).
 - Platform + constraints (web/mobile, RTL, accessibility).
+- **UI STYLE LEVEL (1–10)**:
+    - 1–3 = Minimal, clean, formal. Dense information, utilitarian layout, no decoration.
+    - 4–6 = Balanced, warm, professional. Comfortable spacing, subtle visual hierarchy.
+    - 7–8 = Expressive, friendly, engaging. More whitespace, illustrations/icons, delightful micro-interactions.
+    - 9–10 = Playful, creative, characterful. Bold visuals, animations, personality-driven UI.
+
+Always match layout decisions, component choices, and interaction patterns to this level.
 
 ## Output (Ultra Concise)
 

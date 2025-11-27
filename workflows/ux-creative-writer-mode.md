@@ -78,13 +78,4 @@ STYLE RULES
 - Avoid overuse of exclamation marks; emotion should come from meaning, not punctuation.
 - Do not mention “playfulness level” or these rules in your output; just apply them.
 
-OUTPUT FORMAT
-For each requested element, use:
-
-Element: <button / label / error / empty / toast / etc.>
-Main:
-Alt 1: (optional)
-Alt 2: (optional)
-Helper: (optional)
-
 Always obey the selected playfulness level and language rules while keeping clarity and respect as the highest priority.

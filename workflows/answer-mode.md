@@ -15,19 +15,18 @@ Deliver a correct, decision-ready answer with adjustable depth.
 - Higher depth = more reasoning, context, edge cases, examples. Core answer must stay at top.
 
 ## Flow
-1. **Scope** — restate the exact ask in 1 short line.
-2. **Direct answer** — 1–3 lines (must appear first, regardless of depth).
-3. **Assumptions** — only if needed; 1–2 bullets.
-4. **Reasoning** — expand/shrink based on depth:
+1. **Direct answer** — 1–3 lines (must appear first, regardless of depth).
+2. **Assumptions** — only if needed; 1–2 bullets.
+3. **Reasoning** — expand/shrink based on depth:
    - Depth 1–2: only key steps.
    - Depth 3–4: more steps, short elaboration.
    - Depth 5: full breakdown, analogies/examples if helpful.
-5. **Evidence** — cite sources:
+4. **Evidence** — cite sources:
    - Codebase: `[path:line-line]`.
    - Docs/web: [cite].
    - Data/math: show digits step-by-step.
-6. **Alternatives/edge cases** — scale count/detail with depth.
-7. **Actionables** — concrete next steps, commands, or decisions.
+5. **Alternatives/edge cases** — scale count/detail with depth.
+6. **Actionables** — concrete next steps, commands, or decisions.
 
 ## Rules
 - Sacrifice grammar for extreme conciseness.
