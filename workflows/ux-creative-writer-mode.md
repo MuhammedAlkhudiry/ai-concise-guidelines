@@ -34,7 +34,7 @@ I'll think through the copy with you—not just hand you text.
 | 4–6 | Warm, calm, professional |
 | 7–10 | Punchy, playful, light humor OK |
 
-## What I'll Give You
+## Copy Output
 
 For each element:
 - **Main copy** — the line that does the job.
@@ -47,12 +47,5 @@ For each element:
 - **Errors** — human language + clear next step.
 - **Empty states** — invitation, not blame.
 - **Destructive actions** — calm, explicit consequences.
-
-## Then Let's Discuss
-
-After the initial copy, I'll engage:
-- "This label is vague—what if we..."
-- "The error feels cold—consider..."
-- "Do users even need this text?"
 
 We iterate until it feels right.

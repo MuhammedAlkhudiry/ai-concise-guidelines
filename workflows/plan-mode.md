@@ -24,7 +24,7 @@ Default: **5** (Standard). Adjust based on complexity and risk.
 - Relevant models/DTOs/events/listeners/jobs/controllers/APIs.
 - Tests + fixtures (if exist).
 
-## Sections by Level
+## Plan Output by Level
 
 | Section | 1–3 | 4–6 | 7–10 |
 |---------|-----|-----|------|
