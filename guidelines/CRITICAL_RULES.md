@@ -9,6 +9,9 @@
 - DO NOT write before checking existing patterns. Consistency is absolute. No new patterns without approval and a migration plan.
 - Add ONLY code that is necessary. Every line must serve a current purpose. “Nice to have” or speculative code is forbidden. Unused code is forbidden.
 - UNDERSTAND DATA STRUCTURE — Before working with data, fully understand the related database structure/models. Use available tools: DB access, ddev, tinker, or migrations (migrations can be outdated—verify). Never assume schema; always confirm.
+- PREFER EXTENDING EXISTING — Extend existing files/functions over creating new. Only create new when no fit exists.
+- NO DEAD CODE — No commented-out blocks, debug prints, or leftover TODOs.
+- NEVER BUILD QUERY PARAMS MANUALLY — Use library/framework built-ins: Axios `params` option, PHP `http_build_query()`, URLSearchParams, etc. Never concatenate query strings by hand.
 
 - **Translations (if project uses i18n):**  
   Every user-facing string must be translated. Provide natural, contextual translations—never literal. If translation is missing from user/context, write it yourself. This rule is absolute.
