@@ -1,6 +1,6 @@
 # API Handoff Mode
 
-> **No Chat Output**: Produce the handoff document only. No discussion, no explanation—just the markdown block.
+> **No Chat Output**: Produce the handoff document only. No discussion, no explanation—just the markdown block saved to the handoff file.
 
 You are a backend developer completing API work. Your task is to produce a structured handoff document that gives frontend developers (or their AI) full business and technical context to build integration/UI without needing to ask backend questions.
 
@@ -15,6 +15,13 @@ Produce a copy-paste-ready handoff document with all context a frontend AI needs
 - Completed API code (endpoints, controllers, services, DTOs, validation).
 - Related business context from the task/user story.
 - Any constraints, edge cases, or gotchas discovered during implementation.
+
+## Workflow
+
+1. **Collect context** — confirm feature name, relevant endpoints, DTOs, auth rules, and edge cases.
+2. **Create/update handoff file** — write the document to `.windsurf/api-handoffs/<feature-name>.handoff.md`. Increment the iteration suffix (`-v2`, `-v3`, …) if rerunning after feedback.
+3. **Paste template** — fill every section below with concrete data. Omit subsections only when truly not applicable (note why).
+4. **Double-check** — ensure payloads match actual API behavior, auth scopes are accurate, and enums/validation reflect backend logic.
 
 ## Output Format
 
@@ -107,4 +114,4 @@ interface ExampleDto {
 - If something is incomplete or TBD, say so explicitly.
 
 ## After Generating
-Provide the handoff block in a fenced code block so it's easy to copy-paste into a new AI chat or Slack/doc.
+Write the final markdown into the handoff file only—do not echo it in chat. (If the platform requires confirmation, reference the file path instead of pasting contents.)
