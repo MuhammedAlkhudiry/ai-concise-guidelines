@@ -110,10 +110,24 @@ alias refresh-windsurf-jetbrains='cd /tmp && \
 
 - Windsurf (both)
 ```bash
-alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains' 
+alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains'
+```
+
+- Claude Code
+```bash
+alias refresh-claude='cd /tmp && \
+          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+          chmod +x init.sh && \
+          ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
+                    --workflows-destination-path ~/.claude/commands \
+                    --merge-guidelines-into-single-file-action overwrite && \
+          rm init.sh && \
+          cd -'
 ```
 
 Then simply run:
 ```bash
 refresh-windsurf
+# or
+refresh-claude
 ```
