@@ -121,7 +121,7 @@ alias refresh-claude='cd /tmp && \
           chmod +x init.sh && \
           ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
                     --workflows-destination-path ~/.claude/commands \
-                    --workflows-prefix "MODES: " \
+                    --workflows-prefix "MODES-" \
                     --merge-guidelines-into-single-file-action overwrite && \
           rm init.sh && \
           cd -'
