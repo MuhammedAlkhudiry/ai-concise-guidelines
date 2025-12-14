@@ -19,7 +19,7 @@ User provides:
 
 **NEVER respond in chat.** Write everything to files.
 
-- **Location**: `.windsurf/reflections/<scope-name>.md`
+- **Location**: `docs/ai/reflections/<scope-name>.md`
 - **One file per reflection** (update in place if revisiting same scope)
 
 ---

@@ -31,7 +31,7 @@ Default: **5**. Adjust based on complexity, risk, and how unfamiliar the code is
 
 ### Step 3: Draft the Plan
 
-Create `.windsurf/plans/<feature-name>.plan.md`:
+Create `docs/ai/plans/<feature-name>.plan.md`:
 
 ```markdown
 # Plan: <feature-name>

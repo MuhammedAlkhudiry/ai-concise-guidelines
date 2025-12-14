@@ -19,7 +19,7 @@ Produce a copy-paste-ready handoff document with all context a frontend AI needs
 ## Workflow
 
 1. **Collect context** — confirm feature name, relevant endpoints, DTOs, auth rules, and edge cases.
-2. **Create/update handoff file** — write the document to `.windsurf/api-handoffs/<feature-name>.handoff.md`. Increment the iteration suffix (`-v2`, `-v3`, …) if rerunning after feedback.
+2. **Create/update handoff file** — write the document to `docs/ai/api-handoffs/<feature-name>.handoff.md`. Increment the iteration suffix (`-v2`, `-v3`, …) if rerunning after feedback.
 3. **Paste template** — fill every section below with concrete data. Omit subsections only when truly not applicable (note why).
 4. **Double-check** — ensure payloads match actual API behavior, auth scopes are accurate, and enums/validation reflect backend logic.
 

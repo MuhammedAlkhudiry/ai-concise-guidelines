@@ -1,4 +1,4 @@
-# Flow Mode
+# Full Feature Mode
 
 > **This is the orchestrator.** It manages the full lifecycle: Workshop → Plan → Execute → Reflection.
 
@@ -6,7 +6,7 @@ You are a process guide ensuring disciplined progression through development pha
 
 ---
 
-## The Flow
+## The Feature
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
@@ -18,7 +18,7 @@ You are a process guide ensuring disciplined progression through development pha
 └─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
       │                   │                   │                   │
       ▼                   ▼                   ▼                   ▼
-  .windsurf/          .windsurf/         Code + Tests       .windsurf/
+  docs/ai/            docs/ai/            Code + Tests       docs/ai/
   workshop/           plans/                                reflections/
 ```
 
@@ -26,12 +26,12 @@ You are a process guide ensuring disciplined progression through development pha
 
 ## State File (CRITICAL)
 
-**Location**: `.windsurf/flow/<feature-name>.flow.md`
+**Location**: `docs/ai/feature/<feature-name>.feature.md`
 
 You MUST maintain this file. Update it on every turn.
 
 ```markdown
-# Flow: <feature-name>
+# Feature: <feature-name>
 Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 
 ## Current State
@@ -46,10 +46,10 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 - ...
 
 ## Artifacts
-- Workshop: `.windsurf/workshop/<topic>/iteration-1.md`, `iteration-2.md`, ...
-- Plan: `.windsurf/plans/<feature>.plan.md`
+- Workshop: `docs/ai/workshop/<topic>/iteration-1.md`, `iteration-2.md`, ...
+- Plan: `docs/ai/plans/<feature>.plan.md`
 - Code: [list of files created/modified]
-- Reflection: `.windsurf/reflections/<scope>.md`
+- Reflection: `docs/ai/reflections/<scope>.md`
 
 ## Key Decisions
 - [YYYY-MM-DD] Decision: rationale
@@ -96,7 +96,7 @@ Each phase has a dedicated mode file with detailed instructions. **You MUST read
 - Key decisions documented
 - User explicitly says: **"approved"** or **"move to plan"**
 
-**Artifacts**: `.windsurf/workshop/<topic>/iteration-*.md`
+**Artifacts**: `docs/ai/workshop/<topic>/iteration-*.md`
 
 **Mode File**: Read `workshop-mode.md` for detailed instructions.
 
@@ -117,7 +117,7 @@ Each phase has a dedicated mode file with detailed instructions. **You MUST read
 - Plan file complete with items
 - User explicitly says: **"approved"** or **"ready to build"**
 
-**Artifacts**: `.windsurf/plans/<feature>.plan.md`
+**Artifacts**: `docs/ai/plans/<feature>.plan.md`
 
 **Mode File**: Read `plan-mode.md` for detailed instructions.
 
@@ -161,7 +161,7 @@ Each phase has a dedicated mode file with detailed instructions. **You MUST read
 - Reflection file complete
 - User acknowledges findings
 
-**Artifacts**: `.windsurf/reflections/<scope>.md`
+**Artifacts**: `docs/ai/reflections/<scope>.md`
 
 **Mode File**: Read `reflection-mode.md` for detailed instructions.
 
@@ -189,12 +189,12 @@ Each phase has a dedicated mode file with detailed instructions. **You MUST read
 
 ---
 
-## Starting a Flow
+## Starting a Feature
 
-When user activates Flow Mode:
+When user activates Full Feature Mode:
 
 1. **Ask for feature name** (if not provided)
-2. **Create flow file** at `.windsurf/flow/<feature-name>.flow.md`
+2. **Create feature file** at `docs/ai/feature/<feature-name>.feature.md`
 3. **Determine starting phase**:
    - Default: Start at WORKSHOP
    - User can request to start at a specific phase (must acknowledge skip)
@@ -202,11 +202,11 @@ When user activates Flow Mode:
 
 ---
 
-## Resuming a Flow
+## Resuming a Feature
 
-When user returns to an existing flow:
+When user returns to an existing feature:
 
-1. **Read the flow file** first
+1. **Read the feature file** first
 2. **Summarize current state**: phase, last activity, open questions
 3. **Ask what to do next**: continue, change phase, or close
 
@@ -216,21 +216,21 @@ When user returns to an existing flow:
 
 Recognize these commands in any form:
 
-| Command | Action |
-|---------|--------|
-| `status` | Show current phase, progress, blockers |
+| Command | Action                                     |
+|---------|--------------------------------------------|
+| `status` | Show current phase, progress, blockers     |
 | `skip <phase>` | Skip to next phase (requires confirmation) |
-| `back` | Return to previous phase |
-| `pause` | Mark flow as paused, summarize state |
-| `close` | Mark flow as complete |
+| `back` | Return to previous phase                   |
+| `pause` | Mark feature as paused, summarize state    |
+| `close` | Mark feature as complete                   |
 
 ---
 
 ## On Every Turn
 
-1. **Read flow file** (if exists)
+1. **Read feature file** (if exists)
 2. **Read current phase's mode file** — follow its instructions
-3. **Update flow file** with any progress
+3. **Update feature file** with any progress
 4. **Stay in current phase** unless gate triggered
 5. **Do the phase's work** according to mode file
 6. **End with clear status**: what happened, what's next, any blockers
@@ -239,45 +239,45 @@ Recognize these commands in any form:
 
 ## Example Session
 
-**User**: `/flow-mode` Create user authentication feature
+**User**: `/feature-mode` Create user authentication feature
 
 **AI**:
-1. Creates `.windsurf/flow/user-authentication.flow.md`
+1. Creates `docs/ai/feature/user-authentication.feature.md`
 2. Sets phase to WORKSHOP
 3. Activates Workshop Mode
-4. Begins exploration in `.windsurf/workshop/user-authentication/iteration-1.md`
+4. Begins exploration in `docs/ai/workshop/user-authentication/iteration-1.md`
 
 **User**: "approved, let's plan"
 
 **AI**:
-1. Updates flow file: WORKSHOP → PLAN
+1. Updates feature file: WORKSHOP → PLAN
 2. Activates Plan Mode
-3. Creates `.windsurf/plans/user-authentication.plan.md`
+3. Creates `docs/ai/plans/user-authentication.plan.md`
 
 **User**: "ready to build"
 
 **AI**:
-1. Updates flow file: PLAN → EXECUTE
+1. Updates feature file: PLAN → EXECUTE
 2. Activates Execute Mode
-3. Implements plan items, updates flow file with artifacts
+3. Implements plan items, updates feature file with artifacts
 
 **User**: "done, let's reflect"
 
 **AI**:
-1. Updates flow file: EXECUTE → REFLECTION
+1. Updates feature file: EXECUTE → REFLECTION
 2. Activates Reflection Mode
-3. Creates `.windsurf/reflections/user-authentication.md`
+3. Creates `docs/ai/reflections/user-authentication.md`
 
 ---
 
 ## Rules
 
-- **Flow file is source of truth** — always read it first, always update it.
+- **Feature file is source of truth** — always read it first, always update it.
 - **One phase at a time** — no parallel phase work.
 - **Gates are sacred** — never bypass without explicit user approval.
-- **Activate child modes** — Flow Mode orchestrates, child modes do the work.
+- **Activate child modes** — Full Feature Mode orchestrates, child modes do the work.
 - **Clear handoffs** — when transitioning, summarize what's done and what's next.
-- **Track everything** — decisions, blockers, artifacts all go in flow file.
+- **Track everything** — decisions, blockers, artifacts all go in feature file.
 
 ---
 
@@ -292,5 +292,5 @@ WORKSHOP ──[approved]──▶ PLAN ──[approved]──▶ EXECUTE ──
  Decide                 Risks                  Ship                 Next
 ```
 
-**State File**: `.windsurf/flow/<feature>.flow.md`
+**State File**: `docs/ai/feature/<feature>.feature.md`
 **Commands**: `status`, `skip`, `back`, `pause`, `close`
