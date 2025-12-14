@@ -47,6 +47,7 @@ Then run with your desired options:
 - `--guidelines-destination-path PATH` — Copy guidelines as multiple files to PATH directory
 - `--merge-guidelines-into-single-file PATH` — Merge all guidelines into a single file at PATH
 - `--workflows-destination-path PATH` — Copy workflows to PATH directory
+- `--workflows-prefix PREFIX` — Add prefix to workflow filenames (e.g., `"MODES: "` becomes `MODES: plan-mode.md`)
 - `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
 - `--help`, `-h` — Show help message
 
@@ -110,10 +111,25 @@ alias refresh-windsurf-jetbrains='cd /tmp && \
 
 - Windsurf (both)
 ```bash
-alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains' 
+alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains'
+```
+
+- Claude Code
+```bash
+alias refresh-claude='cd /tmp && \
+          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+          chmod +x init.sh && \
+          ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
+                    --workflows-destination-path ~/.claude/commands \
+                    --workflows-prefix "MODES-" \
+                    --merge-guidelines-into-single-file-action overwrite && \
+          rm init.sh && \
+          cd -'
 ```
 
 Then simply run:
 ```bash
 refresh-windsurf
+# or
+refresh-claude
 ```

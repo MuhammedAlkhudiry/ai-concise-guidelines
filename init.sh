@@ -85,6 +85,9 @@ Options:
   --add-windsurf-header
       Add Windsurf-compatible frontmatter to workflow files
 
+  --workflows-prefix PREFIX
+      Add prefix to workflow filenames (e.g., "MODES: " becomes "MODES: plan-mode.md")
+
   --merge-guidelines-into-single-file-action ACTION
       Action when file exists: overwrite, append, or skip (default: prompt)
 
@@ -271,29 +274,44 @@ add_windsurf_frontmatter() {
 copy_workflows() {
     local dest="$1"
     local add_frontmatter="$2"
-    
+    local prefix="$3"
+
     print_info "Copying workflows to $dest..."
-    
+
     if [ ! -d "$TMP_DIR/workflows" ]; then
         print_error "Workflows folder not found"
         return 1
     fi
-    
+
     # Remove existing workflows folder to ensure deleted workflows are removed
     if [ -d "$dest" ]; then
         rm -rf "$dest"
     fi
-    
+
     mkdir -p "$dest"
-    cp -r "$TMP_DIR/workflows/"* "$dest/" || {
-        print_error "Failed to copy workflows"
-        return 1
-    }
-    
+
+    # Copy files, optionally with prefix
+    if [ -n "$prefix" ]; then
+        for file in "$TMP_DIR/workflows/"*; do
+            if [ -f "$file" ]; then
+                local basename=$(basename "$file")
+                cp "$file" "$dest/${prefix}${basename}" || {
+                    print_error "Failed to copy workflow: $basename"
+                    return 1
+                }
+            fi
+        done
+    else
+        cp -r "$TMP_DIR/workflows/"* "$dest/" || {
+            print_error "Failed to copy workflows"
+            return 1
+        }
+    fi
+
     if [ "$add_frontmatter" = "y" ]; then
         add_windsurf_frontmatter "$dest"
     fi
-    
+
     local count=$(find "$dest" -type f | wc -l)
     print_success "Copied $count workflow files to $dest"
 }
@@ -307,6 +325,7 @@ main() {
     local guidelines_merged=""
     local guidelines_merged_action=""
     local workflows_dest=""
+    local workflows_prefix=""
     local add_frontmatter="n"
     
     while [[ $# -gt 0 ]]; do
@@ -330,6 +349,10 @@ main() {
             --add-windsurf-header)
                 add_frontmatter="y"
                 shift
+                ;;
+            --workflows-prefix)
+                workflows_prefix="$2"
+                shift 2
                 ;;
             --help|-h)
                 show_usage
@@ -422,7 +445,7 @@ main() {
     fi
     
     if [ -n "$workflows_dest" ]; then
-        copy_workflows "$workflows_dest" "$add_frontmatter"
+        copy_workflows "$workflows_dest" "$add_frontmatter" "$workflows_prefix"
     fi
     
     # Success message
