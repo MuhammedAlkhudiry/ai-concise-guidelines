@@ -29,8 +29,11 @@ completeness.md   # Track feature completeness
 
 **Every 3-5 edits**, run auditor:
 
-**If Claude Code**: Use the `auditor` sub-agent (runs in background, continues while you work).
-Check results with TaskOutput before "done" or after next batch.
+**If Claude Code**: Spawn the `auditor` sub-agent with the full audit path:
+```
+"Audit path: {absolute_path_to_project}/docs/ai/audits/{feature}/"
+```
+Runs in background. Check results with TaskOutput before "done" or after next batch.
 
 **If other AI tool**: Run Self-Audit Checklist below.
 
