@@ -82,6 +82,9 @@ Options:
   --workflows-destination-path PATH
       Copy workflows to PATH directory
 
+  --sub-agents-destination-path PATH
+      Copy sub-agents to PATH directory
+
   --add-windsurf-header
       Add Windsurf-compatible frontmatter to workflow files
 
@@ -316,6 +319,32 @@ copy_workflows() {
     print_success "Copied $count workflow files to $dest"
 }
 
+# Copy sub-agents
+copy_sub_agents() {
+    local dest="$1"
+
+    print_info "Copying sub-agents to $dest..."
+
+    if [ ! -d "$TMP_DIR/sub-agents" ]; then
+        print_error "Sub-agents folder not found"
+        return 1
+    fi
+
+    # Remove existing sub-agents folder to ensure deleted sub-agents are removed
+    if [ -d "$dest" ]; then
+        rm -rf "$dest"
+    fi
+
+    mkdir -p "$dest"
+    cp -r "$TMP_DIR/sub-agents/"* "$dest/" || {
+        print_error "Failed to copy sub-agents"
+        return 1
+    }
+
+    local count=$(find "$dest" -type f | wc -l)
+    print_success "Copied $count sub-agent files to $dest"
+}
+
 # Main function
 main() {
     check_prerequisites
@@ -326,8 +355,9 @@ main() {
     local guidelines_merged_action=""
     local workflows_dest=""
     local workflows_prefix=""
+    local sub_agents_dest=""
     local add_frontmatter="n"
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             --guidelines-destination-path)
@@ -344,6 +374,10 @@ main() {
                 ;;
             --workflows-destination-path)
                 workflows_dest="$2"
+                shift 2
+                ;;
+            --sub-agents-destination-path)
+                sub_agents_dest="$2"
                 shift 2
                 ;;
             --add-windsurf-header)
@@ -372,17 +406,18 @@ main() {
         exit 1
     fi
     
-    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ]; then
+    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ] && [ -z "$sub_agents_dest" ]; then
         print_error "No destination specified. At least one destination is required."
         echo ""
         show_usage
     fi
-    
+
     # Expand tilde in paths
     [ -n "$guidelines_dest" ] && guidelines_dest="${guidelines_dest/#\~/$HOME}"
     [ -n "$guidelines_merged" ] && guidelines_merged="${guidelines_merged/#\~/$HOME}"
     [ -n "$workflows_dest" ] && workflows_dest="${workflows_dest/#\~/$HOME}"
-    
+    [ -n "$sub_agents_dest" ] && sub_agents_dest="${sub_agents_dest/#\~/$HOME}"
+
     # Validate destination paths
     if [ -n "$guidelines_dest" ]; then
         validate_destination_path "$guidelines_dest" || exit 1
@@ -393,20 +428,29 @@ main() {
     if [ -n "$workflows_dest" ]; then
         validate_destination_path "$workflows_dest" || exit 1
     fi
+    if [ -n "$sub_agents_dest" ]; then
+        validate_destination_path "$sub_agents_dest" || exit 1
+    fi
     
     # Determine what folders to clone
     local folders=""
     local copy_guidelines=false
     local copy_workflows=false
-    
+    local copy_sub_agents=false
+
     if [ -n "$guidelines_dest" ] || [ -n "$guidelines_merged" ]; then
         copy_guidelines=true
         folders="guidelines"
     fi
-    
+
     if [ -n "$workflows_dest" ]; then
         copy_workflows=true
         [ -n "$folders" ] && folders="$folders workflows" || folders="workflows"
+    fi
+
+    if [ -n "$sub_agents_dest" ]; then
+        copy_sub_agents=true
+        [ -n "$folders" ] && folders="$folders sub-agents" || folders="sub-agents"
     fi
     
     # Show summary
@@ -430,6 +474,9 @@ main() {
             echo "    (with Windsurf frontmatter)"
         fi
     fi
+    if [ -n "$sub_agents_dest" ]; then
+        echo "  • Sub-agents: Multiple files → $sub_agents_dest"
+    fi
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
@@ -447,7 +494,11 @@ main() {
     if [ -n "$workflows_dest" ]; then
         copy_workflows "$workflows_dest" "$add_frontmatter" "$workflows_prefix"
     fi
-    
+
+    if [ -n "$sub_agents_dest" ]; then
+        copy_sub_agents "$sub_agents_dest"
+    fi
+
     # Success message
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -463,6 +514,10 @@ main() {
     fi
     if [ -n "$workflows_dest" ]; then
         echo "  • Restart your IDE/tool to load workflows from: $workflows_dest"
+    fi
+    if [ -n "$sub_agents_dest" ]; then
+        echo "  • Sub-agent prompts available at: $sub_agents_dest"
+        echo "    (Use with Claude Code Task tool or reference in other AI tools)"
     fi
     echo ""
 }

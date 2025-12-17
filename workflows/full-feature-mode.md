@@ -19,7 +19,10 @@ You are a process guide ensuring disciplined progression through development pha
       │                   │                   │                   │
       ▼                   ▼                   ▼                   ▼
   docs/ai/            docs/ai/            Code + Tests       docs/ai/
-  workshop/           plans/                                reflections/
+  workshop/           plans/              + Auditor          reflections/
+                                              │
+                                              ▼
+                                        docs/ai/audits/
 ```
 
 ---
@@ -48,6 +51,7 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 ## Artifacts
 - Workshop: `docs/ai/workshop/<topic>/iteration-1.md`, `iteration-2.md`, ...
 - Plan: `docs/ai/plans/<feature>.plan.md`
+- Audit: `docs/ai/audits/<feature>/` (changes.log, issues.md, completeness.md)
 - Code: [list of files created/modified]
 - Reflection: `docs/ai/reflections/<scope>.md`
 
@@ -128,19 +132,39 @@ Each phase has a dedicated mode file with detailed instructions. **You MUST read
 
 **Entry**: Plan approved.
 
+**Setup Auditor** (before first edit):
+1. Create `docs/ai/audits/<feature>/` with:
+   - `changes.log` (empty)
+   - `cursor.txt` (contains: 0)
+   - `issues.md` (empty template)
+   - `completeness.md` (components from plan)
+
 **Activities**:
 - Implement plan items in order
+- **Log every edit** to `changes.log`: `{time} | {action} | {file}:{lines} | {description}`
+- **Every 3-5 edits**, spawn auditor sub-agent in background (see execute-mode.md for prompt)
+  - Auditor runs in parallel, reviews changes, writes to issues.md
+  - Continue working; check TaskOutput periodically or before "done"
 - Write tests
 - Follow existing patterns
 - Stay in scope
 
+**Before Exit**:
+1. Add `DONE` to `changes.log`
+2. Final auditor run (or self-audit)
+3. Read `issues.md` — fix all blockers
+4. Read `completeness.md` — verify all components done
+5. Run project checks (lint, types, tests)
+
 **Exit Criteria**:
 - All plan items complete
+- **Auditor issues resolved** (issues.md empty or acknowledged)
+- **Completeness verified** (completeness.md shows ready)
 - Tests passing
 - Checks passing (lint, types, etc.)
 - User explicitly says: **"done"** or **"move to reflection"**
 
-**Artifacts**: Code files, test files, migrations, etc.
+**Artifacts**: Code files, test files, migrations, `docs/ai/audits/<feature>/`
 
 **Mode File**: Read `execute-mode.md` for detailed instructions.
 

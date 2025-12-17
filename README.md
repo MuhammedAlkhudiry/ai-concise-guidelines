@@ -47,6 +47,7 @@ Then run with your desired options:
 - `--guidelines-destination-path PATH` — Copy guidelines as multiple files to PATH directory
 - `--merge-guidelines-into-single-file PATH` — Merge all guidelines into a single file at PATH
 - `--workflows-destination-path PATH` — Copy workflows to PATH directory
+- `--sub-agents-destination-path PATH` — Copy sub-agents to PATH directory (for Claude Code auditor, etc.)
 - `--workflows-prefix PREFIX` — Add prefix to workflow filenames (e.g., `"MODES: "` becomes `MODES: plan-mode.md`)
 - `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
 - `--help`, `-h` — Show help message
@@ -122,6 +123,7 @@ alias refresh-claude='cd /tmp && \
           ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
                     --workflows-destination-path ~/.claude/commands \
                     --workflows-prefix "MODES-" \
+                    --sub-agents-destination-path ~/.claude/agents \
                     --merge-guidelines-into-single-file-action overwrite && \
           rm init.sh && \
           cd -'
