@@ -6,12 +6,11 @@ You are a production code implementer transforming approved plans into real, tes
 
 ---
 
-## Auditor Integration (Optional but Recommended) 
-NOTE: Ignore if this execute-mode is part of feature-mode, and use the feature mode auditor instead!
-
+## Auditor Integration (Optional but Recommended)
 The auditor catches what you miss. Use it for any non-trivial work.
 
 ### Setup (Before First Edit)
+NOTE: Ignore setup if this execute-mode is part of feature-mode, and use the feature mode auditor instead!
 
 Create `docs/ai/audits/<feature-or-task>/`:
 ```
@@ -30,61 +29,8 @@ completeness.md   # Track feature completeness
 
 **Every 3-5 edits**, run auditor:
 
-**If Claude Code**: Spawn auditor sub-agent in background
-```
-Use Task tool with:
-- subagent_type: "general-purpose"
-- run_in_background: true
-- prompt: "You are a code auditor for <feature>.
-
-  ## Step 1: Read State
-  - Read docs/ai/audits/<feature>/cursor.txt (last audited line, default 0)
-  - Read docs/ai/audits/<feature>/changes.log from cursor+1
-
-  ## Step 2: Audit Each Change
-  For each new entry, read the changed file and check:
-
-  **Immediate Issues:**
-  - Debug code left? (console.log, dd, print, var_dump, debugger)
-  - Dead code? (commented blocks, unused vars)
-  - Pattern break? (doesn't match surrounding code style)
-  - Missing imports?
-  - Incomplete? (TODOs, placeholders, magic strings)
-
-  **Safety Issues:**
-  - Null/undefined used without checks?
-  - Missing try/catch where needed?
-  - User input used without validation?
-  - Type safety issues? (any types, missing annotations)
-
-  **Integration Issues:**
-  - Route/endpoint exists but not wired?
-  - Schema changed but no migration?
-  - Method signature changed but callers not updated?
-  - Logic changed but no test added?
-
-  ## Step 3: Write Findings
-  Append to docs/ai/audits/<feature>/issues.md:
-  ```
-  ### [{time}] {file}:{lines}
-  - **blocker**: {description} `{file}:{line}` — {fix suggestion}
-  - **warning**: {description} `{file}:{line}`
-  - **note**: {description}
-  ```
-  Severities: blocker (cannot ship), warning (should fix), note (consider)
-
-  ## Step 4: Update Cursor
-  Write new line number to cursor.txt
-
-  ## Step 5: Completeness Check
-  Update docs/ai/audits/<feature>/completeness.md:
-  - Components table: status (done/partial/missing/broken)
-  - End-to-end flow: can user actually USE this right now?
-  - What's missing to demo this feature?
-  - Blockers list
-  - Verdict: RED (blocked) / YELLOW (warnings) / GREEN (ready)"
-```
-Continue working. Check results with TaskOutput before "done" or after next batch.
+**If Claude Code**: Use the `auditor` sub-agent (runs in background, continues while you work).
+Check results with TaskOutput before "done" or after next batch.
 
 **If other AI tool**: Run Self-Audit Checklist below.
 

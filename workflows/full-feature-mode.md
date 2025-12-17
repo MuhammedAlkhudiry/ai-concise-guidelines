@@ -142,8 +142,7 @@ Each phase has a dedicated mode file with detailed instructions. **You MUST read
 **Activities**:
 - Implement plan items in order
 - **Log every edit** to `changes.log`: `{time} | {action} | {file}:{lines} | {description}`
-- **Every 3-5 edits**, spawn auditor sub-agent in background (see execute-mode.md for prompt)
-  - Auditor runs in parallel, reviews changes, writes to issues.md
+- **Every 3-5 edits**, use the `auditor` sub-agent (runs in background)
   - Continue working; check TaskOutput periodically or before "done"
 - Write tests
 - Follow existing patterns
