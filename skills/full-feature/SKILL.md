@@ -5,9 +5,9 @@ description: Manage full feature lifecycle from exploration to delivery. Use whe
 
 # Full Feature Orchestrator
 
-> **This is the orchestrator.** It manages the full lifecycle: Workshop → Plan → Execute → Reflection.
+> **This is the orchestrator.** It manages the full lifecycle by invoking sub-skills: Workshop → Plan → Execute → Reflection.
 
-You are a process guide ensuring disciplined progression through development phases. You enforce gates, track state, and prevent skipping steps without explicit approval.
+You are a process guide ensuring disciplined progression through development phases. You enforce gates, track state, and **invoke the appropriate skill** for each phase.
 
 ---
 
@@ -17,18 +17,35 @@ You are a process guide ensuring disciplined progression through development pha
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │  WORKSHOP   │ ──▶ │    PLAN     │ ──▶ │   EXECUTE   │ ──▶ │ REFLECTION  │
 │             │     │             │     │             │     │             │
-│ Explore     │     │ Structure   │     │ Build       │     │ Audit       │
-│ Discuss     │     │ Scope       │     │ Test        │     │ Gaps        │
-│ Decide      │     │ Phases      │     │ Deliver     │     │ Next        │
+│ /workshop   │     │ /planning   │     │ /execution  │     │  (auditor)  │
 └─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
       │                   │                   │                   │
       ▼                   ▼                   ▼                   ▼
   docs/ai/            docs/ai/            Code + Tests       docs/ai/
   workshop/           plans/              + Auditor          reflections/
-                                              │
-                                              ▼
-                                        docs/ai/audits/
 ```
+
+---
+
+## Sub-Skills (CRITICAL)
+
+**Each phase is handled by a dedicated skill or agent. You MUST invoke them.**
+
+| Phase | Invoke | Trigger |
+|-------|--------|---------|
+| WORKSHOP | `Skill(workshop)` | On phase entry |
+| PLAN | `Skill(planning)` | When workshop approved |
+| EXECUTE | `Skill(execution)` | When plan approved |
+| REFLECTION | `Task(auditor)` with DONE | Auditor handles reflection |
+
+**How to invoke**:
+```
+Skill(workshop, args: "<feature-name>")
+Skill(planning, args: "<feature-name>")
+Skill(execution, args: "<feature-name>")
+```
+
+**For REFLECTION**: The auditor handles this automatically when it sees `DONE` in changes.log. Just ensure final auditor run happens — it creates the reflection file.
 
 ---
 
@@ -48,15 +65,16 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 - **Blocker**: [if blocked, what's blocking]
 
 ## Phase History
-- [YYYY-MM-DD HH:MM] Started WORKSHOP
-- [YYYY-MM-DD HH:MM] WORKSHOP → approved → PLAN
-- [YYYY-MM-DD HH:MM] PLAN → approved → EXECUTE
+- [YYYY-MM-DD HH:MM] Started WORKSHOP → invoked /workshop
+- [YYYY-MM-DD HH:MM] WORKSHOP → approved → PLAN → invoked /planning
+- [YYYY-MM-DD HH:MM] PLAN → approved → EXECUTE → invoked /execution
+- [YYYY-MM-DD HH:MM] EXECUTE → done → REFLECTION → auditor created reflection
 - ...
 
 ## Artifacts
 - Workshop: `docs/ai/workshop/<topic>/iteration-1.md`, `iteration-2.md`, ...
 - Plan: `docs/ai/plans/<feature>.plan.md`
-- Audit: `docs/ai/audits/<feature>/` (changes.log, issues.md, completeness.md)
+- Audit: `docs/ai/audits/<feature>/` (changes.log → you write, issues.md + completeness.md → auditor owns)
 - Code: [list of files created/modified]
 - Reflection: `docs/ai/reflections/<scope>.md`
 
@@ -71,104 +89,48 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 
 ---
 
-## Phase Definitions
+## Phase Transitions
 
-### 1. WORKSHOP
-**Purpose**: Explore, discuss, challenge, decide on approach.
+### 1. WORKSHOP Phase
+**On Entry**: Invoke `Skill(workshop)` with the feature topic.
 
-**Entry**: User initiates with a feature/idea.
+**Exit Criteria** (user says: "approved", "move to plan", "let's plan"):
+1. Update feature file: phase → PLAN
+2. Invoke `Skill(planning)` with the feature name
 
-**Activities**:
-- Deep thinking about the problem
-- UX exploration (if applicable)
-- Challenge assumptions
-- Research codebase and docs
-- Reach clarity on *what* and *why*
+### 2. PLAN Phase
+**On Entry**: Invoke `Skill(planning)` with the feature name.
 
-**Exit Criteria**:
-- Clear understanding of what to build
-- Key decisions documented
-- User explicitly says: **"approved"** or **"move to plan"**
+**Exit Criteria** (user says: "approved", "ready to build", "let's build", "execute"):
+1. Update feature file: phase → EXECUTE
+2. Invoke `Skill(execution)` with the feature name
 
-**Artifacts**: `docs/ai/workshop/<topic>/iteration-*.md`
+### 3. EXECUTE Phase
+**On Entry**: Invoke `Skill(execution)` with the feature name.
 
----
+The execution skill handles:
+- Auditor setup and integration
+- Implementation following the plan
+- Tests and project checks
 
-### 2. PLAN
-**Purpose**: Structure the work—scope, phases, items, risks.
+**Exit Criteria** (user says: "done", "complete", "reflect", "audit"):
+1. Add `DONE` to changes.log
+2. Spawn final auditor run — auditor creates reflection file
+3. Update feature file: phase → REFLECTION
 
-**Entry**: Workshop approved OR user provides clear requirements.
+### 4. REFLECTION Phase
+**On Entry**: Auditor already created reflection during final audit (when it saw `DONE`).
 
-**Activities**:
-- Define scope and out-of-scope
-- Break into phases and items
-- Identify risks and dependencies
-- Set acceptance criteria
-
-**Exit Criteria**:
-- Plan file complete with items
-- User explicitly says: **"approved"** or **"ready to build"**
-
-**Artifacts**: `docs/ai/plans/<feature>.plan.md`
-
----
-
-### 3. EXECUTE
-**Purpose**: Build the thing. Code, test, deliver.
-
-**Entry**: Plan approved.
-
-**Setup Auditor** (before first edit):
-1. Create `docs/ai/audits/<feature>/` with:
-   - `changes.log` (empty)
-   - `cursor.txt` (contains: 0)
-   - `issues.md` (empty template)
-   - `completeness.md` (components from plan)
-
-**Activities**:
-- Implement plan items in order
-- **Log every edit** to `changes.log`: `{time} | {action} | {file}:{lines} | {description}`
-- **Every 3-5 edits**, use the `auditor` sub-agent (runs in background)
-  - Continue working; check TaskOutput periodically or before "done"
-- Write tests
-- Follow existing patterns
-- Stay in scope
-
-**Before Exit**:
-1. Add `DONE` to `changes.log`
-2. Final auditor run (or self-audit)
-3. Read `issues.md` — fix all blockers
-4. Read `completeness.md` — verify all components done
-5. Run project checks (lint, types, tests)
+The auditor creates `docs/ai/reflections/{feature}.reflection.md` with:
+- Technical audit (code, tests, security, performance)
+- Business audit (requirements, user flows, edge cases)
+- Gaps & risks
+- Next steps
 
 **Exit Criteria**:
-- All plan items complete
-- **Auditor issues resolved** (issues.md empty or acknowledged)
-- **Completeness verified** (completeness.md shows ready)
-- Tests passing
-- Checks passing (lint, types, etc.)
-- User explicitly says: **"done"** or **"move to reflection"**
-
-**Artifacts**: Code files, test files, migrations, `docs/ai/audits/<feature>/`
-
----
-
-### 4. REFLECTION
-**Purpose**: Audit what was built. Find gaps. Plan next.
-
-**Entry**: Execution complete.
-
-**Activities**:
-- Technical audit
-- Business audit
-- Identify gaps and risks
-- Define next steps
-
-**Exit Criteria**:
-- Reflection file complete
+- Auditor created reflection file
 - User acknowledges findings
-
-**Artifacts**: `docs/ai/reflections/<scope>.md`
+- Update feature file: phase → COMPLETE
 
 ---
 
@@ -203,7 +165,11 @@ When user activates Full Feature Mode:
 3. **Determine starting phase**:
    - Default: Start at WORKSHOP
    - User can request to start at a specific phase (must acknowledge skip)
-4. **Activate the appropriate phase** and begin work
+4. **Invoke the appropriate skill** for the starting phase:
+   - WORKSHOP → `Skill(workshop, args: "<feature-name>")`
+   - PLAN → `Skill(planning, args: "<feature-name>")`
+   - EXECUTE → `Skill(execution, args: "<feature-name>")`
+   - REFLECTION → Auditor handles (ensure `DONE` in changes.log)
 
 ---
 
@@ -234,10 +200,10 @@ Recognize these commands in any form:
 ## On Every Turn
 
 1. **Read feature file** (if exists)
-2. **Follow current phase's instructions**
+2. **If phase just changed**: Invoke the skill for the new phase
 3. **Update feature file** with any progress
 4. **Stay in current phase** unless gate triggered
-5. **Do the phase's work**
+5. **On gate trigger**: Update phase, invoke next skill
 6. **End with clear status**: what happened, what's next, any blockers
 
 ---
@@ -245,9 +211,10 @@ Recognize these commands in any form:
 ## Rules
 
 - **Feature file is source of truth** — always read it first, always update it.
+- **Invoke skills, don't duplicate** — each phase's work is done by its skill, not by you.
 - **One phase at a time** — no parallel phase work.
 - **Gates are sacred** — never bypass without explicit user approval.
-- **Clear handoffs** — when transitioning, summarize what's done and what's next.
+- **Clear handoffs** — when transitioning, summarize what's done, invoke next skill.
 - **Track everything** — decisions, blockers, artifacts all go in feature file.
 
 ---
@@ -258,10 +225,9 @@ Recognize these commands in any form:
 WORKSHOP ──[approved]──▶ PLAN ──[approved]──▶ EXECUTE ──[done]──▶ REFLECTION
     │                      │                      │                    │
     ▼                      ▼                      ▼                    ▼
- Explore                Scope                  Build                Audit
- Discuss                Items                  Test                 Gaps
- Decide                 Risks                  Ship                 Next
+/workshop              /planning              /execution            (auditor)
 ```
 
 **State File**: `docs/ai/feature/<feature>.feature.md`
 **Commands**: `status`, `skip`, `back`, `pause`, `close`
+**Skills**: `workshop`, `planning`, `execution` | **Agent**: `auditor` (reflection)
