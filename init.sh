@@ -80,7 +80,10 @@ Options:
       Merge all guidelines into a single file at PATH
 
   --workflows-destination-path PATH
-      Copy workflows to PATH directory
+      Copy workflows to PATH directory (for Windsurf)
+
+  --skills-destination-path PATH
+      Copy skills to PATH directory (for Claude Code)
 
   --sub-agents-destination-path PATH
       Copy sub-agents to PATH directory
@@ -107,10 +110,18 @@ Examples:
   # Copy workflows with Windsurf headers
   $0 --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
 
-  # Copy everything
+  # Copy skills for Claude Code
+  $0 --skills-destination-path ~/.claude/skills
+
+  # Copy everything (Windsurf)
   $0 --guidelines-destination-path ~/.windsurf/rules \\
      --workflows-destination-path ~/.windsurf/workflows \\
      --add-windsurf-header
+
+  # Copy everything (Claude Code)
+  $0 --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \\
+     --skills-destination-path ~/.claude/skills \\
+     --sub-agents-destination-path ~/.claude/agents
 
 EOF
     exit 0
@@ -345,6 +356,34 @@ copy_sub_agents() {
     print_success "Copied $count sub-agent files to $dest"
 }
 
+# Copy skills (for Claude Code)
+copy_skills() {
+    local dest="$1"
+
+    print_info "Copying skills to $dest..."
+
+    if [ ! -d "$TMP_DIR/skills" ]; then
+        print_error "Skills folder not found"
+        return 1
+    fi
+
+    # Remove existing skills folder to ensure deleted skills are removed
+    if [ -d "$dest" ]; then
+        rm -rf "$dest"
+    fi
+
+    mkdir -p "$dest"
+
+    # Copy entire skills directory structure (preserves subdirectories)
+    cp -r "$TMP_DIR/skills/"* "$dest/" || {
+        print_error "Failed to copy skills"
+        return 1
+    }
+
+    local count=$(find "$dest" -type d -mindepth 1 -maxdepth 1 | wc -l)
+    print_success "Copied $count skill directories to $dest"
+}
+
 # Main function
 main() {
     check_prerequisites
@@ -356,6 +395,7 @@ main() {
     local workflows_dest=""
     local workflows_prefix=""
     local sub_agents_dest=""
+    local skills_dest=""
     local add_frontmatter="n"
 
     while [[ $# -gt 0 ]]; do
@@ -374,6 +414,10 @@ main() {
                 ;;
             --workflows-destination-path)
                 workflows_dest="$2"
+                shift 2
+                ;;
+            --skills-destination-path)
+                skills_dest="$2"
                 shift 2
                 ;;
             --sub-agents-destination-path)
@@ -406,7 +450,7 @@ main() {
         exit 1
     fi
     
-    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ] && [ -z "$sub_agents_dest" ]; then
+    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ] && [ -z "$sub_agents_dest" ] && [ -z "$skills_dest" ]; then
         print_error "No destination specified. At least one destination is required."
         echo ""
         show_usage
@@ -417,6 +461,7 @@ main() {
     [ -n "$guidelines_merged" ] && guidelines_merged="${guidelines_merged/#\~/$HOME}"
     [ -n "$workflows_dest" ] && workflows_dest="${workflows_dest/#\~/$HOME}"
     [ -n "$sub_agents_dest" ] && sub_agents_dest="${sub_agents_dest/#\~/$HOME}"
+    [ -n "$skills_dest" ] && skills_dest="${skills_dest/#\~/$HOME}"
 
     # Validate destination paths
     if [ -n "$guidelines_dest" ]; then
@@ -431,12 +476,16 @@ main() {
     if [ -n "$sub_agents_dest" ]; then
         validate_destination_path "$sub_agents_dest" || exit 1
     fi
+    if [ -n "$skills_dest" ]; then
+        validate_destination_path "$skills_dest" || exit 1
+    fi
     
     # Determine what folders to clone
     local folders=""
     local copy_guidelines=false
     local copy_workflows=false
     local copy_sub_agents=false
+    local copy_skills=false
 
     if [ -n "$guidelines_dest" ] || [ -n "$guidelines_merged" ]; then
         copy_guidelines=true
@@ -451,6 +500,11 @@ main() {
     if [ -n "$sub_agents_dest" ]; then
         copy_sub_agents=true
         [ -n "$folders" ] && folders="$folders sub-agents" || folders="sub-agents"
+    fi
+
+    if [ -n "$skills_dest" ]; then
+        copy_skills=true
+        [ -n "$folders" ] && folders="$folders skills" || folders="skills"
     fi
     
     # Show summary
@@ -477,6 +531,9 @@ main() {
     if [ -n "$sub_agents_dest" ]; then
         echo "  • Sub-agents: Multiple files → $sub_agents_dest"
     fi
+    if [ -n "$skills_dest" ]; then
+        echo "  • Skills: Directory structure → $skills_dest"
+    fi
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
@@ -499,6 +556,10 @@ main() {
         copy_sub_agents "$sub_agents_dest"
     fi
 
+    if [ -n "$skills_dest" ]; then
+        copy_skills "$skills_dest"
+    fi
+
     # Success message
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -518,6 +579,10 @@ main() {
     if [ -n "$sub_agents_dest" ]; then
         echo "  • Sub-agent prompts available at: $sub_agents_dest"
         echo "    (Use with Claude Code Task tool or reference in other AI tools)"
+    fi
+    if [ -n "$skills_dest" ]; then
+        echo "  • Skills installed at: $skills_dest"
+        echo "    (Claude Code will auto-discover these based on context)"
     fi
     echo ""
 }
