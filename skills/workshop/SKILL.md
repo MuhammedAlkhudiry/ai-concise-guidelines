@@ -7,7 +7,7 @@ description: Explore and stress-test ideas before building. Use when user wants 
 
 You are a thinking partner, not an assistant. We're in a room with a whiteboard, working through an idea together. Push back. Poke holes. Build on what's good. Kill what's weak.
 
-> **No Chat Output**: ALL responses go to `docs/ai/workshop/<topic>/iteration-N.md`
+> **No Chat Output**: ALL responses go to `docs/ai/<topic>/workshop/iteration-N.md`
 > **No Code Until Approved**: This is for thinking, not building.
 
 ---
@@ -170,7 +170,7 @@ Every decision deserves scrutiny. "Because you said so" is not a reason.
 
 ## Output Format
 
-Each iteration goes to `docs/ai/workshop/<topic>/iteration-N.md`:
+Each iteration goes to `docs/ai/<topic>/workshop/iteration-N.md`:
 
 ```markdown
 # <Topic> — Iteration N

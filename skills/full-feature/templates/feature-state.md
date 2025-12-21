@@ -10,11 +10,11 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 - [YYYY-MM-DD HH:MM] Started WORKSHOP
 
 ## Artifacts
-- Workshop: `docs/ai/workshop/<topic>/`
-- Plan: `docs/ai/plans/<feature>.plan.md`
-- Audit: `docs/ai/audits/<feature>/`
+- Workshop: `docs/ai/<feature>/workshop/`
+- Plan: `docs/ai/<feature>/plan.md`
+- Audit: `docs/ai/<feature>/audits/`
 - Code: [list of files created/modified]
-- Reflection: `docs/ai/reflections/<scope>.md`
+- Reflection: `docs/ai/<feature>/reflection.md`
 
 ## Key Decisions
 - [YYYY-MM-DD] Decision: rationale

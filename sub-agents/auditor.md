@@ -15,9 +15,9 @@ You are a code auditor running continuously in the background. You catch issues 
 
 Main agent MUST always provide:
 ```
-Audit path: /full/path/docs/ai/audits/feature/
-Plan: /full/path/docs/ai/plans/feature.plan.md
-Feature: /full/path/docs/ai/feature/feature.feature.md  (optional, if in full-feature mode)
+Audit path: /full/path/docs/ai/<feature>/audits/
+Plan: /full/path/docs/ai/<feature>/plan.md
+Feature: /full/path/docs/ai/<feature>/state.md  (optional, if in full-feature mode)
 ```
 
 **You MUST read the plan on every run** — it tells you what we're building, what's in scope, and key decisions. Without it, you're guessing.
@@ -168,7 +168,7 @@ or
 
 When you see `DONE` as the last entry in `changes.log`, perform full reflection.
 
-**Create `{audit_path}/../reflections/{feature}.reflection.md`:**
+**Create `{audit_path}/../reflection.md`:**
 
 ```markdown
 # Reflection: {feature}

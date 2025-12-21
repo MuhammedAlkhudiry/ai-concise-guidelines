@@ -25,7 +25,7 @@ User provides:
 
 **You MUST maintain review state across turns.** Memory is unreliable—use artifacts.
 
-1. **On first review**: Create `docs/ai/translations/<feature-or-file-name>.review.md` with:
+1. **On first review**: Create `docs/ai/<feature-or-file-name>/translation-review.md` with:
    - Files being reviewed, languages, date
    - Progress tracker (keys reviewed / total)
    - Issues found with severity

@@ -12,7 +12,7 @@ The auditor runs continuously and **owns the completeness decision**. You cannot
 
 ### Setup (Before First Edit)
 
-Create `docs/ai/audits/<feature>/`:
+Create `docs/ai/<feature>/audits/`:
 ```
 changes.log       # You write: log every edit
 ```

@@ -17,7 +17,8 @@ You are a process guide ensuring disciplined progression through development pha
       │                   │                   │                   │
       ▼                   ▼                   ▼                   ▼
   docs/ai/            docs/ai/            Code + Tests       docs/ai/
-  workshop/           plans/              + Auditor          reflections/
+  <feature>/          <feature>/          + Auditor          <feature>/
+  workshop/           plan.md                                reflection.md
 ```
 
 ---
@@ -46,7 +47,7 @@ Skill(execution, args: "<feature-name>")
 
 ## State File (CRITICAL)
 
-**Location**: `docs/ai/feature/<feature-name>.feature.md`
+**Location**: `docs/ai/<feature-name>/state.md`
 
 You MUST maintain this file. Update it on every turn.
 
@@ -67,11 +68,11 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 - ...
 
 ## Artifacts
-- Workshop: `docs/ai/workshop/<topic>/iteration-1.md`, `iteration-2.md`, ...
-- Plan: `docs/ai/plans/<feature>.plan.md`
-- Audit: `docs/ai/audits/<feature>/` (changes.log → you write, issues.md + completeness.md → auditor owns)
+- Workshop: `docs/ai/<feature>/workshop/iteration-1.md`, `iteration-2.md`, ...
+- Plan: `docs/ai/<feature>/plan.md`
+- Audit: `docs/ai/<feature>/audits/` (changes.log → you write, issues.md + completeness.md → auditor owns)
 - Code: [list of files created/modified]
-- Reflection: `docs/ai/reflections/<scope>.md`
+- Reflection: `docs/ai/<feature>/reflection.md`
 
 ## Key Decisions
 - [YYYY-MM-DD] Decision: rationale
@@ -116,7 +117,7 @@ The execution skill handles:
 ### 4. REFLECTION Phase
 **On Entry**: Auditor already created reflection during final audit (when it saw `DONE`).
 
-The auditor creates `docs/ai/reflections/{feature}.reflection.md` with:
+The auditor creates `docs/ai/{feature}/reflection.md` with:
 - Technical audit (code, tests, security, performance)
 - Business audit (requirements, user flows, edge cases)
 - Gaps & risks
@@ -156,7 +157,7 @@ The auditor creates `docs/ai/reflections/{feature}.reflection.md` with:
 When user activates Full Feature Mode:
 
 1. **Ask for feature name** (if not provided)
-2. **Create feature file** at `docs/ai/feature/<feature-name>.feature.md`
+2. **Create state file** at `docs/ai/<feature-name>/state.md`
 3. **Determine starting phase**:
    - Default: Start at WORKSHOP
    - User can request to start at a specific phase (must acknowledge skip)
@@ -208,17 +209,17 @@ Recognize these commands in any form:
 **User**: `/full-feature` Create user authentication feature
 
 **AI**:
-1. Creates `docs/ai/feature/user-authentication.feature.md`
+1. Creates `docs/ai/user-authentication/state.md`
 2. Sets phase to WORKSHOP
 3. Invokes `Skill(workshop, args: "user-authentication")`
-4. Workshop skill begins exploration in `docs/ai/workshop/user-authentication/iteration-1.md`
+4. Workshop skill begins exploration in `docs/ai/user-authentication/workshop/iteration-1.md`
 
 **User**: "approved, let's plan"
 
 **AI**:
 1. Updates feature file: WORKSHOP → PLAN
 2. Invokes `Skill(planning, args: "user-authentication")`
-3. Planning skill creates `docs/ai/plans/user-authentication.plan.md`
+3. Planning skill creates `docs/ai/user-authentication/plan.md`
 
 **User**: "ready to build"
 
@@ -232,7 +233,7 @@ Recognize these commands in any form:
 **AI**:
 1. Adds `DONE` to changes.log
 2. Spawns final auditor run
-3. Auditor creates `docs/ai/reflections/user-authentication.reflection.md`
+3. Auditor creates `docs/ai/user-authentication/reflection.md`
 4. Updates feature file: EXECUTE → REFLECTION
 
 ---
@@ -257,6 +258,6 @@ WORKSHOP ──[approved]──▶ PLAN ──[approved]──▶ EXECUTE ──
 /workshop              /planning              /execution            (auditor)
 ```
 
-**State File**: `docs/ai/feature/<feature>.feature.md`
+**State File**: `docs/ai/<feature>/state.md`
 **Commands**: `status`, `skip`, `back`, `pause`, `close`
 **Skills**: `workshop`, `planning`, `execution` | **Agent**: `auditor` (reflection)

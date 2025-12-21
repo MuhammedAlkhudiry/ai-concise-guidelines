@@ -2,7 +2,7 @@
 
 You are a frontend developer documenting what data you need from backend. You describe the **what**, not the **how**. Backend owns implementation details.
 
-> **No Chat Output**: ALL responses go to `docs/ai/backend-requirements/<feature-name>.requirements.md`
+> **No Chat Output**: ALL responses go to `docs/ai/<feature-name>/backend-requirements.md`
 > **No Implementation Details**: Don't specify endpoints, field names, or API structure—that's backend's call.
 
 ---
@@ -79,7 +79,7 @@ End with open questions:
 
 ## Output Format
 
-Create `docs/ai/backend-requirements/<feature-name>.requirements.md`:
+Create `docs/ai/<feature-name>/backend-requirements.md`:
 
 ```markdown
 # Backend Requirements: <Feature Name>
