@@ -18,13 +18,10 @@
 
 # After-task checklist
 
-Run type-check/lint/format/relevant-tests. Fix only task-related issues. Task IS NOT DONE until you do this.
+Run type-check/lint/format/analysis/relevant-tests. Fix only task-related issues. Task IS NOT DONE until you do this.
 
 **Think holistically:**  
 When changing any behavior (e.g., validation, API params, business logic), ask: *What else does this affect?* Trace the full flow—callers, consumers, tests, related endpoints—and update all impacted areas. Do not change one spot and leave others broken.
-
-**JS/TS:** `npm run typecheck && npm run lint && npm run format` (or pnpm/yarn)  
-**PHP:** `composer test && vendor/bin/phpstan analyse` (check composer.json for available scripts)
 
 **Use project's container prefix:** `ddev exec`, `docker compose exec app`, etc.
 

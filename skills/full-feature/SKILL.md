@@ -5,7 +5,7 @@ description: Manage full feature lifecycle from exploration to delivery. Use whe
 
 # Full Feature Orchestrator
 
-> **This is the orchestrator.** It manages the full lifecycle by invoking sub-skills: Workshop → Plan → Execute → Reflection.
+> **This is the orchestrator.** It manages the full lifecycle by invoking sub-skills: Workshop → Plan → Execute → Audit Approval → Reflection.
 
 You are a process guide ensuring disciplined progression through development phases. You enforce gates, track state, and **invoke the appropriate skill** for each phase.
 
@@ -14,21 +14,21 @@ You are a process guide ensuring disciplined progression through development pha
 ## The Flow
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  WORKSHOP   │ ──▶ │    PLAN     │ ──▶ │   EXECUTE   │ ──▶ │ REFLECTION  │
-│             │     │             │     │             │     │             │
-│ /workshop   │     │ /planning   │     │ /execution  │     │  (auditor)  │
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-      │                   │                   │                   │
-      ▼                   ▼                   ▼                   ▼
-  docs/ai/            docs/ai/            Code + Tests       docs/ai/
-  <feature>/          <feature>/          + Auditor          <feature>/
-  workshop/           plan.md                                reflection.md
+┌───────────┐   ┌───────────┐   ┌───────────┐   ┌────────────────┐   ┌────────────┐
+│  WORKSHOP │ → │   PLAN    │ → │  EXECUTE  │ → │ AUDIT_APPROVAL │ → │ REFLECTION │
+│           │   │           │   │           │   │                │   │            │
+│ /workshop │   │ /planning │   │ /execution│   │  (polling)     │   │ (auditor)  │
+└───────────┘   └───────────┘   └───────────┘   └────────────────┘   └────────────┘
+      │               │               │                 │                   │
+      ▼               ▼               ▼                 ▼                   ▼
+  docs/ai/        docs/ai/       Code + Tests      status.txt           docs/ai/
+  <feature>/      <feature>/     + Auditor         == APPROVED          <feature>/
+  workshop/       plan.md        (continuous)                           reflection.md
 ```
 
 ---
 
-## Sub-Skills (CRITICAL)
+## Sub-Skills & Agents
 
 **Each phase is handled by a dedicated skill or agent. You MUST invoke them.**
 
@@ -37,7 +37,8 @@ You are a process guide ensuring disciplined progression through development pha
 | WORKSHOP | `Skill(workshop)` | On phase entry |
 | PLAN | `Skill(planning)` | When workshop approved |
 | EXECUTE | `Skill(execution)` | When plan approved |
-| REFLECTION | `Task(auditor)` with DONE | Auditor handles reflection |
+| AUDIT_APPROVAL | (polling loop in execution) | When DONE written |
+| REFLECTION | Auditor creates reflection.md | When status == APPROVED |
 
 **How to invoke**:
 ```
@@ -46,7 +47,32 @@ Skill(planning, args: "<feature-name>")
 Skill(execution, args: "<feature-name>")
 ```
 
-**For REFLECTION**: The auditor handles this automatically when it sees `DONE` in changes.log. Just ensure final auditor run happens — it creates the reflection file.
+**For AUDIT_APPROVAL**: This is a gate within the execution skill. Main agent polls `status.txt` until auditor sets APPROVED.
+
+**For REFLECTION**: The auditor handles this automatically when it approves. It creates the reflection file before exiting.
+
+---
+
+## Auditor Integration
+
+The auditor is a **continuous companion** during Execute and Audit Approval:
+
+1. **Spawned once** at start of Execute (by execution skill)
+2. **Runs continuously** in background, polling changes.log
+3. **Updates issues.md** as it finds problems
+4. **Owns status.txt** — sets WATCHING → APPROVED | REJECTED
+5. **Creates reflection.md** on approval, then exits
+
+### Files
+
+```
+docs/ai/<feature>/audits/
+├── status.txt        # Main creates (WATCHING), auditor owns after
+├── changes.log       # Main writes edits, auditor polls
+├── issues.md         # Auditor writes findings, main reads
+├── completeness.md   # Auditor writes component status
+└── escalations.md    # Main writes disagreements
+```
 
 ---
 
@@ -61,7 +87,7 @@ You MUST maintain this file. Update it on every turn.
 Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 
 ## Current State
-- **Phase**: workshop | plan | execute | reflection | complete
+- **Phase**: workshop | plan | execute | audit_approval | reflection | complete
 - **Status**: in-progress | blocked | awaiting-approval | done
 - **Blocker**: [if blocked, what's blocking]
 
@@ -69,13 +95,15 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 - [YYYY-MM-DD HH:MM] Started WORKSHOP → invoked /workshop
 - [YYYY-MM-DD HH:MM] WORKSHOP → approved → PLAN → invoked /planning
 - [YYYY-MM-DD HH:MM] PLAN → approved → EXECUTE → invoked /execution
-- [YYYY-MM-DD HH:MM] EXECUTE → done → REFLECTION → auditor created reflection
+- [YYYY-MM-DD HH:MM] EXECUTE → DONE written → AUDIT_APPROVAL
+- [YYYY-MM-DD HH:MM] AUDIT_APPROVAL → status.txt APPROVED → REFLECTION
+- [YYYY-MM-DD HH:MM] REFLECTION → auditor created reflection.md → COMPLETE
 - ...
 
 ## Artifacts
 - Workshop: `docs/ai/<feature>/workshop/iteration-1.md`, `iteration-2.md`, ...
 - Plan: `docs/ai/<feature>/plan.md`
-- Audit: `docs/ai/<feature>/audits/` (changes.log → you write, issues.md + completeness.md → auditor owns)
+- Audit: `docs/ai/<feature>/audits/` (status.txt, changes.log, issues.md, completeness.md)
 - Code: [list of files created/modified]
 - Reflection: `docs/ai/<feature>/reflection.md`
 
@@ -110,17 +138,35 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 **On Entry**: Invoke `Skill(execution)` with the feature name.
 
 The execution skill handles:
-- Auditor setup and integration
+- Creating audit folder + status.txt (WATCHING)
+- Spawning auditor once (runs continuously)
 - Implementation following the plan
+- Logging changes to changes.log
+- Reading issues.md, fixing blockers
 - Tests and project checks
 
-**Exit Criteria** (user says: "done", "complete", "reflect", "audit"):
-1. Add `DONE` to changes.log
-2. Spawn final auditor run — auditor creates reflection file
-3. Update feature file: phase → REFLECTION
+**Exit Criteria** (main agent writes DONE to changes.log):
+1. Update feature file: phase → AUDIT_APPROVAL
+2. Main agent enters polling loop on status.txt
 
-### 4. REFLECTION Phase
-**On Entry**: Auditor already created reflection during final audit (when it saw `DONE`).
+### 4. AUDIT_APPROVAL Phase (NEW)
+**On Entry**: Main agent has written DONE, now polling status.txt.
+
+This is a **gate phase** — main agent waits for auditor approval.
+
+**Behavior**:
+- Main agent polls status.txt every 30s
+- If REJECTED: main agent reads issues.md, decides fix or escalate
+  - Fix: removes DONE, fixes issues, writes DONE again
+  - Escalate: writes to escalations.md, halts for user
+- If APPROVED: proceed to REFLECTION
+
+**Exit Criteria** (status.txt == APPROVED):
+1. Update feature file: phase → REFLECTION
+2. Auditor has already created reflection.md
+
+### 5. REFLECTION Phase
+**On Entry**: Auditor created reflection during approval (when it wrote APPROVED).
 
 The auditor creates `docs/ai/{feature}/reflection.md` with:
 - Technical audit (code, tests, security, performance)
@@ -129,7 +175,7 @@ The auditor creates `docs/ai/{feature}/reflection.md` with:
 - Next steps
 
 **Exit Criteria**:
-- Auditor created reflection file
+- Reflection file exists
 - User acknowledges findings
 - Update feature file: phase → COMPLETE
 
@@ -139,16 +185,19 @@ The auditor creates `docs/ai/{feature}/reflection.md` with:
 
 ### Transitions require explicit approval
 
-| From → To | Trigger Phrases |
-|-----------|-----------------|
-| Workshop → Plan | "approved", "move to plan", "let's plan" |
-| Plan → Execute | "approved", "ready to build", "let's build", "execute" |
-| Execute → Reflection | "done", "complete", "reflect", "audit" |
+| From → To | Trigger |
+|-----------|---------|
+| Workshop → Plan | User says "approved", "move to plan", "let's plan" |
+| Plan → Execute | User says "approved", "ready to build", "let's build", "execute" |
+| Execute → Audit Approval | Main agent writes DONE to changes.log |
+| Audit Approval → Reflection | status.txt == APPROVED |
+| Reflection → Complete | User acknowledges |
 
 ### You MUST NOT:
 - Skip phases without explicit user approval ("skip workshop", "skip plan")
 - Move forward without the trigger phrase
 - Assume approval from vague statements
+- **Proceed from Audit Approval without status.txt == APPROVED**
 
 ### You MAY:
 - Go back to a previous phase if user requests
@@ -170,7 +219,8 @@ When user activates Full Feature Mode:
    - WORKSHOP → `Skill(workshop, args: "<feature-name>")`
    - PLAN → `Skill(planning, args: "<feature-name>")`
    - EXECUTE → `Skill(execution, args: "<feature-name>")`
-   - REFLECTION → Auditor handles (ensure `DONE` in changes.log)
+   - AUDIT_APPROVAL → Resume polling (if DONE exists, auditor running)
+   - REFLECTION → Check for reflection.md
 
 ---
 
@@ -188,13 +238,13 @@ When user returns to an existing feature:
 
 Recognize these commands in any form:
 
-| Command | Action                                     |
-|---------|--------------------------------------------|
-| `status` | Show current phase, progress, blockers     |
+| Command | Action |
+|---------|--------|
+| `status` | Show current phase, progress, blockers, auditor status |
 | `skip <phase>` | Skip to next phase (requires confirmation) |
-| `back` | Return to previous phase                   |
-| `pause` | Mark feature as paused, summarize state    |
-| `close` | Mark feature as complete                   |
+| `back` | Return to previous phase |
+| `pause` | Mark feature as paused, summarize state |
+| `close` | Mark feature as complete |
 
 ---
 
@@ -215,6 +265,7 @@ Recognize these commands in any form:
 - **Invoke skills, don't duplicate** — each phase's work is done by its skill, not by you.
 - **One phase at a time** — no parallel phase work.
 - **Gates are sacred** — never bypass without explicit user approval.
+- **Auditor owns approval** — cannot proceed without status.txt == APPROVED.
 - **Clear handoffs** — when transitioning, summarize what's done, invoke next skill.
 - **Track everything** — decisions, blockers, artifacts all go in feature file.
 
@@ -223,12 +274,15 @@ Recognize these commands in any form:
 ## Quick Reference
 
 ```
-WORKSHOP ──[approved]──▶ PLAN ──[approved]──▶ EXECUTE ──[done]──▶ REFLECTION
-    │                      │                      │                    │
-    ▼                      ▼                      ▼                    ▼
-/workshop              /planning              /execution            (auditor)
+WORKSHOP ─[approved]─▶ PLAN ─[approved]─▶ EXECUTE ─[DONE]─▶ AUDIT_APPROVAL ─[APPROVED]─▶ REFLECTION
+    │                    │                    │                    │                        │
+    ▼                    ▼                    ▼                    ▼                        ▼
+/workshop            /planning           /execution          status.txt              (auditor)
+                                         + auditor            polling                reflection.md
+                                         (continuous)
 ```
 
 **State File**: `docs/ai/<feature>/state.md`
+**Audit Files**: `docs/ai/<feature>/audits/` (status.txt, changes.log, issues.md, completeness.md)
 **Commands**: `status`, `skip`, `back`, `pause`, `close`
-**Skills**: `workshop`, `planning`, `execution` | **Agent**: `auditor` (reflection)
+**Skills**: `workshop`, `planning`, `execution` | **Agent**: `auditor` (continuous + reflection)
