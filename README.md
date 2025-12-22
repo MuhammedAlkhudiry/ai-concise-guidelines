@@ -47,7 +47,8 @@ Then run with your desired options:
 # Install everything (Claude Code)
 ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
           --skills-destination-path ~/.claude/skills \
-          --sub-agents-destination-path ~/.claude/agents
+          --sub-agents-destination-path ~/.claude/agents \
+          --install-statusline
 ```
 
 #### Options
@@ -57,6 +58,7 @@ Then run with your desired options:
 - `--workflows-destination-path PATH` — Copy workflows to PATH directory (for Windsurf)
 - `--skills-destination-path PATH` — Copy skills to PATH directory (for Claude Code)
 - `--sub-agents-destination-path PATH` — Copy sub-agents to PATH directory (for Claude Code auditor, etc.)
+- `--install-statusline` — Install Claude Code status line (colorful prompt with git, model, context bar)
 - `--workflows-prefix PREFIX` — Add prefix to workflow filenames (e.g., `"MODES: "` becomes `MODES: plan-mode.md`)
 - `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
 - `--help`, `-h` — Show help message
@@ -147,6 +149,7 @@ alias refresh-claude='cd /tmp && \
           ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
                     --skills-destination-path ~/.claude/skills \
                     --sub-agents-destination-path ~/.claude/agents \
+                    --install-statusline \
                     --merge-guidelines-into-single-file-action overwrite && \
           rm init.sh && \
           cd -'
@@ -183,3 +186,29 @@ Skills are auto-discovered by Claude based on conversation context. When you des
 | `backend-requirements` | "backend requirements", "data needs", "API requirements" |
 | `feature-research` | "research feature", "is this worth building", "explore idea" |
 | `user-story-review` | "review story", "user story", "story feedback" |
+
+---
+
+## Claude Code Status Line
+
+A colorful, informative status line for Claude Code that shows:
+
+```
+📁 my-project ⎇ main ● │ Opus-4.5 │ ██████░░░░ 60%
+```
+
+**Features:**
+- **Directory**: Current folder name with icon
+- **Git branch**: Branch name with dirty indicator (●) when uncommitted changes exist
+- **Model**: Current Claude model in use
+- **Context bar**: Visual progress bar showing context window usage
+  - Green: < 50%
+  - Yellow: 50-79%
+  - Red: 80%+
+
+**Install:**
+```bash
+./init.sh --install-statusline
+```
+
+**Requirements:** `jq` (for settings.json update)

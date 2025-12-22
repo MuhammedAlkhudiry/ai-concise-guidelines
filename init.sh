@@ -88,6 +88,9 @@ Options:
   --sub-agents-destination-path PATH
       Copy sub-agents to PATH directory
 
+  --install-statusline
+      Install Claude Code status line (colorful prompt with git, model, context bar)
+
   --add-windsurf-header
       Add Windsurf-compatible frontmatter to workflow files
 
@@ -121,7 +124,8 @@ Examples:
   # Copy everything (Claude Code)
   $0 --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \\
      --skills-destination-path ~/.claude/skills \\
-     --sub-agents-destination-path ~/.claude/agents
+     --sub-agents-destination-path ~/.claude/agents \\
+     --install-statusline
 
 EOF
     exit 0
@@ -356,6 +360,47 @@ copy_sub_agents() {
     print_success "Copied $count sub-agent files to $dest"
 }
 
+# Install Claude Code status line
+install_statusline() {
+    print_info "Installing Claude Code status line..."
+
+    local claude_dir="$HOME/.claude"
+    local script_dest="$claude_dir/statusline-command.sh"
+    local settings_file="$claude_dir/settings.json"
+
+    # Ensure .claude directory exists
+    mkdir -p "$claude_dir"
+
+    # Copy the script
+    if [ ! -f "$TMP_DIR/statusline/statusline-command.sh" ]; then
+        print_error "Status line script not found in repository"
+        return 1
+    fi
+
+    cp "$TMP_DIR/statusline/statusline-command.sh" "$script_dest" || {
+        print_error "Failed to copy status line script"
+        return 1
+    }
+    chmod +x "$script_dest"
+
+    # Update settings.json
+    if [ -f "$settings_file" ]; then
+        # Check if jq is available
+        if command -v jq >/dev/null 2>&1; then
+            local tmp_settings="${settings_file}.tmp"
+            jq --arg cmd "$script_dest" '.statusLine = {"type": "command", "command": $cmd}' "$settings_file" > "$tmp_settings" && mv "$tmp_settings" "$settings_file"
+        else
+            print_warning "jq not found. Please manually add statusLine to $settings_file"
+            print_info "Add: \"statusLine\": {\"type\": \"command\", \"command\": \"$script_dest\"}"
+        fi
+    else
+        # Create new settings.json
+        echo "{\"statusLine\": {\"type\": \"command\", \"command\": \"$script_dest\"}}" > "$settings_file"
+    fi
+
+    print_success "Status line installed at $script_dest"
+}
+
 # Copy skills (for Claude Code)
 copy_skills() {
     local dest="$1"
@@ -396,6 +441,7 @@ main() {
     local workflows_prefix=""
     local sub_agents_dest=""
     local skills_dest=""
+    local install_statusline="n"
     local add_frontmatter="n"
 
     while [[ $# -gt 0 ]]; do
@@ -428,6 +474,10 @@ main() {
                 add_frontmatter="y"
                 shift
                 ;;
+            --install-statusline)
+                install_statusline="y"
+                shift
+                ;;
             --workflows-prefix)
                 workflows_prefix="$2"
                 shift 2
@@ -450,7 +500,7 @@ main() {
         exit 1
     fi
     
-    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ] && [ -z "$sub_agents_dest" ] && [ -z "$skills_dest" ]; then
+    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ] && [ -z "$sub_agents_dest" ] && [ -z "$skills_dest" ] && [ "$install_statusline" = "n" ]; then
         print_error "No destination specified. At least one destination is required."
         echo ""
         show_usage
@@ -506,6 +556,10 @@ main() {
         copy_skills=true
         [ -n "$folders" ] && folders="$folders skills" || folders="skills"
     fi
+
+    if [ "$install_statusline" = "y" ]; then
+        [ -n "$folders" ] && folders="$folders statusline" || folders="statusline"
+    fi
     
     # Show summary
     echo -e "${BLUE}"
@@ -534,6 +588,9 @@ main() {
     if [ -n "$skills_dest" ]; then
         echo "  • Skills: Directory structure → $skills_dest"
     fi
+    if [ "$install_statusline" = "y" ]; then
+        echo "  • Status line: ~/.claude/statusline-command.sh"
+    fi
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
@@ -560,6 +617,10 @@ main() {
         copy_skills "$skills_dest"
     fi
 
+    if [ "$install_statusline" = "y" ]; then
+        install_statusline
+    fi
+
     # Success message
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -583,6 +644,9 @@ main() {
     if [ -n "$skills_dest" ]; then
         echo "  • Skills installed at: $skills_dest"
         echo "    (Claude Code will auto-discover these based on context)"
+    fi
+    if [ "$install_statusline" = "y" ]; then
+        echo "  • Status line installed. Restart Claude Code to see it."
     fi
     echo ""
 }
