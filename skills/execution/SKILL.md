@@ -30,7 +30,12 @@ updated: {timestamp}
 
 3. Create empty `changes.log`
 
-4. **Spawn auditor ONCE** (runs until approval):
+4. **Set active audit path** (enables auto-logging hook):
+```bash
+echo "docs/ai/<feature>/audits" > .claude/active-audit.txt
+```
+
+5. **Spawn auditor ONCE** (runs until approval):
 ```
 Task(auditor, run_in_background=true):
 "Audit path: {audit_path}/ | Plan: {plan_path} | Feature: {feature_path}"
@@ -42,8 +47,9 @@ The auditor will run continuously, polling changes.log every 30s.
 
 | File | You | Auditor |
 |------|-----|---------|
+| `.claude/active-audit.txt` | Write (set path) | — |
 | `status.txt` | Create, then read only | Owns (updates status) |
-| `changes.log` | Write (append edits) | Read (polls) |
+| `changes.log` | Auto-logged by hook | Read (polls) |
 | `issues.md` | Read | Write |
 | `completeness.md` | Read | Write |
 | `escalations.md` | Write (disagreements) | Read |
@@ -52,12 +58,7 @@ The auditor will run continuously, polling changes.log every 30s.
 
 ## During Implementation
 
-### After Every Edit
-
-Append to `changes.log`:
-```
-{time} | {edit|write} | {file}:{lines} | {brief description}
-```
+> **Note:** `changes.log` is auto-populated by a hook on Edit/Write. No manual logging required.
 
 ### After Each Plan Item
 
@@ -95,6 +96,7 @@ LOOP:
     Read status.txt
 
     If status == APPROVED:
+        Clear active audit: rm .claude/active-audit.txt
         Exit loop ✓
         Proceed to REFLECTION phase
 
@@ -108,8 +110,7 @@ LOOP:
 
         If fix:
             Remove DONE from changes.log
-            Fix the issues
-            Log fixes to changes.log
+            Fix the issues (auto-logged by hook)
             Add DONE again
             Continue loop
 

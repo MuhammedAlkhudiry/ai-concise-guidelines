@@ -29,7 +29,7 @@ Feature: /full/path/docs/ai/<feature>/state.md (optional)
 | File | Created By | Owned By | Purpose |
 |------|------------|----------|---------|
 | `status.txt` | Main agent | You (after creation) | Gate signal |
-| `changes.log` | Main agent | Main agent | Edit log you poll |
+| `changes.log` | Hook (auto) | Hook | Edit log you poll |
 | `issues.md` | You | You | Findings |
 | `completeness.md` | You | You | Component status |
 | `escalations.md` | Main agent | Main agent | Disagreements |

@@ -48,7 +48,8 @@ Then run with your desired options:
 ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
           --skills-destination-path ~/.claude/skills \
           --sub-agents-destination-path ~/.claude/agents \
-          --install-statusline
+          --install-statusline \
+          --install-hooks
 ```
 
 #### Options
@@ -59,6 +60,7 @@ Then run with your desired options:
 - `--skills-destination-path PATH` — Copy skills to PATH directory (for Claude Code)
 - `--sub-agents-destination-path PATH` — Copy sub-agents to PATH directory (for Claude Code auditor, etc.)
 - `--install-statusline` — Install Claude Code status line (colorful prompt with git, model, context bar)
+- `--install-hooks` — Install Claude Code hooks (auto-logging for auditor integration)
 - `--workflows-prefix PREFIX` — Add prefix to workflow filenames (e.g., `"MODES: "` becomes `MODES: plan-mode.md`)
 - `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
 - `--help`, `-h` — Show help message
@@ -150,6 +152,7 @@ alias refresh-claude='cd /tmp && \
                     --skills-destination-path ~/.claude/skills \
                     --sub-agents-destination-path ~/.claude/agents \
                     --install-statusline \
+                    --install-hooks \
                     --merge-guidelines-into-single-file-action overwrite && \
           rm init.sh && \
           cd -'

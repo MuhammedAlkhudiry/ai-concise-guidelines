@@ -12,12 +12,14 @@ The auditor runs continuously and **owns the completeness decision**. You cannot
 
 ### Setup (Before First Edit)
 
-Create `docs/ai/<feature>/audits/`:
-```
-changes.log       # You write: log every edit
+1. Create `docs/ai/<feature>/audits/` with empty `changes.log`
+
+2. **Set active audit path** (enables auto-logging hook):
+```bash
+echo "docs/ai/<feature>/audits" > .claude/active-audit.txt
 ```
 
-Then **immediately spawn auditor** with full context:
+3. **Spawn auditor** with full context:
 ```
 Task(auditor): "Audit path: {audit_path}/ | Plan: {plan_path} | Feature: {feature_path}"
 ```
@@ -35,7 +37,8 @@ Task(auditor): "Audit path: ... | Plan: ... | Feature: ..."
 
 | File | You | Auditor |
 |------|-----|---------|
-| `changes.log` | Write (append edits) | Read |
+| `.claude/active-audit.txt` | Write (set path) | — |
+| `changes.log` | Auto-logged by hook | Read |
 | `issues.md` | Read only | Write |
 | `completeness.md` | Read only | Write |
 | `escalations.md` | Write (disagreements) | Read |
@@ -67,26 +70,23 @@ Cycle: {N} | Time: {timestamp}
 
 ### During Execution
 
-**After every Edit/Write**, append to `changes.log`:
-```
-{time} | {edit|write} | {file}:{lines} | {brief description}
-```
+> **Note:** `changes.log` is auto-populated by a hook on Edit/Write. No manual logging required.
 
-**Spawn auditor frequently:**
+**Check auditor frequently:**
 - After completing each plan item
 - When you hit a blocker
 - Before moving to next phase
 
-Check `TaskOutput` to see auditor results. Read `issues.md` and fix blockers before continuing.
+Read `issues.md` and fix blockers before continuing.
 
 ### Before "Done"
 
-1. Add `DONE` to `changes.log`
-2. Spawn final auditor run
-3. Wait for auditor with `TaskOutput(block=true)`
-4. Read `completeness.md` — **auditor must say 🟢 READY**
-5. Read `issues.md` — **zero open blockers**
-6. Run project checks (lint, types, tests)
+1. Add `DONE` to `changes.log` (manual — signals completion)
+2. Wait for auditor with `TaskOutput(block=true)`
+3. Read `completeness.md` — **auditor must say 🟢 READY**
+4. Read `issues.md` — **zero open blockers**
+5. Run project checks (lint, types, tests)
+6. Clear active audit: `rm .claude/active-audit.txt`
 
 **You cannot declare done if auditor says 🔴 NOT READY or 🟡 ALMOST.**
 

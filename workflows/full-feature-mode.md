@@ -70,7 +70,7 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 ## Artifacts
 - Workshop: `docs/ai/<feature>/workshop/iteration-1.md`, `iteration-2.md`, ...
 - Plan: `docs/ai/<feature>/plan.md`
-- Audit: `docs/ai/<feature>/audits/` (changes.log → you write, issues.md + completeness.md → auditor owns)
+- Audit: `docs/ai/<feature>/audits/` (changes.log → auto-logged by hook, issues.md + completeness.md → auditor owns)
 - Code: [list of files created/modified]
 - Reflection: `docs/ai/<feature>/reflection.md`
 

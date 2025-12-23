@@ -68,7 +68,7 @@ The auditor is a **continuous companion** during Execute and Audit Approval:
 ```
 docs/ai/<feature>/audits/
 ├── status.txt        # Main creates (WATCHING), auditor owns after
-├── changes.log       # Main writes edits, auditor polls
+├── changes.log       # Auto-logged by hook, auditor polls
 ├── issues.md         # Auditor writes findings, main reads
 ├── completeness.md   # Auditor writes component status
 └── escalations.md    # Main writes disagreements
@@ -139,9 +139,9 @@ Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
 
 The execution skill handles:
 - Creating audit folder + status.txt (WATCHING)
+- Setting active audit path (enables auto-logging hook)
 - Spawning auditor once (runs continuously)
 - Implementation following the plan
-- Logging changes to changes.log
 - Reading issues.md, fixing blockers
 - Tests and project checks
 
