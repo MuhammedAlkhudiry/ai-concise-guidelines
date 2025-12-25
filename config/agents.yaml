@@ -34,6 +34,18 @@ quick-edits:
     mode: primary
     model: "{OPENCODE_MODEL_FAST}"
 
+prompt-enhance:
+  description: "Fast prompt enhancement with codebase context. Fast model, responds in under 10 seconds."
+  opencode:
+    mode: primary
+    model: "{OPENCODE_MODEL_FAST}"
+
+frontend-design:
+  description: "UI/UX focused editing. Visual changes only—no logic. Fast model, no audit needed. Supports ULTRATHINK trigger for deep design analysis."
+  opencode:
+    mode: primary
+    model: "{OPENCODE_MODEL_FAST}"
+
 # =============================================================================
 # Subagents (@mention to invoke)
 # =============================================================================

@@ -371,6 +371,36 @@ ${stripEmojis(template)}`;
     count++;
   }
 
+  // Prompt Enhance (primary agent - fast model for quick context gathering)
+  const promptEnhancePath = join(TEMPLATES_DIR, "agents", "prompt-enhance.md");
+  if (existsSync(promptEnhancePath)) {
+    const template = await readFile(promptEnhancePath, "utf-8");
+    const content = `---
+description: Fast prompt enhancement with codebase context. Use when user wants to enhance a prompt, improve a question, or says 'enhance this', 'improve prompt', or wants better context before asking. Responds in under 10 seconds.
+mode: primary
+model: ${CONFIG.opencode.modelFast}
+---
+
+${stripEmojis(template)}`;
+    await writeFile(join(outputDir, "prompt-enhance.md"), content);
+    count++;
+  }
+
+  // Frontend Design (primary agent - fast model for UI/visual work)
+  const frontendDesignPath = join(TEMPLATES_DIR, "agents", "frontend-design.md");
+  if (existsSync(frontendDesignPath)) {
+    const template = await readFile(frontendDesignPath, "utf-8");
+    const content = `---
+description: UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.
+mode: primary
+model: ${CONFIG.opencode.modelFast}
+---
+
+${stripEmojis(template)}`;
+    await writeFile(join(outputDir, "frontend-design.md"), content);
+    count++;
+  }
+
   console.log(`    Generated ${count} agents`);
   return count;
 }

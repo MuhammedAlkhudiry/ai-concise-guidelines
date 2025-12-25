@@ -77,6 +77,7 @@ Options:
   --skills-path PATH        Copy skills to PATH directory
   --agents-path PATH        Copy agents to PATH directory
   --workflows-path PATH     Copy workflows to PATH directory (Windsurf only)
+  --zsh-path PATH           Copy ZSH custom config to PATH and source it in ~/.zshrc
   --mcp-path PATH           Copy MCP config to PATH file
 
 
@@ -363,6 +364,43 @@ copy_workflows() {
     print_success "Copied $count workflow files to $dest"
 }
 
+# Copy ZSH custom config
+copy_zsh() {
+    local dest="$1"
+    
+    print_info "Copying ZSH custom config to $dest..."
+    
+    if [ ! -f "$TMP_DIR/shell/zsh-custom.zsh" ]; then
+        print_error "ZSH custom config not found"
+        return 1
+    fi
+    
+    mkdir -p "$(dirname "$dest")"
+    cp "$TMP_DIR/shell/zsh-custom.zsh" "$dest" || {
+        print_error "Failed to copy ZSH custom config"
+        return 1
+    }
+    
+    # Add source line to ~/.zshrc if not present
+    local zshrc="$HOME/.zshrc"
+    local source_line="[ -f $dest ] && source $dest"
+    
+    if [ -f "$zshrc" ]; then
+        if ! grep -Fxq "$source_line" "$zshrc"; then
+            print_info "Adding source line to $zshrc..."
+            cp "$zshrc" "${zshrc}.bak"
+            echo -e "\n# Synced custom config via ai-concise-guidelines\n$source_line" >> "$zshrc"
+            print_success "Source line added to $zshrc (backup created at ${zshrc}.bak)"
+        else
+            print_info "Source line already exists in $zshrc"
+        fi
+    else
+        print_warning "$zshrc not found. Please manually add: $source_line"
+    fi
+    
+    print_success "ZSH custom config installed to $dest"
+}
+
 # Merge MCP servers into existing config
 merge_mcp() {
     local dest="$1"
@@ -478,6 +516,7 @@ main() {
     local agents_path=""
     local workflows_path=""
     local workflows_prefix=""
+    local zsh_path=""
     local mcp_path=""
     local platform=""
     local do_install_statusline="n"
@@ -508,6 +547,10 @@ main() {
                 workflows_prefix="$2"
                 shift 2
                 ;;
+            --zsh-path)
+                zsh_path="$2"
+                shift 2
+                ;;
             --mcp-path)
                 mcp_path="$2"
                 shift 2
@@ -533,7 +576,7 @@ main() {
     
     # Validate at least one destination specified
     if [ -z "$rules_path" ] && [ -z "$skills_path" ] && [ -z "$agents_path" ] && \
-       [ -z "$workflows_path" ] && [ -z "$mcp_path" ] && [ "$do_install_statusline" = "n" ]; then
+       [ -z "$workflows_path" ] && [ -z "$zsh_path" ] && [ -z "$mcp_path" ] && [ "$do_install_statusline" = "n" ]; then
         print_error "No destination specified. At least one path is required."
         echo ""
         show_usage
@@ -544,6 +587,7 @@ main() {
     [ -n "$skills_path" ] && skills_path="${skills_path/#\~/$HOME}"
     [ -n "$agents_path" ] && agents_path="${agents_path/#\~/$HOME}"
     [ -n "$workflows_path" ] && workflows_path="${workflows_path/#\~/$HOME}"
+    [ -n "$zsh_path" ] && zsh_path="${zsh_path/#\~/$HOME}"
     [ -n "$mcp_path" ] && mcp_path="${mcp_path/#\~/$HOME}"
 
     # Auto-detect platform if not specified
@@ -556,6 +600,7 @@ main() {
     [ -n "$skills_path" ] && { validate_destination_path "$skills_path" || exit 1; }
     [ -n "$agents_path" ] && { validate_destination_path "$agents_path" || exit 1; }
     [ -n "$workflows_path" ] && { validate_destination_path "$workflows_path" || exit 1; }
+    [ -n "$zsh_path" ] && { validate_destination_path "$zsh_path" || exit 1; }
     [ -n "$mcp_path" ] && { validate_destination_path "$mcp_path" || exit 1; }
     
     # Determine what folders to clone
@@ -585,6 +630,10 @@ main() {
         [ -n "$folders" ] && folders="$folders integrations/windsurf/workflows" || folders="integrations/windsurf/workflows"
     fi
 
+    if [ -n "$zsh_path" ]; then
+        [ -n "$folders" ] && folders="$folders shell" || folders="shell"
+    fi
+
     if [ -n "$mcp_path" ]; then
         if [ "$platform" = "opencode" ]; then
             [ -n "$folders" ] && folders="$folders integrations/opencode/mcp.json" || folders="integrations/opencode/mcp.json"
@@ -610,6 +659,7 @@ main() {
     [ -n "$skills_path" ] && echo "  • Skills: $skills_path"
     [ -n "$agents_path" ] && echo "  • Agents: $agents_path"
     [ -n "$workflows_path" ] && echo "  • Workflows: $workflows_path"
+    [ -n "$zsh_path" ] && echo "  • ZSH Config: $zsh_path"
     [ -n "$mcp_path" ] && echo "  • MCP: $mcp_path"
     [ "$do_install_statusline" = "y" ] && echo "  • Status line: ~/.claude/statusline-command.sh"
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
@@ -622,6 +672,7 @@ main() {
     [ -n "$skills_path" ] && copy_skills "$skills_path" "$platform"
     [ -n "$agents_path" ] && copy_agents "$agents_path" "$platform"
     [ -n "$workflows_path" ] && copy_workflows "$workflows_path" "$workflows_prefix"
+    [ -n "$zsh_path" ] && copy_zsh "$zsh_path"
     [ -n "$mcp_path" ] && merge_mcp "$mcp_path" "$platform"
     [ "$do_install_statusline" = "y" ] && install_statusline
 
