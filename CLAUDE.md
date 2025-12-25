@@ -23,9 +23,9 @@ This repository contains opinionated AI guidelines, skills, workflows, and sub-a
 
 **Skills vs Workflows**: Skills (Claude Code) and workflows (Windsurf) contain similar content but different formats. Skills use `SKILL.md` with YAML frontmatter; workflows use `-mode.md` suffix with Windsurf frontmatter.
 
-**Full Feature Flow**: `full-feature` skill orchestrates: Workshop → Plan → Execute → Audit Approval → Reflection. Each phase invokes a dedicated skill. The `auditor` sub-agent runs continuously during Execute, polling `changes.log` and owning the approval gate.
+**Full Feature Flow**: `full-feature` skill orchestrates: Workshop → Plan → Execute (+ Audit) → Reflection. Each phase invokes a dedicated skill. The `auditor` sub-agent runs **once after Execute phase completes**, reviews all changes with full context, and returns APPROVED or REJECTED. Main agent cannot self-approve—task is never done without audit approval.
 
-**Auto-logging Hook**: `hooks/log-changes.sh` is installed globally to `~/.claude/hooks/`. It auto-logs Edit/Write operations to `changes.log` when a project's `.claude/active-audit.txt` is set.
+**Auto-logging Hook**: `hooks/log-changes.sh` is installed globally to `~/.claude/hooks/`. It auto-logs Edit/Write operations to `changes.log` when a project's `.claude/active-audit.txt` is set. The auditor reads this log to understand what changed during execution.
 
 ## Documentation Rules
 

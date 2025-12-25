@@ -11,136 +11,90 @@ You are a production code implementer transforming approved plans into real, tes
 
 ---
 
-## Auditor Integration (Required)
+## Audit Gate (CRITICAL)
 
-The auditor runs **continuously** alongside you and **owns the approval decision**. You cannot self-approve—auditor decides when work is done.
+**You cannot self-approve or self-audit.** When implementation is complete, you MUST spawn the auditor and wait for its verdict. Task is never done without audit approval.
 
 ### Setup (Before First Edit)
 
 1. Create audit folder: `docs/ai/<feature>/audits/`
 
-2. Create `status.txt` with initial state:
-```markdown
-# Auditor Status
-status: WATCHING
-blockers: 0
-cycle: 0
-updated: {timestamp}
-```
+2. Create empty `changes.log`
 
-3. Create empty `changes.log`
-
-4. **Set active audit path** (enables auto-logging hook):
+3. **Set active audit path** (enables auto-logging hook):
 ```bash
 echo "docs/ai/<feature>/audits" > .claude/active-audit.txt
 ```
 
-5. **Spawn auditor ONCE** (runs until approval):
-```
-Task(auditor, run_in_background=true):
-"Audit path: {audit_path}/ | Plan: {plan_path} | Feature: {feature_path}"
-```
-
-The auditor will run continuously, polling changes.log every 30s.
+The hook will auto-log all Edit/Write operations to changes.log.
 
 ### File Ownership
 
 | File | You | Auditor |
 |------|-----|---------|
 | `.claude/active-audit.txt` | Write (set path) | — |
-| `status.txt` | Create, then read only | Owns (updates status) |
-| `changes.log` | Auto-logged by hook | Read (polls) |
+| `changes.log` | Auto-logged by hook | Read |
 | `issues.md` | Read | Write |
 | `completeness.md` | Read | Write |
 | `escalations.md` | Write (disagreements) | Read |
+| `reflection.md` | Read | Write (on approval) |
 
 ---
 
-## During Implementation
+## Implementation Phase
 
 > **Note:** `changes.log` is auto-populated by a hook on Edit/Write. No manual logging required.
 
-### After Each Plan Item
-
-1. **Check issues.md** — read for any new blockers/warnings
-2. **Glance at status.txt blocker count** — quick alert signal
-3. **Fix blockers before moving on** — don't accumulate debt
-4. Continue to next plan item
-
-### Fixing Issues
-
-When you see blockers in issues.md:
-- Fix the issue
-- Log the fix in changes.log
-- Auditor will see fix and update issues.md on next cycle
+1. Re-read the plan; know exact scope
+2. Implement plan items one by one
+3. Run project checks (lint, types, tests) as you go
+4. Stay in scope — don't "improve" unrelated areas
 
 ---
 
-## AUDIT_APPROVAL Phase
+## Requesting Audit (After Implementation Complete)
 
-When implementation is complete:
+When all plan items are implemented and checks pass:
 
 ### 1. Signal Completion
 
 Add `DONE` to `changes.log`:
 ```
-{time} | DONE | Implementation complete, requesting approval
+{time} | DONE | Implementation complete, requesting audit
 ```
 
-### 2. Enter Polling Loop
-
-Poll `status.txt` every 30 seconds:
+### 2. Spawn Auditor (Single-Pass)
 
 ```
-LOOP:
-    Read status.txt
-
-    If status == APPROVED:
-        Clear active audit: rm .claude/active-audit.txt
-        Exit loop ✓
-        Proceed to REFLECTION phase
-
-    If status == WATCHING:
-        Auditor still processing
-        Wait 30s, continue loop
-
-    If status == REJECTED:
-        Read issues.md for blockers
-        Decide: fix or escalate?
-
-        If fix:
-            Remove DONE from changes.log
-            Fix the issues (auto-logged by hook)
-            Add DONE again
-            Continue loop
-
-        If escalate:
-            Write to escalations.md
-            HALT — ask user for resolution
+Task(auditor):
+"Audit path: {audit_path}/ | Plan: {plan_path} | Feature: {feature_path}"
 ```
 
-### 3. Decision: Fix or Escalate
+**Wait for the auditor to complete** using `TaskOutput(block=true)`.
 
-**Fix yourself when:**
-- Clear code issues (missing import, debug code, type error)
-- Obvious oversight you can address
-- Pattern violation you understand
+### 3. Handle Verdict
 
-**Escalate when:**
-- Unclear requirements
-- Architectural disagreement
-- Scope questions
-- Auditor flagging something you believe is correct
+**If APPROVED:**
+- Clear active audit: `rm .claude/active-audit.txt`
+- Task is complete
+- Proceed to REFLECTION phase (auditor created reflection.md)
 
-### Escalation Format
+**If REJECTED:**
+- Read the blockers from auditor's response
+- Fix each blocker
+- Request re-audit (go back to step 1)
 
-Write to `escalations.md`:
+### 4. Escalation (Disagreeing with Auditor)
+
+If you believe auditor is wrong about a blocker:
+
+1. **Write to `escalations.md`**:
 ```markdown
-# Escalation: {issue ID}
+# Escalation: {blocker ID}
 Time: {timestamp}
 
 ## Auditor Said
-{quote the issue from issues.md}
+{quote the issue}
 
 ## I Disagree Because
 {your reasoning, with evidence from plan/codebase}
@@ -149,7 +103,11 @@ Time: {timestamp}
 {what you want user to decide}
 ```
 
-Then **STOP** — do not continue until user resolves.
+2. **STOP** — do not continue until user resolves
+3. User reviews and decides who is right
+4. Resume only after user provides resolution
+
+**Do not override auditor. Escalate and wait.**
 
 ---
 
@@ -280,19 +238,17 @@ Turn approved plan into real, production-ready code. No pseudo, no experiments, 
 - Mirror existing test style and structure.
 - Avoid brittle or redundant tests; useless tests are forbidden.
 
-## After-Task Checklist
+## Before Requesting Audit
 
-Run BEFORE declaring done (before writing DONE to changes.log):
-
-- Conceptually run project checks for touched areas:
-  - typecheck / lint / format (e.g. `npm run typecheck && npm run lint && npm run format`), fix only task-related issues.
-  - if i18n exists, ensure no new untranslated strings.
-  - run relevant tests for changed logic; ensure nothing obvious broke.
+Run project checks for touched areas:
+- typecheck / lint / format (e.g. `npm run typecheck && npm run lint && npm run format`), fix only task-related issues.
+- if i18n exists, ensure no new untranslated strings.
+- run relevant tests for changed logic; ensure nothing obvious broke.
 - Comments: only explain non-obvious "why", short, above code; no leftover TODOs.
 
 ## Self-Audit Fallback (Non-Claude Code)
 
-If auditor sub-agent unavailable, check yourself before declaring done:
+If auditor sub-agent unavailable (not in Claude Code), check yourself before declaring done:
 - [ ] Debug code removed?
 - [ ] No dead/commented code?
 - [ ] All callers updated?

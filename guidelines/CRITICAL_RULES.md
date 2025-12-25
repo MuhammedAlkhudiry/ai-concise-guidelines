@@ -13,8 +13,13 @@
 - NO DEAD CODE — No commented-out blocks, debug prints, or leftover TODOs.
 - NEVER BUILD QUERY PARAMS MANUALLY — Use library/framework built-ins: Axios `params` option, PHP `http_build_query()`, URLSearchParams, etc. Never concatenate query strings by hand.
 
-- **Translations (if project uses i18n):**  
+- **Translations (if project uses i18n):**
   Every user-facing string must be translated. Provide natural, contextual translations—never literal. If translation is missing from user/context, write it yourself. This rule is absolute.
+
+# Claude Code specific
+
+- **NO SELF-APPROVAL** — You cannot self-approve or self-audit. After implementation, spawn the auditor sub-agent and wait for its verdict. Task is NEVER done without audit approval. If auditor rejects, fix blockers and re-audit.
+- **PLAN MODE → EXECUTE SKILL** — When using Claude Code's built-in plan mode, you MUST use the `/execution` skill (or `Skill(execution)`) to implement the plan. Do not implement directly without invoking the execution skill—it handles audit setup and ensures no self-approval.
 
 # After-task checklist
 
