@@ -1,0 +1,63 @@
+# Agents configuration
+# Defines metadata for each agent across platforms
+#
+# NOTE: This file is for documentation. Actual generation uses
+# variables defined in generate.ts:
+#   OPENCODE_MODEL_SMART = anthropic/claude-sonnet-4-20250514
+#   OPENCODE_MODEL_FAST  = anthropic/claude-haiku-4-20250514
+#   CLAUDE_MODEL_SMART   = sonnet
+#   CLAUDE_MODEL_FAST    = haiku
+
+# =============================================================================
+# OpenCode Primary Agents (Tab to switch)
+# =============================================================================
+
+plan:
+  description: "Create structured implementation plans. Read-only mode."
+  opencode:
+    mode: primary
+    # No model - uses user's default
+    permission:
+      edit: deny
+      bash: read-only commands allowed
+
+build:
+  description: "Overrides OpenCode's built-in build with execution skill. Smart model with audit workflow."
+  opencode:
+    mode: primary
+    model: "{OPENCODE_MODEL_SMART}"
+    # Uses execution.md template
+
+quick-edits:
+  description: "Fast editing for simple changes. Fast model, no audit needed."
+  opencode:
+    mode: primary
+    model: "{OPENCODE_MODEL_FAST}"
+
+# =============================================================================
+# Subagents (@mention to invoke)
+# =============================================================================
+
+auditor:
+  description: "Code auditor. Runs ONCE after execute phase. Returns APPROVED or REJECTED."
+  
+  claude-code:
+    name: auditor
+    tools: Read, Glob, Grep, Write
+    model: "{CLAUDE_MODEL_SMART}"
+  
+  opencode:
+    mode: subagent
+    model: "{OPENCODE_MODEL_SMART}"
+
+scout:
+  description: "Ultra-fast codebase scanner. Returns paths only."
+  
+  claude-code:
+    name: scout
+    tools: Glob, Grep
+    model: "{CLAUDE_MODEL_FAST}"
+  
+  opencode:
+    mode: subagent
+    model: "{OPENCODE_MODEL_FAST}"

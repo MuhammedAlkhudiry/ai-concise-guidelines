@@ -2,6 +2,8 @@
 
 This is a list of opinionated guidelines/prompt files that I use daily with AI. They have been carefully curated based on the following principles:
 
+> **For Contributors**: This repository uses a generator script. See [AGENTS.md](./AGENTS.md) for details on modifying templates and regenerating integration files.
+
 1. The prompts are designed to be brief, avoiding unnecessary noise that could overload the AI context window.
 
 2. Each guideline targets a particular behavior. Generic instructions (e.g., "be good," "think hard," "follow user prompt") are avoided, as it is assumed that the AI is already equipped with common sense.
@@ -27,60 +29,66 @@ chmod +x init.sh
 Then run with your desired options:
 
 ```bash
-# Install guidelines as multiple files
-./init.sh --guidelines-destination-path ~/.windsurf/rules
+# Install rules (merged guidelines) for Windsurf
+./init.sh --rules-path ~/.windsurf/rules/RULES.md
 
-# Install guidelines as a single merged file
-./init.sh --merge-guidelines-into-single-file ~/GUIDELINES.md
-
-# Install workflows with Windsurf frontmatter
-./init.sh --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
+# Install workflows for Windsurf
+./init.sh --workflows-path ~/.windsurf/workflows
 
 # Install skills for Claude Code
-./init.sh --skills-destination-path ~/.claude/skills
+./init.sh --skills-path ~/.claude/skills
 
 # Install everything (Windsurf)
-./init.sh --guidelines-destination-path ~/.windsurf/rules \
-          --workflows-destination-path ~/.windsurf/workflows \
-          --add-windsurf-header
+./init.sh --rules-path ~/.windsurf/rules/RULES.md \
+          --workflows-path ~/.windsurf/workflows
 
 # Install everything (Claude Code)
-./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
-          --skills-destination-path ~/.claude/skills \
-          --sub-agents-destination-path ~/.claude/agents \
-          --install-statusline \
-          --install-hooks
+./init.sh --rules-path ~/.claude/CLAUDE.md \
+          --skills-path ~/.claude/skills \
+          --agents-path ~/.claude/agents \
+          --mcp-path ~/.claude/mcp.json \
+          --install-statusline
+
+# Install everything (OpenCode)
+./init.sh --rules-path ~/.config/opencode/AGENTS.md \
+          --skills-path ~/.config/opencode/skill \
+          --agents-path ~/.config/opencode/agent \
+          --mcp-path ~/.config/opencode/opencode.json
 ```
 
 #### Options
 
-- `--guidelines-destination-path PATH` — Copy guidelines as multiple files to PATH directory
-- `--merge-guidelines-into-single-file PATH` — Merge all guidelines into a single file at PATH
-- `--workflows-destination-path PATH` — Copy workflows to PATH directory (for Windsurf)
-- `--skills-destination-path PATH` — Copy skills to PATH directory (for Claude Code)
-- `--sub-agents-destination-path PATH` — Copy sub-agents to PATH directory (for Claude Code auditor, etc.)
+- `--rules-path PATH` — Merge all guidelines into a single rules file at PATH
+- `--skills-path PATH` — Copy skills to PATH directory
+- `--agents-path PATH` — Copy agents to PATH directory (format auto-detected by path)
+- `--workflows-path PATH` — Copy workflows to PATH directory (Windsurf only)
+- `--mcp-path PATH` — Merge MCP servers into config file at PATH (requires `jq`)
+- `--rules-file-action ACTION` — Action when rules file exists: `overwrite`, `append`, or `skip`
+- `--platform PLATFORM` — Hint for agent format: `claude-code`, `opencode`, or `windsurf` (auto-detected from paths)
 - `--install-statusline` — Install Claude Code status line (colorful prompt with git, model, context bar)
-- `--install-hooks` — Install Claude Code hooks (auto-logging for auditor integration)
 - `--workflows-prefix PREFIX` — Add prefix to workflow filenames (e.g., `"MODES: "` becomes `MODES: plan-mode.md`)
-- `--add-windsurf-header` — Add Windsurf-compatible frontmatter to workflow files
 - `--help`, `-h` — Show help message
-
-**Note**: `--guidelines-destination-path` and `--merge-guidelines-into-single-file` are mutually exclusive.
 
 ---
 
 ## AI Tool Compatibility
 
-| Tool | Guidelines | Modes | Sub-agents |
-|------|------------|-------|------------|
-| **Windsurf** | `--merge-guidelines-into-single-file` | `--workflows-destination-path` | N/A |
-| **Claude Code** | `--merge-guidelines-into-single-file` | `--skills-destination-path` | `--sub-agents-destination-path` |
+| Tool | Guidelines | Modes/Skills | Agents |
+|------|------------|--------------|--------|
+| **Windsurf** | `--rules-path` | `--workflows-path` | N/A |
+| **Claude Code** | `--rules-path` | `--skills-path` | `--agents-path` |
+| **OpenCode** | `--rules-path` | `--skills-path` | `--agents-path` |
 
 ### Windsurf
 Uses **workflows** (single .md files with frontmatter). Invoked explicitly via `/workflow-name`.
 
 ### Claude Code
 Uses **skills** (directories with SKILL.md + supporting files). Skills are **auto-discovered** by Claude based on conversation context—no explicit `/mode` commands needed. Just describe what you want to do, and Claude activates the relevant skill automatically.
+
+### OpenCode
+Uses **skills** (same format as Claude Code—compatible with `.claude/skills/` paths) and **agents** (markdown files with frontmatter). Skills are auto-discovered via the `skill` tool. Agents can be:
+- **Primary agents** (Tab to switch): The custom `plan` agent overrides OpenCode's built-in Plan mode
+- **Subagents** (`@mention` to invoke): `@auditor` for code audits, `@scout` for fast file searches
 
 ---
 
@@ -95,17 +103,15 @@ If you prefer manual installation, you can simply clone/copy any file you need.
 
 - Windsurf Editor
 ```bash
-./init.sh --merge-guidelines-into-single-file ~/.codeium/windsurf/memories/global_rules.md \
-          --workflows-destination-path ~/.codeium/windsurf/global_workflows \
-          --add-windsurf-header
+./init.sh --rules-path ~/.codeium/windsurf/memories/global_rules.md \
+          --workflows-path ~/.codeium/windsurf/global_workflows
 ```
 
 
 - Windsurf Jetbrains
 ```bash
- ./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \         
-          --workflows-destination-path ~/.codeium/global_workflows \         
-          --add-windsurf-header
+./init.sh --rules-path ~/.codeium/memories/global_rules.md \
+          --workflows-path ~/.codeium/global_workflows
 ```
 
 ### Alias for Quick Refresh
@@ -117,10 +123,9 @@ Add this alias to your shell configuration (`.bashrc`, `.zshrc`, etc.) to refres
 alias refresh-windsurf-editor='cd /tmp && \
           curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
           chmod +x init.sh && \
-          ./init.sh --merge-guidelines-into-single-file ~/.codeium/windsurf/memories/global_rules.md \
-                    --workflows-destination-path ~/.codeium/windsurf/global_workflows \
-                    --add-windsurf-header \
-                    --merge-guidelines-into-single-file-action overwrite && \
+          ./init.sh --rules-path ~/.codeium/windsurf/memories/global_rules.md \
+                    --workflows-path ~/.codeium/windsurf/global_workflows \
+                    --rules-file-action overwrite && \
           rm init.sh && \
           cd -'
 ```
@@ -130,10 +135,9 @@ alias refresh-windsurf-editor='cd /tmp && \
 alias refresh-windsurf-jetbrains='cd /tmp && \
           curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
           chmod +x init.sh && \
-          ./init.sh --merge-guidelines-into-single-file ~/.codeium/memories/global_rules.md \
-                    --workflows-destination-path ~/.codeium/global_workflows \
-                    --add-windsurf-header \
-                    --merge-guidelines-into-single-file-action overwrite && \
+          ./init.sh --rules-path ~/.codeium/memories/global_rules.md \
+                    --workflows-path ~/.codeium/global_workflows \
+                    --rules-file-action overwrite && \
           rm init.sh && \
           cd -'
 ```
@@ -148,12 +152,26 @@ alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains'
 alias refresh-claude='cd /tmp && \
           curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
           chmod +x init.sh && \
-          ./init.sh --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \
-                    --skills-destination-path ~/.claude/skills \
-                    --sub-agents-destination-path ~/.claude/agents \
+          ./init.sh --rules-path ~/.claude/CLAUDE.md \
+                    --skills-path ~/.claude/skills \
+                    --agents-path ~/.claude/agents \
+                    --mcp-path ~/.claude/mcp.json \
                     --install-statusline \
-                    --install-hooks \
-                    --merge-guidelines-into-single-file-action overwrite && \
+                    --rules-file-action overwrite && \
+          rm init.sh && \
+          cd -'
+```
+
+- OpenCode
+```bash
+alias refresh-opencode='cd /tmp && \
+          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
+          chmod +x init.sh && \
+          ./init.sh --rules-path ~/.config/opencode/AGENTS.md \
+                    --skills-path ~/.config/opencode/skill \
+                    --agents-path ~/.config/opencode/agent \
+                    --mcp-path ~/.config/opencode/opencode.json \
+                    --rules-file-action overwrite && \
           rm init.sh && \
           cd -'
 ```
@@ -163,13 +181,15 @@ Then simply run:
 refresh-windsurf
 # or
 refresh-claude
+# or
+refresh-opencode
 ```
 
 ---
 
-## Claude Code Skills
+## Skills (Claude Code & OpenCode)
 
-Skills are auto-discovered by Claude based on conversation context. When you describe a task, Claude automatically activates the relevant skill.
+Skills are auto-discovered based on conversation context. When you describe a task, the AI automatically activates the relevant skill.
 
 ### Available Skills
 
@@ -215,3 +235,31 @@ A colorful, informative status line for Claude Code that shows:
 ```
 
 **Requirements:** `jq` (for settings.json update)
+
+---
+
+## OpenCode Agents
+
+OpenCode agents provide specialized behavior. Use **Tab** to switch between primary agents.
+
+### Primary Agents (Tab to switch)
+
+| Agent | Model | Description |
+|-------|-------|-------------|
+| **Plan** | default | Read-only planning mode. Structured templates, git commands allowed. |
+| **Build** | smart | Overrides built-in build. Full execution workflow with audit gates. |
+| **Quick Edits** | fast | Simple changes only. No audit needed. Fast turnaround. |
+
+**Workflow:** Plan (analyze) → Build (implement) → Quick Edits (polish)
+
+### Subagents (@mention to invoke)
+
+| Agent | Model | Description |
+|-------|-------|-------------|
+| **@auditor** | smart | Code auditor. Reviews changes, returns APPROVED/REJECTED. |
+| **@scout** | fast | Ultra-fast codebase scanner. Returns file paths only. |
+
+**Install:**
+```bash
+./init.sh --agents-path ~/.config/opencode/agent
+```

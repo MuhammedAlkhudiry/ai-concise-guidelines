@@ -1,0 +1,63 @@
+# Skills configuration
+# Defines metadata for each skill across all platforms
+
+planning:
+  description: "Create structured implementation plans with scope, phases, and risks. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps."
+  windsurf_workflow: plan-mode
+
+execution:
+  description: "Implement approved plans into production-ready code. Use when user wants to build, implement, code, or execute an approved plan. Activates when user says 'let's build', 'implement this', 'start coding', or 'execute the plan'."
+  windsurf_workflow: execute-mode
+
+workshop:
+  description: "Explore and stress-test ideas before building. Use when user wants to brainstorm, think through an approach, explore options, discuss trade-offs, or says 'let's workshop this', 'think through', 'explore idea', or 'brainstorm'."
+  windsurf_workflow: workshop-mode
+
+reflection:
+  description: "Audit completed work to find gaps, risks, and next steps. Use when user wants to review what was built, audit code, find gaps, or says 'let's reflect', 'audit this', 'what did we miss', or 'review the work'."
+  windsurf_workflow: reflection-mode
+
+code-review:
+  description: "Review code changes for bugs, security, and design issues. Use when user wants to review code, check a PR, review changes, or says 'review this', 'check my code', 'PR review', or 'code review'."
+  windsurf_workflow: code-review-mode
+
+debugging:
+  description: "Systematically investigate and fix bugs with evidence-based diagnosis. Use when user mentions a bug, error, something not working, unexpected behavior, or says 'debug this', 'why is this broken', 'fix this bug', or describes symptoms of a problem."
+  windsurf_workflow: debug-mode
+
+refactoring:
+  description: "Restructure code without changing behavior. Use when user wants to refactor, clean up code, restructure, or says 'refactor this', 'clean this up', 'this code is messy', or identifies code smells to fix."
+  windsurf_workflow: refactor-mode
+
+translation:
+  description: "Review translations for quality, naturalness, and cultural fit. Use when user wants to review translations, check i18n files, or says 'review translations', 'check localization', or mentions translation quality issues."
+  windsurf_workflow: translation-mode
+
+api-handoff:
+  description: "Create API handoff documentation for frontend developers. Use when backend work is complete and needs to be documented for frontend integration, or user says 'create handoff', 'document API', 'frontend handoff', or 'API documentation'."
+  windsurf_workflow: api-handoff-mode
+
+backend-requirements:
+  description: "Document frontend data needs for backend developers. Use when frontend needs to communicate API requirements to backend, or user says 'backend requirements', 'what data do I need', 'API requirements', or is describing data needs for a UI."
+  windsurf_workflow: backend-requirements-mode
+
+product-strategy:
+  description: "Find 10x product opportunities and high-leverage improvements. Use when user wants strategic product thinking, mentions '10x', wants to find high-impact features, or says 'what would make this 10x better', 'product strategy', or 'what should we build next'."
+  windsurf_workflow: 10x-mode
+
+feature-research:
+  description: "Deep research on features before building with co-founder mindset. Use when user wants to research a feature idea, explore if something is worth building, or says 'research this feature', 'is this worth building', 'explore this idea', or wants product + market + tech analysis."
+  windsurf_workflow: feature-research-mode
+
+prompt-enhancer:
+  description: "Fast prompt enhancement with codebase context. Use when user wants to enhance a prompt, improve a question, or says 'enhance this', 'improve prompt', '/enhance', or wants better context before asking Claude. Responds in under 10 seconds."
+  windsurf_workflow: prompt-enhancer-mode
+
+user-story-review:
+  description: "Review user stories from a developer perspective. Use when user wants to review user stories, check story quality, or says 'review this story', 'is this story clear', 'story feedback', or has user stories that need developer review before implementation."
+  windsurf_workflow: refine-user-story-mode
+
+full-feature:
+  description: "Manage full feature lifecycle from exploration to delivery. Use when building new features, implementing complete functionality, or when user mentions 'feature mode', 'full feature', or wants to go through Workshop, Plan, Execute, and Reflection phases systematically."
+  windsurf_workflow: full-feature-mode
+  has_templates: true

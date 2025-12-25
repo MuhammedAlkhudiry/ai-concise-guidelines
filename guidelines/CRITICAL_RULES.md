@@ -16,9 +16,10 @@
 - **Translations (if project uses i18n):**
   Every user-facing string must be translated. Provide natural, contextual translations—never literal. If translation is missing from user/context, write it yourself. This rule is absolute.
 
-# Claude Code specific
+# Claude Code \ OpenCode specific
 
 - **NO SELF-APPROVAL** — You cannot self-approve or self-audit. After implementation, spawn the auditor sub-agent and wait for its verdict. Task is NEVER done without audit approval. If auditor rejects, fix blockers and re-audit.
+- **DOCUMENT CHANGES** — During implementation, document all file changes in `changes.log` for auditor review. Format: `{time} | {edit|write} | {file} | {description}`
 - **PLAN MODE → EXECUTE SKILL** — When using Claude Code's built-in plan mode, you MUST use the `/execution` skill (or `Skill(execution)`) to implement the plan. Do not implement directly without invoking the execution skill—it handles audit setup and ensures no self-approval.
 
 # After-task checklist

@@ -73,63 +73,43 @@ ${BLUE}╚═══════════════════════�
 Usage: $0 [OPTIONS]
 
 Options:
-  --guidelines-destination-path PATH
-      Copy guidelines as multiple files to PATH directory
+  --rules-path PATH         Merge guidelines into a single rules file at PATH
+  --skills-path PATH        Copy skills to PATH directory
+  --agents-path PATH        Copy agents to PATH directory
+  --workflows-path PATH     Copy workflows to PATH directory (Windsurf only)
+  --mcp-path PATH           Copy MCP config to PATH file
 
-  --merge-guidelines-into-single-file PATH
-      Merge all guidelines into a single file at PATH
 
-  --workflows-destination-path PATH
-      Copy workflows to PATH directory (for Windsurf)
-
-  --skills-destination-path PATH
-      Copy skills to PATH directory (for Claude Code)
-
-  --sub-agents-destination-path PATH
-      Copy sub-agents to PATH directory
-
-  --install-statusline
-      Install Claude Code status line (colorful prompt with git, model, context bar)
-
-  --install-hooks
-      Install Claude Code hooks (auto-logging for auditor integration)
-
-  --add-windsurf-header
-      Add Windsurf-compatible frontmatter to workflow files
+  --rules-file-action ACTION
+      Action when rules file exists: overwrite, append, or skip (default: prompt)
 
   --workflows-prefix PREFIX
-      Add prefix to workflow filenames (e.g., "MODES: " becomes "MODES: plan-mode.md")
+      Add prefix to workflow filenames (e.g., "MODES: ")
 
-  --merge-guidelines-into-single-file-action ACTION
-      Action when file exists: overwrite, append, or skip (default: prompt)
+  --install-statusline      Install Claude Code status line
 
-  --help, -h
-      Show this help message
+  --platform PLATFORM       Hint for agent format: claude-code, opencode, windsurf
+                            (auto-detected from paths if not specified)
+
+  --help, -h                Show this help message
 
 Examples:
-  # Copy guidelines as multiple files
-  $0 --guidelines-destination-path ~/.windsurf/rules
+  # Windsurf
+  $0 --rules-path ~/.windsurf/rules/RULES.md \\
+     --workflows-path ~/.windsurf/workflows
 
-  # Merge guidelines into single file
-  $0 --merge-guidelines-into-single-file ~/GUIDELINES.md
+  # Claude Code
+  $0 --rules-path ~/.claude/CLAUDE.md \\
+     --skills-path ~/.claude/skills \\
+     --agents-path ~/.claude/agents \\
+     --mcp-path ~/.claude/mcp.json \\
+     --install-statusline
 
-  # Copy workflows with Windsurf headers
-  $0 --workflows-destination-path ~/.windsurf/workflows --add-windsurf-header
-
-  # Copy skills for Claude Code
-  $0 --skills-destination-path ~/.claude/skills
-
-  # Copy everything (Windsurf)
-  $0 --guidelines-destination-path ~/.windsurf/rules \\
-     --workflows-destination-path ~/.windsurf/workflows \\
-     --add-windsurf-header
-
-  # Copy everything (Claude Code)
-  $0 --merge-guidelines-into-single-file ~/.claude/CLAUDE.md \\
-     --skills-destination-path ~/.claude/skills \\
-     --sub-agents-destination-path ~/.claude/agents \\
-     --install-statusline \\
-     --install-hooks
+  # OpenCode
+  $0 --rules-path ~/.config/opencode/AGENTS.md \\
+     --skills-path ~/.config/opencode/skill \\
+     --agents-path ~/.config/opencode/agent \\
+     --mcp-path ~/.config/opencode/opencode.json
 
 EOF
     exit 0
@@ -166,6 +146,38 @@ validate_destination_path() {
     return 0
 }
 
+# Detect platform from paths
+detect_platform() {
+    local rules_path="$1"
+    local skills_path="$2"
+    local agents_path="$3"
+    local workflows_path="$4"
+    
+    # Check for OpenCode indicators
+    if [[ "$rules_path" == *"opencode"* ]] || [[ "$skills_path" == *"opencode"* ]] || \
+       [[ "$agents_path" == *"opencode"* ]]; then
+        echo "opencode"
+        return
+    fi
+    
+    # Check for Windsurf indicators
+    if [[ "$rules_path" == *"windsurf"* ]] || [[ "$workflows_path" == *"windsurf"* ]] || \
+       [[ "$rules_path" == *"codeium"* ]] || [[ "$workflows_path" == *"codeium"* ]]; then
+        echo "windsurf"
+        return
+    fi
+    
+    # Check for Claude Code indicators
+    if [[ "$rules_path" == *".claude"* ]] || [[ "$skills_path" == *".claude"* ]] || \
+       [[ "$agents_path" == *".claude"* ]]; then
+        echo "claude-code"
+        return
+    fi
+    
+    # Default to claude-code
+    echo "claude-code"
+}
+
 # Clone repository with sparse checkout
 clone_repository() {
     local folders="$1"
@@ -191,33 +203,12 @@ clone_repository() {
     print_success "Repository cloned successfully"
 }
 
-# Copy guidelines as multiple files
-copy_guidelines_multiple() {
-    local dest="$1"
-    
-    print_info "Copying guidelines as multiple files to $dest..."
-    
-    if [ ! -d "$TMP_DIR/guidelines" ]; then
-        print_error "Guidelines folder not found"
-        return 1
-    fi
-    
-    mkdir -p "$dest"
-    cp -r "$TMP_DIR/guidelines/"* "$dest/" || {
-        print_error "Failed to copy guidelines"
-        return 1
-    }
-    
-    local count=$(find "$dest" -type f -name "*.md" | wc -l)
-    print_success "Copied $count guideline files to $dest"
-}
-
-# Copy guidelines as single merged file
-copy_guidelines_merged() {
+# Copy rules (merged guidelines)
+copy_rules() {
     local dest="$1"
     local action="$2"
     
-    print_info "Merging guidelines into single file..."
+    print_info "Copying rules to $dest..."
     
     if [ ! -d "$TMP_DIR/guidelines" ]; then
         print_error "Guidelines folder not found"
@@ -235,7 +226,7 @@ copy_guidelines_merged() {
         
         case $action in
             s|skip)
-                print_info "Skipping guidelines merge"
+                print_info "Skipping rules copy"
                 return 0
                 ;;
             o|overwrite)
@@ -260,52 +251,90 @@ copy_guidelines_merged() {
         cat "$file" >> "$dest"
     done
     
-    print_success "Guidelines merged into $dest"
+    print_success "Rules copied to $dest"
 }
 
-# Add Windsurf frontmatter to workflow files
-add_windsurf_frontmatter() {
+# Copy skills
+copy_skills() {
     local dest="$1"
+    local platform="$2"
+
+    print_info "Copying skills to $dest..."
+
+    local source_dir="$TMP_DIR/integrations/$platform/skills"
+    if [ ! -d "$source_dir" ]; then
+        # Fall back to claude-code if platform-specific not found
+        source_dir="$TMP_DIR/integrations/claude-code/skills"
+    fi
     
-    print_info "Adding Windsurf frontmatter to workflow files..."
-    
-    # Check if any .md files exist to prevent glob expansion errors
-    shopt -s nullglob 2>/dev/null || true
-    for file in "$dest"/*.md; do
-        if [ -f "$file" ]; then
-            # Check if frontmatter already exists
-            if ! head -n 1 "$file" | grep -q "^---$"; then
-                local temp_file="${file}.tmp"
-                {
-                    echo "---"
-                    echo "description: "
-                    echo "---"
-                    echo ""
-                    cat "$file"
-                } > "$temp_file"
-                mv "$temp_file" "$file"
-            fi
-        fi
-    done
-    shopt -u nullglob 2>/dev/null || true
-    
-    print_success "Frontmatter added to workflow files"
+    if [ ! -d "$source_dir" ]; then
+        print_error "Skills folder not found"
+        return 1
+    fi
+
+    # Remove existing skills folder to ensure deleted skills are removed
+    if [ -d "$dest" ]; then
+        rm -rf "$dest"
+    fi
+
+    mkdir -p "$dest"
+    cp -r "$source_dir/"* "$dest/" || {
+        print_error "Failed to copy skills"
+        return 1
+    }
+
+    local count=$(find "$dest" -type d -mindepth 1 -maxdepth 1 | wc -l)
+    print_success "Copied $count skill directories to $dest"
 }
 
-# Copy workflows
+# Copy agents
+copy_agents() {
+    local dest="$1"
+    local platform="$2"
+
+    print_info "Copying agents to $dest..."
+
+    local source_dir=""
+    if [ "$platform" = "opencode" ]; then
+        source_dir="$TMP_DIR/integrations/opencode/agents"
+    else
+        source_dir="$TMP_DIR/integrations/claude-code/sub-agents"
+    fi
+    
+    if [ ! -d "$source_dir" ]; then
+        print_error "Agents folder not found at $source_dir"
+        return 1
+    fi
+
+    # Remove existing agents folder
+    if [ -d "$dest" ]; then
+        rm -rf "$dest"
+    fi
+
+    mkdir -p "$dest"
+    cp -r "$source_dir/"* "$dest/" || {
+        print_error "Failed to copy agents"
+        return 1
+    }
+
+    local count=$(find "$dest" -type f -name "*.md" | wc -l)
+    print_success "Copied $count agent files to $dest"
+}
+
+# Copy workflows (Windsurf)
 copy_workflows() {
     local dest="$1"
-    local add_frontmatter="$2"
-    local prefix="$3"
+    local prefix="$2"
 
     print_info "Copying workflows to $dest..."
 
-    if [ ! -d "$TMP_DIR/workflows" ]; then
+    local source_dir="$TMP_DIR/integrations/windsurf/workflows"
+    if [ ! -d "$source_dir" ]; then
         print_error "Workflows folder not found"
         return 1
     fi
 
-    # Remove existing workflows folder to ensure deleted workflows are removed
+    # Remove existing workflows folder
     if [ -d "$dest" ]; then
         rm -rf "$dest"
     fi
@@ -314,7 +343,7 @@ copy_workflows() {
 
     # Copy files, optionally with prefix
     if [ -n "$prefix" ]; then
-        for file in "$TMP_DIR/workflows/"*; do
+        for file in "$source_dir/"*; do
             if [ -f "$file" ]; then
                 local basename=$(basename "$file")
                 cp "$file" "$dest/${prefix}${basename}" || {
@@ -324,60 +353,95 @@ copy_workflows() {
             fi
         done
     else
-        cp -r "$TMP_DIR/workflows/"* "$dest/" || {
+        cp -r "$source_dir/"* "$dest/" || {
             print_error "Failed to copy workflows"
             return 1
         }
-    fi
-
-    if [ "$add_frontmatter" = "y" ]; then
-        add_windsurf_frontmatter "$dest"
     fi
 
     local count=$(find "$dest" -type f | wc -l)
     print_success "Copied $count workflow files to $dest"
 }
 
-# Copy sub-agents
-copy_sub_agents() {
+# Merge MCP servers into existing config
+merge_mcp() {
     local dest="$1"
+    local platform="$2"
 
-    print_info "Copying sub-agents to $dest..."
+    print_info "Merging MCP servers into $dest..."
 
-    if [ ! -d "$TMP_DIR/sub-agents" ]; then
-        print_error "Sub-agents folder not found"
+    local source_file=""
+    if [ "$platform" = "opencode" ]; then
+        source_file="$TMP_DIR/integrations/opencode/mcp.json"
+    else
+        source_file="$TMP_DIR/integrations/claude-code/mcp.json"
+    fi
+
+    if [ ! -f "$source_file" ]; then
+        print_error "MCP source file not found at $source_file"
         return 1
     fi
 
-    # Remove existing sub-agents folder to ensure deleted sub-agents are removed
-    if [ -d "$dest" ]; then
-        rm -rf "$dest"
+    mkdir -p "$(dirname "$dest")"
+
+    if ! command -v jq >/dev/null 2>&1; then
+        print_warning "jq not found. Cannot merge MCP config."
+        print_info "Install jq and re-run, or manually merge MCP servers."
+        return 1
     fi
 
-    mkdir -p "$dest"
-    cp -r "$TMP_DIR/sub-agents/"* "$dest/" || {
-        print_error "Failed to copy sub-agents"
-        return 1
-    }
+    if [ "$platform" = "opencode" ]; then
+        # OpenCode: merge into opencode.json under "mcp" key
+        local new_mcps
+        new_mcps=$(cat "$source_file")
 
-    local count=$(find "$dest" -type f | wc -l)
-    print_success "Copied $count sub-agent files to $dest"
+        if [ -f "$dest" ]; then
+            # Merge with existing config
+            local tmp_file="${dest}.tmp"
+            jq --argjson newMcp "$new_mcps" '.mcp = (.mcp // {}) + $newMcp' "$dest" > "$tmp_file" && mv "$tmp_file" "$dest"
+        else
+            # Create new config with MCP
+            echo "{
+  \"\$schema\": \"https://opencode.ai/config.json\",
+  \"mcp\": $new_mcps
+}" > "$dest"
+        fi
+    else
+        # Claude Code: merge into mcp.json under "mcpServers" key
+        local new_mcps
+        new_mcps=$(jq '.mcpServers' "$source_file")
+
+        if [ -f "$dest" ]; then
+            # Merge with existing config
+            local tmp_file="${dest}.tmp"
+            jq --argjson newMcp "$new_mcps" '.mcpServers = (.mcpServers // {}) + $newMcp' "$dest" > "$tmp_file" && mv "$tmp_file" "$dest"
+        else
+            # Create new config
+            cp "$source_file" "$dest"
+        fi
+    fi
+
+    local count
+    if [ "$platform" = "opencode" ]; then
+        count=$(jq '.mcp | keys | length' "$dest" 2>/dev/null || echo "?")
+    else
+        count=$(jq '.mcpServers | keys | length' "$dest" 2>/dev/null || echo "?")
+    fi
+    print_success "Merged MCP servers (total: $count)"
 }
 
-# Install Claude Code status line
+# Install status line (Claude Code)
 install_statusline() {
-    print_info "Installing Claude Code status line..."
+    print_info "Installing status line..."
 
     local claude_dir="$HOME/.claude"
     local script_dest="$claude_dir/statusline-command.sh"
     local settings_file="$claude_dir/settings.json"
 
-    # Ensure .claude directory exists
     mkdir -p "$claude_dir"
 
-    # Copy the script
     if [ ! -f "$TMP_DIR/statusline/statusline-command.sh" ]; then
-        print_error "Status line script not found in repository"
+        print_error "Status line script not found"
         return 1
     fi
 
@@ -389,7 +453,6 @@ install_statusline() {
 
     # Update settings.json
     if [ -f "$settings_file" ]; then
-        # Check if jq is available
         if command -v jq >/dev/null 2>&1; then
             local tmp_settings="${settings_file}.tmp"
             jq --arg cmd "$script_dest" '.statusLine = {"type": "command", "command": $cmd}' "$settings_file" > "$tmp_settings" && mv "$tmp_settings" "$settings_file"
@@ -398,88 +461,10 @@ install_statusline() {
             print_info "Add: \"statusLine\": {\"type\": \"command\", \"command\": \"$script_dest\"}"
         fi
     else
-        # Create new settings.json
         echo "{\"statusLine\": {\"type\": \"command\", \"command\": \"$script_dest\"}}" > "$settings_file"
     fi
 
     print_success "Status line installed at $script_dest"
-}
-
-# Install Claude Code hooks
-install_hooks() {
-    print_info "Installing Claude Code hooks..."
-
-    local claude_dir="$HOME/.claude"
-    local hooks_dir="$claude_dir/hooks"
-    local settings_file="$claude_dir/settings.json"
-
-    # Ensure directories exist
-    mkdir -p "$hooks_dir"
-
-    # Copy hook scripts
-    if [ ! -d "$TMP_DIR/hooks" ]; then
-        print_error "Hooks folder not found in repository"
-        return 1
-    fi
-
-    # Copy all hook scripts
-    for file in "$TMP_DIR/hooks/"*.sh; do
-        if [ -f "$file" ]; then
-            local basename=$(basename "$file")
-            cp "$file" "$hooks_dir/$basename" || {
-                print_error "Failed to copy hook: $basename"
-                return 1
-            }
-            chmod +x "$hooks_dir/$basename"
-        fi
-    done
-
-    # Update settings.json with hook configuration
-    local hook_config='{"PostToolUse":[{"matcher":"Edit|Write","hooks":[{"type":"command","command":"\"$HOME/.claude/hooks/log-changes.sh\"","timeout":5}]}]}'
-
-    if [ -f "$settings_file" ]; then
-        if command -v jq >/dev/null 2>&1; then
-            local tmp_settings="${settings_file}.tmp"
-            # Merge hooks config into existing settings
-            jq --argjson hooks "$hook_config" '.hooks = $hooks' "$settings_file" > "$tmp_settings" && mv "$tmp_settings" "$settings_file"
-        else
-            print_warning "jq not found. Please manually add hooks config to $settings_file"
-            print_info "Add: \"hooks\": $hook_config"
-        fi
-    else
-        # Create new settings.json
-        echo "{\"hooks\": $hook_config}" > "$settings_file"
-    fi
-
-    print_success "Hooks installed at $hooks_dir"
-}
-
-# Copy skills (for Claude Code)
-copy_skills() {
-    local dest="$1"
-
-    print_info "Copying skills to $dest..."
-
-    if [ ! -d "$TMP_DIR/skills" ]; then
-        print_error "Skills folder not found"
-        return 1
-    fi
-
-    # Remove existing skills folder to ensure deleted skills are removed
-    if [ -d "$dest" ]; then
-        rm -rf "$dest"
-    fi
-
-    mkdir -p "$dest"
-
-    # Copy entire skills directory structure (preserves subdirectories)
-    cp -r "$TMP_DIR/skills/"* "$dest/" || {
-        print_error "Failed to copy skills"
-        return 1
-    }
-
-    local count=$(find "$dest" -type d -mindepth 1 -maxdepth 1 | wc -l)
-    print_success "Copied $count skill directories to $dest"
 }
 
 # Main function
@@ -487,58 +472,53 @@ main() {
     check_prerequisites
     
     # Parse arguments
-    local guidelines_dest=""
-    local guidelines_merged=""
-    local guidelines_merged_action=""
-    local workflows_dest=""
+    local rules_path=""
+    local rules_action=""
+    local skills_path=""
+    local agents_path=""
+    local workflows_path=""
     local workflows_prefix=""
-    local sub_agents_dest=""
-    local skills_dest=""
-    local install_statusline="n"
-    local install_hooks="n"
-    local add_frontmatter="n"
+    local mcp_path=""
+    local platform=""
+    local do_install_statusline="n"
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --guidelines-destination-path)
-                guidelines_dest="$2"
+            --rules-path)
+                rules_path="$2"
                 shift 2
                 ;;
-            --merge-guidelines-into-single-file)
-                guidelines_merged="$2"
+            --rules-file-action)
+                rules_action="$2"
                 shift 2
                 ;;
-            --merge-guidelines-into-single-file-action)
-                guidelines_merged_action="$2"
+            --skills-path)
+                skills_path="$2"
                 shift 2
                 ;;
-            --workflows-destination-path)
-                workflows_dest="$2"
+            --agents-path)
+                agents_path="$2"
                 shift 2
                 ;;
-            --skills-destination-path)
-                skills_dest="$2"
+            --workflows-path)
+                workflows_path="$2"
                 shift 2
-                ;;
-            --sub-agents-destination-path)
-                sub_agents_dest="$2"
-                shift 2
-                ;;
-            --add-windsurf-header)
-                add_frontmatter="y"
-                shift
-                ;;
-            --install-statusline)
-                install_statusline="y"
-                shift
-                ;;
-            --install-hooks)
-                install_hooks="y"
-                shift
                 ;;
             --workflows-prefix)
                 workflows_prefix="$2"
                 shift 2
+                ;;
+            --mcp-path)
+                mcp_path="$2"
+                shift 2
+                ;;
+            --platform)
+                platform="$2"
+                shift 2
+                ;;
+            --install-statusline)
+                do_install_statusline="y"
+                shift
                 ;;
             --help|-h)
                 show_usage
@@ -551,76 +531,70 @@ main() {
         esac
     done
     
-    # Validate arguments
-    if [ -n "$guidelines_dest" ] && [ -n "$guidelines_merged" ]; then
-        print_error "Cannot use both --guidelines-destination-path and --merge-guidelines-into-single-file"
-        echo "Please choose one option for guidelines."
-        exit 1
-    fi
-    
-    if [ -z "$guidelines_dest" ] && [ -z "$guidelines_merged" ] && [ -z "$workflows_dest" ] && [ -z "$sub_agents_dest" ] && [ -z "$skills_dest" ] && [ "$install_statusline" = "n" ] && [ "$install_hooks" = "n" ]; then
-        print_error "No destination specified. At least one destination is required."
+    # Validate at least one destination specified
+    if [ -z "$rules_path" ] && [ -z "$skills_path" ] && [ -z "$agents_path" ] && \
+       [ -z "$workflows_path" ] && [ -z "$mcp_path" ] && [ "$do_install_statusline" = "n" ]; then
+        print_error "No destination specified. At least one path is required."
         echo ""
         show_usage
     fi
 
     # Expand tilde in paths
-    [ -n "$guidelines_dest" ] && guidelines_dest="${guidelines_dest/#\~/$HOME}"
-    [ -n "$guidelines_merged" ] && guidelines_merged="${guidelines_merged/#\~/$HOME}"
-    [ -n "$workflows_dest" ] && workflows_dest="${workflows_dest/#\~/$HOME}"
-    [ -n "$sub_agents_dest" ] && sub_agents_dest="${sub_agents_dest/#\~/$HOME}"
-    [ -n "$skills_dest" ] && skills_dest="${skills_dest/#\~/$HOME}"
+    [ -n "$rules_path" ] && rules_path="${rules_path/#\~/$HOME}"
+    [ -n "$skills_path" ] && skills_path="${skills_path/#\~/$HOME}"
+    [ -n "$agents_path" ] && agents_path="${agents_path/#\~/$HOME}"
+    [ -n "$workflows_path" ] && workflows_path="${workflows_path/#\~/$HOME}"
+    [ -n "$mcp_path" ] && mcp_path="${mcp_path/#\~/$HOME}"
+
+    # Auto-detect platform if not specified
+    if [ -z "$platform" ]; then
+        platform=$(detect_platform "$rules_path" "$skills_path" "$agents_path" "$workflows_path")
+    fi
 
     # Validate destination paths
-    if [ -n "$guidelines_dest" ]; then
-        validate_destination_path "$guidelines_dest" || exit 1
-    fi
-    if [ -n "$guidelines_merged" ]; then
-        validate_destination_path "$guidelines_merged" || exit 1
-    fi
-    if [ -n "$workflows_dest" ]; then
-        validate_destination_path "$workflows_dest" || exit 1
-    fi
-    if [ -n "$sub_agents_dest" ]; then
-        validate_destination_path "$sub_agents_dest" || exit 1
-    fi
-    if [ -n "$skills_dest" ]; then
-        validate_destination_path "$skills_dest" || exit 1
-    fi
+    [ -n "$rules_path" ] && { validate_destination_path "$rules_path" || exit 1; }
+    [ -n "$skills_path" ] && { validate_destination_path "$skills_path" || exit 1; }
+    [ -n "$agents_path" ] && { validate_destination_path "$agents_path" || exit 1; }
+    [ -n "$workflows_path" ] && { validate_destination_path "$workflows_path" || exit 1; }
+    [ -n "$mcp_path" ] && { validate_destination_path "$mcp_path" || exit 1; }
     
     # Determine what folders to clone
     local folders=""
-    local copy_guidelines=false
-    local copy_workflows=false
-    local copy_sub_agents=false
-    local copy_skills=false
 
-    if [ -n "$guidelines_dest" ] || [ -n "$guidelines_merged" ]; then
-        copy_guidelines=true
+    if [ -n "$rules_path" ]; then
         folders="guidelines"
     fi
 
-    if [ -n "$workflows_dest" ]; then
-        copy_workflows=true
-        [ -n "$folders" ] && folders="$folders workflows" || folders="workflows"
+    if [ -n "$skills_path" ]; then
+        [ -n "$folders" ] && folders="$folders integrations/$platform/skills" || folders="integrations/$platform/skills"
+        # Also get claude-code skills as fallback
+        if [ "$platform" != "claude-code" ]; then
+            folders="$folders integrations/claude-code/skills"
+        fi
     fi
 
-    if [ -n "$sub_agents_dest" ]; then
-        copy_sub_agents=true
-        [ -n "$folders" ] && folders="$folders sub-agents" || folders="sub-agents"
+    if [ -n "$agents_path" ]; then
+        if [ "$platform" = "opencode" ]; then
+            [ -n "$folders" ] && folders="$folders integrations/opencode/agents" || folders="integrations/opencode/agents"
+        else
+            [ -n "$folders" ] && folders="$folders integrations/claude-code/sub-agents" || folders="integrations/claude-code/sub-agents"
+        fi
     fi
 
-    if [ -n "$skills_dest" ]; then
-        copy_skills=true
-        [ -n "$folders" ] && folders="$folders skills" || folders="skills"
+    if [ -n "$workflows_path" ]; then
+        [ -n "$folders" ] && folders="$folders integrations/windsurf/workflows" || folders="integrations/windsurf/workflows"
     fi
 
-    if [ "$install_statusline" = "y" ]; then
+    if [ -n "$mcp_path" ]; then
+        if [ "$platform" = "opencode" ]; then
+            [ -n "$folders" ] && folders="$folders integrations/opencode/mcp.json" || folders="integrations/opencode/mcp.json"
+        else
+            [ -n "$folders" ] && folders="$folders integrations/claude-code/mcp.json" || folders="integrations/claude-code/mcp.json"
+        fi
+    fi
+
+    if [ "$do_install_statusline" = "y" ]; then
         [ -n "$folders" ] && folders="$folders statusline" || folders="statusline"
-    fi
-
-    if [ "$install_hooks" = "y" ]; then
-        [ -n "$folders" ] && folders="$folders hooks" || folders="hooks"
     fi
     
     # Show summary
@@ -631,95 +605,31 @@ main() {
     echo -e "${NC}"
     echo ""
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
-    print_info "Installation Summary:"
-    if [ -n "$guidelines_dest" ]; then
-        echo "  • Guidelines: Multiple files → $guidelines_dest"
-    fi
-    if [ -n "$guidelines_merged" ]; then
-        echo "  • Guidelines: Single merged file → $guidelines_merged"
-    fi
-    if [ -n "$workflows_dest" ]; then
-        echo "  • Workflows: Multiple files → $workflows_dest"
-        if [ "$add_frontmatter" = "y" ]; then
-            echo "    (with Windsurf frontmatter)"
-        fi
-    fi
-    if [ -n "$sub_agents_dest" ]; then
-        echo "  • Sub-agents: Multiple files → $sub_agents_dest"
-    fi
-    if [ -n "$skills_dest" ]; then
-        echo "  • Skills: Directory structure → $skills_dest"
-    fi
-    if [ "$install_statusline" = "y" ]; then
-        echo "  • Status line: ~/.claude/statusline-command.sh"
-    fi
-    if [ "$install_hooks" = "y" ]; then
-        echo "  • Hooks: ~/.claude/hooks/"
-    fi
+    print_info "Installation Summary (platform: $platform):"
+    [ -n "$rules_path" ] && echo "  • Rules: $rules_path"
+    [ -n "$skills_path" ] && echo "  • Skills: $skills_path"
+    [ -n "$agents_path" ] && echo "  • Agents: $agents_path"
+    [ -n "$workflows_path" ] && echo "  • Workflows: $workflows_path"
+    [ -n "$mcp_path" ] && echo "  • MCP: $mcp_path"
+    [ "$do_install_statusline" = "y" ] && echo "  • Status line: ~/.claude/statusline-command.sh"
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
     # Execute installation
     clone_repository "$folders"
     
-    if [ -n "$guidelines_dest" ]; then
-        copy_guidelines_multiple "$guidelines_dest"
-    fi
-    
-    if [ -n "$guidelines_merged" ]; then
-        copy_guidelines_merged "$guidelines_merged" "$guidelines_merged_action"
-    fi
-    
-    if [ -n "$workflows_dest" ]; then
-        copy_workflows "$workflows_dest" "$add_frontmatter" "$workflows_prefix"
-    fi
-
-    if [ -n "$sub_agents_dest" ]; then
-        copy_sub_agents "$sub_agents_dest"
-    fi
-
-    if [ -n "$skills_dest" ]; then
-        copy_skills "$skills_dest"
-    fi
-
-    if [ "$install_statusline" = "y" ]; then
-        install_statusline
-    fi
-
-    if [ "$install_hooks" = "y" ]; then
-        install_hooks
-    fi
+    [ -n "$rules_path" ] && copy_rules "$rules_path" "$rules_action"
+    [ -n "$skills_path" ] && copy_skills "$skills_path" "$platform"
+    [ -n "$agents_path" ] && copy_agents "$agents_path" "$platform"
+    [ -n "$workflows_path" ] && copy_workflows "$workflows_path" "$workflows_prefix"
+    [ -n "$mcp_path" ] && merge_mcp "$mcp_path" "$platform"
+    [ "$do_install_statusline" = "y" ] && install_statusline
 
     # Success message
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║           ✓ Installation completed successfully!         ║${NC}"
     echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    print_info "Next steps:"
-    if [ -n "$guidelines_dest" ]; then
-        echo "  • Configure your AI tool to load guidelines from: $guidelines_dest"
-    fi
-    if [ -n "$guidelines_merged" ]; then
-        echo "  • Configure your AI tool to load guidelines from: $guidelines_merged"
-    fi
-    if [ -n "$workflows_dest" ]; then
-        echo "  • Restart your IDE/tool to load workflows from: $workflows_dest"
-    fi
-    if [ -n "$sub_agents_dest" ]; then
-        echo "  • Sub-agent prompts available at: $sub_agents_dest"
-        echo "    (Use with Claude Code Task tool or reference in other AI tools)"
-    fi
-    if [ -n "$skills_dest" ]; then
-        echo "  • Skills installed at: $skills_dest"
-        echo "    (Claude Code will auto-discover these based on context)"
-    fi
-    if [ "$install_statusline" = "y" ]; then
-        echo "  • Status line installed. Restart Claude Code to see it."
-    fi
-    if [ "$install_hooks" = "y" ]; then
-        echo "  • Hooks installed. Auto-logging enabled for auditor integration."
-    fi
     echo ""
 }
 
