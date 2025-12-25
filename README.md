@@ -63,6 +63,7 @@ Then run with your desired options:
 - `--agents-path PATH` — Copy agents to PATH directory (format auto-detected by path)
 - `--workflows-path PATH` — Copy workflows to PATH directory (Windsurf only)
 - `--mcp-path PATH` — Merge MCP servers into config file at PATH (requires `jq`)
+- `--zsh-path PATH` — Copy ZSH custom config to PATH and source it in `~/.zshrc`
 - `--rules-file-action ACTION` — Action when rules file exists: `overwrite`, `append`, or `skip`
 - `--platform PLATFORM` — Hint for agent format: `claude-code`, `opencode`, or `windsurf` (auto-detected from paths)
 - `--install-statusline` — Install Claude Code status line (colorful prompt with git, model, context bar)
@@ -125,6 +126,7 @@ alias refresh-windsurf-editor='cd /tmp && \
           chmod +x init.sh && \
           ./init.sh --rules-path ~/.codeium/windsurf/memories/global_rules.md \
                     --workflows-path ~/.codeium/windsurf/global_workflows \
+                    --zsh-path ~/.config/zsh-sync/custom.zsh \
                     --rules-file-action overwrite && \
           rm init.sh && \
           cd -'
@@ -137,6 +139,7 @@ alias refresh-windsurf-jetbrains='cd /tmp && \
           chmod +x init.sh && \
           ./init.sh --rules-path ~/.codeium/memories/global_rules.md \
                     --workflows-path ~/.codeium/global_workflows \
+                    --zsh-path ~/.config/zsh-sync/custom.zsh \
                     --rules-file-action overwrite && \
           rm init.sh && \
           cd -'
@@ -156,6 +159,7 @@ alias refresh-claude='cd /tmp && \
                     --skills-path ~/.claude/skills \
                     --agents-path ~/.claude/agents \
                     --mcp-path ~/.claude/mcp.json \
+                    --zsh-path ~/.config/zsh-sync/custom.zsh \
                     --install-statusline \
                     --rules-file-action overwrite && \
           rm init.sh && \
@@ -171,6 +175,7 @@ alias refresh-opencode='cd /tmp && \
                     --skills-path ~/.config/opencode/skill \
                     --agents-path ~/.config/opencode/agent \
                     --mcp-path ~/.config/opencode/opencode.json \
+                    --zsh-path ~/.config/zsh-sync/custom.zsh \
                     --rules-file-action overwrite && \
           rm init.sh && \
           cd -'
@@ -183,83 +188,4 @@ refresh-windsurf
 refresh-claude
 # or
 refresh-opencode
-```
-
----
-
-## Skills (Claude Code & OpenCode)
-
-Skills are auto-discovered based on conversation context. When you describe a task, the AI automatically activates the relevant skill.
-
-### Available Skills
-
-| Skill | Auto-activates when you mention... |
-|-------|-----------------------------------|
-| `full-feature` | "build a feature", "new feature", "full feature mode" |
-| `workshop` | "explore idea", "think through", "brainstorm", "workshop" |
-| `planning` | "plan", "architect", "design approach", "let's plan" |
-| `execution` | "implement", "build", "code this", "execute" |
-| `reflection` | "audit", "review what we built", "reflect", "gaps" |
-| `debugging` | "bug", "error", "not working", "broken", "debug" |
-| `code-review` | "review code", "PR review", "check changes" |
-| `refactoring` | "refactor", "clean up", "restructure" |
-| `product-strategy` | "10x", "strategy", "product value", "high-impact features" |
-| `translation` | "translate", "i18n", "localization", "review translations" |
-| `api-handoff` | "API handoff", "document API", "frontend handoff" |
-| `backend-requirements` | "backend requirements", "data needs", "API requirements" |
-| `feature-research` | "research feature", "is this worth building", "explore idea" |
-| `user-story-review` | "review story", "user story", "story feedback" |
-
----
-
-## Claude Code Status Line
-
-A colorful, informative status line for Claude Code that shows:
-
-```
-📁 my-project ⎇ main ● │ Opus-4.5 │ ██████░░░░ 60%
-```
-
-**Features:**
-- **Directory**: Current folder name with icon
-- **Git branch**: Branch name with dirty indicator (●) when uncommitted changes exist
-- **Model**: Current Claude model in use
-- **Context bar**: Visual progress bar showing context window usage
-  - Green: < 50%
-  - Yellow: 50-79%
-  - Red: 80%+
-
-**Install:**
-```bash
-./init.sh --install-statusline
-```
-
-**Requirements:** `jq` (for settings.json update)
-
----
-
-## OpenCode Agents
-
-OpenCode agents provide specialized behavior. Use **Tab** to switch between primary agents.
-
-### Primary Agents (Tab to switch)
-
-| Agent | Model | Description |
-|-------|-------|-------------|
-| **Plan** | default | Read-only planning mode. Structured templates, git commands allowed. |
-| **Build** | smart | Overrides built-in build. Full execution workflow with audit gates. |
-| **Quick Edits** | fast | Simple changes only. No audit needed. Fast turnaround. |
-
-**Workflow:** Plan (analyze) → Build (implement) → Quick Edits (polish)
-
-### Subagents (@mention to invoke)
-
-| Agent | Model | Description |
-|-------|-------|-------------|
-| **@auditor** | smart | Code auditor. Reviews changes, returns APPROVED/REJECTED. |
-| **@scout** | fast | Ultra-fast codebase scanner. Returns file paths only. |
-
-**Install:**
-```bash
-./init.sh --agents-path ~/.config/opencode/agent
 ```

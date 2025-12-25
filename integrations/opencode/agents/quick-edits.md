@@ -1,7 +1,7 @@
 ---
 description: Fast, focused editing for simple changes. Use for quick fixes, small refactors, and straightforward edits that don't need full planning or audit cycles.
 mode: primary
-model: opencode/gemini-3-flash
+model: google/gemini-3-flash-preview
 ---
 
 # Quick Edits Mode

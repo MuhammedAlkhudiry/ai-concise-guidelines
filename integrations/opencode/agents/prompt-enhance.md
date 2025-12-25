@@ -1,7 +1,7 @@
 ---
 description: Fast prompt enhancement with codebase context. Use when user wants to enhance a prompt, improve a question, or says 'enhance this', 'improve prompt', or wants better context before asking. Responds in under 10 seconds.
 mode: primary
-model: opencode/gemini-3-flash
+model: google/gemini-3-flash-preview
 ---
 
 # Prompt Enhance Mode

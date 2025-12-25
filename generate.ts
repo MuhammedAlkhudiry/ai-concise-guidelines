@@ -26,7 +26,7 @@ const MCP_FILE = join(SCRIPT_DIR, "mcp.json");
 const CONFIG = {
   opencode: {
     modelSmart: "anthropic/claude-opus-4-5",
-    modelFast: "opencode/gemini-3-flash",
+    modelFast: "google/gemini-3-flash-preview",
   },
   claude: {
     modelSmart: "sonnet",

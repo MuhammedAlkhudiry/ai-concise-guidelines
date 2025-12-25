@@ -1,7 +1,7 @@
 ---
 description: Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering when you need to find files by pattern or search for code quickly.
 mode: subagent
-model: opencode/gemini-3-flash
+model: google/gemini-3-flash-preview
 tools:
   write: false
   edit: false
