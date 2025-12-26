@@ -134,6 +134,31 @@ export PATH="/opt/homebrew/opt/php@8.2/sbin:$PATH"
 # --- ZSH Settings ---
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=8"
 
+# --- Project Navigation ---
+# Smart cd into PhpstormProjects with fuzzy matching via fzf
+# Usage: p [query]  - no query opens fzf browser, query filters results
+PROJECTS_DIR="$HOME/PhpstormProjects"
+
+p() {
+    local query="$1"
+    local selected
+    
+    # Use fzf for selection with optional initial query
+    selected=$(ls -1 "$PROJECTS_DIR" | fzf \
+        --height=40% \
+        --reverse \
+        --border=rounded \
+        --prompt="Project > " \
+        --header="Select a project (↑↓ navigate, enter select, esc cancel)" \
+        --query="$query" \
+        --select-1 \
+        --exit-0)
+    
+    if [[ -n "$selected" ]]; then
+        cd "$PROJECTS_DIR/$selected"
+    fi
+}
+
 # --- OpenCode ---
 export PATH="$HOME/.opencode/bin:$PATH"
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
