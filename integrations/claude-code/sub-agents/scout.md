@@ -1,6 +1,6 @@
 ---
 name: scout
-description: Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering.
+description: Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering when you need to find files by pattern or search for code quickly.
 tools: Glob, Grep
 model: haiku
 ---

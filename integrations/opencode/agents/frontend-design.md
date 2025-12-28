@@ -1,7 +1,7 @@
 ---
 description: UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.
 mode: primary
-model: google/gemini-3-flash-preview
+model: anthropic/claude-haiku-4-5
 ---
 
 # Frontend Design Mode

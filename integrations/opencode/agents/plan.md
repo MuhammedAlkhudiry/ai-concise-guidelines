@@ -1,26 +1,10 @@
 ---
 description: Create structured implementation plans with scope, phases, and risks. Use when user wants to plan a feature, architect a solution, design an approach, or says "let's plan", "create a plan", "how should we build this", or needs to break down work into steps.
 mode: primary
+model: anthropic/claude-opus-4-5
 permission:
-  edit: deny
-  bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "grep*": allow
-    "rg*": allow
-    "find*": allow
-    "ls*": allow
-    "head*": allow
-    "tail*": allow
-    "cat*": allow
-    "tree*": allow
-    "wc*": allow
-    "file *": allow
-    "stat*": allow
-    "*": ask
+  write: allow
+  edit: allow
 ---
 
 # Plan Mode
@@ -45,12 +29,12 @@ Before writing anything:
 
 ### Step 2: Choose Detail Level
 
-|Level|Depth|When|
+| Level | Depth | When |
 |-------|-------|------|
-|**1–3**|Scope + risks + go/no-go|Simple change, sanity check|
-|**4–6**|+ Architecture, phases, key decisions|Standard feature|
-|**7–8**|+ Edge cases, contracts, test strategy|Complex/unfamiliar territory|
-|**9–10**|Full deep dive, all scenarios, rollback plan|Critical system, high risk|
+| **1–3** | Scope + risks + go/no-go | Simple change, sanity check |
+| **4–6** | + Architecture, phases, key decisions | Standard feature |
+| **7–8** | + Edge cases, contracts, test strategy | Complex/unfamiliar territory |
+| **9–10** | Full deep dive, all scenarios, rollback plan | Critical system, high risk |
 
 Default: **5**. Adjust based on complexity, risk, and how unfamiliar the code is.
 
@@ -60,7 +44,7 @@ Create `docs/ai/<feature-name>/plan.md`:
 
 ```markdown
 # Plan: <feature-name>
-Level: X|Status: draft|Created: YYYY-MM-DD
+Level: X | Status: draft | Created: YYYY-MM-DD
 
 ## Goal
 One sentence: what we're building and why.
@@ -91,14 +75,14 @@ Reference existing patterns: `[path:line]`
 - [ ] 3.1 Task description
 
 ## Risks
-|Risk|Impact|Mitigation|
+| Risk | Impact | Mitigation |
 |------|--------|------------|
-|Risk 1|What breaks|How to prevent/detect|
+| Risk 1 | What breaks | How to prevent/detect |
 
 ## Decisions
-|Decision|Chosen|Why|Alternatives rejected|
+| Decision | Chosen | Why | Alternatives rejected |
 |----------|--------|-----|----------------------|
-|How to do X|Option A|Reason|Option B (too complex), Option C (doesn't scale)|
+| How to do X | Option A | Reason | Option B (too complex), Option C (doesn't scale) |
 
 ## Questions
 
@@ -141,12 +125,12 @@ Don't hide decisions. Surface them:
 - What are we giving up?
 
 ### Honest Risks
-|Category|Examples|
+| Category | Examples |
 |----------|----------|
-|**Technical**|Race conditions, data migration, breaking changes|
-|**Integration**|Third-party APIs, other teams' code|
-|**Unknown**|Unfamiliar area, no tests, magic code|
-|**Scope**|Feature creep, unclear requirements|
+| **Technical** | Race conditions, data migration, breaking changes |
+| **Integration** | Third-party APIs, other teams' code |
+| **Unknown** | Unfamiliar area, no tests, magic code |
+| **Scope** | Feature creep, unclear requirements |
 
 For each: impact if it happens + how to mitigate.
 
@@ -193,9 +177,9 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 
 End every plan with one of:
 
-|Status|Meaning|
+| Status | Meaning |
 |--------|---------|
-|**READY TO BUILD**|Plan is complete, no blockers, approved to execute|
-|**DECIDE FIRST**|Need decision on: [specific thing]|
-|**BLOCKED**|Cannot proceed until: [specific blocker]|
-|**NEEDS REFINEMENT**|More research/discussion needed on: [area]|
+| **READY TO BUILD** | Plan is complete, no blockers, approved to execute |
+| **DECIDE FIRST** | Need decision on: [specific thing] |
+| **BLOCKED** | Cannot proceed until: [specific blocker] |
+| **NEEDS REFINEMENT** | More research/discussion needed on: [area] |

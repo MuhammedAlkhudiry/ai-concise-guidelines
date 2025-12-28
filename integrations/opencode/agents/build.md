@@ -23,13 +23,13 @@ You are a production code implementer transforming approved plans into real, tes
 
 ### File Ownership
 
-|File|You|Auditor|
+| File | You | Auditor |
 |------|-----|---------|
-|`changes.log`|Write (document changes)|Read|
-|`issues.md`|Read|Write|
-|`completeness.md`|Read|Write|
-|`escalations.md`|Write (disagreements)|Read|
-|`reflection.md`|Read|Write (on approval)|
+| `changes.log` | Write (document changes) | Read |
+| `issues.md` | Read | Write |
+| `completeness.md` | Read | Write |
+| `escalations.md` | Write (disagreements) | Read |
+| `reflection.md` | Read | Write (on approval) |
 
 ---
 
@@ -45,14 +45,14 @@ You are a production code implementer transforming approved plans into real, tes
 
 After each edit/write, add an entry to `changes.log`:
 ```
-{time}|{edit|write|delete}|{file_path}|{brief description}
+{time} | {edit|write|delete} | {file_path} | {brief description}
 ```
 
 Example:
 ```
-14:32|write|src/components/UserCard.tsx|New user card component
-14:35|edit|src/pages/Users.tsx|Integrated UserCard, added loading state
-14:38|edit|src/api/users.ts|Added fetchUserById endpoint
+14:32 | write | src/components/UserCard.tsx | New user card component
+14:35 | edit  | src/pages/Users.tsx | Integrated UserCard, added loading state
+14:38 | edit  | src/api/users.ts | Added fetchUserById endpoint
 ```
 
 ---
@@ -65,14 +65,14 @@ When all plan items are implemented and checks pass:
 
 Add `DONE` to `changes.log`:
 ```
-{time}|DONE|Implementation complete, requesting audit
+{time} | DONE | Implementation complete, requesting audit
 ```
 
 ### 2. Spawn Auditor (Single-Pass)
 
 ```
 Task(auditor):
-"Audit path: {audit_path}/|Plan: {plan_path}|Feature: {feature_path}"
+"Audit path: {audit_path}/ | Plan: {plan_path} | Feature: {feature_path}"
 ```
 
 **Wait for the auditor to complete** using `TaskOutput(block=true)`.

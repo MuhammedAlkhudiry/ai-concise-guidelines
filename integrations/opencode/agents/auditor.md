@@ -74,11 +74,11 @@ Read all files from changes.log and check:
 
 ## Files You Create
 
-|File|Purpose|
+| File | Purpose |
 |------|---------|
-|`issues.md`|All findings (blockers, warnings, notes)|
-|`completeness.md`|Component status vs plan|
-|`reflection.md`|Created on APPROVED only|
+| `issues.md` | All findings (blockers, warnings, notes) |
+| `completeness.md` | Component status vs plan |
+| `reflection.md` | Created on APPROVED only |
 
 ---
 
@@ -89,15 +89,15 @@ Read all files from changes.log and check:
 Audited: {timestamp}
 
 ## Blockers ({count})
-|ID|File:Line|Issue|
+| ID | File:Line | Issue |
 |----|-----------|-------|
-|B1|`path:42`|Description|
-|B2|`path:10`|Description|
+| B1 | `path:42` | Description |
+| B2 | `path:10` | Description |
 
 ## Warnings ({count})
-|ID|File:Line|Issue|
+| ID | File:Line | Issue |
 |----|-----------|-------|
-|W1|`path:15`|Description|
+| W1 | `path:15` | Description |
 
 ## Notes
 - `path:10` — Minor issue description
@@ -111,15 +111,15 @@ Audited: {timestamp}
 # Completeness: {feature}
 Audited: {timestamp}
 
-## Verdict: NOT READY|ALMOST|READY
+## Verdict: 🔴 NOT READY | 🟡 ALMOST | 🟢 READY
 
 ## Components (from plan)
-|Component|Status|Evidence|
+| Component | Status | Evidence |
 |-----------|--------|----------|
-|Component 1|done|`file:line` works|
-|Component 2|partial|Missing X|
-|Component 3|missing|Not started|
-|Component 4|broken|Was working, now fails|
+| Component 1 | ✅ done | `file:line` works |
+| Component 2 | 🔨 partial | Missing X |
+| Component 3 | ❌ missing | Not started |
+| Component 4 | 💔 broken | Was working, now fails |
 
 ## End-to-End Flow
 Can a user complete the full flow?
@@ -144,13 +144,13 @@ or
 - Zero open blockers
 - All plan components implemented
 - End-to-end flow works
-- Completeness verdict is READY
+- Completeness verdict is 🟢 READY
 
 **REJECTED** when ANY of these are true:
 - One or more blockers exist
 - Plan components are missing or broken
 - End-to-end flow is incomplete
-- Completeness verdict is NOT READY or ALMOST
+- Completeness verdict is 🔴 NOT READY or 🟡 ALMOST
 
 ---
 
@@ -167,35 +167,35 @@ Completed: {timestamp}
 - Key decisions made
 - What was explicitly out of scope
 
-## Verdict: Ready
+## Verdict: ✅ Ready
 **Rating**: X/10
 
 ## Technical Audit
-|Area|Status|Notes|
+| Area | Status | Notes |
 |------|--------|-------|
-|Code quality|//|Findings|
-|Test coverage|//|Findings|
-|Security|//|Findings|
-|Performance|//|Findings|
+| Code quality | ✅/⚠️/❌ | Findings |
+| Test coverage | ✅/⚠️/❌ | Findings |
+| Security | ✅/⚠️/❌ | Findings |
+| Performance | ✅/⚠️/❌ | Findings |
 
 ## Business Audit
-|Area|Status|Notes|
+| Area | Status | Notes |
 |------|--------|-------|
-|Requirements met|//|Findings|
-|User flows work|//|Findings|
-|Edge cases handled|//|Findings|
+| Requirements met | ✅/⚠️/❌ | Findings |
+| User flows work | ✅/⚠️/❌ | Findings |
+| Edge cases handled | ✅/⚠️/❌ | Findings |
 
 ## Gaps & Risks
-|Priority|Issue|Impact|Mitigation|
+| Priority | Issue | Impact | Mitigation |
 |----------|-------|--------|------------|
-|Medium|...|...|...|
-|Low|...|...|...|
+| 🟡 Medium | ... | ... | ... |
+| 🟢 Low | ... | ... | ... |
 
 ## Next Steps
-|Priority|Action|
+| Priority | Action |
 |----------|--------|
-|Short-term|Follow-ups for next session|
-|Future|Backlog items|
+| Short-term | Follow-ups for next session |
+| Future | Backlog items |
 ```
 
 ---
@@ -206,12 +206,12 @@ After writing all audit files, return a clear verdict to main agent:
 
 **If APPROVED:**
 ```
-AUDIT RESULT: APPROVED
+AUDIT RESULT: ✅ APPROVED
 
 All plan items implemented. No blockers. End-to-end flow works.
 
 See:
-- completeness.md: READY
+- completeness.md: 🟢 READY
 - issues.md: 0 blockers, {N} warnings
 - reflection.md: Created
 
@@ -220,7 +220,7 @@ Task is complete.
 
 **If REJECTED:**
 ```
-AUDIT RESULT: REJECTED
+AUDIT RESULT: ❌ REJECTED
 
 {count} blockers must be fixed before approval.
 
@@ -242,8 +242,8 @@ If main agent previously wrote to `escalations.md` (disagreeing with you):
 1. Read the escalation
 2. Consider their reasoning
 3. Either:
- - Adjust your assessment if they're right
- - Maintain your position with explanation
+   - Adjust your assessment if they're right
+   - Maintain your position with explanation
 4. Include escalation resolution in your verdict
 
 ---

@@ -20,22 +20,93 @@ const TEMPLATES_DIR = join(SCRIPT_DIR, "templates");
 const OUTPUT_DIR = join(SCRIPT_DIR, "integrations");
 const MCP_FILE = join(SCRIPT_DIR, "mcp.json");
 
-// Model Configuration
-// Smart models: For complex tasks (auditor, planning)
-// Fast models: For quick tasks (scout, title generation)
-const CONFIG = {
+const MODELS = {
   opencode: {
-    modelSmart: "anthropic/claude-opus-4-5",
-    modelFast: "google/gemini-3-flash-preview",
+    smart: "anthropic/claude-opus-4-5",
+    fast: "anthropic/claude-haiku-4-5",
   },
   claude: {
-    modelSmart: "sonnet",
-    modelFast: "haiku",
+    smart: "opus",
+    fast: "haiku",
   },
 };
 
 // =============================================================================
-// Skill Descriptions
+// Agent Configuration
+// =============================================================================
+
+interface AgentConfig {
+  template: string;
+  description: string;
+  modelType: "smart" | "fast";
+  claudeCode?: { tools: string };
+  opencode?: {
+    mode: "primary" | "subagent";
+    tools?: Record<string, boolean>;
+    permission?: Record<string, unknown>;
+  };
+}
+
+const AGENT_CONFIGS: Record<string, AgentConfig> = {
+  auditor: {
+    template: "agents/auditor.md",
+    description:
+      "Code auditor. Runs ONCE after execute phase completes. Audits all changes with full context and returns APPROVED or REJECTED. Main agent cannot self-approve—task is never done without audit approval.",
+    modelType: "smart",
+    claudeCode: { tools: "Read, Glob, Grep, Write" },
+    opencode: {
+      mode: "subagent",
+      tools: { write: true, edit: false, bash: false },
+      permission: { edit: "deny", bash: { "*": "deny" } },
+    },
+  },
+  scout: {
+    template: "agents/scout.md",
+    description:
+      "Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering when you need to find files by pattern or search for code quickly.",
+    modelType: "fast",
+    claudeCode: { tools: "Glob, Grep" },
+    opencode: {
+      mode: "subagent",
+      tools: { write: false, edit: false, bash: false },
+      permission: { edit: "deny", bash: { "*": "deny" } },
+    },
+  },
+  plan: {
+    template: "agents/plan.md",
+    description:
+      'Create structured implementation plans with scope, phases, and risks. Use when user wants to plan a feature, architect a solution, design an approach, or says "let\'s plan", "create a plan", "how should we build this", or needs to break down work into steps.',
+    modelType: "smart",
+    opencode: {
+      mode: "primary",
+      permission: { write: "allow", edit: "allow" },
+    },
+  },
+  build: {
+    template: "skills/execution.md",
+    description:
+      "Implement approved plans into production-ready code. Overrides OpenCode's built-in build agent with structured execution workflow including audit gates.",
+    modelType: "smart",
+    opencode: { mode: "primary" },
+  },
+  "quick-edits": {
+    template: "agents/quick-edits.md",
+    description:
+      "Fast, focused editing for simple changes. Use for quick fixes, small refactors, and straightforward edits that don't need full planning or audit cycles.",
+    modelType: "fast",
+    opencode: { mode: "primary" },
+  },
+  "frontend-design": {
+    template: "agents/frontend-design.md",
+    description:
+      "UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.",
+    modelType: "fast",
+    opencode: { mode: "primary" },
+  },
+};
+
+// =============================================================================
+// Skill Configuration
 // =============================================================================
 
 const SKILL_DESCRIPTIONS: Record<string, string> = {
@@ -63,8 +134,6 @@ const SKILL_DESCRIPTIONS: Record<string, string> = {
     "Find 10x product opportunities and high-leverage improvements. Use when user wants strategic product thinking, mentions '10x', wants to find high-impact features, or says 'what would make this 10x better', 'product strategy', or 'what should we build next'.",
   "feature-research":
     "Deep research on features before building with co-founder mindset. Use when user wants to research a feature idea, explore if something is worth building, or says 'research this feature', 'is this worth building', 'explore this idea', or wants product + market + tech analysis.",
-  "prompt-enhancer":
-    "Fast prompt enhancement with codebase context. Use when user wants to enhance a prompt, improve a question, or says 'enhance this', 'improve prompt', '/enhance', or wants better context before asking Claude. Responds in under 10 seconds.",
   "user-story-review":
     "Review user stories from a developer perspective. Use when user wants to review user stories, check story quality, or says 'review this story', 'is this story clear', 'story feedback', or has user stories that need developer review before implementation.",
   "full-feature":
@@ -84,38 +153,38 @@ const WORKFLOW_NAME_MAP: Record<string, string> = {
 // Utilities
 // =============================================================================
 
-function getSkillDescription(name: string): string {
-  return SKILL_DESCRIPTIONS[name] || `${name} skill`;
-}
-
-function getWorkflowName(name: string): string {
-  return WORKFLOW_NAME_MAP[name] || `${name}-mode`;
-}
-
-function stripEmojis(content: string): string {
-  return content
-    .replace(/[✅❌🔴🟡🟢⚠️🔄🔨💔🐘🎯💎🔥👍🤔]/g, "")
-    .replace(/ {2,}/g, " ")
-    .replace(/ \|/g, "|")
-    .replace(/\| /g, "|");
-}
-
 async function ensureDir(path: string): Promise<void> {
   if (!existsSync(path)) {
     await mkdir(path, { recursive: true });
   }
 }
 
+function toYaml(obj: Record<string, unknown>, indent = 0): string {
+  const pad = "  ".repeat(indent);
+  const lines: string[] = [];
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === "object" && value !== null) {
+      lines.push(`${pad}${key}:`);
+      lines.push(toYaml(value as Record<string, unknown>, indent + 1));
+    } else {
+      const formattedKey = key.includes("*") ? `"${key}"` : key;
+      lines.push(`${pad}${formattedKey}: ${value}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 // =============================================================================
-// Skill Generation
+// Generators
 // =============================================================================
 
-async function generateClaudeCodeSkills(): Promise<number> {
-  console.log("  Generating Claude Code skills...");
+async function generateSkills(): Promise<number> {
+  console.log("  Generating skills...");
 
-  const outputDir = join(OUTPUT_DIR, "claude-code", "skills");
-  await ensureDir(outputDir);
-
+  const claudeDir = join(OUTPUT_DIR, "claude-code", "skills");
+  const opencodeDir = join(OUTPUT_DIR, "opencode", "skills");
   const skillsDir = join(TEMPLATES_DIR, "skills");
   const files = await readdir(skillsDir);
   let count = 0;
@@ -124,11 +193,8 @@ async function generateClaudeCodeSkills(): Promise<number> {
     if (!file.endsWith(".md")) continue;
 
     const name = basename(file, ".md");
-    const skillDir = join(outputDir, name);
-    await ensureDir(skillDir);
-
     const template = await readFile(join(skillsDir, file), "utf-8");
-    const description = getSkillDescription(name);
+    const description = SKILL_DESCRIPTIONS[name] || `${name} skill`;
 
     const content = `---
 name: ${name}
@@ -137,48 +203,33 @@ description: ${description}
 
 ${template}`;
 
-    await writeFile(join(skillDir, "SKILL.md"), content);
+    // Write to both Claude Code and OpenCode (same format)
+    for (const dir of [claudeDir, opencodeDir]) {
+      const skillDir = join(dir, name);
+      await ensureDir(skillDir);
+      await writeFile(join(skillDir, "SKILL.md"), content);
+    }
     count++;
   }
 
-  // Handle full-feature templates subdirectory
-  const fullFeatureTemplates = join(TEMPLATES_DIR, "skills", "full-feature", "templates");
+  // Copy full-feature templates subdirectory
+  const fullFeatureTemplates = join(skillsDir, "full-feature", "templates");
   if (existsSync(fullFeatureTemplates)) {
-    const destDir = join(outputDir, "full-feature", "templates");
-    await ensureDir(destDir);
-    await cp(fullFeatureTemplates, destDir, { recursive: true });
+    for (const dir of [claudeDir, opencodeDir]) {
+      const destDir = join(dir, "full-feature", "templates");
+      await ensureDir(destDir);
+      await cp(fullFeatureTemplates, destDir, { recursive: true });
+    }
   }
 
-  console.log(`    Generated ${count} skills`);
+  console.log(`    Generated ${count} skills (Claude Code + OpenCode)`);
   return count;
 }
 
-async function generateOpenCodeSkills(): Promise<void> {
-  console.log("  Generating OpenCode skills...");
-
-  const sourceDir = join(OUTPUT_DIR, "claude-code", "skills");
-  const outputDir = join(OUTPUT_DIR, "opencode", "skills");
-
-  if (!existsSync(sourceDir)) {
-    throw new Error("Claude Code skills not generated yet");
-  }
-
-  await ensureDir(outputDir);
-  await cp(sourceDir, outputDir, { recursive: true });
-
-  console.log("    Copied skills from Claude Code (shared format)");
-}
-
-// =============================================================================
-// Workflow Generation (Windsurf)
-// =============================================================================
-
-async function generateWindsurfWorkflows(): Promise<number> {
+async function generateWorkflows(): Promise<number> {
   console.log("  Generating Windsurf workflows...");
 
   const outputDir = join(OUTPUT_DIR, "windsurf", "workflows");
-  await ensureDir(outputDir);
-
   const skillsDir = join(TEMPLATES_DIR, "skills");
   const files = await readdir(skillsDir);
   let count = 0;
@@ -187,9 +238,9 @@ async function generateWindsurfWorkflows(): Promise<number> {
     if (!file.endsWith(".md")) continue;
 
     const name = basename(file, ".md");
-    const workflowName = getWorkflowName(name);
+    const workflowName = WORKFLOW_NAME_MAP[name] || `${name}-mode`;
     const template = await readFile(join(skillsDir, file), "utf-8");
-    const description = getSkillDescription(name);
+    const description = SKILL_DESCRIPTIONS[name] || `${name} skill`;
 
     const content = `---
 description: ${description}
@@ -205,260 +256,104 @@ ${template}`;
   return count;
 }
 
-// =============================================================================
-// Agent Generation
-// =============================================================================
+async function generateAgents(): Promise<{ claude: number; opencode: number }> {
+  console.log("  Generating agents...");
 
-async function generateClaudeCodeAgents(): Promise<number> {
-  console.log("  Generating Claude Code sub-agents...");
+  const claudeDir = join(OUTPUT_DIR, "claude-code", "sub-agents");
+  const opencodeDir = join(OUTPUT_DIR, "opencode", "agents");
+  let claudeCount = 0;
+  let opencodeCount = 0;
 
-  const outputDir = join(OUTPUT_DIR, "claude-code", "sub-agents");
-  await ensureDir(outputDir);
+  for (const [name, config] of Object.entries(AGENT_CONFIGS)) {
+    const templatePath = join(TEMPLATES_DIR, config.template);
+    if (!existsSync(templatePath)) {
+      console.warn(`    Warning: Template not found: ${config.template}`);
+      continue;
+    }
 
-  let count = 0;
+    const template = await readFile(templatePath, "utf-8");
 
-  // Auditor
-  const auditorPath = join(TEMPLATES_DIR, "agents", "auditor.md");
-  if (existsSync(auditorPath)) {
-    const template = await readFile(auditorPath, "utf-8");
-    const content = `---
-name: auditor
-description: Code auditor. Runs ONCE after execute phase completes. Audits all changes with full context and returns APPROVED or REJECTED. Main agent cannot self-approve—task is never done without audit approval.
-tools: Read, Glob, Grep, Write
-model: ${CONFIG.claude.modelSmart}
+    // Claude Code agent
+    if (config.claudeCode) {
+      const content = `---
+name: ${name}
+description: ${config.description}
+tools: ${config.claudeCode.tools}
+model: ${MODELS.claude[config.modelType]}
 ---
 
 ${template}`;
-    await writeFile(join(outputDir, "auditor.md"), content);
-    count++;
-  }
+      await writeFile(join(claudeDir, `${name}.md`), content);
+      claudeCount++;
+    }
 
-  // Scout
-  const scoutPath = join(TEMPLATES_DIR, "agents", "scout.md");
-  if (existsSync(scoutPath)) {
-    const template = await readFile(scoutPath, "utf-8");
-    const content = `---
-name: scout
-description: Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering.
-tools: Glob, Grep
-model: ${CONFIG.claude.modelFast}
+    // OpenCode agent
+    if (config.opencode) {
+      const frontmatter: Record<string, unknown> = {
+        description: config.description,
+        mode: config.opencode.mode,
+        model: MODELS.opencode[config.modelType],
+      };
+      if (config.opencode.tools) frontmatter.tools = config.opencode.tools;
+      if (config.opencode.permission)
+        frontmatter.permission = config.opencode.permission;
+
+      const content = `---
+${toYaml(frontmatter)}
 ---
 
 ${template}`;
-    await writeFile(join(outputDir, "scout.md"), content);
-    count++;
+      await writeFile(join(opencodeDir, `${name}.md`), content);
+      opencodeCount++;
+    }
   }
 
-  console.log(`    Generated ${count} sub-agents`);
-  return count;
+  console.log(`    Generated ${claudeCount} Claude Code sub-agents`);
+  console.log(`    Generated ${opencodeCount} OpenCode agents`);
+  return { claude: claudeCount, opencode: opencodeCount };
 }
 
-async function generateOpenCodeAgents(): Promise<number> {
-  console.log("  Generating OpenCode agents...");
+async function generateConfigs(): Promise<void> {
+  console.log("  Generating configs...");
 
-  const outputDir = join(OUTPUT_DIR, "opencode", "agents");
-  await ensureDir(outputDir);
+  // MCP configs
+  if (existsSync(MCP_FILE)) {
+    const mcpServers = JSON.parse(await readFile(MCP_FILE, "utf-8"));
 
-  let count = 0;
+    // Claude Code: { mcpServers: { ... } }
+    await writeFile(
+      join(OUTPUT_DIR, "claude-code", "mcp.json"),
+      JSON.stringify({ mcpServers }, null, 2)
+    );
 
-  // Auditor (subagent, strip emojis)
-  const auditorPath = join(TEMPLATES_DIR, "agents", "auditor.md");
-  if (existsSync(auditorPath)) {
-    const template = await readFile(auditorPath, "utf-8");
-    const content = `---
-description: Code auditor. Runs ONCE after execute phase completes. Audits all changes with full context and returns APPROVED or REJECTED. Main agent cannot self-approve—task is never done without audit approval.
-mode: subagent
-model: ${CONFIG.opencode.modelSmart}
-tools:
-  write: true
-  edit: false
-  bash: false
-permission:
-  edit: deny
-  bash:
-    "*": deny
----
+    // OpenCode: { name: { type: "local", command: [...] } }
+    const opencodeMcp: Record<string, unknown> = {};
+    for (const [name, server] of Object.entries(mcpServers)) {
+      const s = server as { command: string; args: string[] };
+      opencodeMcp[name] = { type: "local", command: [s.command, ...s.args] };
+    }
+    await writeFile(
+      join(OUTPUT_DIR, "opencode", "mcp.json"),
+      JSON.stringify(opencodeMcp, null, 2)
+    );
 
-${stripEmojis(template)}`;
-    await writeFile(join(outputDir, "auditor.md"), content);
-    count++;
+    console.log("    Generated MCP configs");
   }
 
-  // Scout (subagent)
-  const scoutPath = join(TEMPLATES_DIR, "agents", "scout.md");
-  if (existsSync(scoutPath)) {
-    const template = await readFile(scoutPath, "utf-8");
-    const content = `---
-description: Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering when you need to find files by pattern or search for code quickly.
-mode: subagent
-model: ${CONFIG.opencode.modelFast}
-tools:
-  write: false
-  edit: false
-  bash: false
-permission:
-  edit: deny
-  bash:
-    "*": deny
----
-
-${template}`;
-    await writeFile(join(outputDir, "scout.md"), content);
-    count++;
-  }
-
-  // Plan (primary agent, strip emojis)
-  const planPath = join(TEMPLATES_DIR, "agents", "plan.md");
-  if (existsSync(planPath)) {
-    const template = await readFile(planPath, "utf-8");
-    const content = `---
-description: Create structured implementation plans with scope, phases, and risks. Use when user wants to plan a feature, architect a solution, design an approach, or says "let's plan", "create a plan", "how should we build this", or needs to break down work into steps.
-mode: primary
-permission:
-  edit: deny
-  bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "grep*": allow
-    "rg*": allow
-    "find*": allow
-    "ls*": allow
-    "head*": allow
-    "tail*": allow
-    "cat*": allow
-    "tree*": allow
-    "wc*": allow
-    "file *": allow
-    "stat*": allow
-    "*": ask
----
-
-${stripEmojis(template)}`;
-    await writeFile(join(outputDir, "plan.md"), content);
-    count++;
-  }
-
-  // Build (primary agent - overrides OpenCode's built-in build with execution skill)
-  const executionPath = join(TEMPLATES_DIR, "skills", "execution.md");
-  if (existsSync(executionPath)) {
-    const template = await readFile(executionPath, "utf-8");
-    const content = `---
-description: Implement approved plans into production-ready code. Overrides OpenCode's built-in build agent with structured execution workflow including audit gates.
-mode: primary
-model: ${CONFIG.opencode.modelSmart}
----
-
-${stripEmojis(template)}`;
-    await writeFile(join(outputDir, "build.md"), content);
-    count++;
-  }
-
-  // Quick Edits (primary agent - fast model for simple changes)
-  const quickEditsPath = join(TEMPLATES_DIR, "agents", "quick-edits.md");
-  if (existsSync(quickEditsPath)) {
-    const template = await readFile(quickEditsPath, "utf-8");
-    const content = `---
-description: Fast, focused editing for simple changes. Use for quick fixes, small refactors, and straightforward edits that don't need full planning or audit cycles.
-mode: primary
-model: ${CONFIG.opencode.modelFast}
----
-
-${stripEmojis(template)}`;
-    await writeFile(join(outputDir, "quick-edits.md"), content);
-    count++;
-  }
-
-  // Prompt Enhance (primary agent - fast model for quick context gathering)
-  const promptEnhancePath = join(TEMPLATES_DIR, "agents", "prompt-enhance.md");
-  if (existsSync(promptEnhancePath)) {
-    const template = await readFile(promptEnhancePath, "utf-8");
-    const content = `---
-description: Fast prompt enhancement with codebase context. Use when user wants to enhance a prompt, improve a question, or says 'enhance this', 'improve prompt', or wants better context before asking. Responds in under 10 seconds.
-mode: primary
-model: ${CONFIG.opencode.modelFast}
----
-
-${stripEmojis(template)}`;
-    await writeFile(join(outputDir, "prompt-enhance.md"), content);
-    count++;
-  }
-
-  // Frontend Design (primary agent - fast model for UI/visual work)
-  const frontendDesignPath = join(TEMPLATES_DIR, "agents", "frontend-design.md");
-  if (existsSync(frontendDesignPath)) {
-    const template = await readFile(frontendDesignPath, "utf-8");
-    const content = `---
-description: UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.
-mode: primary
-model: ${CONFIG.opencode.modelFast}
----
-
-${stripEmojis(template)}`;
-    await writeFile(join(outputDir, "frontend-design.md"), content);
-    count++;
-  }
-
-  console.log(`    Generated ${count} agents`);
-  return count;
-}
-
-// =============================================================================
-// MCP Config Generation
-// =============================================================================
-
-interface ClaudeMcpServer {
-  command: string;
-  args: string[];
-}
-
-interface OpenCodeMcpServer {
-  type: "local" | "remote";
-  command?: string[];
-  url?: string;
-}
-
-async function generateMcpConfigs(): Promise<void> {
-  console.log("  Generating MCP configs...");
-
-  if (!existsSync(MCP_FILE)) {
-    console.log("    No mcp.json found, skipping");
-    return;
-  }
-
-  const mcpContent = await readFile(MCP_FILE, "utf-8");
-  const mcpServers: Record<string, ClaudeMcpServer> = JSON.parse(mcpContent);
-
-  // Claude Code format - wrap in mcpServers
-  const claudeDir = join(OUTPUT_DIR, "claude-code");
-  await ensureDir(claudeDir);
-
-  const claudeMcp = { mcpServers };
+  // OpenCode config with model settings
+  const opencodeConfig = {
+    model: MODELS.opencode.smart,
+    small_model: MODELS.opencode.fast,
+    agent: {
+      explore: { model: MODELS.opencode.fast },
+      general: { model: MODELS.opencode.smart },
+    },
+  };
   await writeFile(
-    join(claudeDir, "mcp.json"),
-    JSON.stringify(claudeMcp, null, 2)
+    join(OUTPUT_DIR, "opencode", "opencode.json"),
+    JSON.stringify(opencodeConfig, null, 2)
   );
-
-  // OpenCode format - convert to { type: "local", command: [...] }
-  const opencodeDir = join(OUTPUT_DIR, "opencode");
-  await ensureDir(opencodeDir);
-
-  const opencodeMcp: Record<string, OpenCodeMcpServer> = {};
-  for (const [name, server] of Object.entries(mcpServers)) {
-    opencodeMcp[name] = {
-      type: "local",
-      command: [server.command, ...server.args],
-    };
-  }
-
-  await writeFile(
-    join(opencodeDir, "mcp.json"),
-    JSON.stringify(opencodeMcp, null, 2)
-  );
-
-  console.log("    Generated MCP configs for Claude Code and OpenCode");
+  console.log("    Generated opencode.json");
 }
 
 // =============================================================================
@@ -466,50 +361,43 @@ async function generateMcpConfigs(): Promise<void> {
 // =============================================================================
 
 async function main() {
-  const args = process.argv.slice(2);
-  const clean = args.includes("--clean") || args.includes("-c");
+  const clean = process.argv.includes("--clean") || process.argv.includes("-c");
 
   console.log("\nGenerating integration files from templates...\n");
 
-  // Validate templates exist
   if (!existsSync(TEMPLATES_DIR)) {
     console.error(`ERROR: Templates directory not found: ${TEMPLATES_DIR}`);
     process.exit(1);
   }
 
-  // Clean output directory if requested
   if (clean && existsSync(OUTPUT_DIR)) {
     await rm(OUTPUT_DIR, { recursive: true });
   }
 
   // Create output structure
-  await ensureDir(join(OUTPUT_DIR, "claude-code", "skills"));
-  await ensureDir(join(OUTPUT_DIR, "claude-code", "sub-agents"));
-  await ensureDir(join(OUTPUT_DIR, "opencode", "skills"));
-  await ensureDir(join(OUTPUT_DIR, "opencode", "agents"));
-  await ensureDir(join(OUTPUT_DIR, "windsurf", "workflows"));
+  const dirs = [
+    "claude-code/skills",
+    "claude-code/sub-agents",
+    "opencode/skills",
+    "opencode/agents",
+    "windsurf/workflows",
+  ];
+  for (const dir of dirs) {
+    await ensureDir(join(OUTPUT_DIR, dir));
+  }
 
-  // Generate all files
-  const claudeSkills = await generateClaudeCodeSkills();
-  await generateOpenCodeSkills();
-  const workflows = await generateWindsurfWorkflows();
-  const claudeAgents = await generateClaudeCodeAgents();
-  const opencodeAgents = await generateOpenCodeAgents();
-  await generateMcpConfigs();
+  // Generate
+  const skillCount = await generateSkills();
+  const workflowCount = await generateWorkflows();
+  const agentCounts = await generateAgents();
+  await generateConfigs();
 
   console.log("\nGeneration complete!");
   console.log(`Output: ${OUTPUT_DIR}/\n`);
-
   console.log("Summary:");
-  console.log(`  Claude Code:`);
-  console.log(`    - Skills: ${claudeSkills}`);
-  console.log(`    - Sub-agents: ${claudeAgents}`);
-  console.log(`    - MCP config: 1`);
-  console.log(`  OpenCode:`);
-  console.log(`    - Skills: ${claudeSkills}`);
-  console.log(`    - Agents: ${opencodeAgents}`);
-  console.log(`  Windsurf:`);
-  console.log(`    - Workflows: ${workflows}`);
+  console.log(`  Claude Code: ${skillCount} skills, ${agentCounts.claude} sub-agents`);
+  console.log(`  OpenCode: ${skillCount} skills, ${agentCounts.opencode} agents`);
+  console.log(`  Windsurf: ${workflowCount} workflows`);
 }
 
 main().catch((err) => {
