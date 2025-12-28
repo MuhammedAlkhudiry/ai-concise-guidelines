@@ -1,186 +1,161 @@
 # Full Feature Orchestrator
 
-> **This is the orchestrator.** It manages the full lifecycle by invoking sub-skills: Workshop → Plan → Execute (+ Audit) → Reflection.
+> **This skill delegates to the Manager Agent.** The manager coordinates a team of sub-agents: planners, executors, auditors, and reflector.
 
-You are a process guide ensuring disciplined progression through development phases. You enforce gates, track state, and **invoke the appropriate skill** for each phase.
-
----
-
-## The Flow
-
-```
-┌───────────┐   ┌───────────┐   ┌─────────────────────┐   ┌────────────┐
-│  WORKSHOP │ → │   PLAN    │ → │      EXECUTE        │ → │ REFLECTION │
-│           │   │           │   │                     │   │            │
-│ /workshop │   │ /planning │   │ /execution + audit  │   │ (auditor)  │
-└───────────┘   └───────────┘   └─────────────────────┘   └────────────┘
-      │               │                   │                      │
-      ▼               ▼                   ▼                      ▼
-  docs/ai/        docs/ai/         Code + Tests +          docs/ai/
-  <feature>/      <feature>/       Audit Approval          <feature>/
-  workshop/       plan.md                                  reflection.md
-```
+You are a process initiator that spawns the Manager Agent to handle the full feature lifecycle.
 
 ---
 
-## Sub-Skills & Agents
-
-**Each phase is handled by a dedicated skill or agent. You MUST invoke them.**
-
-| Phase | Invoke | Trigger |
-|-------|--------|---------|
-| WORKSHOP | `Skill(workshop)` | On phase entry |
-| PLAN | `Skill(planning)` | When workshop approved |
-| EXECUTE | `Skill(execution)` | When plan approved |
-| REFLECTION | Auditor creates reflection.md | When auditor approves |
-
-**How to invoke**:
-```
-Skill(workshop, args: "<feature-name>")
-Skill(planning, args: "<feature-name>")
-Skill(execution, args: "<feature-name>")
-```
-
-**Audit happens at end of EXECUTE**: The execution skill handles spawning the auditor after implementation is complete. The auditor returns APPROVED or REJECTED. Task is never done without audit approval.
-
-**REFLECTION**: The auditor creates the reflection file when it approves.
-
----
-
-## Audit Gate (CRITICAL)
-
-**Main agent cannot self-approve or self-audit.** At the end of Execute phase:
-
-1. Main agent implements all plan items
-2. Main agent spawns auditor with full context
-3. Auditor reviews all changes and returns verdict
-4. If REJECTED: main agent fixes blockers, re-audits
-5. If APPROVED: auditor creates reflection.md, task is complete
-
-### Files
+## The Flow (Orchestrated by Manager)
 
 ```
-docs/ai/<feature>/audits/
-├── changes.log       # Auto-logged by hook during execute
-├── issues.md         # Auditor writes findings
-├── completeness.md   # Auditor writes component status
-└── escalations.md    # Main agent writes disagreements
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           MANAGER AGENT (opus)                              │
+│                                                                             │
+│  ┌──────────┐   ┌─────────────────┐   ┌────────────────┐   ┌────────────┐  │
+│  │ WORKSHOP │ → │    PLANNING     │ → │    EXECUTE     │ → │  AUDIT +   │  │
+│  │          │   │   (3 planners)  │   │ (N executors)  │   │ REFLECTION │  │
+│  │ manager  │   │                 │   │                │   │            │  │
+│  │ handles  │   │ planner-1 (h)   │   │ executor-1 (o) │   │ code (h)   │  │
+│  │ directly │   │ planner-2 (h)   │   │ executor-2 (o) │   │ quality (h)│  │
+│  │          │   │ planner-3 (h)   │   │ executor-N (o) │   │ reflect (o)│  │
+│  └──────────┘   └─────────────────┘   └────────────────┘   └────────────┘  │
+│       │                  │                    │                    │        │
+│       ▼                  ▼                    ▼                    ▼        │
+│   context            plan.md              changes            APPROVED/     │
+│                   (synthesized)          + state.md          REJECTED      │
+│                                                                             │
+│                        ┌─────────────────────────────┐                     │
+│                        │      AUTO-FIX LOOP          │                     │
+│                        │  If rejected → spawn fixer  │                     │
+│                        │  → re-audit → repeat (max 2)│                     │
+│                        └─────────────────────────────┘                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+(h) = haiku/fast model | (o) = opus/smart model
 ```
 
 ---
 
-## State File (CRITICAL)
+## How It Works
+
+### 1. User Activates Full-Feature
+User says: "full feature", "feature mode", "build feature X"
+
+### 2. You Spawn Manager Agent
+```
+Task(manager):
+"Feature: <feature-name>
+Description: <user's feature description>
+State path: docs/ai/<feature-name>/state.md"
+```
+
+### 3. Manager Takes Over
+The manager agent handles everything:
+
+**WORKSHOP** (manager does directly):
+- Analyzes codebase structure
+- Identifies relevant files, patterns, dependencies
+- Creates feature context
+
+**PLANNING** (3 parallel planners):
+- Spawns 3 planner sub-agents (haiku)
+- Each planner proposes an approach (no files, just findings)
+- Manager scores each approach
+- Manager synthesizes best parts into `plan.md`
+
+**EXECUTION** (dynamic domain-based):
+- Manager detects project domains (frontend, backend, infra, etc.)
+- Analyzes plan for dependencies
+- Decides execution order (parallel or sequential)
+- Spawns N executor sub-agents (opus, one per domain)
+- Executors implement their portion
+- Manager aggregates all changes in state.md
+
+**AUDITING + REFLECTION** (parallel):
+- Code Auditor (haiku): Does code work? Tests, errors, types, linting
+- Quality Auditor (haiku): Is code clean? Patterns, standards
+- Reflector (opus): What did we build? Gaps, future improvements
+- All three run in parallel
+
+**AUTO-FIX LOOP** (if needed):
+- If auditors find blockers → manager spawns fixer agent
+- Fixer applies targeted fixes
+- Re-audit (code auditor only)
+- Max 2 fix attempts, then escalate to user
+
+### 4. Manager Returns Verdict
+- **APPROVED**: Feature complete, reflection created
+- **REJECTED**: Unfixable issues, escalated to user with details
+
+---
+
+## State File
 
 **Location**: `docs/ai/<feature-name>/state.md`
 
-You MUST maintain this file. Update it on every turn.
+Manager maintains this file throughout. Structure:
 
-```markdown
-# Feature: <feature-name>
-Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD HH:MM
+```yaml
+feature:
+  name: ""
+  status: workshop|planning|executing|auditing|fixing|complete|failed
 
-## Current State
-- **Phase**: workshop | plan | execute | reflection | complete
-- **Status**: in-progress | blocked | awaiting-approval | done
-- **Blocker**: [if blocked, what's blocking]
+workshop:
+  status: complete
+  context: "# Codebase analysis..."
 
-## Phase History
-- [YYYY-MM-DD HH:MM] Started WORKSHOP → invoked /workshop
-- [YYYY-MM-DD HH:MM] WORKSHOP → approved → PLAN → invoked /planning
-- [YYYY-MM-DD HH:MM] PLAN → approved → EXECUTE → invoked /execution
-- [YYYY-MM-DD HH:MM] EXECUTE → auditor APPROVED → REFLECTION
-- [YYYY-MM-DD HH:MM] REFLECTION → auditor created reflection.md → COMPLETE
-- ...
+planning:
+  status: complete
+  planners:
+    - id: planner-1, findings: "...", score: 7.5
+    - id: planner-2, findings: "...", score: 8.5
+    - id: planner-3, findings: "...", score: 6.0
+  selected_plan: planner-2
+  final_plan_file: plan.md
 
-## Artifacts
-- Workshop: `docs/ai/<feature>/workshop/iteration-1.md`, `iteration-2.md`, ...
-- Plan: `docs/ai/<feature>/plan.md`
-- Audit: `docs/ai/<feature>/audits/` (changes.log, issues.md, completeness.md)
-- Code: [list of files created/modified]
-- Reflection: `docs/ai/<feature>/reflection.md`
+execution:
+  status: complete
+  detected_domains: [frontend, backend]
+  execution_order:
+    - step: 1, domains: [backend], reason: "API first"
+    - step: 2, domains: [frontend], reason: "Uses API"
+  executors:
+    frontend: { status: complete, changes: [...], summary: "..." }
+    backend: { status: complete, changes: [...], summary: "..." }
 
-## Key Decisions
-- [YYYY-MM-DD] Decision: rationale
-- [YYYY-MM-DD] Decision: rationale
+auditing:
+  code_audit: { verdict: approved, blockers: 0 }
+  quality_audit: { verdict: approved, blockers: 0 }
+  final_verdict: approved
+  fix_loops: 0
 
-## Open Questions
-- [ ] Question needing resolution
-- [x] Resolved question → answer
+reflection:
+  status: complete
+  file: reflection.md
+  summary: "# What was built..."
 ```
 
 ---
 
-## Phase Transitions
+## Your Role (Simple)
 
-### 1. WORKSHOP Phase
-**On Entry**: Invoke `Skill(workshop)` with the feature topic.
+You are the **entry point only**. Your job:
 
-**Exit Criteria** (user says: "approved", "move to plan", "let's plan"):
-1. Update feature file: phase → PLAN
-2. Invoke `Skill(planning)` with the feature name
+1. **Receive feature request** from user
+2. **Create initial state file** at `docs/ai/<feature-name>/state.md`
+3. **Spawn manager agent** with feature details
+4. **Wait for manager to complete**
+5. **Report final verdict** to user
 
-### 2. PLAN Phase
-**On Entry**: Invoke `Skill(planning)` with the feature name.
+**You do NOT**:
+- Run workshop yourself
+- Create plans yourself
+- Implement code yourself
+- Audit code yourself
+- Make approval decisions
 
-**Exit Criteria** (user says: "approved", "ready to build", "let's build", "execute"):
-1. Update feature file: phase → EXECUTE
-2. Invoke `Skill(execution)` with the feature name
-
-### 3. EXECUTE Phase
-**On Entry**: Invoke `Skill(execution)` with the feature name.
-
-The execution skill handles:
-- Creating audit folder + changes.log
-- Setting active audit path (enables auto-logging hook)
-- Implementation following the plan
-- Tests and project checks
-- Spawning auditor after implementation complete
-- Handling APPROVED/REJECTED verdict
-
-**Exit Criteria** (auditor returns APPROVED):
-1. Auditor has created reflection.md
-2. Update feature file: phase → REFLECTION
-
-**If REJECTED**: Main agent fixes blockers and re-audits (stays in EXECUTE).
-
-### 4. REFLECTION Phase
-**On Entry**: Auditor created reflection during approval.
-
-The auditor creates `docs/ai/{feature}/reflection.md` with:
-- Technical audit (code, tests, security, performance)
-- Business audit (requirements, user flows, edge cases)
-- Gaps & risks
-- Next steps
-
-**Exit Criteria**:
-- Reflection file exists
-- User acknowledges findings
-- Update feature file: phase → COMPLETE
-
----
-
-## Gate Rules
-
-### Transitions require explicit approval
-
-| From → To | Trigger |
-|-----------|---------|
-| Workshop → Plan | User says "approved", "move to plan", "let's plan" |
-| Plan → Execute | User says "approved", "ready to build", "let's build", "execute" |
-| Execute → Reflection | Auditor returns APPROVED |
-| Reflection → Complete | User acknowledges |
-
-### You MUST NOT:
-- Skip phases without explicit user approval ("skip workshop", "skip plan")
-- Move forward without the trigger phrase
-- Assume approval from vague statements
-- **Proceed from Execute without auditor APPROVED verdict**
-- **Self-approve or self-audit — auditor owns the gate**
-
-### You MAY:
-- Go back to a previous phase if user requests
-- Stay in current phase for multiple turns
-- Pause and wait for user input
+**Manager owns the entire process.**
 
 ---
 
@@ -189,15 +164,19 @@ The auditor creates `docs/ai/{feature}/reflection.md` with:
 When user activates Full Feature Mode:
 
 1. **Ask for feature name** (if not provided)
-2. **Create state file** at `docs/ai/<feature-name>/state.md`
-3. **Determine starting phase**:
-   - Default: Start at WORKSHOP
-   - User can request to start at a specific phase (must acknowledge skip)
-4. **Invoke the appropriate skill** for the starting phase:
-   - WORKSHOP → `Skill(workshop, args: "<feature-name>")`
-   - PLAN → `Skill(planning, args: "<feature-name>")`
-   - EXECUTE → `Skill(execution, args: "<feature-name>")`
-   - REFLECTION → Check for reflection.md
+2. **Create state file** at `docs/ai/<feature-name>/state.md` (use template)
+3. **Spawn manager**:
+
+```
+Task(manager):
+"Feature: <feature-name>
+Description: <user's feature description>
+State path: docs/ai/<feature-name>/state.md
+Codebase: <brief project context if known>"
+```
+
+4. **Wait for completion**
+5. **Report to user**: APPROVED or REJECTED with summary
 
 ---
 
@@ -205,62 +184,61 @@ When user activates Full Feature Mode:
 
 When user returns to an existing feature:
 
-1. **Read the feature file** first
-2. **Summarize current state**: phase, last activity, open questions
-3. **Ask what to do next**: continue, change phase, or close
+1. **Read state file**
+2. **Check current phase/status**
+3. **If incomplete**: Re-spawn manager with state path (manager will resume)
+4. **If complete**: Show reflection summary
 
 ---
 
 ## Commands
 
-Recognize these commands in any form:
-
 | Command | Action |
 |---------|--------|
-| `status` | Show current phase, progress, blockers |
-| `skip <phase>` | Skip to next phase (requires confirmation) |
-| `back` | Return to previous phase |
-| `pause` | Mark feature as paused, summarize state |
-| `close` | Mark feature as complete |
+| `status` | Read state.md, show current phase + progress |
+| `resume` | Re-spawn manager to continue |
+| `cancel` | Mark feature as cancelled in state.md |
 
 ---
 
-## On Every Turn
+## Files Structure
 
-1. **Read feature file** (if exists)
-2. **If phase just changed**: Invoke the skill for the new phase
-3. **Update feature file** with any progress
-4. **Stay in current phase** unless gate triggered
-5. **On gate trigger**: Update phase, invoke next skill
-6. **End with clear status**: what happened, what's next, any blockers
-
----
-
-## Rules
-
-- **Feature file is source of truth** — always read it first, always update it.
-- **Invoke skills, don't duplicate** — each phase's work is done by its skill, not by you.
-- **One phase at a time** — no parallel phase work.
-- **Gates are sacred** — never bypass without explicit user approval.
-- **Auditor owns approval** — cannot proceed without auditor APPROVED verdict.
-- **No self-approval** — main agent never declares task done without audit.
-- **Clear handoffs** — when transitioning, summarize what's done, invoke next skill.
-- **Track everything** — decisions, blockers, artifacts all go in feature file.
+```
+docs/ai/<feature>/
+├── state.md              # Central state (managed by manager)
+├── plan.md               # Final synthesized plan
+├── reflection.md         # Functional reflection (created by reflector)
+└── audits/
+    ├── code-audit.md     # Code auditor output
+    └── quality-audit.md  # Quality auditor output
+```
 
 ---
 
 ## Quick Reference
 
 ```
-WORKSHOP ─[approved]─▶ PLAN ─[approved]─▶ EXECUTE ─[auditor APPROVED]─▶ REFLECTION
-    │                    │                    │                              │
-    ▼                    ▼                    ▼                              ▼
-/workshop            /planning           /execution                      (auditor)
-                                         + Task(auditor)                 reflection.md
-                                         at the end
+USER → Full-Feature Skill → Task(manager) → Manager orchestrates team
+                                                    │
+                                    ┌───────────────┼───────────────┐
+                                    ▼               ▼               ▼
+                              3 Planners      N Executors     2 Auditors
+                               (haiku)         (opus)          (haiku)
+                                    │               │               │
+                                    └───────────────┼───────────────┘
+                                                    ▼
+                                              + Reflector (opus)
+                                                    │
+                                                    ▼
+                                            APPROVED/REJECTED
+                                                    │
+                                                    ▼
+                                             USER SEES RESULT
 ```
 
-**State File**: `docs/ai/<feature>/state.md`
-**Audit Files**: `docs/ai/<feature>/audits/` (changes.log, issues.md, completeness.md)
-**Commands**: `status`, `skip`, `back`, `pause`, `close`
-**Skills**: `workshop`, `planning`, `execution` | **Agent**: `auditor` (post-execute + reflection)
+**Manager Model**: opus (smart) — coordinates everything
+**Planner Model**: haiku (fast) — quick analysis, 3 perspectives
+**Executor Model**: opus (smart) — complex implementation decisions
+**Auditor Model**: haiku (fast) — quick verification checks
+**Reflector Model**: opus (smart) — comprehensive summary
+**Fixer Model**: opus (smart) — targeted fixes

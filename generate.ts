@@ -60,18 +60,6 @@ const AGENT_CONFIGS: Record<string, AgentConfig> = {
       permission: { edit: "deny", bash: { "*": "deny" } },
     },
   },
-  scout: {
-    template: "agents/scout.md",
-    description:
-      "Ultra-fast codebase scanner. Returns paths/names only. Use for quick context gathering when you need to find files by pattern or search for code quickly.",
-    modelType: "fast",
-    claudeCode: { tools: "Glob, Grep" },
-    opencode: {
-      mode: "subagent",
-      tools: { write: false, edit: false, bash: false },
-      permission: { edit: "deny", bash: { "*": "deny" } },
-    },
-  },
   plan: {
     template: "agents/plan.md",
     description:
@@ -100,8 +88,76 @@ const AGENT_CONFIGS: Record<string, AgentConfig> = {
     template: "agents/frontend-design.md",
     description:
       "UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.",
-    modelType: "fast",
+    modelType: "smart",
     opencode: { mode: "primary" },
+  },
+  manager: {
+    template: "agents/manager.md",
+    description:
+      "Orchestrates full feature delivery with team of sub-agents. Manages workshop, planning (3 parallel planners), execution (domain-based executors), auditing (code + quality), reflection, and auto-fix loops. Use for complex features requiring coordinated multi-agent work.",
+    modelType: "smart",
+    claudeCode: { tools: "Read, Glob, Grep, Write, Task, Bash" },
+    opencode: { mode: "primary" },
+  },
+  planner: {
+    template: "agents/planner.md",
+    description:
+      "Independent planning sub-agent. Analyzes feature request and proposes implementation approach. Reports findings to manager (no file output). One of 3 parallel planners whose insights are synthesized into final plan.",
+    modelType: "fast",
+    claudeCode: { tools: "Read, Glob, Grep" },
+    opencode: {
+      mode: "subagent",
+      tools: { write: false, edit: false, bash: false },
+    },
+  },
+  executor: {
+    template: "agents/executor.md",
+    description:
+      "Domain-focused implementation sub-agent. Executes specific portion of plan (frontend, backend, infra, etc.) as assigned by manager. Smart model for complex implementation decisions.",
+    modelType: "smart",
+    claudeCode: { tools: "Read, Glob, Grep, Write, Edit, Bash" },
+    opencode: { mode: "subagent" },
+  },
+  "code-auditor": {
+    template: "agents/code-auditor.md",
+    description:
+      "Verifies code works correctly. Checks tests pass, no runtime errors, type errors, linting issues, broken imports. Fast model for quick verification. Reports issues to manager.",
+    modelType: "fast",
+    claudeCode: { tools: "Read, Glob, Grep, Bash" },
+    opencode: {
+      mode: "subagent",
+      tools: { write: false, edit: false },
+    },
+  },
+  "quality-auditor": {
+    template: "agents/quality-auditor.md",
+    description:
+      "Reviews code quality and standards. Checks patterns, naming, structure, maintainability, best practices. Fast model for pattern matching. Reports issues to manager.",
+    modelType: "fast",
+    claudeCode: { tools: "Read, Glob, Grep" },
+    opencode: {
+      mode: "subagent",
+      tools: { write: false, edit: false, bash: false },
+    },
+  },
+  reflector: {
+    template: "agents/reflector.md",
+    description:
+      "Creates functional reflection on completed work. Summarizes what was built, what's complete, gaps identified, future improvements. Runs parallel with auditors. Smart model for comprehensive analysis.",
+    modelType: "smart",
+    claudeCode: { tools: "Read, Glob, Grep, Write" },
+    opencode: {
+      mode: "subagent",
+      tools: { edit: false, bash: false },
+    },
+  },
+  fixer: {
+    template: "agents/fixer.md",
+    description:
+      "Fixes issues reported by auditors. Receives specific errors from manager, applies targeted fixes, updates state. Smart model for complex fixes. Max 2 fix attempts before escalation.",
+    modelType: "smart",
+    claudeCode: { tools: "Read, Glob, Grep, Write, Edit, Bash" },
+    opencode: { mode: "subagent" },
   },
 };
 
@@ -138,6 +194,8 @@ const SKILL_DESCRIPTIONS: Record<string, string> = {
     "Review user stories from a developer perspective. Use when user wants to review user stories, check story quality, or says 'review this story', 'is this story clear', 'story feedback', or has user stories that need developer review before implementation.",
   "full-feature":
     "Manage full feature lifecycle from exploration to delivery. Use when building new features, implementing complete functionality, or when user mentions 'feature mode', 'full feature', or wants to go through Workshop, Plan, Execute, and Reflection phases systematically.",
+  "frontend-design":
+    "UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.",
 };
 
 const WORKFLOW_NAME_MAP: Record<string, string> = {
@@ -340,10 +398,11 @@ async function generateConfigs(): Promise<void> {
     console.log("    Generated MCP configs");
   }
 
-  // OpenCode config with model settings
+  // OpenCode config with model settings and built-in agent overrides
   const opencodeConfig = {
     model: MODELS.opencode.smart,
     small_model: MODELS.opencode.fast,
+    reasoningEffort: "high",
     agent: {
       explore: { model: MODELS.opencode.fast },
       general: { model: MODELS.opencode.smart },

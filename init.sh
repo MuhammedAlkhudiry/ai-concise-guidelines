@@ -429,20 +429,37 @@ merge_mcp() {
     fi
 
     if [ "$platform" = "opencode" ]; then
-        # OpenCode: merge into opencode.json under "mcp" key
+        # OpenCode: merge entire opencode.json (mcp, model, agent, etc.)
         local new_mcps
         new_mcps=$(cat "$source_file")
 
+        # Also get the full opencode.json config (model, agent settings)
+        local opencode_config_file="$TMP_DIR/integrations/opencode/opencode.json"
+
         if [ -f "$dest" ]; then
-            # Merge with existing config
+            # Merge with existing config: deep merge all keys
             local tmp_file="${dest}.tmp"
-            jq --argjson newMcp "$new_mcps" '.mcp = (.mcp // {}) + $newMcp' "$dest" > "$tmp_file" && mv "$tmp_file" "$dest"
+            if [ -f "$opencode_config_file" ]; then
+                # Merge opencode.json config first, then mcp servers
+                local full_config
+                full_config=$(cat "$opencode_config_file")
+                jq --argjson newConfig "$full_config" --argjson newMcp "$new_mcps" \
+                    '. * $newConfig | .mcp = (.mcp // {}) + $newMcp' "$dest" > "$tmp_file" && mv "$tmp_file" "$dest"
+            else
+                jq --argjson newMcp "$new_mcps" '.mcp = (.mcp // {}) + $newMcp' "$dest" > "$tmp_file" && mv "$tmp_file" "$dest"
+            fi
         else
-            # Create new config with MCP
-            echo "{
+            # Create new config from opencode.json + mcp
+            if [ -f "$opencode_config_file" ]; then
+                local full_config
+                full_config=$(cat "$opencode_config_file")
+                echo "$full_config" | jq --argjson newMcp "$new_mcps" '. + {"\$schema": "https://opencode.ai/config.json", "mcp": $newMcp}' > "$dest"
+            else
+                echo "{
   \"\$schema\": \"https://opencode.ai/config.json\",
   \"mcp\": $new_mcps
 }" > "$dest"
+            fi
         fi
     else
         # Claude Code: merge into mcp.json under "mcpServers" key
