@@ -405,17 +405,17 @@ async function generateConfigs(): Promise<void> {
     provider: {
       anthropic: {
         models: {
-          "claude-sonnet-4-5-20250929": {
+          "claude-sonnet-4-5": {
             options: {
               thinking: { type: "enabled", budgetTokens: 16000 },
             },
           },
-"claude-opus-4-5-20250929": {
+"claude-opus-4-5": {
               options: {
                 thinking: { type: "enabled", budgetTokens: 32000 },
               },
             },
-            "claude-haiku-4-5-20250929": {
+            "claude-haiku-4-5": {
               options: {
                 thinking: { type: "enabled", budgetTokens: 10000 },
               },

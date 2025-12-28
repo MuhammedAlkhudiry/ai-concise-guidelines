@@ -4,7 +4,7 @@
   "provider": {
     "anthropic": {
       "models": {
-        "claude-sonnet-4-5-20250929": {
+        "claude-sonnet-4-5": {
           "options": {
             "thinking": {
               "type": "enabled",
@@ -12,7 +12,7 @@
             }
           }
         },
-        "claude-opus-4-5-20250929": {
+        "claude-opus-4-5": {
           "options": {
             "thinking": {
               "type": "enabled",
@@ -20,7 +20,7 @@
             }
           }
         },
-        "claude-haiku-4-5-20250929": {
+        "claude-haiku-4-5": {
           "options": {
             "thinking": {
               "type": "enabled",

@@ -97,50 +97,44 @@ dev() {
 }
 
 # --- AI Tools Refresh ---
-alias refresh-windsurf-editor='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.codeium/windsurf/memories/global_rules.md \
-                    --workflows-path ~/.codeium/windsurf/global_workflows \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
+# Helper function to run init.ts from remote
+_run_ai_init() {
+    local args="$@"
+    cd /tmp && \
+    curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.ts && \
+    bun init.ts $args && \
+    rm init.ts && \
+    cd -
+}
 
-alias refresh-windsurf-jetbrains='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.codeium/memories/global_rules.md \
-                    --workflows-path ~/.codeium/global_workflows \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
+alias refresh-windsurf-editor='_run_ai_init \
+    --rules-path ~/.codeium/windsurf/memories/global_rules.md \
+    --workflows-path ~/.codeium/windsurf/global_workflows \
+    --zsh-path ~/.config/zsh-sync/custom.zsh \
+    --rules-file-action overwrite'
 
-alias refresh-claude='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.claude/CLAUDE.md \
-                    --skills-path ~/.claude/skills \
-                    --agents-path ~/.claude/agents \
-                    --mcp-path ~/.claude/mcp.json \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --install-statusline \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
+alias refresh-windsurf-jetbrains='_run_ai_init \
+    --rules-path ~/.codeium/memories/global_rules.md \
+    --workflows-path ~/.codeium/global_workflows \
+    --zsh-path ~/.config/zsh-sync/custom.zsh \
+    --rules-file-action overwrite'
 
-alias refresh-opencode='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.config/opencode/AGENTS.md \
-                    --skills-path ~/.config/opencode/skill \
-                    --agents-path ~/.config/opencode/agent \
-                    --mcp-path ~/.config/opencode/opencode.json \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
+alias refresh-claude='_run_ai_init \
+    --rules-path ~/.claude/CLAUDE.md \
+    --skills-path ~/.claude/skills \
+    --agents-path ~/.claude/agents \
+    --mcp-path ~/.claude/mcp.json \
+    --zsh-path ~/.config/zsh-sync/custom.zsh \
+    --install-statusline \
+    --rules-file-action overwrite'
+
+alias refresh-opencode='_run_ai_init \
+    --rules-path ~/.config/opencode/AGENTS.md \
+    --skills-path ~/.config/opencode/skill \
+    --agents-path ~/.config/opencode/agent \
+    --mcp-path ~/.config/opencode/opencode.json \
+    --zsh-path ~/.config/zsh-sync/custom.zsh \
+    --rules-file-action overwrite'
 
 alias c='claude --dangerously-skip-permissions'
 
