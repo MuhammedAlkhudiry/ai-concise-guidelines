@@ -453,7 +453,7 @@ merge_mcp() {
             if [ -f "$opencode_config_file" ]; then
                 local full_config
                 full_config=$(cat "$opencode_config_file")
-                echo "$full_config" | jq --argjson newMcp "$new_mcps" '. + {"\$schema": "https://opencode.ai/config.json", "mcp": $newMcp}' > "$dest"
+                echo "$full_config" | jq --argjson newMcp "$new_mcps" '. + {"$schema": "https://opencode.ai/config.json", "mcp": $newMcp}' > "$dest"
             else
                 echo "{
   \"\$schema\": \"https://opencode.ai/config.json\",
@@ -653,7 +653,8 @@ main() {
 
     if [ -n "$mcp_path" ]; then
         if [ "$platform" = "opencode" ]; then
-            [ -n "$folders" ] && folders="$folders integrations/opencode/mcp.json" || folders="integrations/opencode/mcp.json"
+            # Need both mcp.json and opencode.json for full config (model, reasoningEffort, etc.)
+            [ -n "$folders" ] && folders="$folders integrations/opencode/mcp.json integrations/opencode/opencode.json" || folders="integrations/opencode/mcp.json integrations/opencode/opencode.json"
         else
             [ -n "$folders" ] && folders="$folders integrations/claude-code/mcp.json" || folders="integrations/claude-code/mcp.json"
         fi
