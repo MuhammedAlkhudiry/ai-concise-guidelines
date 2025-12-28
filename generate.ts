@@ -402,7 +402,27 @@ async function generateConfigs(): Promise<void> {
   const opencodeConfig = {
     model: MODELS.opencode.smart,
     small_model: MODELS.opencode.fast,
-    reasoningEffort: "high",
+    provider: {
+      anthropic: {
+        models: {
+          "claude-sonnet-4-5-20250929": {
+            options: {
+              thinking: { type: "enabled", budgetTokens: 16000 },
+            },
+          },
+"claude-opus-4-5-20250929": {
+              options: {
+                thinking: { type: "enabled", budgetTokens: 32000 },
+              },
+            },
+            "claude-haiku-4-5-20250929": {
+              options: {
+                thinking: { type: "enabled", budgetTokens: 10000 },
+              },
+            },
+          },
+      },
+    },
     agent: {
       explore: { model: MODELS.opencode.fast },
       general: { model: MODELS.opencode.smart },
