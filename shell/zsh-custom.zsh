@@ -25,8 +25,76 @@ alias t="a test --parallel --stop-on-failure"
 alias test-no-parallel="a test --stop-on-failure"
 alias coverage="a test --parallel --coverage --stop-on-failure"
 
-# --- Dev ---
-alias dev="npm run dev"
+# --- Dev Server ---
+# Smart dev server launcher with project navigation and package manager detection
+# Fuzzy-finds across projects AND their subdirectories (for monorepos)
+# Usage: dev              - runs dev in current directory
+#        dev front        - fuzzy match "front" in projects + subdirs (e.g., myapp/frontend)
+dev() {
+    local query="$*"
+    local target_dir
+    
+    if [[ -n "$query" ]]; then
+        # Build list: projects + first-level subdirs (for monorepos like myapp/frontend)
+        local selected
+        selected=$({
+            # List projects
+            ls -1 "$PROJECTS_DIR"
+            # List project/subdir for dirs containing package.json in subdir
+            for proj in "$PROJECTS_DIR"/*/; do
+                proj_name=$(basename "$proj")
+                for subdir in "$proj"*/; do
+                    [[ -d "$subdir" ]] || continue
+                    subdir_name=$(basename "$subdir")
+                    # Skip hidden dirs and node_modules
+                    [[ "$subdir_name" == .* ]] && continue
+                    [[ "$subdir_name" == "node_modules" ]] && continue
+                    # Only include if it has package.json (it's a JS project)
+                    [[ -f "$subdir/package.json" ]] && echo "$proj_name/$subdir_name"
+                done
+            done
+        } | fzf \
+            --height=40% \
+            --reverse \
+            --border=rounded \
+            --prompt="Dev > " \
+            --header="Select project or subproject" \
+            --query="$query" \
+            --select-1 \
+            --exit-0)
+        
+        if [[ -z "$selected" ]]; then
+            return 1
+        fi
+        
+        target_dir="$PROJECTS_DIR/$selected"
+        
+        if [[ ! -d "$target_dir" ]]; then
+            echo "Directory not found: $target_dir"
+            return 1
+        fi
+        
+        cd "$target_dir"
+    fi
+    
+    # Detect package manager and run dev
+    if [[ -f "bun.lockb" ]] || [[ -f "bun.lock" ]]; then
+        echo "Using bun..."
+        bun run dev
+    elif [[ -f "pnpm-lock.yaml" ]]; then
+        echo "Using pnpm..."
+        pnpm run dev
+    elif [[ -f "yarn.lock" ]]; then
+        echo "Using yarn..."
+        yarn dev
+    elif [[ -f "package-lock.json" ]] || [[ -f "package.json" ]]; then
+        echo "Using npm..."
+        npm run dev
+    else
+        echo "No package.json found in $(pwd)"
+        return 1
+    fi
+}
 
 # --- AI Tools Refresh ---
 alias refresh-windsurf-editor='cd /tmp && \
