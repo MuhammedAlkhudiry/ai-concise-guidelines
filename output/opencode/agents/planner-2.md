@@ -1,6 +1,6 @@
 ---
-description: Architect blueprints before building. Creates structured implementation plans.
-model: anthropic/claude-sonnet-4
+description: Planning proposer (ensemble slot 2)
+model: google/gemini-2.5-pro
 ---
 
 # Plan Mode

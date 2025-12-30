@@ -1,6 +1,6 @@
 ---
-description: Architect blueprints before building. Creates structured implementation plans.
-model: anthropic/claude-sonnet-4
+description: Planning proposer (ensemble slot 3)
+model: openai/gpt-4o
 ---
 
 # Plan Mode

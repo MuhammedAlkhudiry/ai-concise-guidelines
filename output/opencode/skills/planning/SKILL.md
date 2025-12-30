@@ -159,7 +159,6 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 
 ## Rules
 
-- **FINISH THE PLAN**—once approved, execute ALL items in one session. Do not stop halfway. Do not ask "should I continue?" after each step. If the plan has 10 items, do all 10. Only stop if explicitly told to do partial execution.
 - **NO CHAT OUTPUT**—everything goes to plan file
 - **NO FLUFF**—every line should add information
 - **NO VAGUE TASKS**—"implement feature" is not a task; "add validation to `CreateUserDTO`" is

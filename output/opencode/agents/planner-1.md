@@ -1,5 +1,5 @@
 ---
-description: Architect blueprints before building. Creates structured implementation plans.
+description: Planning proposer (ensemble slot 1)
 model: anthropic/claude-sonnet-4
 ---
 

@@ -69,20 +69,26 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 ### Primary Agents (Modes)
 | Agent | Description |
 |-------|-------------|
+| `coordinator` | Orchestrator brain—spawns ensemble agents, judges results, manages workflow |
 | `plan` | Create structured implementation plans |
-| `execution` | Implement approved plans with audit gate |
+| `build` | Implement code changes |
 | `frontend-design` | UI/UX focused editing |
 | `quick-edits` | Fast, minimal changes |
+| `workshop` | Explore and stress-test ideas |
 
 ### Sub-agents
 | Agent | Description |
 |-------|-------------|
-| `auditor` | Audit code changes, approve/reject |
+| `planner-1/2/3` | Ensemble planners (configurable models) |
+| `workshopper-1/2/3` | Ensemble workshoppers (configurable models) |
+| `auditor-1/2/3` | Ensemble auditors (configurable models) |
+| `executor` | Focused code execution |
+| `auditor` | Single-pass code audit |
 
 ### Skills
 | Skill | Description |
 |-------|-------------|
-| `workshop` | Explore and stress-test ideas |
+| `planning` | Create structured implementation plans |
 | `debugging` | Systematic bug investigation |
 | `code-review` | Review code for issues |
 | `refactoring` | Restructure without changing behavior |

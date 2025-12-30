@@ -17,6 +17,16 @@ export interface AgentConfig {
 }
 
 export const AGENTS: Record<string, AgentConfig> = {
+  // ============================================
+  // PRIMARY AGENTS (user-invokable via Tab)
+  // ============================================
+  
+  coordinator: {
+    instruction: "coordinator",
+    description: "Multi-model orchestrator. Spawns ensemble subagents, judges proposals, routes execution.",
+    model: "coordinator",
+    type: "primary",
+  },
   plan: {
     instruction: "plan",
     description: "Architect blueprints before building. Creates structured implementation plans.",
@@ -41,18 +51,90 @@ export const AGENTS: Record<string, AgentConfig> = {
     model: "fast",
     type: "primary",
   },
+  workshop: {
+    instruction: "workshop",
+    description: "Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.",
+    model: "smart",
+    type: "primary",
+  },
+
+  // ============================================
+  // SUBAGENTS (spawned by coordinator/other agents)
+  // ============================================
+  
+  // Single-model subagents
   auditor: {
     instruction: "auditor",
     description: "Audits code changes for correctness, quality, and completeness.",
     model: "smart",
     type: "sub",
   },
+
+  // Ensemble: Planners (same instruction, different models)
+  "planner-1": {
+    instruction: "plan",
+    description: "Planning proposer (ensemble slot 1)",
+    model: "ensemble_1",
+    type: "sub",
+  },
+  "planner-2": {
+    instruction: "plan",
+    description: "Planning proposer (ensemble slot 2)",
+    model: "ensemble_2",
+    type: "sub",
+  },
+  "planner-3": {
+    instruction: "plan",
+    description: "Planning proposer (ensemble slot 3)",
+    model: "ensemble_3",
+    type: "sub",
+  },
+
+  // Ensemble: Workshoppers (same instruction, different models)
+  "workshopper-1": {
+    instruction: "workshop",
+    description: "Workshop proposer (ensemble slot 1)",
+    model: "ensemble_1",
+    type: "sub",
+  },
+  "workshopper-2": {
+    instruction: "workshop",
+    description: "Workshop proposer (ensemble slot 2)",
+    model: "ensemble_2",
+    type: "sub",
+  },
+  "workshopper-3": {
+    instruction: "workshop",
+    description: "Workshop proposer (ensemble slot 3)",
+    model: "ensemble_3",
+    type: "sub",
+  },
+
+  // Ensemble: Auditors/Reviewers (same instruction, different models)
+  "auditor-1": {
+    instruction: "auditor",
+    description: "Code reviewer (ensemble slot 1)",
+    model: "ensemble_1",
+    type: "sub",
+  },
+  "auditor-2": {
+    instruction: "auditor",
+    description: "Code reviewer (ensemble slot 2)",
+    model: "ensemble_2",
+    type: "sub",
+  },
+  "auditor-3": {
+    instruction: "auditor",
+    description: "Code reviewer (ensemble slot 3)",
+    model: "ensemble_3",
+    type: "sub",
+  },
+
+  // Executor (used by coordinator for execution phase)
+  executor: {
+    instruction: "execution",
+    description: "Executes scoped implementation tasks",
+    model: "executor",
+    type: "sub",
+  },
 } as const;
-
-/** Get all primary agents (user-invokable modes) */
-export const getPrimaryAgents = () =>
-  Object.entries(AGENTS).filter(([_, config]) => config.type === "primary");
-
-/** Get all sub-agents (spawned by other agents) */
-export const getSubAgents = () =>
-  Object.entries(AGENTS).filter(([_, config]) => config.type === "sub");
