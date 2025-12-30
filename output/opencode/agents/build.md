@@ -1,6 +1,7 @@
 ---
 description: Implement approved plans into production-ready code.
 model: anthropic/claude-opus-4-5
+mode: primary
 ---
 
 # Execute Mode

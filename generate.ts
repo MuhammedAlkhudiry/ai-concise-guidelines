@@ -77,9 +77,9 @@ async function generateAgents(): Promise<number> {
     const frontmatter: Record<string, unknown> = {
       description: config.description,
       model: MODELS[config.model],
+      mode: config.type === "sub" ? "subagent" : "primary",
     };
 
-    if (config.mode) frontmatter.mode = config.mode;
     if (config.tools) frontmatter.tools = config.tools;
     if (config.permission) frontmatter.permission = config.permission;
 

@@ -168,7 +168,7 @@ PLAN → EXECUTE (+ Audit) → Done
 - **PREFER EXTENDING** — Extend existing files over creating new ones
 - **AFTER-TASK CHECKLIST** — Run type-check/lint/format/tests
 - **UPDATE DOCS** — When changing CLI args, configs, or user-facing behavior, always update `README.md` and `shell/zsh-custom.zsh` if affected
-
+- **NEVER EDIT OR SELECT A MODEL**, this is always up to the user
 ---
 
 ## File Types Summary

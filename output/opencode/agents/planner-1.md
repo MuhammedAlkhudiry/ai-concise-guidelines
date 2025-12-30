@@ -1,6 +1,7 @@
 ---
 description: Planning proposer (ensemble slot 1)
 model: anthropic/claude-opus-4-5
+mode: subagent
 ---
 
 # Plan Mode

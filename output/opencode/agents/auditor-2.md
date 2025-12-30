@@ -1,6 +1,7 @@
 ---
 description: Code reviewer (ensemble slot 2)
-model: google/gemini-3-pro
+model: google/gemini-3-pro-preview
+mode: subagent
 ---
 
 # Auditor

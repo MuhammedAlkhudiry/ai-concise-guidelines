@@ -1,6 +1,7 @@
 ---
 description: Planning proposer (ensemble slot 3)
 model: opencode/minimax-m2.1-free
+mode: subagent
 ---
 
 # Plan Mode

@@ -1,6 +1,7 @@
 ---
 description: Code reviewer (ensemble slot 3)
 model: opencode/minimax-m2.1-free
+mode: subagent
 ---
 
 # Auditor

@@ -1,6 +1,7 @@
 ---
 description: Architect blueprints before building. Creates structured implementation plans.
 model: anthropic/claude-opus-4-5
+mode: primary
 ---
 
 # Plan Mode

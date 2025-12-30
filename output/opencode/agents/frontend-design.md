@@ -1,6 +1,7 @@
 ---
 description: UI/UX focused editing for visual changes only.
 model: anthropic/claude-opus-4-5
+mode: primary
 ---
 
 # Frontend Design Mode

@@ -1,6 +1,7 @@
 ---
 description: Executes scoped implementation tasks
 model: anthropic/claude-opus-4-5
+mode: subagent
 ---
 
 # Execute Mode
