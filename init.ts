@@ -42,7 +42,7 @@ interface Options {
   rulesAction?: RulesAction;
   skillsPath?: string;
   agentsPath?: string;
-  mcpPath?: string;
+  configPath?: string;
 }
 
 // Show usage
@@ -58,7 +58,7 @@ Options:
   --rules-path PATH         Copy base rules to PATH file
   --skills-path PATH        Copy skills to PATH directory (deletes existing first)
   --agents-path PATH        Copy agents to PATH directory (deletes existing first)
-  --mcp-path PATH           Merge MCP config into PATH file (opencode.json)
+  --config-path PATH        Merge OpenCode config into PATH file (opencode.json)
 
   --rules-file-action ACTION
       Action when rules file exists: overwrite, append, or skip (default: skip)
@@ -69,7 +69,7 @@ Example:
   bun init.ts --rules-path ~/.config/opencode/AGENTS.md \\
      --skills-path ~/.config/opencode/skill \\
      --agents-path ~/.config/opencode/agent \\
-     --mcp-path ~/.config/opencode/opencode.json
+     --config-path ~/.config/opencode/opencode.json
 `);
   process.exit(0);
 }
@@ -214,39 +214,33 @@ function deepMerge(target: any, source: any): any {
   return result;
 }
 
-// Merge MCP config into opencode.json
-function mergeMcp(dest: string): void {
-  print.info(`Merging MCP config into ${dest}...`);
+// Merge OpenCode config
+function mergeConfig(dest: string): void {
+  print.info(`Merging config into ${dest}...`);
 
   ensureParentDir(dest);
 
-  const mcpFile = join(TMP_DIR, "output", "opencode", "mcp.json");
   const configFile = join(TMP_DIR, "output", "opencode", "opencode.json");
 
-  if (!existsSync(mcpFile)) {
-    print.error("MCP source file not found");
+  if (!existsSync(configFile)) {
+    print.error("OpenCode config file not found");
     return;
   }
 
-  const newMcps = JSON.parse(readFileSync(mcpFile, "utf-8"));
-  const newConfig = existsSync(configFile)
-    ? JSON.parse(readFileSync(configFile, "utf-8"))
-    : { $schema: "https://opencode.ai/config.json" };
+  const newConfig = JSON.parse(readFileSync(configFile, "utf-8"));
 
   let result: any;
   if (existsSync(dest)) {
     const content = readFileSync(dest, "utf-8").trim();
     const existing = content ? JSON.parse(content) : {};
-    // Deep merge existing with new config, then add mcp servers
+    // Deep merge: new config wins, but preserve user's extra keys
     result = deepMerge(existing, newConfig);
-    result.mcp = { ...(existing.mcp || {}), ...newMcps };
   } else {
-    result = { ...newConfig, mcp: newMcps };
+    result = newConfig;
   }
 
   writeFileSync(dest, JSON.stringify(result, null, 2) + "\n");
-  const count = Object.keys(result.mcp || {}).length;
-  print.success(`Merged MCP servers (total: ${count})`);
+  print.success(`Config merged to ${dest}`);
 }
 
 // Parse arguments
@@ -275,8 +269,8 @@ function parseArgs(): Options {
         opts.agentsPath = expandPath(next);
         i++;
         break;
-      case "--mcp-path":
-        opts.mcpPath = expandPath(next);
+      case "--config-path":
+        opts.configPath = expandPath(next);
         i++;
         break;
       case "--help":
@@ -297,7 +291,7 @@ function main() {
   const opts = parseArgs();
 
   // Validate at least one destination specified
-  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.mcpPath) {
+  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.configPath) {
     print.error("No destination specified. At least one path is required.");
     showUsage();
   }
@@ -308,7 +302,7 @@ function main() {
   if (opts.rulesPath) folders.push("content/base-rules.md");
   if (opts.skillsPath) folders.push("output/opencode/skills");
   if (opts.agentsPath) folders.push("output/opencode/agents");
-  if (opts.mcpPath) folders.push("output/opencode/mcp.json", "output/opencode/opencode.json");
+  if (opts.configPath) folders.push("output/opencode/opencode.json");
 
   // Show summary
   console.log(`
@@ -321,7 +315,7 @@ ${colors.blue("Installation Summary:")}
 ${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
 ${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
 ${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
-${opts.mcpPath ? `  • MCP: ${opts.mcpPath}` : ""}
+${opts.configPath ? `  • Config: ${opts.configPath} (merge)` : ""}
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
 
@@ -331,7 +325,7 @@ ${colors.yellow("═════════════════════
   if (opts.rulesPath) copyRules(opts.rulesPath, opts.rulesAction);
   if (opts.skillsPath) copySkills(opts.skillsPath);
   if (opts.agentsPath) copyAgents(opts.agentsPath);
-  if (opts.mcpPath) mergeMcp(opts.mcpPath);
+  if (opts.configPath) mergeConfig(opts.configPath);
 
   console.log(`
 ${colors.green("╔═══════════════════════════════════════════════════════════╗")}

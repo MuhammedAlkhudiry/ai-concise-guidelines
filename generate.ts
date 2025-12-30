@@ -126,24 +126,17 @@ ${template}`;
 async function generateConfigs(): Promise<void> {
   console.log("  Generating configs...");
 
-  // MCP config
+  // Build MCP config from mcp.json
+  let mcp: Record<string, unknown> = {};
   if (existsSync(MCP_FILE)) {
     const mcpServers = JSON.parse(await readFile(MCP_FILE, "utf-8"));
-
-    // OpenCode format: { name: { type: "local", command: [...] } }
-    const opencodeMcp: Record<string, unknown> = {};
     for (const [name, server] of Object.entries(mcpServers)) {
       const s = server as { command: string; args: string[] };
-      opencodeMcp[name] = { type: "local", command: [s.command, ...s.args] };
+      mcp[name] = { type: "local", command: [s.command, ...s.args] };
     }
-    await writeFile(
-      join(OPENCODE_DIR, "mcp.json"),
-      JSON.stringify(opencodeMcp, null, 2)
-    );
-    console.log("    Generated mcp.json");
   }
 
-  // OpenCode config
+  // Complete OpenCode config (everything in one file)
   const opencodeConfig = {
     model: MODELS.smart,
     small_model: MODELS.fast,
@@ -168,10 +161,15 @@ async function generateConfigs(): Promise<void> {
         },
       },
     },
+    plugin: [
+      "opencode-gemini-auth",
+      "@tarquinen/opencode-dcp@latest",
+    ],
     agent: {
       explore: { model: MODELS.fast },
       general: { model: MODELS.smart },
     },
+    mcp,
   };
 
   await writeFile(

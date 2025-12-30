@@ -18,5 +18,11 @@
       "-y",
       "@upstash/context7-mcp"
     ]
+  },
+  "mgrep": {
+    "command": "mgrep",
+    "args": [
+      "mcp"
+    ]
   }
 }

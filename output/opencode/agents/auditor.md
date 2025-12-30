@@ -1,6 +1,6 @@
 ---
 description: Audits code changes for correctness, quality, and completeness.
-model: anthropic/claude-sonnet-4
+model: anthropic/claude-opus-4-5
 ---
 
 # Auditor

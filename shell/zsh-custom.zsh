@@ -107,38 +107,13 @@ _run_ai_init() {
     cd -
 }
 
-alias refresh-windsurf-editor='_run_ai_init \
-    --rules-path ~/.codeium/windsurf/memories/global_rules.md \
-    --workflows-path ~/.codeium/windsurf/global_workflows \
-    --zsh-path ~/.config/zsh-sync/custom.zsh \
-    --rules-file-action overwrite'
-
-alias refresh-windsurf-jetbrains='_run_ai_init \
-    --rules-path ~/.codeium/memories/global_rules.md \
-    --workflows-path ~/.codeium/global_workflows \
-    --zsh-path ~/.config/zsh-sync/custom.zsh \
-    --rules-file-action overwrite'
-
-alias refresh-claude='_run_ai_init \
-    --rules-path ~/.claude/CLAUDE.md \
-    --skills-path ~/.claude/skills \
-    --agents-path ~/.claude/agents \
-    --mcp-path ~/.claude/mcp.json \
-    --zsh-path ~/.config/zsh-sync/custom.zsh \
-    --install-statusline \
-    --rules-file-action overwrite'
-
 alias refresh-opencode='_run_ai_init \
     --rules-path ~/.config/opencode/AGENTS.md \
     --skills-path ~/.config/opencode/skill \
     --agents-path ~/.config/opencode/agent \
-    --mcp-path ~/.config/opencode/opencode.json \
+    --config-path ~/.config/opencode/opencode.json \
     --zsh-path ~/.config/zsh-sync/custom.zsh \
     --rules-file-action overwrite'
-
-alias c='claude --dangerously-skip-permissions'
-
-alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains'
 
 # --- Tool Initialization ---
 [ -x /opt/homebrew/bin/brew ] && eval $(/opt/homebrew/bin/brew shellenv)
