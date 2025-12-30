@@ -1,6 +1,6 @@
 ---
 description: UI/UX focused editing for visual changes only.
-model: anthropic/claude-sonnet-4
+model: anthropic/claude-opus-4-5
 ---
 
 # Frontend Design Mode

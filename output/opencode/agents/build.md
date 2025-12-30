@@ -1,6 +1,6 @@
 ---
 description: Implement approved plans into production-ready code.
-model: anthropic/claude-sonnet-4
+model: anthropic/claude-opus-4-5
 ---
 
 # Execute Mode

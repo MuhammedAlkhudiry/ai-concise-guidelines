@@ -1,6 +1,6 @@
 ---
 description: Executes scoped implementation tasks
-model: anthropic/claude-sonnet-4
+model: anthropic/claude-opus-4-5
 ---
 
 # Execute Mode

@@ -1,6 +1,6 @@
 {
-  "model": "anthropic/claude-sonnet-4",
-  "small_model": "anthropic/claude-haiku-4",
+  "model": "anthropic/claude-opus-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
   "provider": {
     "anthropic": {
       "models": {
@@ -37,10 +37,10 @@
   ],
   "agent": {
     "explore": {
-      "model": "anthropic/claude-haiku-4"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "general": {
-      "model": "anthropic/claude-sonnet-4"
+      "model": "anthropic/claude-opus-4-5"
     }
   },
   "mcp": {

@@ -1,6 +1,6 @@
 ---
 description: Fast, focused edits without heavy process overhead.
-model: anthropic/claude-haiku-4
+model: anthropic/claude-haiku-4-5
 ---
 
 # Quick Edits Mode

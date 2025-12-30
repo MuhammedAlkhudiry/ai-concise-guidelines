@@ -1,6 +1,6 @@
 ---
 description: Workshop proposer (ensemble slot 3)
-model: openai/gpt-4o
+model: opencode/minimax-m2.1-free
 ---
 
 # Workshop Mode
