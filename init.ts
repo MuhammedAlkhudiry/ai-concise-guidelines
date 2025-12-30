@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, copyFileSync, rmSync, statSync } from "fs";
-import { dirname, basename, join } from "path";
+import { dirname, join } from "path";
 import { execSync } from "child_process";
 
 // Colors for output
@@ -35,7 +35,6 @@ process.on("SIGINT", () => { cleanup(); process.exit(1); });
 process.on("SIGTERM", () => { cleanup(); process.exit(1); });
 
 // Types
-type Platform = "claude-code" | "opencode" | "windsurf";
 type RulesAction = "overwrite" | "append" | "skip";
 
 interface Options {
@@ -43,57 +42,30 @@ interface Options {
   rulesAction?: RulesAction;
   skillsPath?: string;
   agentsPath?: string;
-  workflowsPath?: string;
-  workflowsPrefix?: string;
-  zshPath?: string;
   mcpPath?: string;
-  platform?: Platform;
-  installStatusline?: boolean;
 }
 
 // Show usage
 function showUsage(): never {
   console.log(`
 ${colors.blue("╔═══════════════════════════════════════════════════════════╗")}
-${colors.blue("║   AI Concise Guidelines - Installer                      ║")}
+${colors.blue("║   AI Concise Guidelines - OpenCode Installer              ║")}
 ${colors.blue("╚═══════════════════════════════════════════════════════════╝")}
 
 Usage: bun init.ts [OPTIONS]
 
 Options:
-  --rules-path PATH         Merge guidelines into a single rules file at PATH
-  --skills-path PATH        Copy skills to PATH directory
-  --agents-path PATH        Copy agents to PATH directory
-  --workflows-path PATH     Copy workflows to PATH directory (Windsurf only)
-  --zsh-path PATH           Copy ZSH custom config to PATH and source it in ~/.zshrc
-  --mcp-path PATH           Copy MCP config to PATH file
+  --rules-path PATH         Copy base rules to PATH file
+  --skills-path PATH        Copy skills to PATH directory (deletes existing first)
+  --agents-path PATH        Copy agents to PATH directory (deletes existing first)
+  --mcp-path PATH           Merge MCP config into PATH file (opencode.json)
 
   --rules-file-action ACTION
       Action when rules file exists: overwrite, append, or skip (default: skip)
 
-  --workflows-prefix PREFIX
-      Add prefix to workflow filenames (e.g., "MODES: ")
-
-  --install-statusline      Install Claude Code status line
-
-  --platform PLATFORM       Hint for agent format: claude-code, opencode, windsurf
-                            (auto-detected from paths if not specified)
-
   --help, -h                Show this help message
 
-Examples:
-  # Windsurf
-  bun init.ts --rules-path ~/.windsurf/rules/RULES.md \\
-     --workflows-path ~/.windsurf/workflows
-
-  # Claude Code
-  bun init.ts --rules-path ~/.claude/CLAUDE.md \\
-     --skills-path ~/.claude/skills \\
-     --agents-path ~/.claude/agents \\
-     --mcp-path ~/.claude/mcp.json \\
-     --install-statusline
-
-  # OpenCode
+Example:
   bun init.ts --rules-path ~/.config/opencode/AGENTS.md \\
      --skills-path ~/.config/opencode/skill \\
      --agents-path ~/.config/opencode/agent \\
@@ -118,18 +90,6 @@ function ensureParentDir(path: string): void {
   }
 }
 
-// Detect platform from paths
-function detectPlatform(opts: Options): Platform {
-  const allPaths = [opts.rulesPath, opts.skillsPath, opts.agentsPath, opts.workflowsPath, opts.mcpPath]
-    .filter(Boolean)
-    .join(" ");
-
-  if (allPaths.includes("opencode")) return "opencode";
-  if (allPaths.includes("windsurf") || allPaths.includes("codeium")) return "windsurf";
-  if (allPaths.includes(".claude")) return "claude-code";
-  return "claude-code";
-}
-
 // Clone repository with sparse checkout
 function cloneRepository(folders: string[]): void {
   print.info("Cloning repository...");
@@ -144,13 +104,13 @@ function cloneRepository(folders: string[]): void {
   }
 }
 
-// Copy rules (merged guidelines)
+// Copy rules (base-rules.md)
 function copyRules(dest: string, action: RulesAction = "skip"): void {
   print.info(`Copying rules to ${dest}...`);
 
-  const guidelinesDir = join(TMP_DIR, "guidelines");
-  if (!existsSync(guidelinesDir)) {
-    print.error("Guidelines folder not found");
+  const sourceFile = join(TMP_DIR, "content", "base-rules.md");
+  if (!existsSync(sourceFile)) {
+    print.error("Base rules file not found");
     return;
   }
 
@@ -162,37 +122,30 @@ function copyRules(dest: string, action: RulesAction = "skip"): void {
       print.info("Skipping rules copy");
       return;
     }
-    if (action === "overwrite") {
-      writeFileSync(dest, "");
-    } else if (action === "append") {
+    if (action === "append") {
       const existing = readFileSync(dest, "utf-8");
-      writeFileSync(dest, existing + `\n\n# --- Appended ${new Date().toISOString()} ---\n`);
+      const newContent = readFileSync(sourceFile, "utf-8");
+      writeFileSync(dest, existing + `\n\n# --- Appended ${new Date().toISOString()} ---\n\n` + newContent);
+      print.success(`Rules appended to ${dest}`);
+      return;
     }
-  } else {
-    writeFileSync(dest, "");
+    // overwrite - fall through
   }
 
-  // Merge all markdown files
-  const files = readdirSync(guidelinesDir)
-    .filter(f => f.endsWith(".md"))
-    .sort();
-
-  for (const file of files) {
-    const content = readFileSync(join(guidelinesDir, file), "utf-8");
-    const existing = readFileSync(dest, "utf-8");
-    writeFileSync(dest, existing + "\n\n" + content);
-  }
-
+  copyFileSync(sourceFile, dest);
   print.success(`Rules copied to ${dest}`);
 }
 
-// Copy directory recursively
-function copyDirRecursive(src: string, dest: string): void {
+// Copy directory (delete first for clean sync)
+function copyDirClean(src: string, dest: string): void {
   if (!existsSync(src)) return;
   
+  // Delete existing directory first (clean sync)
   if (existsSync(dest)) {
+    print.info(`Removing existing ${dest} for clean sync...`);
     rmSync(dest, { recursive: true, force: true });
   }
+  
   mkdirSync(dest, { recursive: true });
 
   const entries = readdirSync(src, { withFileTypes: true });
@@ -200,7 +153,7 @@ function copyDirRecursive(src: string, dest: string): void {
     const srcPath = join(src, entry.name);
     const destPath = join(dest, entry.name);
     if (entry.isDirectory()) {
-      copyDirRecursive(srcPath, destPath);
+      copyDirClean(srcPath, destPath);
     } else {
       copyFileSync(srcPath, destPath);
     }
@@ -208,20 +161,16 @@ function copyDirRecursive(src: string, dest: string): void {
 }
 
 // Copy skills
-function copySkills(dest: string, platform: Platform): void {
+function copySkills(dest: string): void {
   print.info(`Copying skills to ${dest}...`);
 
-  let sourceDir = join(TMP_DIR, "integrations", platform, "skills");
-  if (!existsSync(sourceDir)) {
-    sourceDir = join(TMP_DIR, "integrations", "claude-code", "skills");
-  }
-
+  const sourceDir = join(TMP_DIR, "output", "opencode", "skills");
   if (!existsSync(sourceDir)) {
     print.error("Skills folder not found");
     return;
   }
 
-  copyDirRecursive(sourceDir, dest);
+  copyDirClean(sourceDir, dest);
 
   const count = readdirSync(dest).filter(f => 
     statSync(join(dest, f)).isDirectory()
@@ -230,80 +179,19 @@ function copySkills(dest: string, platform: Platform): void {
 }
 
 // Copy agents
-function copyAgents(dest: string, platform: Platform): void {
+function copyAgents(dest: string): void {
   print.info(`Copying agents to ${dest}...`);
 
-  const sourceDir = platform === "opencode"
-    ? join(TMP_DIR, "integrations", "opencode", "agents")
-    : join(TMP_DIR, "integrations", "claude-code", "sub-agents");
-
+  const sourceDir = join(TMP_DIR, "output", "opencode", "agents");
   if (!existsSync(sourceDir)) {
-    print.error(`Agents folder not found at ${sourceDir}`);
+    print.error("Agents folder not found");
     return;
   }
 
-  copyDirRecursive(sourceDir, dest);
+  copyDirClean(sourceDir, dest);
 
   const count = readdirSync(dest).filter(f => f.endsWith(".md")).length;
   print.success(`Copied ${count} agent files to ${dest}`);
-}
-
-// Copy workflows (Windsurf)
-function copyWorkflows(dest: string, prefix?: string): void {
-  print.info(`Copying workflows to ${dest}...`);
-
-  const sourceDir = join(TMP_DIR, "integrations", "windsurf", "workflows");
-  if (!existsSync(sourceDir)) {
-    print.error("Workflows folder not found");
-    return;
-  }
-
-  if (existsSync(dest)) {
-    rmSync(dest, { recursive: true, force: true });
-  }
-  mkdirSync(dest, { recursive: true });
-
-  const files = readdirSync(sourceDir).filter(f => f.endsWith(".md"));
-  for (const file of files) {
-    const destName = prefix ? `${prefix}${file}` : file;
-    copyFileSync(join(sourceDir, file), join(dest, destName));
-  }
-
-  print.success(`Copied ${files.length} workflow files to ${dest}`);
-}
-
-// Copy ZSH custom config
-function copyZsh(dest: string): void {
-  print.info(`Copying ZSH custom config to ${dest}...`);
-
-  const sourceFile = join(TMP_DIR, "shell", "zsh-custom.zsh");
-  if (!existsSync(sourceFile)) {
-    print.error("ZSH custom config not found");
-    return;
-  }
-
-  ensureParentDir(dest);
-  copyFileSync(sourceFile, dest);
-
-  // Add source line to ~/.zshrc if not present
-  const zshrc = join(process.env.HOME || "", ".zshrc");
-  const sourceLine = `[ -f ${dest} ] && source ${dest}`;
-
-  if (existsSync(zshrc)) {
-    const content = readFileSync(zshrc, "utf-8");
-    if (!content.includes(sourceLine)) {
-      print.info(`Adding source line to ${zshrc}...`);
-      writeFileSync(`${zshrc}.bak`, content);
-      writeFileSync(zshrc, content + `\n\n# Synced custom config via ai-concise-guidelines\n${sourceLine}\n`);
-      print.success(`Source line added to ${zshrc} (backup created)`);
-    } else {
-      print.info("Source line already exists in .zshrc");
-    }
-  } else {
-    print.warning(`${zshrc} not found. Please manually add: ${sourceLine}`);
-  }
-
-  print.success(`ZSH custom config installed to ${dest}`);
 }
 
 // Deep merge objects
@@ -326,99 +214,39 @@ function deepMerge(target: any, source: any): any {
   return result;
 }
 
-// Merge MCP config
-function mergeMcp(dest: string, platform: Platform): void {
-  print.info(`Merging MCP servers into ${dest}...`);
+// Merge MCP config into opencode.json
+function mergeMcp(dest: string): void {
+  print.info(`Merging MCP config into ${dest}...`);
 
   ensureParentDir(dest);
 
-  if (platform === "opencode") {
-    // OpenCode: merge opencode.json with mcp servers
-    const mcpFile = join(TMP_DIR, "integrations", "opencode", "mcp.json");
-    const configFile = join(TMP_DIR, "integrations", "opencode", "opencode.json");
+  const mcpFile = join(TMP_DIR, "output", "opencode", "mcp.json");
+  const configFile = join(TMP_DIR, "output", "opencode", "opencode.json");
 
-    if (!existsSync(mcpFile)) {
-      print.error("MCP source file not found");
-      return;
-    }
-
-    const newMcps = JSON.parse(readFileSync(mcpFile, "utf-8"));
-    const newConfig = existsSync(configFile)
-      ? JSON.parse(readFileSync(configFile, "utf-8"))
-      : { $schema: "https://opencode.ai/config.json" };
-
-    let result: any;
-    if (existsSync(dest)) {
-      const content = readFileSync(dest, "utf-8").trim();
-      const existing = content ? JSON.parse(content) : {};
-      // Deep merge existing with new config, then add mcp servers
-      result = deepMerge(existing, newConfig);
-      result.mcp = { ...(existing.mcp || {}), ...newMcps };
-    } else {
-      result = { ...newConfig, mcp: newMcps };
-    }
-
-    writeFileSync(dest, JSON.stringify(result, null, 2) + "\n");
-    const count = Object.keys(result.mcp || {}).length;
-    print.success(`Merged MCP servers (total: ${count})`);
-
-  } else {
-    // Claude Code: merge mcp.json with mcpServers key
-    const sourceFile = join(TMP_DIR, "integrations", "claude-code", "mcp.json");
-    if (!existsSync(sourceFile)) {
-      print.error("MCP source file not found");
-      return;
-    }
-
-    const newConfig = JSON.parse(readFileSync(sourceFile, "utf-8"));
-    const newMcps = newConfig.mcpServers || {};
-
-    let result: any;
-    if (existsSync(dest)) {
-      const content = readFileSync(dest, "utf-8").trim();
-      const existing = content ? JSON.parse(content) : {};
-      result = {
-        ...existing,
-        mcpServers: { ...(existing.mcpServers || {}), ...newMcps },
-      };
-    } else {
-      result = newConfig;
-    }
-
-    writeFileSync(dest, JSON.stringify(result, null, 2) + "\n");
-    const count = Object.keys(result.mcpServers || {}).length;
-    print.success(`Merged MCP servers (total: ${count})`);
-  }
-}
-
-// Install status line (Claude Code)
-function installStatusline(): void {
-  print.info("Installing status line...");
-
-  const claudeDir = join(process.env.HOME || "", ".claude");
-  const scriptDest = join(claudeDir, "statusline-command.sh");
-  const settingsFile = join(claudeDir, "settings.json");
-
-  mkdirSync(claudeDir, { recursive: true });
-
-  const sourceScript = join(TMP_DIR, "statusline", "statusline-command.sh");
-  if (!existsSync(sourceScript)) {
-    print.error("Status line script not found");
+  if (!existsSync(mcpFile)) {
+    print.error("MCP source file not found");
     return;
   }
 
-  copyFileSync(sourceScript, scriptDest);
-  execSync(`chmod +x "${scriptDest}"`);
+  const newMcps = JSON.parse(readFileSync(mcpFile, "utf-8"));
+  const newConfig = existsSync(configFile)
+    ? JSON.parse(readFileSync(configFile, "utf-8"))
+    : { $schema: "https://opencode.ai/config.json" };
 
-  // Update settings.json
-  let settings: any = {};
-  if (existsSync(settingsFile)) {
-    settings = JSON.parse(readFileSync(settingsFile, "utf-8"));
+  let result: any;
+  if (existsSync(dest)) {
+    const content = readFileSync(dest, "utf-8").trim();
+    const existing = content ? JSON.parse(content) : {};
+    // Deep merge existing with new config, then add mcp servers
+    result = deepMerge(existing, newConfig);
+    result.mcp = { ...(existing.mcp || {}), ...newMcps };
+  } else {
+    result = { ...newConfig, mcp: newMcps };
   }
-  settings.statusLine = { type: "command", command: scriptDest };
-  writeFileSync(settingsFile, JSON.stringify(settings, null, 2) + "\n");
 
-  print.success(`Status line installed at ${scriptDest}`);
+  writeFileSync(dest, JSON.stringify(result, null, 2) + "\n");
+  const count = Object.keys(result.mcp || {}).length;
+  print.success(`Merged MCP servers (total: ${count})`);
 }
 
 // Parse arguments
@@ -447,28 +275,9 @@ function parseArgs(): Options {
         opts.agentsPath = expandPath(next);
         i++;
         break;
-      case "--workflows-path":
-        opts.workflowsPath = expandPath(next);
-        i++;
-        break;
-      case "--workflows-prefix":
-        opts.workflowsPrefix = next;
-        i++;
-        break;
-      case "--zsh-path":
-        opts.zshPath = expandPath(next);
-        i++;
-        break;
       case "--mcp-path":
         opts.mcpPath = expandPath(next);
         i++;
-        break;
-      case "--platform":
-        opts.platform = next as Platform;
-        i++;
-        break;
-      case "--install-statusline":
-        opts.installStatusline = true;
         break;
       case "--help":
       case "-h":
@@ -488,59 +297,31 @@ function main() {
   const opts = parseArgs();
 
   // Validate at least one destination specified
-  if (
-    !opts.rulesPath &&
-    !opts.skillsPath &&
-    !opts.agentsPath &&
-    !opts.workflowsPath &&
-    !opts.zshPath &&
-    !opts.mcpPath &&
-    !opts.installStatusline
-  ) {
+  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.mcpPath) {
     print.error("No destination specified. At least one path is required.");
     showUsage();
   }
 
-  // Auto-detect platform
-  const platform = opts.platform || detectPlatform(opts);
-
   // Determine folders to clone
   const folders: string[] = [];
 
-  if (opts.rulesPath) folders.push("guidelines");
-  if (opts.skillsPath) {
-    folders.push(`integrations/${platform}/skills`);
-    if (platform !== "claude-code") folders.push("integrations/claude-code/skills");
-  }
-  if (opts.agentsPath) {
-    folders.push(platform === "opencode" ? "integrations/opencode/agents" : "integrations/claude-code/sub-agents");
-  }
-  if (opts.workflowsPath) folders.push("integrations/windsurf/workflows");
-  if (opts.zshPath) folders.push("shell");
-  if (opts.mcpPath) {
-    if (platform === "opencode") {
-      folders.push("integrations/opencode/mcp.json", "integrations/opencode/opencode.json");
-    } else {
-      folders.push("integrations/claude-code/mcp.json");
-    }
-  }
-  if (opts.installStatusline) folders.push("statusline");
+  if (opts.rulesPath) folders.push("content/base-rules.md");
+  if (opts.skillsPath) folders.push("output/opencode/skills");
+  if (opts.agentsPath) folders.push("output/opencode/agents");
+  if (opts.mcpPath) folders.push("output/opencode/mcp.json", "output/opencode/opencode.json");
 
   // Show summary
   console.log(`
 ${colors.blue("╔═══════════════════════════════════════════════════════════╗")}
-${colors.blue("║   AI Concise Guidelines - Installer                      ║")}
+${colors.blue("║   AI Concise Guidelines - OpenCode Installer              ║")}
 ${colors.blue("╚═══════════════════════════════════════════════════════════╝")}
 
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
-${colors.blue(`Installation Summary (platform: ${platform}):`)}
+${colors.blue("Installation Summary:")}
 ${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
-${opts.skillsPath ? `  • Skills: ${opts.skillsPath}` : ""}
-${opts.agentsPath ? `  • Agents: ${opts.agentsPath}` : ""}
-${opts.workflowsPath ? `  • Workflows: ${opts.workflowsPath}` : ""}
-${opts.zshPath ? `  • ZSH Config: ${opts.zshPath}` : ""}
+${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
+${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
 ${opts.mcpPath ? `  • MCP: ${opts.mcpPath}` : ""}
-${opts.installStatusline ? "  • Status line: ~/.claude/statusline-command.sh" : ""}
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
 
@@ -548,12 +329,9 @@ ${colors.yellow("═════════════════════
   cloneRepository(folders);
 
   if (opts.rulesPath) copyRules(opts.rulesPath, opts.rulesAction);
-  if (opts.skillsPath) copySkills(opts.skillsPath, platform);
-  if (opts.agentsPath) copyAgents(opts.agentsPath, platform);
-  if (opts.workflowsPath) copyWorkflows(opts.workflowsPath, opts.workflowsPrefix);
-  if (opts.zshPath) copyZsh(opts.zshPath);
-  if (opts.mcpPath) mergeMcp(opts.mcpPath, platform);
-  if (opts.installStatusline) installStatusline();
+  if (opts.skillsPath) copySkills(opts.skillsPath);
+  if (opts.agentsPath) copyAgents(opts.agentsPath);
+  if (opts.mcpPath) mergeMcp(opts.mcpPath);
 
   console.log(`
 ${colors.green("╔═══════════════════════════════════════════════════════════╗")}

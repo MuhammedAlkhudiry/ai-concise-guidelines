@@ -4,115 +4,98 @@ This file provides guidance to AI coding agents working in this repository.
 
 ## Project Overview
 
-This repository contains opinionated AI guidelines, skills, workflows, and agents for Claude Code, OpenCode, and Windsurf. The content is installed to user machines via `init.sh`. This is a **documentation/configuration repository**—no compiled code, but with a generator script.
+This repository contains opinionated AI guidelines, skills, and agents for OpenCode. The content is installed to user machines via `init.ts`. This is a **documentation/configuration repository** with a generator script.
 
 ## Repository Structure
 
 ```
-├── templates/               # SOURCE OF TRUTH (body content only)
-│   ├── skills/              # Skill templates (no frontmatter)
-│   │   └── <skill>.md
-│   └── agents/              # Agent templates (no frontmatter)
-│       └── <agent>.md
-├── integrations/            # GENERATED OUTPUT (do not edit directly)
-│   ├── claude-code/
-│   │   ├── skills/          # Skills with Claude Code frontmatter
-│   │   ├── sub-agents/      # Sub-agents with frontmatter
-│   │   └── mcp.json         # MCP config (mcpServers format)
-│   ├── opencode/
-│   │   ├── skills/          # Skills (same as Claude Code)
-│   │   ├── agents/          # Agents with OpenCode frontmatter
-│   │   └── mcp.json         # MCP config (OpenCode format)
-│   └── windsurf/
-│       └── workflows/       # Workflows with frontmatter
-├── guidelines/              # Core instruction files
-├── statusline/              # Claude Code status line
-├── generate.ts              # Generator script (contains all config + generation logic)
-├── init.sh                  # Installer script
-├── mcp.json                 # MCP servers template (source)
+├── content/                 # SOURCE OF TRUTH (all text content)
+│   ├── base-rules.md        # Global rules for all modes
+│   └── instructions/        # All agent/skill instructions
+│       └── <name>.md
+├── config/                  # Configuration (DRY)
+│   ├── models.ts            # Model definitions
+│   ├── agents.ts            # Agent configurations
+│   └── skills.ts            # Skill configurations
+├── output/                  # GENERATED OUTPUT (do not edit directly)
+│   └── opencode/
+│       ├── agents/          # Generated agents with frontmatter
+│       ├── skills/          # Generated skills with frontmatter
+│       └── opencode.json    # MCP config
+├── generate.ts              # Generator script
+├── init.ts                  # Installer script
+├── mcp.json                 # MCP servers source
 └── AGENTS.md                # AI agent instructions for this repo
 ```
 
 ## Commands
 
-### Generate Integration Files
+### Generate Output Files
 
-**ALWAYS run this after modifying templates or generate.ts:**
+**ALWAYS run this after modifying content or config:**
 
 ```bash
-bun generate.ts --clean
+bun generate.ts
 ```
 
-This generates all files in `integrations/` from `templates/` + config in `generate.ts`.
+Options:
+- `--clean` — Remove output directory before generating
 
 ### Installer Script
 
 ```bash
-# Test installation
-./init.sh --help
+# Show help
+bun init.ts --help
 
-# Test skills installation
-./init.sh --skills-path /tmp/test-skills
+# Install to OpenCode
+bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
+            --skills-path ~/.config/opencode/skill \
+            --agents-path ~/.config/opencode/agent \
+            --mcp-path ~/.config/opencode/opencode.json
 
-# Test full Claude Code installation
-./init.sh --rules-path /tmp/test-claude.md \
-          --skills-path /tmp/test-skills \
-          --agents-path /tmp/test-agents \
-          --mcp-path /tmp/test-mcp.json
-
-# Test full OpenCode installation
-./init.sh --rules-path /tmp/test-agents.md \
-          --skills-path /tmp/test-skills \
-          --agents-path /tmp/test-opencode-agents \
-          --mcp-path /tmp/test-opencode.json
-```
-
-### Shell Script Validation
-
-```bash
-# Check bash syntax
-bash -n init.sh
-bash -n generate.sh
-bash -n statusline/statusline-command.sh
-
-# Check with shellcheck (if available)
-shellcheck init.sh generate.sh hooks/*.sh statusline/*.sh
+# With overwrite action
+bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
+            --skills-path ~/.config/opencode/skill \
+            --agents-path ~/.config/opencode/agent \
+            --rules-file-action overwrite
 ```
 
 ---
 
 ## Code Style Guidelines
 
-### Template Files (`templates/`)
+### Content Files (`content/`)
 
-**No frontmatter!** Templates contain only the body content. Frontmatter is added during generation.
+All instruction content lives here. No frontmatter—frontmatter is added during generation.
 
-### Generator Configuration (`generate.ts`)
+- `base-rules.md` — Global rules applied to all modes
+- `instructions/*.md` — Individual agent/skill instructions
 
-All configuration is centralized in `generate.ts`:
+### Config Files (`config/`)
 
-- `MODELS` - Model mappings for smart/fast per platform
-- `AGENT_CONFIGS` - Agent definitions with platform-specific settings
-- `SKILL_DESCRIPTIONS` - Skill trigger descriptions
-- `WORKFLOW_NAME_MAP` - Skill-to-workflow name mappings
+TypeScript configuration files:
 
-### Generated Files (`integrations/`)
+- `models.ts` — Model definitions (smart/fast)
+- `agents.ts` — Agent configs (type: primary/sub, model, description)
+- `skills.ts` — Skill configs (description for auto-discovery)
+
+### Generated Files (`output/`)
 
 **DO NOT EDIT DIRECTLY!** These are generated by `generate.ts`.
 
 To modify output:
-1. Edit templates in `templates/`
-2. Edit config in `generate.ts`
-3. Run `bun generate.ts --clean`
+1. Edit content in `content/`
+2. Edit config in `config/`
+3. Run `bun generate.ts`
 
 ### Markdown Content Structure
 
 - Use heading hierarchy (`#`, `##`, `###`)
-- Tables for structured data (criteria, decisions, verdicts)
-- Code blocks with language hints for commands
+- Tables for structured data
+- Code blocks with language hints
 - Line references: `[file:line]` or `[path:line-line]`
 
-**Status/Verdict Markers**:
+**Status Markers**:
 | Marker | Meaning |
 |--------|---------|
 | `[ ]` | Pending |
@@ -127,50 +110,33 @@ To modify output:
 | `🟡` | Should fix |
 | `🟢` | Minor/Nitpick |
 
-### Shell Scripts
-
-**Style Requirements**:
-```bash
-#!/bin/bash
-set -euo pipefail
-```
-
-- Use color constants for output (`RED`, `GREEN`, `YELLOW`, `BLUE`, `NC`)
-- Define cleanup functions with traps: `trap cleanup EXIT ERR INT TERM`
-- Use functions for modularity
-- Lowercase with hyphens for filenames: `log-changes.sh`, `statusline-command.sh`
-
 ---
 
-## Key Architecture
+## Architecture
 
 ### Single Source of Truth
 
 ```
-templates/skills/planning.md     → integrations/claude-code/skills/planning/SKILL.md
-                                 → integrations/opencode/skills/planning/SKILL.md
-                                 → integrations/windsurf/workflows/plan-mode.md
+content/instructions/plan.md     → output/opencode/agents/plan.md (primary agent)
+                                 → output/opencode/skills/planning/SKILL.md (skill)
 
-templates/agents/auditor.md      → integrations/claude-code/sub-agents/auditor.md
-                                 → integrations/opencode/agents/auditor.md
+content/instructions/auditor.md  → output/opencode/agents/auditor.md (sub-agent)
 ```
 
-### Platform Differences
+### Content Types
 
-| Platform | Skills Format | Agents Format |
-|----------|---------------|---------------|
-| Claude Code | `skills/<name>/SKILL.md` with frontmatter | `sub-agents/<name>.md` |
-| OpenCode | Same as Claude Code | `agents/<name>.md` with different frontmatter |
-| Windsurf | `workflows/<name>-mode.md` (no frontmatter) | N/A |
+| Type | Count | Description |
+|------|-------|-------------|
+| Primary Agents | 4 | Modes user can switch to (plan, execution, frontend-design, quick-edits) |
+| Sub-agents | 1 | Spawned workers (auditor) |
+| Skills | 10 | Invokable capabilities |
 
-### Full Feature Flow
+### Audit Flow
 
 ```
-WORKSHOP → PLAN → EXECUTE (+ Audit) → REFLECTION
+PLAN → EXECUTE (+ Audit) → Done
 ```
 
-- Each phase handled by dedicated skill
-- State file: `docs/ai/<feature>/state.md`
 - Auditor sub-agent runs **once after execute phase**
 - Main agent **cannot self-approve**—audit approval required
 
@@ -180,33 +146,19 @@ WORKSHOP → PLAN → EXECUTE (+ Audit) → REFLECTION
 
 ### New Skill
 
-1. Create `templates/skills/<skill-name>.md` (body only, no frontmatter)
-2. Add entry to `SKILL_DESCRIPTIONS` in `generate.ts`
-3. Optionally add to `WORKFLOW_NAME_MAP` if workflow name differs from `<name>-mode`
-4. Run `bun generate.ts --clean`
+1. Create `content/instructions/<skill-name>.md` (body only)
+2. Add entry to `config/skills.ts`
+3. Run `bun generate.ts`
 
 ### New Agent
 
-1. Create `templates/agents/<agent-name>.md` (body only, no frontmatter)
-2. Add entry to `AGENT_CONFIGS` in `generate.ts` with:
-   - `template`: path relative to templates/
-   - `description`: agent description
-   - `modelType`: "smart" or "fast"
-   - `claudeCode`: (optional) Claude Code specific config
-   - `opencode`: (optional) OpenCode specific config
-3. Run `bun generate.ts --clean`
-
-### New Hook
-
-1. Add script to `hooks/`
-2. Update `init.sh` to install it
-3. Document in README
+1. Create `content/instructions/<agent-name>.md` (body only)
+2. Add entry to `config/agents.ts` with type (primary/sub)
+3. Run `bun generate.ts`
 
 ---
 
-## Critical Rules (Inherited)
-
-These apply when this repo's guidelines are installed in target projects:
+## Critical Rules
 
 - **NO SHORTCUTS** — Stop and notify if only unsafe workarounds work
 - **STAY IN SCOPE** — Halt if blocker is outside task scope
@@ -222,7 +174,6 @@ These apply when this repo's guidelines are installed in target projects:
 
 | Extension | Purpose | Location |
 |-----------|---------|----------|
-| `.md` | Templates, generated content | `templates/`, `integrations/` |
-| `.ts` | Generator script with config | `generate.ts` |
-| `.sh` | Scripts | `*.sh`, `hooks/`, `statusline/` |
+| `.md` | Content, generated output | `content/`, `output/` |
+| `.ts` | Generator, installer, config | `*.ts`, `config/` |
 | `.json` | MCP config | `mcp.json` |

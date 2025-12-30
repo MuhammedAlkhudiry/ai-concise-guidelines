@@ -1,191 +1,117 @@
-# Opinionated Guidelines for Daily AI Use
+# Opinionated Guidelines for OpenCode
 
-This is a list of opinionated guidelines/prompt files that I use daily with AI. They have been carefully curated based on the following principles:
+Opinionated AI guidelines, skills, and agents for OpenCode.
 
-> **For Contributors**: This repository uses a generator script. See [AGENTS.md](./AGENTS.md) for details on modifying templates and regenerating integration files.
+> **For Contributors**: See [AGENTS.md](./AGENTS.md) for details on modifying content and regenerating output files.
 
-1. The prompts are designed to be brief, avoiding unnecessary noise that could overload the AI context window.
+## Principles
 
-2. Each guideline targets a particular behavior. Generic instructions (e.g., "be good," "think hard," "follow user prompt") are avoided, as it is assumed that the AI is already equipped with common sense.
-
-3. Assuming that the AI model is already about 80% effective, these prompts are intended to push it further.
-
-4. The prompts are meant to enhance the model's capabilities. The belief is that no amount of instructions can fix a fundamentally weak model.
-
-5. These prompts have been collected through real-world interactions with AI, serving as direct feedback to address AI failures.
+1. **Brief** — Avoid noise that overloads AI context
+2. **Targeted** — Each guideline targets a specific behavior
+3. **Additive** — Push the model's 80% effectiveness further
+4. **Practical** — Collected through real-world AI interactions
 
 ## Install
-[Disclaimer: written by AI]
 
-### Quick Install (Recommended)
-
-Download the installer script:
+### Quick Install
 
 ```bash
-curl -O https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh
-chmod +x init.sh
+# Download installer
+curl -O https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.ts
 ```
 
-Then run with your desired options:
+Run with bun:
 
 ```bash
-# Install rules (merged guidelines) for Windsurf
-./init.sh --rules-path ~/.windsurf/rules/RULES.md
-
-# Install workflows for Windsurf
-./init.sh --workflows-path ~/.windsurf/workflows
-
-# Install skills for Claude Code
-./init.sh --skills-path ~/.claude/skills
-
-# Install everything (Windsurf)
-./init.sh --rules-path ~/.windsurf/rules/RULES.md \
-          --workflows-path ~/.windsurf/workflows
-
-# Install everything (Claude Code)
-./init.sh --rules-path ~/.claude/CLAUDE.md \
-          --skills-path ~/.claude/skills \
-          --agents-path ~/.claude/agents \
-          --mcp-path ~/.claude/mcp.json \
-          --install-statusline
-
-# Install everything (OpenCode)
-./init.sh --rules-path ~/.config/opencode/AGENTS.md \
-          --skills-path ~/.config/opencode/skill \
-          --agents-path ~/.config/opencode/agent \
-          --mcp-path ~/.config/opencode/opencode.json
+bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
+            --skills-path ~/.config/opencode/skill \
+            --agents-path ~/.config/opencode/agent \
+            --mcp-path ~/.config/opencode/opencode.json
 ```
 
-#### Options
+### Options
 
-- `--rules-path PATH` — Merge all guidelines into a single rules file at PATH
-- `--skills-path PATH` — Copy skills to PATH directory
-- `--agents-path PATH` — Copy agents to PATH directory (format auto-detected by path)
-- `--workflows-path PATH` — Copy workflows to PATH directory (Windsurf only)
-- `--mcp-path PATH` — Merge MCP servers into config file at PATH (requires `jq`)
-- `--zsh-path PATH` — Copy ZSH custom config to PATH and source it in `~/.zshrc`
-- `--rules-file-action ACTION` — Action when rules file exists: `overwrite`, `append`, or `skip`
-- `--platform PLATFORM` — Hint for agent format: `claude-code`, `opencode`, or `windsurf` (auto-detected from paths)
-- `--install-statusline` — Install Claude Code status line (colorful prompt with git, model, context bar)
-- `--workflows-prefix PREFIX` — Add prefix to workflow filenames (e.g., `"MODES: "` becomes `MODES: plan-mode.md`)
-- `--help`, `-h` — Show help message
+| Option | Description |
+|--------|-------------|
+| `--rules-path PATH` | Install base rules to PATH |
+| `--skills-path PATH` | Install skills to PATH directory |
+| `--agents-path PATH` | Install agents to PATH directory |
+| `--mcp-path PATH` | Merge MCP servers into config at PATH |
+| `--rules-file-action ACTION` | `overwrite`, `append`, or `skip` |
+| `--help` | Show help |
 
----
+### Refresh Alias
 
-## AI Tool Compatibility
+Add to your `.zshrc` or `.bashrc`:
 
-| Tool | Guidelines | Modes/Skills | Agents |
-|------|------------|--------------|--------|
-| **Windsurf** | `--rules-path` | `--workflows-path` | N/A |
-| **Claude Code** | `--rules-path` | `--skills-path` | `--agents-path` |
-| **OpenCode** | `--rules-path` | `--skills-path` | `--agents-path` |
-
-### Windsurf
-Uses **workflows** (single .md files with frontmatter). Invoked explicitly via `/workflow-name`.
-
-### Claude Code
-Uses **skills** (directories with SKILL.md + supporting files). Skills are **auto-discovered** by Claude based on conversation context—no explicit `/mode` commands needed. Just describe what you want to do, and Claude activates the relevant skill automatically.
-
-### OpenCode
-Uses **skills** (same format as Claude Code—compatible with `.claude/skills/` paths) and **agents** (markdown files with frontmatter). Skills are auto-discovered via the `skill` tool. Agents can be:
-- **Primary agents** (Tab to switch): The custom `plan` agent overrides OpenCode's built-in Plan mode
-- **Subagents** (`@mention` to invoke): `@auditor` for code audits, `@scout` for fast file searches
-
----
-
-### Manual Install
-
-If you prefer manual installation, you can simply clone/copy any file you need.
-
-
---- 
-
-### Examples
-
-- Windsurf Editor
-```bash
-./init.sh --rules-path ~/.codeium/windsurf/memories/global_rules.md \
-          --workflows-path ~/.codeium/windsurf/global_workflows
-```
-
-
-- Windsurf Jetbrains
-```bash
-./init.sh --rules-path ~/.codeium/memories/global_rules.md \
-          --workflows-path ~/.codeium/global_workflows
-```
-
-### Alias for Quick Refresh
-
-Add this alias to your shell configuration (`.bashrc`, `.zshrc`, etc.) to refresh guidelines with overwrite action:
-
-- Windsurf Editor
-```bash
-alias refresh-windsurf-editor='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.codeium/windsurf/memories/global_rules.md \
-                    --workflows-path ~/.codeium/windsurf/global_workflows \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
-```
-
-- Windsurf Jetbrains
-```bash
-alias refresh-windsurf-jetbrains='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.codeium/memories/global_rules.md \
-                    --workflows-path ~/.codeium/global_workflows \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
-```
-
-- Windsurf (both)
-```bash
-alias refresh-windsurf='refresh-windsurf-editor && refresh-windsurf-jetbrains'
-```
-
-- Claude Code
-```bash
-alias refresh-claude='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.claude/CLAUDE.md \
-                    --skills-path ~/.claude/skills \
-                    --agents-path ~/.claude/agents \
-                    --mcp-path ~/.claude/mcp.json \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
-                    --install-statusline \
-                    --rules-file-action overwrite && \
-          rm init.sh && \
-          cd -'
-```
-
-- OpenCode
 ```bash
 alias refresh-opencode='cd /tmp && \
-          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.sh && \
-          chmod +x init.sh && \
-          ./init.sh --rules-path ~/.config/opencode/AGENTS.md \
+          curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.ts && \
+          bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
                     --skills-path ~/.config/opencode/skill \
                     --agents-path ~/.config/opencode/agent \
                     --mcp-path ~/.config/opencode/opencode.json \
-                    --zsh-path ~/.config/zsh-sync/custom.zsh \
                     --rules-file-action overwrite && \
-          rm init.sh && \
+          rm init.ts && \
           cd -'
 ```
 
-Then simply run:
+Then run:
 ```bash
-refresh-windsurf
-# or
-refresh-claude
-# or
 refresh-opencode
 ```
+
+## What's Included
+
+### Base Rules
+Global rules applied to all modes—critical safety rules, coding standards, after-task checklist.
+
+### Primary Agents (Modes)
+| Agent | Description |
+|-------|-------------|
+| `plan` | Create structured implementation plans |
+| `execution` | Implement approved plans with audit gate |
+| `frontend-design` | UI/UX focused editing |
+| `quick-edits` | Fast, minimal changes |
+
+### Sub-agents
+| Agent | Description |
+|-------|-------------|
+| `auditor` | Audit code changes, approve/reject |
+
+### Skills
+| Skill | Description |
+|-------|-------------|
+| `workshop` | Explore and stress-test ideas |
+| `debugging` | Systematic bug investigation |
+| `code-review` | Review code for issues |
+| `refactoring` | Restructure without changing behavior |
+| `product-strategy` | Find 10x opportunities |
+| `feature-research` | Research features before building |
+| `api-handoff` | Create API documentation for frontend |
+| `backend-requirements` | Document frontend data needs |
+| `user-story-review` | Review user stories |
+| `translation` | Review translation quality |
+
+## Repository Structure
+
+```
+content/
+├── base-rules.md           # Global rules
+└── instructions/           # All instructions (15 files)
+
+config/
+├── models.ts               # Model definitions
+├── agents.ts               # Agent configs
+└── skills.ts               # Skill configs
+
+output/
+└── opencode/               # Generated output
+    ├── agents/
+    ├── skills/
+    └── opencode.json
+```
+
+## License
+
+MIT
