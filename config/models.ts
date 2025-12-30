@@ -4,8 +4,8 @@
  */
 
 export const MODELS = {
-  smart: "anthropic/claude-sonnet-4",
-  fast: "anthropic/claude-haiku-4",
+  smart: "anthropic/claude-opus-4-5",
+  fast: "anthropic/claude-haiku-4-5",
 } as const;
 
 export type ModelType = "smart" | "fast";
