@@ -2,6 +2,7 @@
 description: Fast, focused edits without heavy process overhead.
 model: anthropic/claude-haiku-4-5
 mode: primary
+color: "#EAB308"
 ---
 
 # Quick Edits Mode

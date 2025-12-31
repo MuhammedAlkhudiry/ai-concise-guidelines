@@ -2,6 +2,7 @@
 description: Multi-model orchestrator. Spawns ensemble subagents, judges proposals, routes execution.
 model: anthropic/claude-opus-4-5
 mode: primary
+color: "#EF4444"
 ---
 
 # Coordinator Mode

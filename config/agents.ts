@@ -14,6 +14,8 @@ export interface AgentConfig {
   model: ModelType;
   /** Agent type: primary (user-invokable mode) or sub (spawned by other agents) */
   type: "primary" | "sub";
+  /** Hex color code for the agent (e.g., #FF5733) */
+  color?: string;
 }
 
 export const AGENTS: Record<string, AgentConfig> = {
@@ -26,6 +28,7 @@ export const AGENTS: Record<string, AgentConfig> = {
     description: "Multi-model orchestrator. Spawns ensemble subagents, judges proposals, routes execution.",
     model: "coordinator",
     type: "primary",
+    color: "#EF4444",
   },
   plan: {
     instruction: "plan",
@@ -44,18 +47,21 @@ export const AGENTS: Record<string, AgentConfig> = {
     description: "UI/UX focused editing for visual changes only.",
     model: "smart",
     type: "primary",
+    color: "#A855F7",
   },
   "quick-edits": {
     instruction: "quick-edits",
     description: "Fast, focused edits without heavy process overhead.",
     model: "fast",
     type: "primary",
+    color: "#EAB308",
   },
   workshop: {
     instruction: "workshop",
     description: "Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.",
     model: "smart",
     type: "primary",
+    color: "#F97316",
   },
 
   // ============================================

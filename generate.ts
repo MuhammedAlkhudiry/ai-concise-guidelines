@@ -82,6 +82,7 @@ async function generateAgents(): Promise<number> {
 
     if (config.tools) frontmatter.tools = config.tools;
     if (config.permission) frontmatter.permission = config.permission;
+    if (config.color) frontmatter.color = `"${config.color}"`;
 
     const content = `---
 ${toYaml(frontmatter)}
