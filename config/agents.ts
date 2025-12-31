@@ -70,26 +70,6 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "sub",
   },
 
-  // Ensemble: Planners (same instruction, different models)
-  "planner-1": {
-    instruction: "plan",
-    description: "Planning proposer (ensemble slot 1)",
-    model: "ensemble_1",
-    type: "sub",
-  },
-  "planner-2": {
-    instruction: "plan",
-    description: "Planning proposer (ensemble slot 2)",
-    model: "ensemble_2",
-    type: "sub",
-  },
-  "planner-3": {
-    instruction: "plan",
-    description: "Planning proposer (ensemble slot 3)",
-    model: "ensemble_3",
-    type: "sub",
-  },
-
   // Ensemble: Workshoppers (same instruction, different models)
   "workshopper-1": {
     instruction: "workshop",

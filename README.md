@@ -79,11 +79,10 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 ### Sub-agents
 | Agent | Description |
 |-------|-------------|
-| `planner-1/2/3` | Ensemble planners (configurable models) |
-| `workshopper-1/2/3` | Ensemble workshoppers (configurable models) |
-| `auditor-1/2/3` | Ensemble auditors (configurable models) |
+| `workshopper-1/2/3` | Ensemble workshoppers for Full tier (configurable models) |
+| `auditor-1/2/3` | Ensemble auditors for Standard/Full tier (configurable models) |
 | `executor` | Focused code execution |
-| `auditor` | Single-pass code audit |
+| `auditor` | Single-pass audit for Simple tier |
 
 ### Skills
 | Skill | Description |

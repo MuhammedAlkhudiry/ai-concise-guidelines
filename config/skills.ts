@@ -77,9 +77,3 @@ export const SKILLS: Record<string, SkillConfig> = {
       "Review translations for quality, naturalness, and cultural fit. Use when user wants to review translations, check i18n files, or says 'review translations', 'check localization', or mentions translation quality issues.",
   },
 } as const;
-
-/** Get all skill names */
-export const getSkillNames = () => Object.keys(SKILLS);
-
-/** Get skill by name */
-export const getSkill = (name: string) => SKILLS[name];
