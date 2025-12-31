@@ -36,6 +36,12 @@
     "@tarquinen/opencode-dcp@latest"
   ],
   "agent": {
+    "plan": {
+      "disable": true
+    },
+    "build": {
+      "disable": true
+    },
     "explore": {
       "model": "anthropic/claude-haiku-4-5"
     },

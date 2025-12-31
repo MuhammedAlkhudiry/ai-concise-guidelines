@@ -166,6 +166,10 @@ async function generateConfigs(): Promise<void> {
       "@tarquinen/opencode-dcp@latest",
     ],
     agent: {
+      // Disable built-in agents (coordinator replaces them)
+      plan: { disable: true },
+      build: { disable: true },
+      // Configure built-in subagents
       explore: { model: MODELS.fast },
       general: { model: MODELS.smart },
     },
