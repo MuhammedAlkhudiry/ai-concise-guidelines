@@ -18,6 +18,9 @@ export const MODELS = {
 
   // Executor model
   executor: "anthropic/claude-opus-4-5",
+
+  // UI Review model (vision-capable, good with UI/UX)
+  ui_reviewer: "anthropic/claude-opus-4-5",
 } as const;
 
 export type ModelType = keyof typeof MODELS;

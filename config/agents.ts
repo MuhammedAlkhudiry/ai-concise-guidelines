@@ -123,4 +123,12 @@ export const AGENTS: Record<string, AgentConfig> = {
     model: "executor",
     type: "sub",
   },
+
+  // UI Reviewer (uses frontend-design skill for reviewing UI/UX)
+  "ui-reviewer": {
+    instruction: "frontend-design",
+    description: "Reviews UI for visual, UX, and functional issues",
+    model: "ui_reviewer",
+    type: "sub",
+  },
 } as const;

@@ -36,19 +36,41 @@ User: "Build X"
   User approves plan ✓
        │
        ▼
-  [Spawn executor]
+  [Suggest execution structure]
+  (single/parallel/sequential/mixed)
        │
        ▼
-  [Spawn 3 auditors]
+  User approves setup ✓
+       │
+       ▼
+  [Spawn executor(s)]
+  (orchestrate per pattern)
+       │
+       ▼
+  [Spawn auditors]
+   (unified review of ALL changes)
        │
    ┌───┴───┐
    │       │
 APPROVED  REJECTED
    │       │
    ▼       ▼
+   │     Spawn executor to fix
+   │       │
+   │       └──→ Re-audit (loop)
+   │
+   ▼
+  [UI Review if frontend changes]
+   (spawn ui-reviewer)
+       │
+   ┌───┴───┐
+   │       │
+APPROVED  ISSUES FOUND
+   │       │
+   ▼       ▼
  Done    Spawn executor to fix
            │
-           └──→ Re-audit (loop)
+           └──→ Re-review (loop)
 ```
 
 ---
@@ -95,7 +117,9 @@ You must pause and get explicit user approval at these points:
 | **Tier** | Before starting | Your assessment and reasoning |
 | **Workshop** | After synthesis (Standard/Full) | Direction summary, key decisions |
 | **Plan** | After you create plan | Full plan for review |
+| **Execution Setup** | After plan approval | Executor structure options with recommendation |
 | **Audit** | After approval (if clean) | Summary of what was built |
+| **UI Review** | After audit (if frontend changes) | UI issues report |
 
 Only **Small** tier skips all gates.
 
@@ -157,25 +181,61 @@ After workshop approval (or immediately for Simple tier):
 
 ## Execute Phase
 
-Spawn executor with scoped context:
+### Execution Setup
+
+After plan approval, analyze the task and **suggest an execution structure** to the user:
+
+1. **Assess the work** — What domains are involved? (e.g., API, UI, database, integrations, tests)
+2. **Recommend structure** — Propose number of executors and their focus areas
+3. **Suggest orchestration** — Which can run in parallel? Which have dependencies?
+4. **User confirms** — Present options with a recommended one, user decides
+
+Example prompt to user:
+```
+"This task touches API and UI. I recommend:
+  • Option A (recommended): 2 executors — Backend + Frontend (parallel)
+  • Option B: 1 executor — handles everything sequentially
+
+Which do you prefer?"
+```
+
+### Orchestration Patterns
+
+| Pattern | When | How |
+|---------|------|-----|
+| **Single** | Simple task, one domain | 1 executor, straightforward |
+| **Parallel** | Independent domains | Multiple executors spawn together |
+| **Sequential** | Dependencies between phases | Executors run one after another |
+| **Mixed** | Complex tasks | Parallel phase → sequential phase (e.g., Backend+Frontend parallel, then Integration) |
+
+### Spawning Executors
 
 ```
-Spawn: executor
-Input: Approved plan, relevant files only
+Spawn: executor (or multiple)
+Input: Approved plan, scoped to their focus area
 Output: Code changes documented in changes.log
 ```
 
-Break into multiple executor calls if needed (by domain, risk, dependency).
+All executors write to the **same `changes.log`** — this becomes the unified audit input.
 
 ---
 
 ## Audit Phase
 
+### Unified Auditing
+
+**Auditors review ALL changes holistically**, regardless of how execution was structured. They don't care about frontend/backend/integration splits—they see the complete `changes.log` and audit the entire changeset as one unit.
+
+This ensures:
+- Cross-domain issues are caught (e.g., API change breaks UI)
+- Integration points are verified
+- No gaps between executor boundaries
+
 ### Simple Tier (1 Auditor)
 
 ```
 Spawn: auditor
-Input: Changes, plan, code
+Input: Complete changes.log, plan, all changed code
 Output: Verdict (APPROVED/REJECTED)
 ```
 
@@ -183,7 +243,7 @@ Output: Verdict (APPROVED/REJECTED)
 
 ```
 Spawn: auditor-1, auditor-2, auditor-3
-Input: Changes, plan, code
+Input: Complete changes.log, plan, all changed code
 Output: 3 verdicts → You synthesize
 ```
 
@@ -205,6 +265,47 @@ If any auditor finds blockers:
 3. Loop until approved or escalate to user
 
 You do NOT ask user to fix. You spawn executor.
+
+---
+
+## UI Review Phase
+
+**When**: After audit approval, if the task involved frontend/UI changes.
+
+**Why**: Models often struggle with visual/UX quality. A dedicated UI review catches issues that code auditors miss.
+
+### Process
+
+1. **Check if applicable** — Did execution touch UI? (components, styles, layouts, user-facing elements)
+2. **Spawn ui-reviewer** — Uses frontend-design skill in review mode
+3. **Reviewer takes screenshots** — Captures implemented UI states
+4. **Reviewer reports** — Structured report with severity levels
+
+```
+Spawn: ui-reviewer
+Input: Changed files, screenshots of UI states
+Output: UI Review Report (blockers, should-fix, minor, what works)
+```
+
+### UI Review Judgment
+
+| Finding | Action |
+|---------|--------|
+| 🔴 **Blocker** | Spawn executor to fix, then re-review |
+| 🟡 **Should Fix** | Spawn executor to fix |
+| 🟢 **Minor** | Note for user, don't block |
+
+### Rejection Flow
+
+Same as audit: spawn executor to fix, re-run UI review until clean.
+
+### Skip Conditions
+
+Skip UI review if:
+- No frontend changes in the task
+- Backend-only work
+- Config/infrastructure changes
+- User explicitly opts out
 
 ---
 
@@ -237,6 +338,7 @@ Track in `docs/ai/{feature}/workflow-state.json`:
 | `executor` | Implement code | All tiers except Small |
 | `auditor` | Single review | Simple |
 | `auditor-1/2/3` | Ensemble review | Standard, Full |
+| `ui-reviewer` | UI/UX review | After audit, if frontend changes |
 
 ---
 
