@@ -53,40 +53,13 @@ For each file, give one of:
 
 ## What to Look For
 
-### Correctness (Blocking)
-- Logic bugs, off-by-ones, null dereferences
-- Race conditions, missing error handling
-- Wrong assumptions about data/state
-- Breaking changes to existing behavior
+See the **Code Quality Checklist** appended below for the full review criteria.
 
-### Security (Blocking)
-- Injection vulnerabilities (SQL, XSS, command)
-- Auth/authz bypasses
-- Secrets in code, insecure defaults
-- Unvalidated input reaching sensitive operations
-
-### Design (May Block)
-- Does this belong here? Right layer, right module?
-- Is the abstraction right or forced?
-- Will this scale? Will it be maintainable?
-- Are we reinventing something that exists?
-
-### Refactor Triggers (Flag These)
-
-Look for changes that **should trigger broader refactoring**:
-
-| Signal | What to Flag |
-|--------|--------------|
-| **File got big** | "This file is now 800+ lines. Consider splitting: [suggested split]" |
-| **DRY violation** | "This logic exists in `OtherService::method()`. Extract to shared util or call existing." |
-| **Error-prone pattern** | "Manual null checks everywhere. Consider null object pattern or optional type." |
-| **Primitive obsession** | "Passing 5 strings around. Create a value object/DTO." |
-| **Fragile code** | "This relies on implicit ordering. Make dependencies explicit." |
-| **Missing abstraction** | "Third time we're doing this dance. Time for a proper abstraction." |
-| **Leaky abstraction** | "Caller shouldn't need to know about X. Encapsulate it." |
-| **Test friction** | "Hard to test because of tight coupling. Inject dependencies." |
-
-These don't always block, but **must be called out** so we don't accumulate debt silently.
+Focus areas during review:
+- **Correctness** — Logic bugs, edge cases, wrong assumptions (blocking)
+- **Security** — Injection, auth bypasses, secrets in code (blocking)
+- **Design** — Right abstraction, right layer, maintainability (may block)
+- **Refactor triggers** — Flag tech debt for tracking, don't ignore it
 
 ---
 
@@ -136,3 +109,131 @@ What this change does in 1-2 sentences.
 - **Flag debt, don't ignore it**—if a change makes something worse, say so even if the change itself is "correct".
 - **Approve clean code**—don't invent issues. If it's good, say ✅ and move on.
 - **Block on real problems**—don't be a pushover. If it's broken, it's broken.
+
+
+---
+
+# Checklist
+
+# Code Quality Checklist
+
+## What to Check
+
+### Pattern Consistency
+- [ ] Follows existing project patterns
+- [ ] Naming conventions match codebase
+- [ ] File structure matches project layout
+- [ ] Import style consistent
+- [ ] Error handling pattern consistent
+
+### Clean Code
+- [ ] Functions are small and focused
+- [ ] Single responsibility per function/class
+- [ ] No deep nesting (max 3 levels)
+- [ ] Clear, descriptive naming
+- [ ] No magic numbers/strings
+
+### Code Hygiene
+- [ ] No dead code or commented blocks
+- [ ] No debug statements (console.log, dd, print)
+- [ ] No TODOs or FIXMEs left behind
+- [ ] No hardcoded values that should be config
+- [ ] No duplicate code (DRY)
+
+### Maintainability
+- [ ] Code is self-documenting
+- [ ] Complex logic has comments explaining WHY
+- [ ] Public APIs have documentation
+- [ ] Dependencies are justified
+- [ ] No tight coupling
+
+### Type Safety
+- [ ] Types are explicit (no `any`)
+- [ ] Null/undefined handled properly
+- [ ] Return types declared
+- [ ] Props/parameters typed
+- [ ] No type assertions without reason
+
+---
+
+## Severity Levels
+
+| Level | Examples |
+|-------|----------|
+| **Blocker** | Major pattern violation, security issue, broken abstraction |
+| **Should Fix** | Debug code left in, dead code, unclear naming, missing types |
+| **Minor** | Could be cleaner, minor style preference, optimization opportunity |
+
+---
+
+## Common Issues
+
+### Deep Nesting
+```typescript
+// BAD - deep nesting
+if (user) {
+  if (user.permissions) {
+    if (user.permissions.includes('admin')) {
+      if (isValidRequest(request)) {
+        // finally do something
+      }
+    }
+  }
+}
+
+// GOOD - early returns
+if (!user) return;
+if (!user.permissions) return;
+if (!user.permissions.includes('admin')) return;
+if (!isValidRequest(request)) return;
+// do something
+```
+
+### Magic Numbers
+```typescript
+// BAD - what is 86400?
+const expiry = Date.now() + 86400 * 1000;
+
+// GOOD - named constant
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const expiry = Date.now() + ONE_DAY_MS;
+```
+
+### Unclear Naming
+```typescript
+// BAD - unclear
+const d = new Date();
+const fn = (x: number) => x * 2;
+const data = await fetch('/api/users');
+
+// GOOD - descriptive
+const createdAt = new Date();
+const doublePrice = (price: number) => price * 2;
+const userResponse = await fetch('/api/users');
+```
+
+### Any Type
+```typescript
+// BAD - loses type safety
+function process(data: any): any {
+  return data.items.map((x: any) => x.name);
+}
+
+// GOOD - typed
+interface DataResponse {
+  items: Array<{ name: string }>;
+}
+function process(data: DataResponse): string[] {
+  return data.items.map(x => x.name);
+}
+```
+
+---
+
+## Rules
+
+1. **Match the codebase** — Consistency over preference
+2. **No dead code** — Delete it, git remembers
+3. **Names reveal intent** — If you need a comment, rename
+4. **Small functions** — If it doesn't fit on screen, split it
+5. **Type everything** — Future you will thank you
