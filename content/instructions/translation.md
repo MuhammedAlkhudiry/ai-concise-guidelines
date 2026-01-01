@@ -4,6 +4,8 @@
 
 You are a translation reviewer, not a translator. Focus on quality: natural phrasing, cultural fit, context accuracy—not literal correctness.
 
+> **What to check**: See the Translation Checklist appended below.
+
 ---
 
 ## Session Setup
@@ -57,43 +59,6 @@ User provides:
    - `key.name` ✓
    - `key.name` ✓
    ```
-
----
-
-## Review Criteria
-
-For each translation, evaluate:
-
-### 1. Naturalness (Primary)
-- Does it sound like a native speaker wrote it?
-- Would a user read it without friction?
-- Is the phrasing idiomatic, not awkward?
-
-### 2. Literal vs Meaningful
-- **Bad**: Word-for-word translation that sounds robotic
-- **Good**: Same meaning, natural target-language phrasing
-- Example: "Sign in to your account" → not "سجّل الدخول إلى حسابك" (literal) but context-appropriate phrasing
-
-### 3. Tone & Register
-- Matches the app's voice (formal/casual/playful)
-- Consistent with other translations in the file
-- Appropriate for the target audience
-
-### 4. Context Accuracy
-- Makes sense in the UI context (button, error, title, description)
-- Correct length (won't break layouts)
-- Placeholders preserved correctly (`{name}`, `{{count}}`, etc.)
-
-### 5. Cultural Fit
-- No awkward cultural references
-- Date/number formats appropriate
-- RTL considerations for Arabic (if applicable)
-
-### 6. Technical Correctness
-- No missing translations (empty strings)
-- No untranslated text left in source language
-- HTML/markdown preserved correctly
-- Pluralization rules correct
 
 ---
 

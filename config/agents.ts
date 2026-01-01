@@ -16,6 +16,8 @@ export interface AgentConfig {
   type: "primary" | "sub";
   /** Hex color code for the agent (e.g., #FF5733) */
   color?: string;
+  /** Checklist file to merge (for specialized auditors) */
+  checklist?: string;
 }
 
 export const AGENTS: Record<string, AgentConfig> = {
@@ -96,23 +98,89 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "sub",
   },
 
-  // Ensemble: Auditors/Reviewers (same instruction, different models)
-  "auditor-1": {
+  // ============================================
+  // SPECIALIZED AUDITORS
+  // ============================================
+  
+  // Core auditors (always run)
+  "auditor-code-quality": {
     instruction: "auditor",
-    description: "Code reviewer (ensemble slot 1)",
-    model: "ensemble_1",
+    description: "Audits code standards, patterns, clean code",
+    model: "smart",
     type: "sub",
+    checklist: "code-quality",
   },
-  "auditor-2": {
-    instruction: "auditor",
-    description: "Code reviewer (ensemble slot 2)",
-    model: "ensemble_2",
+  "auditor-tooling": {
+    instruction: "auditor-tooling",
+    description: "Runs and verifies type checks, lint, tests, build",
+    model: "smart",
     type: "sub",
+    // No checklist - tooling auditor runs commands, not reviews
   },
-  "auditor-3": {
+  "auditor-test-coverage": {
     instruction: "auditor",
-    description: "Code reviewer (ensemble slot 3)",
-    model: "ensemble_3",
+    description: "Audits test coverage, missing cases, edge cases",
+    model: "smart",
+    type: "sub",
+    checklist: "test-coverage",
+  },
+  "auditor-refactoring": {
+    instruction: "auditor",
+    description: "Identifies tech debt, duplication, refactoring opportunities",
+    model: "smart",
+    type: "sub",
+    checklist: "refactoring",
+  },
+
+  // Conditional auditors (based on change type)
+  "auditor-ui": {
+    instruction: "auditor",
+    description: "Audits UI/UX quality, visual consistency, usability",
+    model: "ui_reviewer",
+    type: "sub",
+    checklist: "ui-ux",
+  },
+  "auditor-integration": {
+    instruction: "auditor",
+    description: "Audits backend↔frontend integration, API contracts",
+    model: "smart",
+    type: "sub",
+    checklist: "integration",
+  },
+  "auditor-security": {
+    instruction: "auditor",
+    description: "Audits security vulnerabilities, injection, auth flaws",
+    model: "smart",
+    type: "sub",
+    checklist: "security",
+  },
+  "auditor-performance": {
+    instruction: "auditor",
+    description: "Audits performance issues, N+1 queries, memory leaks",
+    model: "smart",
+    type: "sub",
+    checklist: "performance",
+  },
+  "auditor-database": {
+    instruction: "auditor",
+    description: "Audits migrations, schema, indexes, data integrity",
+    model: "smart",
+    type: "sub",
+    checklist: "database",
+  },
+  "auditor-translation": {
+    instruction: "auditor",
+    description: "Audits translations, i18n completeness, text quality",
+    model: "smart",
+    type: "sub",
+    checklist: "translation",
+  },
+
+  // Legacy generic auditor (kept for simple tier)
+  auditor: {
+    instruction: "auditor",
+    description: "General code auditor for simple tasks",
+    model: "smart",
     type: "sub",
   },
 
@@ -124,11 +192,5 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "sub",
   },
 
-  // UI Reviewer (uses frontend-design skill for reviewing UI/UX)
-  "ui-reviewer": {
-    instruction: "frontend-design",
-    description: "Reviews UI for visual, UX, and functional issues",
-    model: "ui_reviewer",
-    type: "sub",
-  },
+
 } as const;

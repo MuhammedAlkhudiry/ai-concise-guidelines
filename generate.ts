@@ -21,6 +21,7 @@ import { SKILLS } from "./config/skills";
 const SCRIPT_DIR = import.meta.dir;
 const CONTENT_DIR = join(SCRIPT_DIR, "content");
 const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
+const CHECKLISTS_DIR = join(CONTENT_DIR, "checklists");
 const OUTPUT_DIR = join(SCRIPT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
 const MCP_FILE = join(SCRIPT_DIR, "mcp.json");
@@ -60,6 +61,14 @@ async function readInstruction(name: string): Promise<string> {
   return readFile(path, "utf-8");
 }
 
+async function readChecklist(name: string): Promise<string | null> {
+  const path = join(CHECKLISTS_DIR, `${name}.md`);
+  if (!existsSync(path)) {
+    return null;
+  }
+  return readFile(path, "utf-8");
+}
+
 // =============================================================================
 // Generators
 // =============================================================================
@@ -72,7 +81,24 @@ async function generateAgents(): Promise<number> {
   let count = 0;
 
   for (const [name, config] of Object.entries(AGENTS)) {
-    const template = await readInstruction(config.instruction);
+    let template = await readInstruction(config.instruction);
+
+    // For specialized auditors, merge base auditor + checklist
+    if (config.checklist) {
+      const baseAuditor = await readInstruction("auditor");
+      const checklist = await readChecklist(config.checklist);
+      if (checklist) {
+        template = `${baseAuditor}\n\n---\n\n# Specialized Focus: ${config.description}\n\n${checklist}`;
+      }
+    }
+
+    // For skills used as auditors, append checklist if available
+    if (config.appendChecklist) {
+      const checklist = await readChecklist(config.appendChecklist);
+      if (checklist) {
+        template = `${template}\n\n---\n\n# Checklist\n\n${checklist}`;
+      }
+    }
 
     const frontmatter: Record<string, unknown> = {
       description: config.description,
@@ -105,7 +131,15 @@ async function generateSkills(): Promise<number> {
   let count = 0;
 
   for (const [name, config] of Object.entries(SKILLS)) {
-    const template = await readInstruction(config.instruction);
+    let template = await readInstruction(config.instruction);
+
+    // Append checklist if skill has one
+    if (config.checklist) {
+      const checklist = await readChecklist(config.checklist);
+      if (checklist) {
+        template = `${template}\n\n---\n\n# Checklist\n\n${checklist}`;
+      }
+    }
 
     const content = `---
 name: ${name}

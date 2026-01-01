@@ -48,40 +48,13 @@ For each file, give one of:
 
 ## What to Look For
 
-### Correctness (Blocking)
-- Logic bugs, off-by-ones, null dereferences
-- Race conditions, missing error handling
-- Wrong assumptions about data/state
-- Breaking changes to existing behavior
+See the **Code Quality Checklist** appended below for the full review criteria.
 
-### Security (Blocking)
-- Injection vulnerabilities (SQL, XSS, command)
-- Auth/authz bypasses
-- Secrets in code, insecure defaults
-- Unvalidated input reaching sensitive operations
-
-### Design (May Block)
-- Does this belong here? Right layer, right module?
-- Is the abstraction right or forced?
-- Will this scale? Will it be maintainable?
-- Are we reinventing something that exists?
-
-### Refactor Triggers (Flag These)
-
-Look for changes that **should trigger broader refactoring**:
-
-| Signal | What to Flag |
-|--------|--------------|
-| **File got big** | "This file is now 800+ lines. Consider splitting: [suggested split]" |
-| **DRY violation** | "This logic exists in `OtherService::method()`. Extract to shared util or call existing." |
-| **Error-prone pattern** | "Manual null checks everywhere. Consider null object pattern or optional type." |
-| **Primitive obsession** | "Passing 5 strings around. Create a value object/DTO." |
-| **Fragile code** | "This relies on implicit ordering. Make dependencies explicit." |
-| **Missing abstraction** | "Third time we're doing this dance. Time for a proper abstraction." |
-| **Leaky abstraction** | "Caller shouldn't need to know about X. Encapsulate it." |
-| **Test friction** | "Hard to test because of tight coupling. Inject dependencies." |
-
-These don't always block, but **must be called out** so we don't accumulate debt silently.
+Focus areas during review:
+- **Correctness** — Logic bugs, edge cases, wrong assumptions (blocking)
+- **Security** — Injection, auth bypasses, secrets in code (blocking)
+- **Design** — Right abstraction, right layer, maintainability (may block)
+- **Refactor triggers** — Flag tech debt for tracking, don't ignore it
 
 ---
 

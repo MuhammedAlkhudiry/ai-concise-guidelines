@@ -9,6 +9,8 @@ description: Review translations for quality, naturalness, and cultural fit. Use
 
 You are a translation reviewer, not a translator. Focus on quality: natural phrasing, cultural fit, context accuracy—not literal correctness.
 
+> **What to check**: See the Translation Checklist appended below.
+
 ---
 
 ## Session Setup
@@ -65,43 +67,6 @@ User provides:
 
 ---
 
-## Review Criteria
-
-For each translation, evaluate:
-
-### 1. Naturalness (Primary)
-- Does it sound like a native speaker wrote it?
-- Would a user read it without friction?
-- Is the phrasing idiomatic, not awkward?
-
-### 2. Literal vs Meaningful
-- **Bad**: Word-for-word translation that sounds robotic
-- **Good**: Same meaning, natural target-language phrasing
-- Example: "Sign in to your account" → not "سجّل الدخول إلى حسابك" (literal) but context-appropriate phrasing
-
-### 3. Tone & Register
-- Matches the app's voice (formal/casual/playful)
-- Consistent with other translations in the file
-- Appropriate for the target audience
-
-### 4. Context Accuracy
-- Makes sense in the UI context (button, error, title, description)
-- Correct length (won't break layouts)
-- Placeholders preserved correctly (`{name}`, `{{count}}`, etc.)
-
-### 5. Cultural Fit
-- No awkward cultural references
-- Date/number formats appropriate
-- RTL considerations for Arabic (if applicable)
-
-### 6. Technical Correctness
-- No missing translations (empty strings)
-- No untranslated text left in source language
-- HTML/markdown preserved correctly
-- Pluralization rules correct
-
----
-
 ## Large File Handling
 
 For large translation files:
@@ -143,3 +108,95 @@ For approved translations (batch them):
 - **Arabic-specific**: عربية بليغة واضحة—never literal translation. Read it aloud mentally; if it sounds like Google Translate, reject it.
 - **Group by severity**—critical issues first, then major, then minor.
 - **Update state file** after each batch to avoid re-reviewing.
+
+
+---
+
+# Checklist
+
+# Translation Checklist
+
+## What to Check
+
+### Completeness
+- [ ] All new user-facing strings have translations
+- [ ] No hardcoded strings in components
+- [ ] All supported languages have entries
+- [ ] No missing translation keys
+- [ ] Fallback language has all strings
+
+### Quality
+- [ ] Translations are natural (not literal)
+- [ ] Grammar is correct
+- [ ] Tone matches the app
+- [ ] No machine translation artifacts
+- [ ] Appropriate formality level
+
+### Context
+- [ ] Translations fit the UI context
+- [ ] Button text is action-oriented
+- [ ] Error messages are helpful
+- [ ] Placeholders make sense in all languages
+- [ ] Length works in UI (no truncation)
+
+### Technical
+- [ ] Interpolation variables preserved
+- [ ] Pluralization handled correctly
+- [ ] Date/number formats localized
+- [ ] No HTML in translation strings
+- [ ] Keys follow naming convention
+
+---
+
+## Severity Levels
+
+| Level | Examples |
+|-------|----------|
+| **Blocker** | Missing translation (shows key), broken interpolation, offensive mistranslation |
+| **Should Fix** | Unnatural phrasing, inconsistent terminology, too long for UI |
+| **Minor** | Could be more natural, minor style preference |
+
+---
+
+## Common Issues
+
+### Missing Translation
+```typescript
+// BAD - hardcoded
+<button>Submit</button>
+
+// GOOD - translated
+<button>{t('common.submit')}</button>
+```
+
+### Broken Interpolation
+```json
+// BAD - variable name changed
+{ "welcome": "Hello {{name}}" }  // en
+{ "welcome": "Hola {{nombre}}" } // es - WRONG variable!
+
+// GOOD - same variable
+{ "welcome": "Hello {{name}}" }  // en
+{ "welcome": "Hola {{name}}" }   // es
+```
+
+### Literal Translation
+```json
+// BAD - literal (awkward)
+{ "get_started": "Get started" }      // en
+{ "get_started": "Obtenga iniciado" } // es - too literal
+
+// GOOD - natural
+{ "get_started": "Get started" }  // en
+{ "get_started": "Comenzar" }     // es
+```
+
+---
+
+## Rules
+
+1. **Check all languages** — Not just the one you speak
+2. **Verify interpolation** — Variables must match exactly
+3. **Consider context** — "Save" button vs "Save" noun are different
+4. **Check length** — German is often 30% longer than English
+5. **No literal translations** — Natural phrasing over word-for-word

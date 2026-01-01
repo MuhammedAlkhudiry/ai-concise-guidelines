@@ -19,23 +19,9 @@ Before proposing anything:
 
 ### Step 2: Diagnose
 
-Name the specific problems. Not "this is messy"—be precise:
+Name the specific problems. Not "this is messy"—be precise.
 
-| Smell | What It Looks Like |
-|-------|-------------------|
-| **God class/function** | Does too many things. Hard to describe in one sentence. |
-| **Feature envy** | Method uses another class's data more than its own. |
-| **Shotgun surgery** | One change requires edits in many places. |
-| **Primitive obsession** | Passing around strings/ints instead of value objects. |
-| **Long parameter list** | Function takes 5+ params. Usually missing an object. |
-| **Data clump** | Same group of fields/params appears together repeatedly. |
-| **Inappropriate intimacy** | Classes know too much about each other's internals. |
-| **Refused bequest** | Subclass doesn't use parent's methods. Wrong inheritance. |
-| **Speculative generality** | Abstractions built for "future" that never came. |
-| **Dead code** | Unused functions, unreachable branches, commented blocks. |
-| **Duplicated logic** | Same logic in multiple places (DRY violation). |
-| **Leaky abstraction** | Callers need to know implementation details. |
-| **Hidden coupling** | Dependencies not visible (globals, singletons, magic). |
+See the **Refactoring Checklist** appended below for the full list of code smells and what to detect.
 
 ### Step 3: Define Target Shape
 

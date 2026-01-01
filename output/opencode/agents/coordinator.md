@@ -47,30 +47,17 @@ User: "Build X"
   (orchestrate per pattern)
        │
        ▼
-  [Spawn auditors]
-   (unified review of ALL changes)
+  [Select & spawn auditors]
+   (core + conditional based on changes)
        │
    ┌───┴───┐
    │       │
 APPROVED  REJECTED
    │       │
    ▼       ▼
-   │     Spawn executor to fix
-   │       │
-   │       └──→ Re-audit (loop)
-   │
-   ▼
-  [UI Review if frontend changes]
-   (spawn ui-reviewer)
-       │
-   ┌───┴───┐
-   │       │
-APPROVED  ISSUES FOUND
-   │       │
-   ▼       ▼
  Done    Spawn executor to fix
            │
-           └──→ Re-review (loop)
+           └──→ Re-audit (loop)
 ```
 
 ---
@@ -118,8 +105,7 @@ You must pause and get explicit user approval at these points:
 | **Workshop** | After synthesis (Standard/Full) | Direction summary, key decisions |
 | **Plan** | After you create plan | Full plan for review |
 | **Execution Setup** | After plan approval | Executor structure options with recommendation |
-| **Audit** | After approval (if clean) | Summary of what was built |
-| **UI Review** | After audit (if frontend changes) | UI issues report |
+| **Audit** | After execution | Summary of what was built, auditor verdicts |
 
 Only **Small** tier skips all gates.
 
@@ -222,29 +208,53 @@ All executors write to the **same `changes.log`** — this becomes the unified a
 
 ## Audit Phase
 
-### Unified Auditing
+### Specialized Auditors
 
-**Auditors review ALL changes holistically**, regardless of how execution was structured. They don't care about frontend/backend/integration splits—they see the complete `changes.log` and audit the entire changeset as one unit.
+Each auditor has a specific focus area. **All auditors review ALL changes holistically**—they see the complete `changes.log` regardless of how execution was split.
 
-This ensures:
-- Cross-domain issues are caught (e.g., API change breaks UI)
-- Integration points are verified
-- No gaps between executor boundaries
+#### Core Auditors (Always Run)
 
-### Simple Tier (1 Auditor)
+| Auditor | Focus |
+|---------|-------|
+| `auditor-code-quality` | Standards, patterns, clean code, naming, structure |
+| `auditor-tooling` | Tests pass, types valid, lint clean, build succeeds |
+| `auditor-test-coverage` | Missing test cases, edge cases, coverage gaps |
+| `auditor-refactoring` | Duplication, complexity, tech debt → suggests refactor tasks |
 
+#### Conditional Auditors (Based on Changes)
+
+| Auditor | When to Run | Focus |
+|---------|-------------|-------|
+| `auditor-ui` | Frontend/UI changes | Visual consistency, UX, usability |
+| `auditor-integration` | Backend + Frontend touched | API contracts, request/response alignment |
+| `auditor-security` | Auth, payments, user data | Injection, XSS, auth flaws, secrets |
+| `auditor-performance` | Data-heavy, queries, lists | N+1 queries, memory leaks, bundle size |
+| `auditor-database` | Schema, migrations | Migration safety, indexes, data integrity |
+| `auditor-translation` | User-facing text added | i18n completeness, translation quality |
+
+### Audit Selection
+
+After execution, **analyze changes and select relevant auditors**:
+
+```
+1. Always spawn: code-quality, tooling, test-coverage, refactoring
+2. Check changes:
+   - Frontend files touched? → Add auditor-ui
+   - Backend + Frontend? → Add auditor-integration
+   - Auth/payments/sensitive? → Add auditor-security
+   - Queries/data-heavy? → Add auditor-performance
+   - Migrations/schema? → Add auditor-database
+   - New user-facing strings? → Add auditor-translation
+3. Spawn all selected auditors in parallel
+```
+
+### Simple Tier
+
+For simple tasks, use generic auditor only:
 ```
 Spawn: auditor
 Input: Complete changes.log, plan, all changed code
-Output: Verdict (APPROVED/REJECTED)
-```
-
-### Standard/Full Tier (3 Auditors)
-
-```
-Spawn: auditor-1, auditor-2, auditor-3
-Input: Complete changes.log, plan, all changed code
-Output: 3 verdicts → You synthesize
+Output: Single verdict
 ```
 
 ### Audit Judgment
@@ -255,57 +265,30 @@ Output: 3 verdicts → You synthesize
 | **Warning** (majority) | Should fix |
 | **Warning** (single) | Evaluate validity |
 | **Note** | Record, don't block |
+| **Refactor suggestion** | Add to backlog, don't block |
 
 ### Rejection Flow
 
 If any auditor finds blockers:
 
 1. **Spawn executor** to fix the issues
-2. Re-run audit (same 3 auditors)
+2. Re-run **only the auditors that rejected** (not all)
 3. Loop until approved or escalate to user
 
 You do NOT ask user to fix. You spawn executor.
 
+### Refactoring Output
+
+The refactoring auditor may output suggested tasks even on APPROVED:
+```
+"Approved, but consider these refactoring tasks:
+1. [HIGH] Extract validation to shared utility (~1hr)
+2. [MEDIUM] Split processOrder() into smaller functions (~30min)"
+```
+
+Present these to user after completion as optional follow-up work.
+
 ---
-
-## UI Review Phase
-
-**When**: After audit approval, if the task involved frontend/UI changes.
-
-**Why**: Models often struggle with visual/UX quality. A dedicated UI review catches issues that code auditors miss.
-
-### Process
-
-1. **Check if applicable** — Did execution touch UI? (components, styles, layouts, user-facing elements)
-2. **Spawn ui-reviewer** — Uses frontend-design skill in review mode
-3. **Reviewer takes screenshots** — Captures implemented UI states
-4. **Reviewer reports** — Structured report with severity levels
-
-```
-Spawn: ui-reviewer
-Input: Changed files, screenshots of UI states
-Output: UI Review Report (blockers, should-fix, minor, what works)
-```
-
-### UI Review Judgment
-
-| Finding | Action |
-|---------|--------|
-| 🔴 **Blocker** | Spawn executor to fix, then re-review |
-| 🟡 **Should Fix** | Spawn executor to fix |
-| 🟢 **Minor** | Note for user, don't block |
-
-### Rejection Flow
-
-Same as audit: spawn executor to fix, re-run UI review until clean.
-
-### Skip Conditions
-
-Skip UI review if:
-- No frontend changes in the task
-- Backend-only work
-- Config/infrastructure changes
-- User explicitly opts out
 
 ---
 
@@ -336,9 +319,19 @@ Track in `docs/ai/{feature}/workflow-state.json`:
 | `workshopper-1` | Tech exploration | Standard |
 | `workshopper-1/2/3` | Full exploration (ensemble) | Full |
 | `executor` | Implement code | All tiers except Small |
-| `auditor` | Single review | Simple |
-| `auditor-1/2/3` | Ensemble review | Standard, Full |
-| `ui-reviewer` | UI/UX review | After audit, if frontend changes |
+| `auditor` | Generic review | Simple tier only |
+| **Core Auditors** | | |
+| `auditor-code-quality` | Standards, patterns, clean code | Standard, Full |
+| `auditor-tooling` | Tests, types, lint, build | Standard, Full |
+| `auditor-test-coverage` | Missing tests, edge cases | Standard, Full |
+| `auditor-refactoring` | Tech debt, DRY, complexity | Standard, Full |
+| **Conditional Auditors** | | |
+| `auditor-ui` | Visual, UX, usability | If frontend changes |
+| `auditor-integration` | API contracts, request/response | If backend + frontend |
+| `auditor-security` | Injection, auth, secrets | If sensitive areas |
+| `auditor-performance` | N+1, memory, bundle | If data-heavy |
+| `auditor-database` | Migrations, indexes, schema | If DB changes |
+| `auditor-translation` | i18n, text quality | If user-facing text |
 
 ---
 

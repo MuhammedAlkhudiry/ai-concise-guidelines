@@ -196,13 +196,7 @@ When spawned as a UI reviewer (by coordinator after execution), your job shifts 
 
 ### What to Check
 
-| Category | Look For |
-|----------|----------|
-| **Functional** | Broken layouts, missing states, unresponsive elements, cut-off text, overflow issues |
-| **UX** | Confusing flows, poor affordances, unclear feedback, accessibility gaps, cognitive overload |
-| **Visual** | Inconsistent spacing, misaligned elements, wrong colors/fonts, poor contrast, jarring transitions |
-| **Copy** | Typos, unclear labels, tone mismatches, truncation issues, placeholder text left in |
-| **Responsive** | Broken at breakpoints, touch targets too small, horizontal scroll, missing mobile states |
+See the **UI/UX Checklist** appended below for the full review criteria.
 
 ### Report Format
 

@@ -8,6 +8,8 @@ export interface SkillConfig {
   instruction: string;
   /** Skill trigger description (when to use this skill) */
   description: string;
+  /** Checklist file to append (for domain-specific skills) */
+  checklist?: string;
 }
 
 export const SKILLS: Record<string, SkillConfig> = {
@@ -25,6 +27,7 @@ export const SKILLS: Record<string, SkillConfig> = {
     instruction: "frontend-design",
     description:
       "UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.",
+    checklist: "ui-ux",
   },
   workshop: {
     instruction: "workshop",
@@ -40,11 +43,13 @@ export const SKILLS: Record<string, SkillConfig> = {
     instruction: "code-review",
     description:
       "Review code changes for bugs, security, and design issues. Use when user wants to review code, check a PR, review changes, or says 'review this', 'check my code', 'PR review', or 'code review'.",
+    checklist: "code-quality",
   },
   refactoring: {
     instruction: "refactoring",
     description:
       "Restructure code without changing behavior. Use when user wants to refactor, clean up code, restructure, or says 'refactor this', 'clean this up', 'this code is messy', or identifies code smells to fix.",
+    checklist: "refactoring",
   },
   "product-strategy": {
     instruction: "product-strategy",
@@ -75,5 +80,6 @@ export const SKILLS: Record<string, SkillConfig> = {
     instruction: "translation",
     description:
       "Review translations for quality, naturalness, and cultural fit. Use when user wants to review translations, check i18n files, or says 'review translations', 'check localization', or mentions translation quality issues.",
+    checklist: "translation",
   },
 } as const;
