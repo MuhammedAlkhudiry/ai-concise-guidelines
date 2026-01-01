@@ -5,10 +5,6 @@
     "anthropic": {
       "models": {
         "claude-sonnet-4-5": {
-          "limit": {
-            "context": 200000,
-            "output": 16384
-          },
           "options": {
             "thinking": {
               "type": "enabled",
@@ -17,10 +13,6 @@
           }
         },
         "claude-opus-4-5": {
-          "limit": {
-            "context": 200000,
-            "output": 32000
-          },
           "options": {
             "thinking": {
               "type": "enabled",
@@ -29,10 +21,6 @@
           }
         },
         "claude-haiku-4-5": {
-          "limit": {
-            "context": 200000,
-            "output": 16384
-          },
           "options": {
             "thinking": {
               "type": "enabled",
