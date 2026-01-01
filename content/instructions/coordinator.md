@@ -197,6 +197,26 @@ Output: Code changes documented in changes.log
 
 All executors write to the **same `changes.log`** — this becomes the unified audit input.
 
+### Skill Requirements for Executors
+
+**CRITICAL**: Executors handling specific domains MUST use the appropriate skill:
+
+| Domain | Required Skill | Why |
+|--------|----------------|-----|
+| **Frontend/UI** | `frontend-design` | Visual-first workflow, screenshot-driven iteration, design system awareness |
+| **Backend API** | `execution` | Standard implementation patterns |
+| **Database** | `execution` | Schema, migrations, queries |
+
+When spawning a frontend executor, **explicitly instruct** it to use the frontend-design skill:
+
+```
+Spawn: executor
+Prompt: "Use the frontend-design skill. Your task: {frontend portion of plan}
+        Take screenshots before/after. Iterate visually. Match existing design language."
+```
+
+This is NON-NEGOTIABLE for UI work. The frontend-design skill provides the visual feedback loop that prevents generic, AI-slop UIs.
+
 ---
 
 ## Audit Phase

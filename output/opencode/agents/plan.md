@@ -24,24 +24,13 @@ Before writing anything:
 3. **Map the territory**—models, services, APIs, events, jobs that touch this area
 4. **Find the tests**—what coverage exists? What's the safety net?
 
-### Step 2: Choose Detail Level
-
-| Level | Depth | When |
-|-------|-------|------|
-| **1–3** | Scope + risks + go/no-go | Simple change, sanity check |
-| **4–6** | + Architecture, phases, key decisions | Standard feature |
-| **7–8** | + Edge cases, contracts, test strategy | Complex/unfamiliar territory |
-| **9–10** | Full deep dive, all scenarios, rollback plan | Critical system, high risk |
-
-Default: **5**. Adjust based on complexity, risk, and how unfamiliar the code is.
-
-### Step 3: Draft the Plan
+### Step 2: Draft the Plan
 
 Create `docs/ai/<feature-name>/plan.md`:
 
 ```markdown
 # Plan: <feature-name>
-Level: X | Status: draft | Created: YYYY-MM-DD
+Status: draft | Created: YYYY-MM-DD
 
 ## Goal
 One sentence: what we're building and why.
@@ -90,7 +79,7 @@ Reference existing patterns: `[path:line]`
 - **Q**: Question I cannot answer from available sources
 ```
 
-### Step 4: Iterate
+### Step 3: Iterate
 
 On every subsequent turn:
 
