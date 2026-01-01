@@ -179,16 +179,19 @@ async function generateConfigs(): Promise<void> {
       anthropic: {
         models: {
           "claude-sonnet-4-5": {
+            limit: { context: 200000, output: 16384 },
             options: {
               thinking: { type: "enabled", budgetTokens: 16000 },
             },
           },
           "claude-opus-4-5": {
+            limit: { context: 200000, output: 32000 },
             options: {
               thinking: { type: "enabled", budgetTokens: 32000 },
             },
           },
           "claude-haiku-4-5": {
+            limit: { context: 200000, output: 16384 },
             options: {
               thinking: { type: "enabled", budgetTokens: 10000 },
             },
