@@ -2,13 +2,35 @@
   "model": "anthropic/claude-opus-4-5",
   "small_model": "anthropic/claude-haiku-4-5",
   "provider": {
-    "opencode": {
+    "openai": {
       "models": {
         "gpt-5.2": {
           "options": {
-            "reasoningEffort": "xhigh",
+            "reasoningEffort": "medium",
             "textVerbosity": "low",
             "reasoningSummary": "auto"
+          },
+          "variants": {
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "textVerbosity": "low",
+              "reasoningSummary": "auto"
+            },
+            "high": {
+              "reasoningEffort": "high",
+              "textVerbosity": "low",
+              "reasoningSummary": "auto"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "textVerbosity": "low",
+              "reasoningSummary": "auto"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "textVerbosity": "low",
+              "reasoningSummary": "auto"
+            }
           }
         }
       }
@@ -19,7 +41,7 @@
           "options": {
             "thinking": {
               "type": "enabled",
-              "budgetTokens": 16000
+              "budgetTokens": 50000
             }
           }
         },
@@ -27,7 +49,7 @@
           "options": {
             "thinking": {
               "type": "enabled",
-              "budgetTokens": 32000
+              "budgetTokens": 100000
             }
           }
         },
@@ -35,7 +57,7 @@
           "options": {
             "thinking": {
               "type": "enabled",
-              "budgetTokens": 10000
+              "budgetTokens": 16000
             }
           }
         }
