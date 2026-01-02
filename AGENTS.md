@@ -24,7 +24,7 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 │       └── opencode.json    # MCP config
 ├── generate.ts              # Generator script
 ├── init.ts                  # Installer script
-├── mcp.json                 # MCP servers source
+├── opencode.json            # OpenCode config source (plugins, MCP, agents)
 └── AGENTS.md                # AI agent instructions for this repo
 ```
 
@@ -177,4 +177,4 @@ PLAN → EXECUTE (+ Audit) → Done
 |-----------|---------|----------|
 | `.md` | Content, generated output | `content/`, `output/` |
 | `.ts` | Generator, installer, config | `*.ts`, `config/` |
-| `.json` | MCP config | `mcp.json` |
+| `.json` | OpenCode config | `opencode.json` |

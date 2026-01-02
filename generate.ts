@@ -24,7 +24,7 @@ const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
 const CHECKLISTS_DIR = join(CONTENT_DIR, "checklists");
 const OUTPUT_DIR = join(SCRIPT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
-const MCP_FILE = join(SCRIPT_DIR, "mcp.json");
+const OPENCODE_CONFIG_FILE = join(SCRIPT_DIR, "opencode.json");
 
 // =============================================================================
 // Utilities
@@ -161,64 +161,20 @@ ${template}`;
 async function generateConfigs(): Promise<void> {
   console.log("  Generating configs...");
 
-  // Build MCP config from mcp.json
-  let mcp: Record<string, unknown> = {};
-  if (existsSync(MCP_FILE)) {
-    const mcpServers = JSON.parse(await readFile(MCP_FILE, "utf-8"));
-    for (const [name, server] of Object.entries(mcpServers)) {
-      const s = server as { command: string; args: string[] };
-      mcp[name] = { type: "local", command: [s.command, ...s.args] };
-    }
+  // Copy source opencode.json to output, substituting model placeholders
+  if (!existsSync(OPENCODE_CONFIG_FILE)) {
+    console.error("    ERROR: opencode.json not found");
+    return;
   }
 
-  // Complete OpenCode config (everything in one file)
-  const opencodeConfig = {
-    model: MODELS.smart,
-    small_model: MODELS.fast,
-    provider: {
-      anthropic: {
-        models: {
-          "claude-sonnet-4-5": {
-            limit: { context: 200000, output: 16384 },
-            options: {
-              thinking: { type: "enabled", budgetTokens: 16000 },
-            },
-          },
-          "claude-opus-4-5": {
-            limit: { context: 200000, output: 32000 },
-            options: {
-              thinking: { type: "enabled", budgetTokens: 32000 },
-            },
-          },
-          "claude-haiku-4-5": {
-            limit: { context: 200000, output: 16384 },
-            options: {
-              thinking: { type: "enabled", budgetTokens: 10000 },
-            },
-          },
-        },
-      },
-    },
-    plugin: [
-      "opencode-gemini-auth",
-      "@tarquinen/opencode-dcp@latest",
-    ],
-    agent: {
-      // Disable built-in agents (coordinator replaces them)
-      plan: { disable: true },
-      build: { disable: true },
-      // Configure built-in subagents
-      explore: { model: MODELS.fast },
-      general: { model: MODELS.smart },
-    },
-    mcp,
-  };
-
-  await writeFile(
-    join(OPENCODE_DIR, "opencode.json"),
-    JSON.stringify(opencodeConfig, null, 2)
-  );
-  console.log("    Generated opencode.json");
+  let config = await readFile(OPENCODE_CONFIG_FILE, "utf-8");
+  
+  // Substitute model placeholders
+  config = config.replace(/<smart-model>/g, MODELS.smart);
+  config = config.replace(/<fast-model>/g, MODELS.fast);
+  
+  await writeFile(join(OPENCODE_DIR, "opencode.json"), config);
+  console.log("    Generated opencode.json (with model substitution)");
 }
 
 // =============================================================================

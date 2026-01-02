@@ -233,8 +233,12 @@ function mergeConfig(dest: string): void {
   if (existsSync(dest)) {
     const content = readFileSync(dest, "utf-8").trim();
     const existing = content ? JSON.parse(content) : {};
-    // Deep merge: new config wins, but preserve user's extra keys
+    // New config overrides user config, but preserve user's extra keys not in new config
     result = deepMerge(existing, newConfig);
+    // Ensure our config keys completely override (not deep merge) for these specific keys
+    for (const key of Object.keys(newConfig)) {
+      result[key] = newConfig[key];
+    }
   } else {
     result = newConfig;
   }
