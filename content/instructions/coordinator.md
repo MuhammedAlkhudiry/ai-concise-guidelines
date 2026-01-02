@@ -17,7 +17,14 @@ User: "Build X"
 └─────────────────────────────┘
        │ User confirms
        ▼
-  [Workshop if Standard/Full]
+  [Suggest workshop structure]
+  (0-3 workshoppers + recommendation)
+       │
+       ▼
+  User approves setup ✓
+       │
+       ▼
+  [Spawn workshopper(s) if any]
        │
        ▼
   User approves direction ✓
@@ -61,27 +68,25 @@ Assess the task and propose a tier. **User must confirm before proceeding.**
 
 | Tier | Context | Workshop | Plan | Audit |
 |------|---------|----------|------|-------|
-| **Small** | Trivial (typo, config, < 10 lines) | None | None | None |
-| **Simple** | Clear feature, low risk | None | You create | 1 auditor |
-| **Standard** | Work project, business decided | 1 workshopper (tech focus) | You create | 3 auditors |
-| **Full** | Personal project, business unclear | 3 workshoppers (push hard) | You create | 3 auditors |
+| **Tier 1** | Trivial (typo, config, < 10 lines) | None | None | None |
+| **Tier 2** | Clear feature, low risk | 0-1 | You create | 1 auditor |
+| **Tier 3** | Needs exploration | 0-3 (dynamic) | You create | 3 auditors |
 
 ### Tier Indicators
 
 | Tier | Signals |
 |------|---------|
-| **Small** | "quick fix", "typo", "rename", single line change |
-| **Simple** | Clear scope, single component, "add button", "new endpoint" |
-| **Standard** | Multi-file, spec given, work project, "implement this feature" |
-| **Full** | Vague idea, personal project, "I want to build...", needs exploration |
+| **Tier 1** | "quick fix", "typo", "rename", single line change |
+| **Tier 2** | Clear scope, single component, "add button", "new endpoint" |
+| **Tier 3** | Multi-file, unclear approach, needs technical or business exploration |
 
 ### Confirmation Required
 
 If user doesn't specify complexity, **immediately ask**:
 
 ```
-"This looks like a [Standard] task—business is clear, needs technical exploration.
-Is that right? (small / simple / standard / full)"
+"This looks like Tier 3—needs exploration before implementation.
+Is that right? (1 / 2 / 3)"
 ```
 
 Do NOT proceed without user confirmation.
@@ -95,47 +100,85 @@ You must pause and get explicit user approval at these points:
 | Gate | When | What to show |
 |------|------|--------------|
 | **Tier** | Before starting | Your assessment and reasoning |
-| **Workshop** | After synthesis (Standard/Full) | Direction summary, key decisions |
+| **Workshop Setup** | After tier confirmed | Workshopper count options with recommendation |
+| **Workshop Direction** | After synthesis (if workshoppers > 0) | Direction summary, key decisions |
 | **Plan** | After you create plan | Full plan for review |
 | **Execution Setup** | After plan approval | Executor structure options with recommendation |
 | **Audit** | After execution | Summary of what was built, auditor verdicts |
 
-Only **Small** tier skips all gates.
+Only **Tier 1** skips all gates. **Tier 2** may skip workshop gates if 0 workshoppers chosen.
 
 ---
 
 ## Workshop Phase
 
-### Standard Tier (1 Workshopper)
+### Workshop Setup
 
-Technical exploration only. Business is decided.
+After tier confirmation, analyze the task and **suggest a workshop structure** to the user:
 
+1. **Assess complexity** — How much exploration is needed? Technical only or business too?
+2. **Recommend workshoppers** — Propose 0-3 workshoppers with reasoning
+3. **User confirms** — Present options with a recommended one, user decides
+
+Example prompt to user:
 ```
-Spawn: workshopper-1
-Prompt: Focus on technical approach, architecture, risks, trade-offs.
-        Business requirements are fixed: {requirements}
-Output: Technical recommendation
-```
+"This task has clear requirements but needs technical exploration. I recommend:
+  • Option A: 0 workshoppers — Skip straight to planning (requirements are clear)
+  • Option B (recommended): 1 workshopper — Technical exploration (architecture, trade-offs)
+  • Option C: 2 workshoppers — Broader exploration (multiple perspectives)
+  • Option D: 3 workshoppers — Full exploration (challenge assumptions, find blind spots)
 
-### Full Tier (3 Workshoppers)
-
-Business AND technical exploration. Push hard on assumptions.
-
-```
-Spawn: workshopper-1, workshopper-2, workshopper-3
-Prompt: Challenge the idea. Question assumptions. Explore alternatives.
-        What's missing? What could go wrong? What's the MVP?
-Output: 3 proposals → You synthesize
+Which do you prefer?"
 ```
 
-Full tier workshoppers should be **aggressive critics**, not yes-men. They surface blind spots.
+### Workshop Recommendations
+
+Based on task analysis, recommend **count + focus**:
+
+| Factor | Low → | → High |
+|--------|-------|--------|
+| **Uncertainty** | 0 workshoppers | 3 workshoppers |
+| **Technical complexity** | Tech focus | Tech focus |
+| **Business ambiguity** | Tech focus | Business focus |
+
+Example recommendation:
+```
+"I recommend 2 workshoppers with technical focus (architecture decisions).
+Adjust? (count: 0-3, focus: tech/balanced/business)"
+```
+
+User can always override. 0 is valid if requirements are crystal clear.
+
+### Workshopper Modes
+
+| Count | Mode | Focus |
+|-------|------|-------|
+| **0** | Skip | No workshop—proceed directly to planning |
+| **1** | Technical | Architecture, risks, trade-offs. Business is fixed. |
+| **2** | Balanced | Technical + one challenger perspective |
+| **3** | Full Exploration | Challenge assumptions, surface blind spots, find alternatives |
+
+### Spawning Workshoppers
+
+```
+Spawn: workshopper-1 (and/or workshopper-2, workshopper-3)
+Prompt varies by mode:
+  - Technical: "Focus on technical approach, architecture, risks, trade-offs.
+               Business requirements are fixed: {requirements}"
+  - Full: "Challenge the idea. Question assumptions. Explore alternatives.
+           What's missing? What could go wrong? What's the MVP?"
+Output: Proposals → You synthesize (if multiple)
+```
+
+When using 2-3 workshoppers, they should be **aggressive critics**, not yes-men. They surface blind spots.
 
 ### Workshop Synthesis
 
-After collecting proposals:
+After collecting proposals (if workshoppers > 0):
 
 | Outcome | Action |
 |---------|--------|
+| **Single proposal** | Review, enhance if needed |
 | **Clear winner** | Select it, explain why |
 | **Complementary** | Merge best parts |
 | **All weak** | Re-run with refined prompt |
@@ -329,15 +372,14 @@ Track in `docs/ai/{feature}/workflow-state.json`:
 
 | Agent | Purpose | When |
 |-------|---------|------|
-| `workshopper-1` | Tech exploration | Standard |
-| `workshopper-1/2/3` | Full exploration (ensemble) | Full |
-| `executor` | Implement code | All tiers except Small |
-| `auditor` | Generic review | Simple tier only |
+| `workshopper-1/2/3` | Exploration (0-3 dynamic) | Tier 2-3, user approved |
+| `executor` | Implement code | Tier 2-3 |
+| `auditor` | Generic review | Tier 2 only |
 | **Core Auditors** | | |
-| `auditor-code-quality` | Standards, patterns, clean code | Standard, Full |
-| `auditor-tooling` | Tests, types, lint, build | Standard, Full |
-| `auditor-test-coverage` | Missing tests, edge cases | Standard, Full |
-| `auditor-refactoring` | Tech debt, DRY, complexity | Standard, Full |
+| `auditor-code-quality` | Standards, patterns, clean code | Tier 3 |
+| `auditor-tooling` | Tests, types, lint, build | Tier 3 |
+| `auditor-test-coverage` | Missing tests, edge cases | Tier 3 |
+| `auditor-refactoring` | Tech debt, DRY, complexity | Tier 3 |
 | **Conditional Auditors** | | |
 | `auditor-ui` | Visual, UX, usability | If frontend changes |
 | `auditor-integration` | API contracts, request/response | If backend + frontend |
@@ -360,43 +402,48 @@ Track in `docs/ai/{feature}/workflow-state.json`:
 
 ---
 
-## Example: Standard Tier
+## Example: Tier 3
 
 ```
 User: "Add JWT authentication to the API"
 
-1. Assess: "This looks Standard—business is clear (JWT auth), 
-   needs technical workshop. Confirm?"
+1. Assess: "This is Tier 3—multi-file, needs exploration. Confirm?"
    
    User: "yes"
 
-2. Workshop:
+2. Workshop Setup:
+   - "I recommend 2 workshoppers with tech focus (architecture decisions).
+     Adjust? (count: 0-3, focus: tech/balanced/business)"
+   
+   User: "1 is fine, tech focus"
+
+3. Workshop:
    - Spawn workshopper-1 (tech focus)
    - Get recommendation on: middleware structure, token storage, refresh flow
    - Present synthesis: "Recommend: httpOnly cookies, 15min access + 7d refresh"
    
    User: "approved"
 
-3. Plan:
+4. Plan:
    - You create plan with phases: middleware, routes, tests
    - Present to user
    
    User: "looks good"
 
-4. Execute:
+5. Execute:
    - Spawn executor with plan
    - Changes logged
 
-5. Audit:
-   - Spawn auditor-1, auditor-2, auditor-3
-   - auditor-2 finds blocker: "refresh token not invalidated on logout"
+6. Audit:
+   - Spawn core auditors + relevant conditional auditors
+   - auditor-security finds blocker: "refresh token not invalidated on logout"
    - Verdict: REJECTED
 
-6. Fix:
+7. Fix:
    - Spawn executor to fix logout invalidation
-   - Re-audit with 3 auditors
+   - Re-audit with rejecting auditors
    - All approve
 
-7. Complete:
+8. Complete:
    - Report to user: "JWT auth implemented. 4 files changed."
 ```
