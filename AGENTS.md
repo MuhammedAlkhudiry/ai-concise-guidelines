@@ -20,11 +20,9 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 ├── output/                  # GENERATED OUTPUT (do not edit directly)
 │   └── opencode/
 │       ├── agents/          # Generated agents with frontmatter
-│       ├── skills/          # Generated skills with frontmatter
-│       └── opencode.json    # MCP config
+│       └── skills/          # Generated skills with frontmatter
 ├── generate.ts              # Generator script
 ├── init.ts                  # Installer script
-├── opencode.json            # OpenCode config source (plugins, MCP, agents)
 └── AGENTS.md                # AI agent instructions for this repo
 ```
 
@@ -47,13 +45,7 @@ Options:
 # Show help
 bun init.ts --help
 
-# Install to OpenCode
-bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
-            --skills-path ~/.config/opencode/skill \
-            --agents-path ~/.config/opencode/agent \
-            --mcp-path ~/.config/opencode/opencode.json
-
-# With overwrite action
+# Install to OpenCode (adds to oh-my-opencode)
 bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
             --skills-path ~/.config/opencode/skill \
             --agents-path ~/.config/opencode/agent \
@@ -127,9 +119,9 @@ content/instructions/auditor.md  → output/opencode/agents/auditor.md (sub-agen
 
 | Type | Count | Description |
 |------|-------|-------------|
-| Primary Agents | 4 | Modes user can switch to (plan, execution, frontend-design, quick-edits) |
-| Sub-agents | 1 | Spawned workers (auditor) |
-| Skills | 10 | Invokable capabilities |
+| Primary Agents | 4 | Modes user can switch to (audit, frontend-design, quick-edits, workshop) |
+| Sub-agents | 11 | Specialized auditors (auditor-*) |
+| Skills | 13 | Invokable capabilities |
 
 ### Audit Flow
 
@@ -177,4 +169,4 @@ PLAN → EXECUTE (+ Audit) → Done
 |-----------|---------|----------|
 | `.md` | Content, generated output | `content/`, `output/` |
 | `.ts` | Generator, installer, config | `*.ts`, `config/` |
-| `.json` | OpenCode config | `opencode.json` |
+| `.json` | Local config (not installed) | `opencode.json` |

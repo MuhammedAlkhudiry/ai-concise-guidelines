@@ -42,7 +42,6 @@ interface Options {
   rulesAction?: RulesAction;
   skillsPath?: string;
   agentsPath?: string;
-  configPath?: string;
 }
 
 // Show usage
@@ -58,7 +57,6 @@ Options:
   --rules-path PATH         Copy base rules to PATH file
   --skills-path PATH        Copy skills to PATH directory (deletes existing first)
   --agents-path PATH        Copy agents to PATH directory (deletes existing first)
-  --config-path PATH        Merge OpenCode config into PATH file (opencode.json)
 
   --rules-file-action ACTION
       Action when rules file exists: overwrite, append, or skip (default: skip)
@@ -68,8 +66,7 @@ Options:
 Example:
   bun init.ts --rules-path ~/.config/opencode/AGENTS.md \\
      --skills-path ~/.config/opencode/skill \\
-     --agents-path ~/.config/opencode/agent \\
-     --config-path ~/.config/opencode/opencode.json
+     --agents-path ~/.config/opencode/agent
 `);
   process.exit(0);
 }
@@ -194,59 +191,6 @@ function copyAgents(dest: string): void {
   print.success(`Copied ${count} agent files to ${dest}`);
 }
 
-// Deep merge objects
-function deepMerge(target: any, source: any): any {
-  const result = { ...target };
-  for (const key of Object.keys(source)) {
-    if (
-      source[key] &&
-      typeof source[key] === "object" &&
-      !Array.isArray(source[key]) &&
-      target[key] &&
-      typeof target[key] === "object" &&
-      !Array.isArray(target[key])
-    ) {
-      result[key] = deepMerge(target[key], source[key]);
-    } else {
-      result[key] = source[key];
-    }
-  }
-  return result;
-}
-
-// Merge OpenCode config
-function mergeConfig(dest: string): void {
-  print.info(`Merging config into ${dest}...`);
-
-  ensureParentDir(dest);
-
-  const configFile = join(TMP_DIR, "output", "opencode", "opencode.json");
-
-  if (!existsSync(configFile)) {
-    print.error("OpenCode config file not found");
-    return;
-  }
-
-  const newConfig = JSON.parse(readFileSync(configFile, "utf-8"));
-
-  let result: any;
-  if (existsSync(dest)) {
-    const content = readFileSync(dest, "utf-8").trim();
-    const existing = content ? JSON.parse(content) : {};
-    // New config overrides user config, but preserve user's extra keys not in new config
-    result = deepMerge(existing, newConfig);
-    // Ensure our config keys completely override (not deep merge) for these specific keys
-    for (const key of Object.keys(newConfig)) {
-      result[key] = newConfig[key];
-    }
-  } else {
-    result = newConfig;
-  }
-
-  writeFileSync(dest, JSON.stringify(result, null, 2) + "\n");
-  print.success(`Config merged to ${dest}`);
-}
-
 // Parse arguments
 function parseArgs(): Options {
   const args = process.argv.slice(2);
@@ -273,10 +217,7 @@ function parseArgs(): Options {
         opts.agentsPath = expandPath(next);
         i++;
         break;
-      case "--config-path":
-        opts.configPath = expandPath(next);
-        i++;
-        break;
+
       case "--help":
       case "-h":
         showUsage();
@@ -295,7 +236,7 @@ function main() {
   const opts = parseArgs();
 
   // Validate at least one destination specified
-  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.configPath) {
+  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath) {
     print.error("No destination specified. At least one path is required.");
     showUsage();
   }
@@ -306,7 +247,6 @@ function main() {
   if (opts.rulesPath) folders.push("content/base-rules.md");
   if (opts.skillsPath) folders.push("output/opencode/skills");
   if (opts.agentsPath) folders.push("output/opencode/agents");
-  if (opts.configPath) folders.push("output/opencode/opencode.json");
 
   // Show summary
   console.log(`
@@ -319,7 +259,6 @@ ${colors.blue("Installation Summary:")}
 ${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
 ${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
 ${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
-${opts.configPath ? `  • Config: ${opts.configPath} (merge)` : ""}
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
 
@@ -329,7 +268,6 @@ ${colors.yellow("═════════════════════
   if (opts.rulesPath) copyRules(opts.rulesPath, opts.rulesAction);
   if (opts.skillsPath) copySkills(opts.skillsPath);
   if (opts.agentsPath) copyAgents(opts.agentsPath);
-  if (opts.configPath) mergeConfig(opts.configPath);
 
   console.log(`
 ${colors.green("╔═══════════════════════════════════════════════════════════╗")}

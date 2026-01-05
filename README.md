@@ -25,8 +25,7 @@ Run with bun:
 ```bash
 bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
             --skills-path ~/.config/opencode/skill \
-            --agents-path ~/.config/opencode/agent \
-            --config-path ~/.config/opencode/opencode.json
+            --agents-path ~/.config/opencode/agent
 ```
 
 ### Options
@@ -36,7 +35,6 @@ bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
 | `--rules-path PATH` | Install base rules to PATH |
 | `--skills-path PATH` | Install skills to PATH directory |
 | `--agents-path PATH` | Install agents to PATH directory |
-| `--config-path PATH` | Merge config (provider, plugin, mcp, model, agent) into PATH |
 | `--rules-file-action ACTION` | `overwrite`, `append`, or `skip` |
 | `--help` | Show help |
 
@@ -50,7 +48,6 @@ alias refresh-opencode='cd /tmp && \
           bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
                     --skills-path ~/.config/opencode/skill \
                     --agents-path ~/.config/opencode/agent \
-                    --config-path ~/.config/opencode/opencode.json \
                     --rules-file-action overwrite && \
           rm init.ts && \
           cd -'
@@ -116,8 +113,7 @@ config/
 output/
 └── opencode/               # Generated output
     ├── agents/
-    ├── skills/
-    └── opencode.json
+    └── skills/
 ```
 
 ## License

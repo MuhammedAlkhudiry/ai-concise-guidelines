@@ -1,6 +1,6 @@
 ---
 description: Audits UI/UX quality, visual consistency, usability
-model: anthropic/claude-opus-4-5
+model: google/gemini-3-pro-preview
 mode: subagent
 ---
 

@@ -24,7 +24,7 @@ const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
 const CHECKLISTS_DIR = join(CONTENT_DIR, "checklists");
 const OUTPUT_DIR = join(SCRIPT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
-const OPENCODE_CONFIG_FILE = join(SCRIPT_DIR, "opencode.json");
+
 
 // =============================================================================
 // Utilities
@@ -158,24 +158,7 @@ ${template}`;
   return count;
 }
 
-async function generateConfigs(): Promise<void> {
-  console.log("  Generating configs...");
 
-  // Copy source opencode.json to output, substituting model placeholders
-  if (!existsSync(OPENCODE_CONFIG_FILE)) {
-    console.error("    ERROR: opencode.json not found");
-    return;
-  }
-
-  let config = await readFile(OPENCODE_CONFIG_FILE, "utf-8");
-  
-  // Substitute model placeholders
-  config = config.replace(/<smart-model>/g, MODELS.smart);
-  config = config.replace(/<fast-model>/g, MODELS.fast);
-  
-  await writeFile(join(OPENCODE_DIR, "opencode.json"), config);
-  console.log("    Generated opencode.json (with model substitution)");
-}
 
 // =============================================================================
 // Main
@@ -202,7 +185,6 @@ async function main() {
   // Generate
   const agentCount = await generateAgents();
   const skillCount = await generateSkills();
-  await generateConfigs();
 
   console.log("\nGeneration complete!");
   console.log(`Output: ${OPENCODE_DIR}/\n`);
