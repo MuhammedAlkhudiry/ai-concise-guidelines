@@ -25,13 +25,6 @@ export const AGENTS: Record<string, AgentConfig> = {
   // PRIMARY AGENTS (user-invokable via Tab)
   // ============================================
   
-  coordinator: {
-    instruction: "coordinator",
-    description: "Multi-model orchestrator. Spawns ensemble subagents, judges proposals, routes execution.",
-    model: "coordinator",
-    type: "primary",
-    color: "#EF4444",
-  },
   plan: {
     instruction: "plan",
     description: "Architect blueprints before building. Creates structured implementation plans.",
@@ -65,9 +58,16 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "primary",
     color: "#F97316",
   },
+  audit: {
+    instruction: "audit",
+    description: "Orchestrates specialized auditors to review completed features/changes.",
+    model: "smart",
+    type: "primary",
+    color: "#10B981",
+  },
 
   // ============================================
-  // SUBAGENTS (spawned by coordinator/other agents)
+  // SUBAGENTS (spawned by other agents)
   // ============================================
   
   // Single-model subagents
@@ -75,26 +75,6 @@ export const AGENTS: Record<string, AgentConfig> = {
     instruction: "auditor",
     description: "Audits code changes for correctness, quality, and completeness.",
     model: "smart",
-    type: "sub",
-  },
-
-  // Ensemble: Workshoppers (same instruction, different models)
-  "workshopper-1": {
-    instruction: "workshop",
-    description: "Workshop proposer (ensemble slot 1)",
-    model: "ensemble_1",
-    type: "sub",
-  },
-  "workshopper-2": {
-    instruction: "workshop",
-    description: "Workshop proposer (ensemble slot 2)",
-    model: "ensemble_2",
-    type: "sub",
-  },
-  "workshopper-3": {
-    instruction: "workshop",
-    description: "Workshop proposer (ensemble slot 3)",
-    model: "ensemble_3",
     type: "sub",
   },
 
@@ -175,22 +155,5 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "sub",
     checklist: "translation",
   },
-
-  // Legacy generic auditor (kept for simple tier)
-  auditor: {
-    instruction: "auditor",
-    description: "General code auditor for simple tasks",
-    model: "smart",
-    type: "sub",
-  },
-
-  // Executor (used by coordinator for execution phase)
-  executor: {
-    instruction: "execution",
-    description: "Executes scoped implementation tasks",
-    model: "executor",
-    type: "sub",
-  },
-
 
 } as const;

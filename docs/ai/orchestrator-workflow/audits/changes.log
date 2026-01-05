@@ -1,9 +1,0 @@
-22:42 | write | config/models.ts | Added ensemble model slots (coordinator, ensemble_1-3, executor)
-22:42 | edit | content/instructions/execution.md | Removed Audit Gate, spawning, workflow coupling - now self-contained
-22:43 | edit | content/instructions/auditor.md | Made generic - removed specific paths, escalations, workflow coupling
-22:43 | edit | content/instructions/plan.md | Removed 'FINISH THE PLAN' workflow assumption
-22:44 | write | content/instructions/coordinator.md | NEW: Orchestration brain instruction
-22:45 | edit | config/agents.ts | Added coordinator + ensemble subagents (planners, workshoppers, auditors, executor)
-22:45 | run | bun generate.ts --clean | Generated 17 agents, 13 skills
-22:46 | edit | README.md | Updated agents/sub-agents documentation for orchestrator workflow
-22:46 | DONE | Implementation complete, requesting audit

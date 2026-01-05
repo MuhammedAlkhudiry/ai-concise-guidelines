@@ -67,27 +67,29 @@ refresh-opencode
 Global rules applied to all modes—critical safety rules, coding standards, after-task checklist.
 
 ### Primary Agents (Modes)
+
+> **Note**: `plan` and `build` agents are disabled—use [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) for orchestration.
+
 | Agent | Description |
 |-------|-------------|
-| `coordinator` | Orchestrator brain—spawns ensemble agents, judges results, manages workflow |
-| `plan` | Create structured implementation plans |
-| `build` | Implement code changes |
 | `frontend-design` | UI/UX focused editing |
 | `quick-edits` | Fast, minimal changes |
 | `workshop` | Explore and stress-test ideas |
+| `audit` | Orchestrate specialized auditors for code review |
 
 ### Sub-agents
 | Agent | Description |
 |-------|-------------|
-| `workshopper-1/2/3` | Ensemble workshoppers for Full tier (configurable models) |
-| `auditor-1/2/3` | Ensemble auditors for Standard/Full tier (configurable models) |
-| `executor` | Focused code execution |
-| `auditor` | Single-pass audit for Simple tier |
+| `auditor` | General code auditor |
+| `auditor-*` | Specialized auditors (code-quality, security, performance, database, etc.) |
 
 ### Skills
 | Skill | Description |
 |-------|-------------|
 | `planning` | Create structured implementation plans |
+| `execution` | Implement approved plans into code |
+| `frontend-design` | UI/UX focused editing |
+| `workshop` | Explore and stress-test ideas |
 | `debugging` | Systematic bug investigation |
 | `code-review` | Review code for issues |
 | `refactoring` | Restructure without changing behavior |
@@ -103,7 +105,8 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 ```
 content/
 ├── base-rules.md           # Global rules
-└── instructions/           # All instructions (15 files)
+├── instructions/           # Agent/skill instructions (17 files)
+└── checklists/             # Domain-specific checklists (9 files)
 
 config/
 ├── models.ts               # Model definitions

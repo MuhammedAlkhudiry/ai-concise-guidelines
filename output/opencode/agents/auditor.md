@@ -1,5 +1,5 @@
 ---
-description: General code auditor for simple tasks
+description: Audits code changes for correctness, quality, and completeness.
 model: anthropic/claude-opus-4-5
 mode: subagent
 ---
