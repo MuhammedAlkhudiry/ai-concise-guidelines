@@ -99,10 +99,9 @@ dev() {
 # --- AI Tools Refresh ---
 # Helper function to run init.ts from remote
 _run_ai_init() {
-    local args="$@"
     cd /tmp && \
     curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.ts && \
-    bun init.ts $args && \
+    bun init.ts "$@" && \
     rm init.ts && \
     cd -
 }
