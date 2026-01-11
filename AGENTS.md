@@ -17,6 +17,9 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 │   ├── models.ts            # Model definitions
 │   ├── agents.ts            # Agent configurations
 │   └── skills.ts            # Skill configurations
+├── shell/                   # Shell configuration files
+│   ├── zsh-custom.zsh       # Custom zsh config (synced via --zsh-path)
+│   └── zshrc.zsh            # Reference .zshrc (manual setup)
 ├── output/                  # GENERATED OUTPUT (do not edit directly)
 │   └── opencode/
 │       ├── agents/          # Generated agents with frontmatter
@@ -48,6 +51,7 @@ bun init.ts --help
 bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
             --skills-path ~/.config/opencode/skill \
             --agents-path ~/.config/opencode/agent \
+            --zsh-path ~/.config/zsh-sync/custom.zsh \
             --rules-file-action overwrite
 ```
 

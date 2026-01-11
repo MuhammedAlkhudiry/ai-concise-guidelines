@@ -42,6 +42,7 @@ interface Options {
   rulesAction?: RulesAction;
   skillsPath?: string;
   agentsPath?: string;
+  zshPath?: string;
 }
 
 // Show usage
@@ -57,6 +58,7 @@ Options:
   --rules-path PATH         Copy base rules to PATH file
   --skills-path PATH        Copy skills to PATH directory (deletes existing first)
   --agents-path PATH        Copy agents to PATH directory (deletes existing first)
+  --zsh-path PATH           Copy zsh-custom.zsh to PATH file (always overwrites)
 
   --rules-file-action ACTION
       Action when rules file exists: overwrite, append, or skip (default: skip)
@@ -66,7 +68,8 @@ Options:
 Example:
   bun init.ts --rules-path ~/.config/opencode/AGENTS.md \\
      --skills-path ~/.config/opencode/skill \\
-     --agents-path ~/.config/opencode/agent
+     --agents-path ~/.config/opencode/agent \\
+     --zsh-path ~/.config/zsh-sync/custom.zsh
 `);
   process.exit(0);
 }
@@ -191,6 +194,21 @@ function copyAgents(dest: string): void {
   print.success(`Copied ${count} agent files to ${dest}`);
 }
 
+// Copy zsh config
+function copyZsh(dest: string): void {
+  print.info(`Copying zsh config to ${dest}...`);
+
+  const sourceFile = join(TMP_DIR, "shell", "zsh-custom.zsh");
+  if (!existsSync(sourceFile)) {
+    print.error("zsh-custom.zsh not found");
+    return;
+  }
+
+  ensureParentDir(dest);
+  copyFileSync(sourceFile, dest);
+  print.success(`Zsh config copied to ${dest}`);
+}
+
 // Parse arguments
 function parseArgs(): Options {
   const args = process.argv.slice(2);
@@ -217,6 +235,10 @@ function parseArgs(): Options {
         opts.agentsPath = expandPath(next);
         i++;
         break;
+      case "--zsh-path":
+        opts.zshPath = expandPath(next);
+        i++;
+        break;
 
       case "--help":
       case "-h":
@@ -236,7 +258,7 @@ function main() {
   const opts = parseArgs();
 
   // Validate at least one destination specified
-  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath) {
+  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.zshPath) {
     print.error("No destination specified. At least one path is required.");
     showUsage();
   }
@@ -247,6 +269,7 @@ function main() {
   if (opts.rulesPath) folders.push("content/base-rules.md");
   if (opts.skillsPath) folders.push("output/opencode/skills");
   if (opts.agentsPath) folders.push("output/opencode/agents");
+  if (opts.zshPath) folders.push("shell/zsh-custom.zsh");
 
   // Show summary
   console.log(`
@@ -259,6 +282,7 @@ ${colors.blue("Installation Summary:")}
 ${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
 ${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
 ${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
+${opts.zshPath ? `  • Zsh: ${opts.zshPath}` : ""}
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
 
@@ -268,6 +292,7 @@ ${colors.yellow("═════════════════════
   if (opts.rulesPath) copyRules(opts.rulesPath, opts.rulesAction);
   if (opts.skillsPath) copySkills(opts.skillsPath);
   if (opts.agentsPath) copyAgents(opts.agentsPath);
+  if (opts.zshPath) copyZsh(opts.zshPath);
 
   console.log(`
 ${colors.green("╔═══════════════════════════════════════════════════════════╗")}
