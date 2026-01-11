@@ -23,11 +23,16 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Implement approved plans into production-ready code. Use when user wants to build, implement, code, or execute an approved plan. Activates when user says 'let's build', 'implement this', 'start coding', or 'execute the plan'.",
   },
-  "frontend-design": {
-    instruction: "frontend-design",
+  "uxui-design": {
+    instruction: "uxui-design",
     description:
-      "UI/UX focused editing for visual changes only. Use for styling, layout, animations, typography, and design system work. No logic changes. Supports ULTRATHINK trigger for deep design analysis.",
+      "Practical UI/UX work within existing design systems. Use for styling, layout, states, accessibility, and design system compliance. Use when working on established products.",
     checklist: "ui-ux",
+  },
+  "uxui-creative": {
+    instruction: "uxui-creative",
+    description:
+      "Distinctive, bold UI design that avoids generic AI aesthetics. Use for landing pages, new products, marketing sites, or when user wants something that stands out. Covers typography, themes, animations, and anti-patterns.",
   },
   workshop: {
     instruction: "workshop",

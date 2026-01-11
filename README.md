@@ -65,27 +65,23 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 
 ### Primary Agents (Modes)
 
-> **Note**: `plan` and `build` agents are disabled—use [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) for orchestration.
-
 | Agent | Description |
 |-------|-------------|
-| `frontend-design` | UI/UX focused editing |
-| `quick-edits` | Fast, minimal changes |
 | `workshop` | Explore and stress-test ideas |
 | `audit` | Orchestrate specialized auditors for code review |
 
 ### Sub-agents
 | Agent | Description |
 |-------|-------------|
-| `auditor` | General code auditor |
-| `auditor-*` | Specialized auditors (code-quality, security, performance, database, etc.) |
+| `auditor-*` | Specialized auditors (code-quality, security, performance, database, ui, integration, test-coverage, refactoring, translation, tooling) |
 
 ### Skills
 | Skill | Description |
 |-------|-------------|
 | `planning` | Create structured implementation plans |
 | `execution` | Implement approved plans into code |
-| `frontend-design` | UI/UX focused editing |
+| `uxui-design` | Practical UI/UX within existing design systems |
+| `uxui-creative` | Distinctive UI that avoids generic AI aesthetics |
 | `workshop` | Explore and stress-test ideas |
 | `debugging` | Systematic bug investigation |
 | `code-review` | Review code for issues |
@@ -102,7 +98,7 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 ```
 content/
 ├── base-rules.md           # Global rules
-├── instructions/           # Agent/skill instructions (17 files)
+├── instructions/           # Agent/skill instructions (18 files)
 └── checklists/             # Domain-specific checklists (9 files)
 
 config/

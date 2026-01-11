@@ -25,32 +25,6 @@ export const AGENTS: Record<string, AgentConfig> = {
   // PRIMARY AGENTS (user-invokable via Tab)
   // ============================================
   
-  plan: {
-    instruction: "plan",
-    description: "Architect blueprints before building. Creates structured implementation plans.",
-    model: "smart",
-    type: "primary",
-  },
-  build: {
-    instruction: "execution",
-    description: "Implement approved plans into production-ready code.",
-    model: "smart",
-    type: "primary",
-  },
-  "frontend-design": {
-    instruction: "frontend-design",
-    description: "UI/UX focused editing for visual changes only.",
-    model: "smart",
-    type: "primary",
-    color: "#A855F7",
-  },
-  "quick-edits": {
-    instruction: "quick-edits",
-    description: "Fast, focused edits without heavy process overhead.",
-    model: "fast",
-    type: "primary",
-    color: "#EAB308",
-  },
   workshop: {
     instruction: "workshop",
     description: "Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.",
@@ -70,14 +44,6 @@ export const AGENTS: Record<string, AgentConfig> = {
   // SUBAGENTS (spawned by other agents)
   // ============================================
   
-  // Single-model subagents
-  auditor: {
-    instruction: "auditor",
-    description: "Audits code changes for correctness, quality, and completeness.",
-    model: "smart",
-    type: "sub",
-  },
-
   // ============================================
   // SPECIALIZED AUDITORS
   // ============================================

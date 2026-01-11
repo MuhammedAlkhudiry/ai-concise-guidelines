@@ -4,7 +4,7 @@
  * Generator Script
  * Generates OpenCode files from content + config
  *
- * Usage: bun generate.ts [--clean]
+ * Usage: bun generate.ts
  */
 
 import { readdir, readFile, writeFile, mkdir, rm } from "fs/promises";
@@ -165,8 +165,6 @@ ${template}`;
 // =============================================================================
 
 async function main() {
-  const clean = process.argv.includes("--clean") || process.argv.includes("-c");
-
   console.log("\nGenerating OpenCode files from content...\n");
 
   if (!existsSync(CONTENT_DIR)) {
@@ -174,7 +172,8 @@ async function main() {
     process.exit(1);
   }
 
-  if (clean && existsSync(OUTPUT_DIR)) {
+  // Always clean output directory
+  if (existsSync(OUTPUT_DIR)) {
     await rm(OUTPUT_DIR, { recursive: true });
   }
 

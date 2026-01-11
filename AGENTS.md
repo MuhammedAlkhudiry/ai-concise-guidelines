@@ -36,8 +36,7 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 bun generate.ts
 ```
 
-Options:
-- `--clean` — Remove output directory before generating
+Always cleans output directory before generating.
 
 ### Installer Script
 
@@ -119,9 +118,9 @@ content/instructions/auditor.md  → output/opencode/agents/auditor.md (sub-agen
 
 | Type | Count | Description |
 |------|-------|-------------|
-| Primary Agents | 4 | Modes user can switch to (audit, frontend-design, quick-edits, workshop) |
-| Sub-agents | 11 | Specialized auditors (auditor-*) |
-| Skills | 13 | Invokable capabilities |
+| Primary Agents | 2 | Modes user can switch to (audit, workshop) |
+| Sub-agents | 10 | Specialized auditors (auditor-*) |
+| Skills | 14 | Invokable capabilities |
 
 ### Audit Flow
 
