@@ -17,13 +17,16 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 │   ├── models.ts            # Model definitions
 │   ├── agents.ts            # Agent configurations
 │   └── skills.ts            # Skill configurations
+├── plugins/                 # OpenCode plugins (source)
+│   └── ralph-loop.ts        # Autonomous loop plugin
 ├── shell/                   # Shell configuration files
 │   ├── zsh-custom.zsh       # Custom zsh config (synced via --zsh-path)
 │   └── zshrc.zsh            # Reference .zshrc (manual setup)
 ├── output/                  # GENERATED OUTPUT (do not edit directly)
 │   └── opencode/
 │       ├── agents/          # Generated agents with frontmatter
-│       └── skills/          # Generated skills with frontmatter
+│       ├── skills/          # Generated skills with frontmatter
+│       └── plugin/          # OpenCode plugins (copied from plugins/)
 ├── generate.ts              # Generator script
 ├── init.ts                  # Installer script
 └── AGENTS.md                # AI agent instructions for this repo
@@ -51,6 +54,7 @@ bun init.ts --help
 bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
             --skills-path ~/.config/opencode/skill \
             --agents-path ~/.config/opencode/agent \
+            --plugin-path ~/.config/opencode/plugin \
             --zsh-path ~/.config/zsh-sync/custom.zsh \
             --rules-file-action overwrite
 ```
@@ -125,6 +129,7 @@ content/instructions/auditor.md  → output/opencode/agents/auditor.md (sub-agen
 | Primary Agents | 2 | Modes user can switch to (audit, workshop) |
 | Sub-agents | 10 | Specialized auditors (auditor-*) |
 | Skills | 14 | Invokable capabilities |
+| Plugins | 1 | OpenCode plugins (ralph-loop for autonomous loops) |
 
 ### Audit Flow
 

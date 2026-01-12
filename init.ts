@@ -42,6 +42,7 @@ interface Options {
   rulesAction?: RulesAction;
   skillsPath?: string;
   agentsPath?: string;
+  pluginPath?: string;
   zshPath?: string;
 }
 
@@ -58,6 +59,7 @@ Options:
   --rules-path PATH         Copy base rules to PATH file
   --skills-path PATH        Copy skills to PATH directory (deletes existing first)
   --agents-path PATH        Copy agents to PATH directory (deletes existing first)
+  --plugin-path PATH        Copy plugins to PATH directory (deletes existing first)
   --zsh-path PATH           Copy zsh-custom.zsh to PATH file (always overwrites)
 
   --rules-file-action ACTION
@@ -69,6 +71,7 @@ Example:
   bun init.ts --rules-path ~/.config/opencode/AGENTS.md \\
      --skills-path ~/.config/opencode/skill \\
      --agents-path ~/.config/opencode/agent \\
+     --plugin-path ~/.config/opencode/plugin \\
      --zsh-path ~/.config/zsh-sync/custom.zsh
 `);
   process.exit(0);
@@ -194,6 +197,37 @@ function copyAgents(dest: string): void {
   print.success(`Copied ${count} agent files to ${dest}`);
 }
 
+// Copy plugins (individual .ts/.js files)
+function copyPlugins(dest: string): void {
+  print.info(`Copying plugins to ${dest}...`);
+
+  const sourceDir = join(TMP_DIR, "output", "opencode", "plugin");
+  if (!existsSync(sourceDir)) {
+    print.error("Plugin folder not found");
+    return;
+  }
+
+  // Ensure destination exists
+  if (!existsSync(dest)) {
+    mkdirSync(dest, { recursive: true });
+  }
+
+  // Copy individual plugin files (don't delete existing - merge)
+  const entries = readdirSync(sourceDir);
+  let count = 0;
+  for (const entry of entries) {
+    const srcPath = join(sourceDir, entry);
+    const destPath = join(dest, entry);
+    
+    if (statSync(srcPath).isFile() && (entry.endsWith(".ts") || entry.endsWith(".js"))) {
+      copyFileSync(srcPath, destPath);
+      count++;
+    }
+  }
+  
+  print.success(`Copied ${count} plugin file(s) to ${dest}`);
+}
+
 // Copy zsh config
 function copyZsh(dest: string): void {
   print.info(`Copying zsh config to ${dest}...`);
@@ -235,6 +269,10 @@ function parseArgs(): Options {
         opts.agentsPath = expandPath(next);
         i++;
         break;
+      case "--plugin-path":
+        opts.pluginPath = expandPath(next);
+        i++;
+        break;
       case "--zsh-path":
         opts.zshPath = expandPath(next);
         i++;
@@ -258,7 +296,7 @@ function main() {
   const opts = parseArgs();
 
   // Validate at least one destination specified
-  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.zshPath) {
+  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.pluginPath && !opts.zshPath) {
     print.error("No destination specified. At least one path is required.");
     showUsage();
   }
@@ -269,6 +307,7 @@ function main() {
   if (opts.rulesPath) folders.push("content/base-rules.md");
   if (opts.skillsPath) folders.push("output/opencode/skills");
   if (opts.agentsPath) folders.push("output/opencode/agents");
+  if (opts.pluginPath) folders.push("output/opencode/plugin");
   if (opts.zshPath) folders.push("shell/zsh-custom.zsh");
 
   // Show summary
@@ -282,6 +321,7 @@ ${colors.blue("Installation Summary:")}
 ${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
 ${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
 ${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
+${opts.pluginPath ? `  • Plugins: ${opts.pluginPath} (clean sync)` : ""}
 ${opts.zshPath ? `  • Zsh: ${opts.zshPath}` : ""}
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
@@ -292,6 +332,7 @@ ${colors.yellow("═════════════════════
   if (opts.rulesPath) copyRules(opts.rulesPath, opts.rulesAction);
   if (opts.skillsPath) copySkills(opts.skillsPath);
   if (opts.agentsPath) copyAgents(opts.agentsPath);
+  if (opts.pluginPath) copyPlugins(opts.pluginPath);
   if (opts.zshPath) copyZsh(opts.zshPath);
 
   console.log(`

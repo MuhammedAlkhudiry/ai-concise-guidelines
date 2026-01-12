@@ -7,7 +7,7 @@
  * Usage: bun generate.ts
  */
 
-import { readdir, readFile, writeFile, mkdir, rm } from "fs/promises";
+import { readdir, readFile, writeFile, mkdir, rm, copyFile } from "fs/promises";
 import { existsSync } from "fs";
 import { join, basename } from "path";
 import { MODELS } from "./config/models";
@@ -22,6 +22,7 @@ const SCRIPT_DIR = import.meta.dir;
 const CONTENT_DIR = join(SCRIPT_DIR, "content");
 const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
 const CHECKLISTS_DIR = join(CONTENT_DIR, "checklists");
+const PLUGINS_DIR = join(SCRIPT_DIR, "plugins");
 const OUTPUT_DIR = join(SCRIPT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
 
@@ -158,7 +159,30 @@ ${template}`;
   return count;
 }
 
+async function copyPlugins(): Promise<number> {
+  console.log("  Copying plugins...");
 
+  if (!existsSync(PLUGINS_DIR)) {
+    console.log("    No plugins directory found, skipping");
+    return 0;
+  }
+
+  const pluginsOutDir = join(OPENCODE_DIR, "plugin");
+  await ensureDir(pluginsOutDir);
+
+  const files = await readdir(PLUGINS_DIR);
+  let count = 0;
+
+  for (const file of files) {
+    if (file.endsWith(".ts") || file.endsWith(".js")) {
+      await copyFile(join(PLUGINS_DIR, file), join(pluginsOutDir, file));
+      count++;
+    }
+  }
+
+  console.log(`    Copied ${count} plugins`);
+  return count;
+}
 
 // =============================================================================
 // Main
@@ -180,16 +204,19 @@ async function main() {
   // Create output structure
   await ensureDir(join(OPENCODE_DIR, "agents"));
   await ensureDir(join(OPENCODE_DIR, "skills"));
+  await ensureDir(join(OPENCODE_DIR, "plugin"));
 
   // Generate
   const agentCount = await generateAgents();
   const skillCount = await generateSkills();
+  const pluginCount = await copyPlugins();
 
   console.log("\nGeneration complete!");
   console.log(`Output: ${OPENCODE_DIR}/\n`);
   console.log("Summary:");
   console.log(`  Agents: ${agentCount}`);
   console.log(`  Skills: ${skillCount}`);
+  console.log(`  Plugins: ${pluginCount}`);
 }
 
 main().catch((err) => {

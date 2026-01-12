@@ -25,7 +25,8 @@ Run with bun:
 ```bash
 bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
             --skills-path ~/.config/opencode/skill \
-            --agents-path ~/.config/opencode/agent
+            --agents-path ~/.config/opencode/agent \
+            --plugin-path ~/.config/opencode/plugin
 ```
 
 ### Options
@@ -35,6 +36,7 @@ bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
 | `--rules-path PATH` | Install base rules to PATH |
 | `--skills-path PATH` | Install skills to PATH directory |
 | `--agents-path PATH` | Install agents to PATH directory |
+| `--plugin-path PATH` | Install plugins to PATH directory |
 | `--rules-file-action ACTION` | `overwrite`, `append`, or `skip` |
 | `--help` | Show help |
 
@@ -48,6 +50,7 @@ alias refresh-opencode='cd /tmp && \
           bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
                     --skills-path ~/.config/opencode/skill \
                     --agents-path ~/.config/opencode/agent \
+                    --plugin-path ~/.config/opencode/plugin \
                     --rules-file-action overwrite && \
           rm init.ts && \
           cd -'
@@ -93,6 +96,12 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 | `user-story-review` | Review user stories |
 | `translation` | Review translation quality |
 
+### Plugins
+
+| Plugin | Description |
+|--------|-------------|
+| `ralph-loop` | Autonomous iterative task execution until completion |
+
 ## Repository Structure
 
 ```
@@ -106,10 +115,14 @@ config/
 ├── agents.ts               # Agent configs
 └── skills.ts               # Skill configs
 
+plugins/
+└── ralph-loop.ts           # Autonomous loop plugin
+
 output/
 └── opencode/               # Generated output
     ├── agents/
-    └── skills/
+    ├── skills/
+    └── plugin/
 ```
 
 ## License
