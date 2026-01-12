@@ -43,6 +43,7 @@ interface Options {
   skillsPath?: string;
   agentsPath?: string;
   pluginPath?: string;
+  commandPath?: string;
   zshPath?: string;
 }
 
@@ -59,7 +60,8 @@ Options:
   --rules-path PATH         Copy base rules to PATH file
   --skills-path PATH        Copy skills to PATH directory (deletes existing first)
   --agents-path PATH        Copy agents to PATH directory (deletes existing first)
-  --plugin-path PATH        Copy plugins to PATH directory (deletes existing first)
+  --plugin-path PATH        Copy plugins to PATH directory
+  --command-path PATH       Copy commands to PATH directory
   --zsh-path PATH           Copy zsh-custom.zsh to PATH file (always overwrites)
 
   --rules-file-action ACTION
@@ -72,6 +74,7 @@ Example:
      --skills-path ~/.config/opencode/skill \\
      --agents-path ~/.config/opencode/agent \\
      --plugin-path ~/.config/opencode/plugin \\
+     --command-path ~/.config/opencode/command \\
      --zsh-path ~/.config/zsh-sync/custom.zsh
 `);
   process.exit(0);
@@ -228,6 +231,37 @@ function copyPlugins(dest: string): void {
   print.success(`Copied ${count} plugin file(s) to ${dest}`);
 }
 
+// Copy commands (individual .md files)
+function copyCommands(dest: string): void {
+  print.info(`Copying commands to ${dest}...`);
+
+  const sourceDir = join(TMP_DIR, "output", "opencode", "command");
+  if (!existsSync(sourceDir)) {
+    print.error("Command folder not found");
+    return;
+  }
+
+  // Ensure destination exists
+  if (!existsSync(dest)) {
+    mkdirSync(dest, { recursive: true });
+  }
+
+  // Copy individual command files
+  const entries = readdirSync(sourceDir);
+  let count = 0;
+  for (const entry of entries) {
+    const srcPath = join(sourceDir, entry);
+    const destPath = join(dest, entry);
+    
+    if (statSync(srcPath).isFile() && entry.endsWith(".md")) {
+      copyFileSync(srcPath, destPath);
+      count++;
+    }
+  }
+  
+  print.success(`Copied ${count} command file(s) to ${dest}`);
+}
+
 // Copy zsh config
 function copyZsh(dest: string): void {
   print.info(`Copying zsh config to ${dest}...`);
@@ -273,6 +307,10 @@ function parseArgs(): Options {
         opts.pluginPath = expandPath(next);
         i++;
         break;
+      case "--command-path":
+        opts.commandPath = expandPath(next);
+        i++;
+        break;
       case "--zsh-path":
         opts.zshPath = expandPath(next);
         i++;
@@ -296,7 +334,7 @@ function main() {
   const opts = parseArgs();
 
   // Validate at least one destination specified
-  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.pluginPath && !opts.zshPath) {
+  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.pluginPath && !opts.commandPath && !opts.zshPath) {
     print.error("No destination specified. At least one path is required.");
     showUsage();
   }
@@ -308,6 +346,7 @@ function main() {
   if (opts.skillsPath) folders.push("output/opencode/skills");
   if (opts.agentsPath) folders.push("output/opencode/agents");
   if (opts.pluginPath) folders.push("output/opencode/plugin");
+  if (opts.commandPath) folders.push("output/opencode/command");
   if (opts.zshPath) folders.push("shell/zsh-custom.zsh");
 
   // Show summary
@@ -321,7 +360,8 @@ ${colors.blue("Installation Summary:")}
 ${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
 ${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
 ${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
-${opts.pluginPath ? `  • Plugins: ${opts.pluginPath} (clean sync)` : ""}
+${opts.pluginPath ? `  • Plugins: ${opts.pluginPath}` : ""}
+${opts.commandPath ? `  • Commands: ${opts.commandPath}` : ""}
 ${opts.zshPath ? `  • Zsh: ${opts.zshPath}` : ""}
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
@@ -333,6 +373,7 @@ ${colors.yellow("═════════════════════
   if (opts.skillsPath) copySkills(opts.skillsPath);
   if (opts.agentsPath) copyAgents(opts.agentsPath);
   if (opts.pluginPath) copyPlugins(opts.pluginPath);
+  if (opts.commandPath) copyCommands(opts.commandPath);
   if (opts.zshPath) copyZsh(opts.zshPath);
 
   console.log(`

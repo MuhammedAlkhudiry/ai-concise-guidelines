@@ -1,21 +1,20 @@
 /**
  * Ralph Loop Plugin for OpenCode
  * 
- * Autonomous iterative task execution - keeps running until completion promise is found
- * or max iterations reached.
+ * Autonomous iterative task execution until completion.
  * 
  * Usage:
- *   - Place this file in ~/.config/opencode/plugin/ or .opencode/plugin/
- *   - Start a loop: Include "<user-task>Your task here</user-task>" in your prompt
- *   - Or use template: "You are starting a Ralph Loop <user-task>Build feature X</user-task>"
- *   - Complete: Agent outputs <promise>DONE</promise> when finished
- *   - Cancel: Include "Cancel the currently active Ralph Loop" in prompt
+ *   /ralph "Build a REST API" --max=10
+ *   /ralph-cancel
  * 
- * Options (in task text):
- *   --max-iterations=50       Maximum loop iterations (default: 50)
- *   --completion-promise=DONE  Custom completion marker (default: DONE)
+ * How it works:
+ *   1. /ralph command triggers the loop
+ *   2. Agent works on the task
+ *   3. When agent stops, plugin checks for <promise>DONE</promise>
+ *   4. If not found, injects continuation prompt
+ *   5. Repeats until done or max iterations
  * 
- * State file: .ralph/state.md (in project directory)
+ * State file: .ralph/state.md
  */
 
 import type { Plugin } from "@opencode-ai/plugin";
@@ -292,39 +291,30 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
     return success;
   }
 
-  // Parse task from prompt text
-  function parseTaskFromPrompt(promptText: string): {
+  // Parse command output from /ralph and /ralph-cancel
+  function parseCommandOutput(promptText: string): {
     isStart: boolean;
     isCancel: boolean;
     prompt?: string;
     maxIterations?: number;
-    completionPromise?: string;
   } {
-    const isRalphLoopTemplate =
-      promptText.includes("You are starting a Ralph Loop") ||
-      promptText.includes("<user-task>");
-    const isCancelTemplate = promptText.includes("Cancel the currently active Ralph Loop");
-
-    if (isCancelTemplate) {
+    // Detect /ralph-cancel command output
+    if (promptText.includes("Cancel the currently active Ralph Loop")) {
       return { isStart: false, isCancel: true };
     }
 
-    if (isRalphLoopTemplate) {
-      const taskMatch = promptText.match(/<user-task>\s*([\s\S]*?)\s*<\/user-task>/i);
-      const rawTask = taskMatch?.[1]?.trim() || "";
-
-      const quotedMatch = rawTask.match(/^["'](.+?)["']/);
-      const prompt = quotedMatch?.[1] || rawTask.split(/\s+--/)[0]?.trim() || "Complete the task";
-
+    // Detect /ralph command output (contains <user-task> tag)
+    const taskMatch = promptText.match(/<user-task>\s*([\s\S]*?)\s*<\/user-task>/i);
+    if (taskMatch) {
+      const rawTask = taskMatch[1].trim();
+      const prompt = rawTask.split(/\s+--/)[0]?.trim() || "Complete the task";
       const maxIterMatch = rawTask.match(/--max-iterations=(\d+)/i);
-      const promiseMatch = rawTask.match(/--completion-promise=["']?([^"'\s]+)["']?/i);
 
       return {
         isStart: true,
         isCancel: false,
         prompt,
         maxIterations: maxIterMatch ? parseInt(maxIterMatch[1], 10) : undefined,
-        completionPromise: promiseMatch?.[1],
       };
     }
 
@@ -332,7 +322,7 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
   }
 
   return {
-    // Handle incoming chat messages to detect loop start/cancel
+    // Detect /ralph and /ralph-cancel command outputs
     "chat.message": async (input, output) => {
       const parts = (output as { parts?: Array<{ type: string; text?: string }> }).parts;
       const promptText = parts
@@ -341,16 +331,15 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
         .join("\n")
         .trim() || "";
 
-      const parsed = parseTaskFromPrompt(promptText);
+      const parsed = parseCommandOutput(promptText);
 
       if (parsed.isStart && parsed.prompt) {
-        log("Starting loop from chat.message", { sessionID: input.sessionID, prompt: parsed.prompt });
+        log("Starting loop", { sessionID: input.sessionID, prompt: parsed.prompt });
         startLoop(input.sessionID, parsed.prompt, {
           maxIterations: parsed.maxIterations,
-          completionPromise: parsed.completionPromise,
         });
       } else if (parsed.isCancel) {
-        log("Cancelling loop from chat.message", { sessionID: input.sessionID });
+        log("Cancelling loop", { sessionID: input.sessionID });
         cancelLoop(input.sessionID);
       }
     },

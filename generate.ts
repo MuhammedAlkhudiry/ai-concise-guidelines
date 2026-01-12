@@ -22,6 +22,7 @@ const SCRIPT_DIR = import.meta.dir;
 const CONTENT_DIR = join(SCRIPT_DIR, "content");
 const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
 const CHECKLISTS_DIR = join(CONTENT_DIR, "checklists");
+const COMMANDS_DIR = join(CONTENT_DIR, "commands");
 const PLUGINS_DIR = join(SCRIPT_DIR, "plugins");
 const OUTPUT_DIR = join(SCRIPT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
@@ -184,6 +185,31 @@ async function copyPlugins(): Promise<number> {
   return count;
 }
 
+async function copyCommands(): Promise<number> {
+  console.log("  Copying commands...");
+
+  if (!existsSync(COMMANDS_DIR)) {
+    console.log("    No commands directory found, skipping");
+    return 0;
+  }
+
+  const commandsOutDir = join(OPENCODE_DIR, "command");
+  await ensureDir(commandsOutDir);
+
+  const files = await readdir(COMMANDS_DIR);
+  let count = 0;
+
+  for (const file of files) {
+    if (file.endsWith(".md")) {
+      await copyFile(join(COMMANDS_DIR, file), join(commandsOutDir, file));
+      count++;
+    }
+  }
+
+  console.log(`    Copied ${count} commands`);
+  return count;
+}
+
 // =============================================================================
 // Main
 // =============================================================================
@@ -205,11 +231,13 @@ async function main() {
   await ensureDir(join(OPENCODE_DIR, "agents"));
   await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
+  await ensureDir(join(OPENCODE_DIR, "command"));
 
   // Generate
   const agentCount = await generateAgents();
   const skillCount = await generateSkills();
   const pluginCount = await copyPlugins();
+  const commandCount = await copyCommands();
 
   console.log("\nGeneration complete!");
   console.log(`Output: ${OPENCODE_DIR}/\n`);
@@ -217,6 +245,7 @@ async function main() {
   console.log(`  Agents: ${agentCount}`);
   console.log(`  Skills: ${skillCount}`);
   console.log(`  Plugins: ${pluginCount}`);
+  console.log(`  Commands: ${commandCount}`);
 }
 
 main().catch((err) => {

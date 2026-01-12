@@ -111,6 +111,7 @@ alias refresh-opencode='_run_ai_init \
     --skills-path ~/.config/opencode/skill \
     --agents-path ~/.config/opencode/agent \
     --plugin-path ~/.config/opencode/plugin \
+    --command-path ~/.config/opencode/command \
     --zsh-path ~/.config/zsh-sync/custom.zsh \
     --rules-file-action overwrite'
 

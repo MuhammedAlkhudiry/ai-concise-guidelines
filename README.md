@@ -26,7 +26,8 @@ Run with bun:
 bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
             --skills-path ~/.config/opencode/skill \
             --agents-path ~/.config/opencode/agent \
-            --plugin-path ~/.config/opencode/plugin
+            --plugin-path ~/.config/opencode/plugin \
+            --command-path ~/.config/opencode/command
 ```
 
 ### Options
@@ -37,6 +38,7 @@ bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
 | `--skills-path PATH` | Install skills to PATH directory |
 | `--agents-path PATH` | Install agents to PATH directory |
 | `--plugin-path PATH` | Install plugins to PATH directory |
+| `--command-path PATH` | Install commands to PATH directory |
 | `--rules-file-action ACTION` | `overwrite`, `append`, or `skip` |
 | `--help` | Show help |
 
@@ -51,6 +53,7 @@ alias refresh-opencode='cd /tmp && \
                     --skills-path ~/.config/opencode/skill \
                     --agents-path ~/.config/opencode/agent \
                     --plugin-path ~/.config/opencode/plugin \
+                    --command-path ~/.config/opencode/command \
                     --rules-file-action overwrite && \
           rm init.ts && \
           cd -'
@@ -102,13 +105,21 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 |--------|-------------|
 | `ralph-loop` | Autonomous iterative task execution until completion |
 
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `/ralph` | Start an autonomous loop: `/ralph "Build a REST API" --max=10` |
+| `/ralph-cancel` | Cancel the active Ralph Loop |
+
 ## Repository Structure
 
 ```
 content/
 ├── base-rules.md           # Global rules
-├── instructions/           # Agent/skill instructions (18 files)
-└── checklists/             # Domain-specific checklists (9 files)
+├── instructions/           # Agent/skill instructions
+├── checklists/             # Domain-specific checklists
+└── commands/               # Slash commands (ralph.md, etc.)
 
 config/
 ├── models.ts               # Model definitions
@@ -122,7 +133,8 @@ output/
 └── opencode/               # Generated output
     ├── agents/
     ├── skills/
-    └── plugin/
+    ├── plugin/
+    └── command/
 ```
 
 ## License
