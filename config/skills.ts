@@ -92,4 +92,9 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.",
   },
+  "knowledge-extract": {
+    instruction: "knowledge-extract",
+    description:
+      "Extract learnings from sessions into permanent project knowledge. Use when user says 'extract knowledge', 'digest sessions', 'save learnings', or wants to close sessions and preserve insights. AI proposes, user approves.",
+  },
 } as const;

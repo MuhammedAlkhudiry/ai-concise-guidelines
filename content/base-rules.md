@@ -81,6 +81,38 @@ When session path is provided:
 
 ---
 
+## Knowledge
+
+Project knowledge lives in `docs/ai/knowledge/`. Use the `knowledge-extract` skill to extract learnings from sessions.
+
+**Structure:**
+```
+docs/ai/knowledge/
+├── knowledge.md          # Global project knowledge
+└── <domain>/
+    └── knowledge.md      # Domain-specific (created as needed)
+```
+
+Domains are project-specific — create folders based on your codebase (e.g., `auth/`, `billing/`, `api/`). Don't pre-create empty folders.
+
+**What IS knowledge** (add this):
+- WHY decisions were made
+- Constraints (legal, client, external)
+- History (we tried X, failed because Y)
+- Gotchas not obvious from code
+- External context
+
+**What is NOT knowledge** (don't add):
+- Config values, schema, API signatures
+- How code works (AI can read code)
+- Patterns already visible in codebase
+
+**Rule:** If AI can infer it from code, don't add to knowledge.
+
+**Bubble-up to AGENTS.md:** When a pattern is critical enough to affect ALL AI interactions (not just this project), suggest adding to AGENTS.md. User must approve.
+
+---
+
 ## After-Task Checklist
 
 Run type-check/lint/format/analysis/relevant-tests. Fix only task-related issues. Task IS NOT DONE until you do this.
