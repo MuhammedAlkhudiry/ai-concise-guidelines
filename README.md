@@ -79,7 +79,7 @@ Global rules applied to all modes—critical safety rules, coding standards, aft
 ### Sub-agents
 | Agent | Description |
 |-------|-------------|
-| `auditor-*` | Specialized auditors (code-quality, security, performance, database, ui, integration, test-coverage, refactoring, translation, tooling) |
+| `auditor-*` | Specialized auditors (code-quality, security, performance, database, ui, integration, test-coverage, refactoring, translation, tooling, cleanup) |
 
 ### Skills
 | Skill | Description |

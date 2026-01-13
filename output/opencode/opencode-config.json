@@ -1,0 +1,26 @@
+{
+  "model": "anthropic/claude-opus-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
+  "agent": {
+    "explore": {
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "general": {
+      "model": "anthropic/claude-opus-4-5"
+    }
+  },
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"]
+    },
+    "hugeicons": {
+      "type": "local",
+      "command": ["npx", "-y", "@hugeicons/mcp-server"]
+    },
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"]
+    }
+  }
+}

@@ -23,6 +23,8 @@ const print = {
 const REPO_URL = "https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git";
 const TMP_DIR = `tmp_guidelines_${process.pid}`;
 const HOME = process.env.HOME || "";
+const SCRIPT_DIR = import.meta.dir;
+const LOCAL_MODE = process.argv.includes("--local") || process.argv.includes("-l");
 
 // Hardcoded OpenCode paths
 const PATHS = {
@@ -35,9 +37,14 @@ const PATHS = {
   opencodeConfig: join(HOME, ".config/opencode/opencode.json"),
 };
 
+// Get source directory based on mode
+function getSourceDir(): string {
+  return LOCAL_MODE ? SCRIPT_DIR : TMP_DIR;
+}
+
 // Cleanup
 function cleanup() {
-  if (existsSync(TMP_DIR)) {
+  if (!LOCAL_MODE && existsSync(TMP_DIR)) {
     rmSync(TMP_DIR, { recursive: true, force: true });
   }
 }
@@ -56,7 +63,8 @@ ${colors.blue("╚════════════════════�
 Usage: bun init.ts [OPTIONS]
 
 Options:
-  --help, -h    Show this help message
+  --help, -h     Show this help message
+  --local, -l    Use local output directory instead of cloning from GitHub
 
 Installs to:
   • Rules:          ${PATHS.rules}
@@ -78,8 +86,20 @@ function ensureParentDir(path: string): void {
   }
 }
 
-// Clone repository with sparse checkout
+// Clone repository with sparse checkout (skipped in local mode)
 function cloneRepository(): void {
+  if (LOCAL_MODE) {
+    print.info("Using local output directory...");
+    // Verify local output exists
+    const outputDir = join(SCRIPT_DIR, "output", "opencode");
+    if (!existsSync(outputDir)) {
+      print.error("Local output not found. Run 'bun generate.ts' first.");
+      process.exit(1);
+    }
+    print.success("Local output directory found");
+    return;
+  }
+
   print.info("Cloning repository...");
 
   const folders = [
@@ -88,8 +108,8 @@ function cloneRepository(): void {
     "output/opencode/agents",
     "output/opencode/plugin",
     "output/opencode/command",
+    "output/opencode/opencode-config.json",
     "shell/zsh-custom.zsh",
-    "custom-opencode.json",
   ];
 
   try {
@@ -106,7 +126,7 @@ function cloneRepository(): void {
 function copyRules(): void {
   print.info(`Copying rules to ${PATHS.rules}...`);
 
-  const sourceFile = join(TMP_DIR, "content", "base-rules.md");
+  const sourceFile = join(getSourceDir(), "content", "base-rules.md");
   if (!existsSync(sourceFile)) {
     print.error("Base rules file not found");
     return;
@@ -143,7 +163,7 @@ function copyDirClean(src: string, dest: string): void {
 function copySkills(): void {
   print.info(`Copying skills to ${PATHS.skills}...`);
 
-  const sourceDir = join(TMP_DIR, "output", "opencode", "skills");
+  const sourceDir = join(getSourceDir(), "output", "opencode", "skills");
   if (!existsSync(sourceDir)) {
     print.error("Skills folder not found");
     return;
@@ -161,7 +181,7 @@ function copySkills(): void {
 function copyAgents(): void {
   print.info(`Copying agents to ${PATHS.agents}...`);
 
-  const sourceDir = join(TMP_DIR, "output", "opencode", "agents");
+  const sourceDir = join(getSourceDir(), "output", "opencode", "agents");
   if (!existsSync(sourceDir)) {
     print.error("Agents folder not found");
     return;
@@ -177,7 +197,7 @@ function copyAgents(): void {
 function copyPlugins(): void {
   print.info(`Copying plugins to ${PATHS.plugins}...`);
 
-  const sourceDir = join(TMP_DIR, "output", "opencode", "plugin");
+  const sourceDir = join(getSourceDir(), "output", "opencode", "plugin");
   if (!existsSync(sourceDir)) {
     print.error("Plugin folder not found");
     return;
@@ -206,7 +226,7 @@ function copyPlugins(): void {
 function copyCommands(): void {
   print.info(`Copying commands to ${PATHS.commands}...`);
 
-  const sourceDir = join(TMP_DIR, "output", "opencode", "command");
+  const sourceDir = join(getSourceDir(), "output", "opencode", "command");
   if (!existsSync(sourceDir)) {
     print.error("Command folder not found");
     return;
@@ -235,7 +255,7 @@ function copyCommands(): void {
 function copyZsh(): void {
   print.info(`Copying zsh config to ${PATHS.zsh}...`);
 
-  const sourceFile = join(TMP_DIR, "shell", "zsh-custom.zsh");
+  const sourceFile = join(getSourceDir(), "shell", "zsh-custom.zsh");
   if (!existsSync(sourceFile)) {
     print.error("zsh-custom.zsh not found");
     return;
@@ -246,13 +266,13 @@ function copyZsh(): void {
   print.success(`Zsh config copied`);
 }
 
-// Merge opencode config settings from custom-opencode.json
+// Merge opencode config settings from generated opencode-config.json
 function mergeOpencodeConfig(): void {
   print.info(`Merging opencode config into ${PATHS.opencodeConfig}...`);
 
-  const sourceFile = join(TMP_DIR, "custom-opencode.json");
+  const sourceFile = join(getSourceDir(), "output", "opencode", "opencode-config.json");
   if (!existsSync(sourceFile)) {
-    print.error("custom-opencode.json not found");
+    print.error("opencode-config.json not found (run 'bun generate.ts' first)");
     return;
   }
 
@@ -261,7 +281,7 @@ function mergeOpencodeConfig(): void {
   try {
     settings = JSON.parse(readFileSync(sourceFile, "utf-8"));
   } catch (e) {
-    print.error("Failed to parse custom-opencode.json");
+    print.error("Failed to parse opencode-config.json");
     return;
   }
 
@@ -304,13 +324,14 @@ function main() {
   }
 
   // Show summary
+  const modeLabel = LOCAL_MODE ? colors.yellow("(local)") : colors.green("(remote)");
   console.log(`
 ${colors.blue("╔═══════════════════════════════════════════════════════════╗")}
 ${colors.blue("║   AI Concise Guidelines - OpenCode Installer              ║")}
 ${colors.blue("╚═══════════════════════════════════════════════════════════╝")}
 
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
-${colors.blue("Installing to:")}
+${colors.blue(`Installing from: ${modeLabel}`)}
   • Rules:           ${PATHS.rules}
   • Skills:          ${PATHS.skills} (clean sync)
   • Agents:          ${PATHS.agents} (clean sync)

@@ -26,6 +26,7 @@ const COMMANDS_DIR = join(CONTENT_DIR, "commands");
 const PLUGINS_DIR = join(SCRIPT_DIR, "plugins");
 const OUTPUT_DIR = join(SCRIPT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
+const CUSTOM_CONFIG = join(SCRIPT_DIR, "custom-opencode.json");
 
 
 // =============================================================================
@@ -210,6 +211,25 @@ async function copyCommands(): Promise<number> {
   return count;
 }
 
+async function generateOpencodeConfig(): Promise<void> {
+  console.log("  Generating opencode config...");
+
+  if (!existsSync(CUSTOM_CONFIG)) {
+    console.log("    No custom-opencode.json found, skipping");
+    return;
+  }
+
+  const content = await readFile(CUSTOM_CONFIG, "utf-8");
+
+  // Replace model placeholders with actual model names
+  const processed = content
+    .replace(/<smart-model>/g, MODELS.smart)
+    .replace(/<fast-model>/g, MODELS.fast);
+
+  await writeFile(join(OPENCODE_DIR, "opencode-config.json"), processed);
+  console.log("    Generated opencode-config.json");
+}
+
 // =============================================================================
 // Main
 // =============================================================================
@@ -238,6 +258,7 @@ async function main() {
   const skillCount = await generateSkills();
   const pluginCount = await copyPlugins();
   const commandCount = await copyCommands();
+  await generateOpencodeConfig();
 
   console.log("\nGeneration complete!");
   console.log(`Output: ${OPENCODE_DIR}/\n`);
@@ -246,6 +267,7 @@ async function main() {
   console.log(`  Skills: ${skillCount}`);
   console.log(`  Plugins: ${pluginCount}`);
   console.log(`  Commands: ${commandCount}`);
+  console.log(`  Config: opencode-config.json`);
 }
 
 main().catch((err) => {
