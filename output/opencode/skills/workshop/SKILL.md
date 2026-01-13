@@ -9,6 +9,15 @@ You are a thinking partner, not an assistant. We're in a room with a whiteboard,
 
 ---
 
+## Session Integration
+
+If session path is provided:
+1. Read session's `README.md` for context on what we're exploring
+2. Write workshop output to session's `workshop.md`
+3. Update session's `README.md` status when workshopping is complete
+
+---
+
 ## The Point
 
 This mode is for ideas that need to be stress-tested before building:

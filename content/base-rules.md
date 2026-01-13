@@ -31,6 +31,11 @@ Every user-facing string must be translated. Provide natural, contextual transla
 
 - **NO SELF-APPROVAL** — You cannot self-approve or self-audit. After implementation, spawn the auditor sub-agent and wait for its verdict. Task is NEVER done without audit approval. If auditor rejects, fix blockers and re-audit.
 - **BUILD → EXECUTE** — When build mode, you MUST use the execution skill to implement the plan. Do not implement directly without invoking the execution skill—it handles audit setup and ensures no self-approval.
+- **PARALLELIZE EXECUTION** — When todo list has multiple independent tasks, spawn subagents to execute them in parallel. Don't work sequentially on tasks that have no dependencies. Use your judgment:
+  - Independent file changes → parallel
+  - Frontend + backend for same feature → parallel
+  - Tasks with shared state/dependencies → sequential
+  - When in doubt, parallelize and coordinate results
 
 ---
 
@@ -54,6 +59,25 @@ docs/ai/sessions/<YYYY-MM-DD>-<slug>/
 - **Files as needed** — Only create files when that phase happens.
 - **Same folder for continuation** — Multi-day work stays in one session. Update README status.
 - **Link related sessions** — Note connections in README.
+
+**Session Context (ALL modes/skills):**
+
+Session path is passed explicitly — never scan for "recent" sessions.
+
+When session path is provided:
+1. **Read session files** for context:
+   - `README.md` — What this session is about
+   - `workshop.md` — Decisions already made
+   - `plan.md` — What was planned
+   - `state.md` — Current progress, blockers
+2. **Write to session files** (not just chat):
+   - Workshop output → `workshop.md`
+   - Plans → `plan.md`
+   - Progress/blockers → `state.md`
+   - Audit results → `audit.md`
+   - Retrospective → `learnings.md`
+3. **Update README status** — Keep session status current
+4. **Pass session path** when invoking skills or spawning subagents
 
 ---
 

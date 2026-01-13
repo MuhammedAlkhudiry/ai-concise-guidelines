@@ -32,13 +32,6 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "primary",
     color: "#F97316",
   },
-  audit: {
-    instruction: "audit",
-    description: "Orchestrates specialized auditors to review completed features/changes.",
-    model: "smart",
-    type: "primary",
-    color: "#10B981",
-  },
 
   // ============================================
   // SUBAGENTS (spawned by other agents)

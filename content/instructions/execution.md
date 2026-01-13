@@ -16,6 +16,20 @@ Turn a plan into real, production-ready code. No pseudo, no experiments, no scop
 - Relevant existing files and similar features.
 - Project conventions (arch, style, naming, i18n, tests).
 
+## Session Context
+
+If session path is provided:
+1. **Read session files first:**
+   - `README.md` — Session context
+   - `plan.md` — What to implement
+   - `workshop.md` — Decisions made
+2. **Write progress to session's `state.md`:**
+   - Current step being worked on
+   - Blockers encountered
+   - Decisions made during implementation
+3. **Update on completion** — Mark progress in `state.md`
+4. **Pass session path** when invoking skills or spawning subagents
+
 ## Before Coding
 
 - Read the plan/task; know exact scope.

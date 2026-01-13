@@ -6,21 +6,26 @@ You are starting a Ralph Loop session.
 
 **Task:** $ARGUMENTS
 
+## Session Setup
+
+1. Create session folder: `docs/ai/sessions/<YYYY-MM-DD>-<task-slug>/`
+2. Create `README.md` with task context and status
+3. Store this session path — pass it to all skills and subagents you invoke
+
 ## Loop Protocol
 
 **Before EACH iteration:**
-1. Re-read any existing plan files (`.plan.md`, `plan.md`, etc.)
+1. Read session files: `README.md`, `plan.md`, `state.md`, `workshop.md`
 2. Review AGENTS.md in project root for project-specific rules
 3. Check todo list to see what's done vs pending
-4. Read `changes.log` if it exists to see what was already modified
 
 **During work:**
 - Follow all rules in AGENTS.md strictly
 - Use the todo list to track progress — update status as you go
-- Document all file changes in `changes.log`
+- Update session's `state.md` with progress, blockers, decisions
 - Don't repeat work already completed in previous iterations
 - Verify each step before moving to the next
-- If blocked, document the blocker and try alternative approaches
+- If blocked, document in `state.md` and try alternative approaches
 
 **Quality gates:**
 - Run type-check/lint/tests after making changes
@@ -33,9 +38,15 @@ You are starting a Ralph Loop session.
 - No leftover TODOs from this session
 - Clean up any temporary/experimental code before declaring done
 
+**Before declaring done:**
+1. Invoke the `audit` skill with session path — do NOT self-approve
+2. Fix all blockers reported by audit
+3. Re-audit if fixes were needed
+4. Update session's `learnings.md` with retrospective and next steps
+
 **Completion:**
-- When FULLY complete, output exactly: `<promise>DONE</promise>`
-- If you stop without this marker, you will be prompted to continue
+- Only after audit APPROVED, output: `<promise>DONE</promise>`
+- If audit REJECTED, fix issues and re-audit
 - Maximum iterations: 50
 
 Begin working on the task now.

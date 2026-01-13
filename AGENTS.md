@@ -114,15 +114,6 @@ content/instructions/plan.md     → output/opencode/agents/plan.md (primary age
 content/instructions/auditor.md  → output/opencode/agents/auditor.md (sub-agent)
 ```
 
-### Content Types
-
-| Type | Count | Description |
-|------|-------|-------------|
-| Primary Agents | 2 | Modes user can switch to (audit, workshop) |
-| Sub-agents | 11 | Specialized auditors (auditor-*) |
-| Skills | 14 | Invokable capabilities |
-| Plugins | 1 | OpenCode plugins (ralph-loop for autonomous loops) |
-
 ### Audit Flow
 
 ```

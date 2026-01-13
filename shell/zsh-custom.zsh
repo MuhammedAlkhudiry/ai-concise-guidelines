@@ -98,23 +98,6 @@ dev() {
 
 # --- AI Tools Refresh ---
 # Helper function to run init.ts from remote
-_run_ai_init() {
-    cd /tmp && \
-    curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.ts && \
-    bun init.ts "$@" && \
-    rm init.ts && \
-    cd -
-}
-
-alias refresh-opencode='_run_ai_init \
-    --rules-path ~/.config/opencode/AGENTS.md \
-    --skills-path ~/.config/opencode/skill \
-    --agents-path ~/.config/opencode/agent \
-    --plugin-path ~/.config/opencode/plugin \
-    --command-path ~/.config/opencode/command \
-    --zsh-path ~/.config/zsh-sync/custom.zsh \
-    --rules-file-action overwrite'
-
 # --- Tool Initialization ---
 [ -x /opt/homebrew/bin/brew ] && eval $(/opt/homebrew/bin/brew shellenv)
 command -v fzf >/dev/null && eval "$(fzf --zsh)"

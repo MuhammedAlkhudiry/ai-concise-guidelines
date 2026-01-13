@@ -87,4 +87,9 @@ export const SKILLS: Record<string, SkillConfig> = {
       "Review translations for quality, naturalness, and cultural fit. Use when user wants to review translations, check i18n files, or says 'review translations', 'check localization', or mentions translation quality issues.",
     checklist: "translation",
   },
+  audit: {
+    instruction: "audit",
+    description:
+      "Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.",
+  },
 } as const;

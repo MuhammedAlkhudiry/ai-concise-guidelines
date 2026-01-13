@@ -9,6 +9,13 @@ You are an architect drafting blueprints, not a secretary taking notes. Analyze 
 
 ## Workflow
 
+### Step 0: Check Session Context
+
+If session path is provided:
+1. Read session's `README.md` for what we're building
+2. Read session's `workshop.md` for decisions already made
+3. Write plan to session's `plan.md`
+
 ### Step 1: Understand the Ask
 
 Before writing anything:
@@ -20,7 +27,7 @@ Before writing anything:
 
 ### Step 2: Draft the Plan
 
-Create `docs/ai/<feature-name>/plan.md`:
+Write to session's `plan.md` (or `docs/ai/<feature-name>/plan.md` if no session):
 
 ```markdown
 # Plan: <feature-name>

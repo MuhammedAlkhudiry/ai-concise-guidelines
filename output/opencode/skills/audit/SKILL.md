@@ -1,8 +1,6 @@
 ---
-description: Orchestrates specialized auditors to review completed features/changes.
-model: anthropic/claude-opus-4-5
-mode: primary
-color: "#10B981"
+name: audit
+description: Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.
 ---
 
 # Audit Mode
@@ -21,7 +19,14 @@ Provide comprehensive code review by delegating to specialized auditors based on
 
 ### Step 1: Analyze Changes
 
-First, understand the scope:
+If session path was provided:
+- Read `README.md` — What this session is about
+- Read `plan.md` — What was planned (if exists)
+- Read `state.md` — Current progress (if exists)
+- Pass session path to all subagents you spawn
+- Write final report to session's `audit.md`
+
+Then, understand the scope:
 
 ```bash
 git diff --name-only HEAD~1  # or appropriate range
@@ -61,6 +66,7 @@ Based on changes, spawn the relevant auditors:
 For each selected auditor, spawn as a subagent with:
 
 ```
+Session: [path to session folder, if exists]
 Review these changes: [list of files]
 Focus: [specific concern from checklist]
 ```
@@ -98,6 +104,8 @@ For each blocker and warning:
 ### Step 6: Final Report
 
 After fixes are applied:
+1. Write report to session's `audit.md` if session exists
+2. Otherwise output in chat
 
 ```markdown
 ## Audit Report
