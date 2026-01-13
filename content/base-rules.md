@@ -30,8 +30,30 @@ Every user-facing string must be translated. Provide natural, contextual transla
 ## OpenCode Specific
 
 - **NO SELF-APPROVAL** — You cannot self-approve or self-audit. After implementation, spawn the auditor sub-agent and wait for its verdict. Task is NEVER done without audit approval. If auditor rejects, fix blockers and re-audit.
-- **DOCUMENT CHANGES** — During implementation, document all file changes in `changes.log` for auditor review. Format: `{time} | {edit|write} | {file} | {description}`
-- **PLAN MODE → EXECUTE** — When using plan mode, you MUST use the execution skill to implement the plan. Do not implement directly without invoking the execution skill—it handles audit setup and ensures no self-approval.
+- **BUILD → EXECUTE** — When build mode, you MUST use the execution skill to implement the plan. Do not implement directly without invoking the execution skill—it handles audit setup and ensures no self-approval.
+
+---
+
+## Sessions
+
+When work is substantial enough to warrant documentation, create a session folder. User decides, or agent proposes.
+
+**Structure:**
+```
+docs/ai/sessions/<YYYY-MM-DD>-<slug>/
+├── README.md       # Context, status, related sessions
+├── workshop.md     # Exploration, decisions (if workshopped)
+├── plan.md         # Implementation plan (if planned)
+├── state.md        # Execution progress, blockers
+├── audit.md        # Audit results (if audited)
+└── learnings.md    # Retrospective, next steps, future work
+```
+
+**Rules:**
+- **README.md first** — Always create this. It's the entry point.
+- **Files as needed** — Only create files when that phase happens.
+- **Same folder for continuation** — Multi-day work stays in one session. Update README status.
+- **Link related sessions** — Note connections in README.
 
 ---
 

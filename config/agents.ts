@@ -77,6 +77,13 @@ export const AGENTS: Record<string, AgentConfig> = {
     type: "sub",
     checklist: "refactoring",
   },
+  "auditor-cleanup": {
+    instruction: "auditor",
+    description: "Audits for dead code, debug artifacts, unused imports, leftover TODOs",
+    model: "smart",
+    type: "sub",
+    checklist: "cleanup",
+  },
 
   // Conditional auditors (based on change type)
   "auditor-ui": {

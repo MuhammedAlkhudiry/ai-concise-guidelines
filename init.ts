@@ -22,6 +22,18 @@ const print = {
 // Constants
 const REPO_URL = "https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git";
 const TMP_DIR = `tmp_guidelines_${process.pid}`;
+const HOME = process.env.HOME || "";
+
+// Hardcoded OpenCode paths
+const PATHS = {
+  rules: join(HOME, ".config/opencode/AGENTS.md"),
+  skills: join(HOME, ".config/opencode/skill"),
+  agents: join(HOME, ".config/opencode/agent"),
+  plugins: join(HOME, ".config/opencode/plugin"),
+  commands: join(HOME, ".config/opencode/command"),
+  zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
+  opencodeConfig: join(HOME, ".config/opencode/opencode.json"),
+};
 
 // Cleanup
 function cleanup() {
@@ -34,19 +46,6 @@ process.on("exit", cleanup);
 process.on("SIGINT", () => { cleanup(); process.exit(1); });
 process.on("SIGTERM", () => { cleanup(); process.exit(1); });
 
-// Types
-type RulesAction = "overwrite" | "append" | "skip";
-
-interface Options {
-  rulesPath?: string;
-  rulesAction?: RulesAction;
-  skillsPath?: string;
-  agentsPath?: string;
-  pluginPath?: string;
-  commandPath?: string;
-  zshPath?: string;
-}
-
 // Show usage
 function showUsage(): never {
   console.log(`
@@ -57,35 +56,18 @@ ${colors.blue("╚════════════════════�
 Usage: bun init.ts [OPTIONS]
 
 Options:
-  --rules-path PATH         Copy base rules to PATH file
-  --skills-path PATH        Copy skills to PATH directory (deletes existing first)
-  --agents-path PATH        Copy agents to PATH directory (deletes existing first)
-  --plugin-path PATH        Copy plugins to PATH directory
-  --command-path PATH       Copy commands to PATH directory
-  --zsh-path PATH           Copy zsh-custom.zsh to PATH file (always overwrites)
+  --help, -h    Show this help message
 
-  --rules-file-action ACTION
-      Action when rules file exists: overwrite, append, or skip (default: skip)
-
-  --help, -h                Show this help message
-
-Example:
-  bun init.ts --rules-path ~/.config/opencode/AGENTS.md \\
-     --skills-path ~/.config/opencode/skill \\
-     --agents-path ~/.config/opencode/agent \\
-     --plugin-path ~/.config/opencode/plugin \\
-     --command-path ~/.config/opencode/command \\
-     --zsh-path ~/.config/zsh-sync/custom.zsh
+Installs to:
+  • Rules:          ${PATHS.rules}
+  • Skills:         ${PATHS.skills}
+  • Agents:         ${PATHS.agents}
+  • Plugins:        ${PATHS.plugins}
+  • Commands:       ${PATHS.commands}
+  • Zsh:            ${PATHS.zsh}
+  • OpenCode Config: ${PATHS.opencodeConfig}
 `);
   process.exit(0);
-}
-
-// Expand ~ to home directory
-function expandPath(path: string): string {
-  if (path.startsWith("~")) {
-    return path.replace("~", process.env.HOME || "");
-  }
-  return path;
 }
 
 // Ensure parent directory exists
@@ -97,8 +79,18 @@ function ensureParentDir(path: string): void {
 }
 
 // Clone repository with sparse checkout
-function cloneRepository(folders: string[]): void {
+function cloneRepository(): void {
   print.info("Cloning repository...");
+
+  const folders = [
+    "content/base-rules.md",
+    "output/opencode/skills",
+    "output/opencode/agents",
+    "output/opencode/plugin",
+    "output/opencode/command",
+    "shell/zsh-custom.zsh",
+    "custom-opencode.json",
+  ];
 
   try {
     execSync(`git clone --depth=1 --filter=blob:none --sparse "${REPO_URL}" "${TMP_DIR}"`, { stdio: "pipe" });
@@ -110,9 +102,9 @@ function cloneRepository(folders: string[]): void {
   }
 }
 
-// Copy rules (base-rules.md)
-function copyRules(dest: string, action: RulesAction = "skip"): void {
-  print.info(`Copying rules to ${dest}...`);
+// Copy rules (base-rules.md) - always overwrite
+function copyRules(): void {
+  print.info(`Copying rules to ${PATHS.rules}...`);
 
   const sourceFile = join(TMP_DIR, "content", "base-rules.md");
   if (!existsSync(sourceFile)) {
@@ -120,35 +112,16 @@ function copyRules(dest: string, action: RulesAction = "skip"): void {
     return;
   }
 
-  ensureParentDir(dest);
-
-  if (existsSync(dest)) {
-    print.warning(`File ${dest} already exists.`);
-    if (action === "skip") {
-      print.info("Skipping rules copy");
-      return;
-    }
-    if (action === "append") {
-      const existing = readFileSync(dest, "utf-8");
-      const newContent = readFileSync(sourceFile, "utf-8");
-      writeFileSync(dest, existing + `\n\n# --- Appended ${new Date().toISOString()} ---\n\n` + newContent);
-      print.success(`Rules appended to ${dest}`);
-      return;
-    }
-    // overwrite - fall through
-  }
-
-  copyFileSync(sourceFile, dest);
-  print.success(`Rules copied to ${dest}`);
+  ensureParentDir(PATHS.rules);
+  copyFileSync(sourceFile, PATHS.rules);
+  print.success(`Rules copied to ${PATHS.rules}`);
 }
 
 // Copy directory (delete first for clean sync)
 function copyDirClean(src: string, dest: string): void {
   if (!existsSync(src)) return;
   
-  // Delete existing directory first (clean sync)
   if (existsSync(dest)) {
-    print.info(`Removing existing ${dest} for clean sync...`);
     rmSync(dest, { recursive: true, force: true });
   }
   
@@ -167,8 +140,8 @@ function copyDirClean(src: string, dest: string): void {
 }
 
 // Copy skills
-function copySkills(dest: string): void {
-  print.info(`Copying skills to ${dest}...`);
+function copySkills(): void {
+  print.info(`Copying skills to ${PATHS.skills}...`);
 
   const sourceDir = join(TMP_DIR, "output", "opencode", "skills");
   if (!existsSync(sourceDir)) {
@@ -176,17 +149,17 @@ function copySkills(dest: string): void {
     return;
   }
 
-  copyDirClean(sourceDir, dest);
+  copyDirClean(sourceDir, PATHS.skills);
 
-  const count = readdirSync(dest).filter(f => 
-    statSync(join(dest, f)).isDirectory()
+  const count = readdirSync(PATHS.skills).filter(f => 
+    statSync(join(PATHS.skills, f)).isDirectory()
   ).length;
-  print.success(`Copied ${count} skill directories to ${dest}`);
+  print.success(`Copied ${count} skill directories`);
 }
 
 // Copy agents
-function copyAgents(dest: string): void {
-  print.info(`Copying agents to ${dest}...`);
+function copyAgents(): void {
+  print.info(`Copying agents to ${PATHS.agents}...`);
 
   const sourceDir = join(TMP_DIR, "output", "opencode", "agents");
   if (!existsSync(sourceDir)) {
@@ -194,15 +167,15 @@ function copyAgents(dest: string): void {
     return;
   }
 
-  copyDirClean(sourceDir, dest);
+  copyDirClean(sourceDir, PATHS.agents);
 
-  const count = readdirSync(dest).filter(f => f.endsWith(".md")).length;
-  print.success(`Copied ${count} agent files to ${dest}`);
+  const count = readdirSync(PATHS.agents).filter(f => f.endsWith(".md")).length;
+  print.success(`Copied ${count} agent files`);
 }
 
-// Copy plugins (individual .ts/.js files)
-function copyPlugins(dest: string): void {
-  print.info(`Copying plugins to ${dest}...`);
+// Copy plugins (merge, don't delete existing)
+function copyPlugins(): void {
+  print.info(`Copying plugins to ${PATHS.plugins}...`);
 
   const sourceDir = join(TMP_DIR, "output", "opencode", "plugin");
   if (!existsSync(sourceDir)) {
@@ -210,17 +183,15 @@ function copyPlugins(dest: string): void {
     return;
   }
 
-  // Ensure destination exists
-  if (!existsSync(dest)) {
-    mkdirSync(dest, { recursive: true });
+  if (!existsSync(PATHS.plugins)) {
+    mkdirSync(PATHS.plugins, { recursive: true });
   }
 
-  // Copy individual plugin files (don't delete existing - merge)
   const entries = readdirSync(sourceDir);
   let count = 0;
   for (const entry of entries) {
     const srcPath = join(sourceDir, entry);
-    const destPath = join(dest, entry);
+    const destPath = join(PATHS.plugins, entry);
     
     if (statSync(srcPath).isFile() && (entry.endsWith(".ts") || entry.endsWith(".js"))) {
       copyFileSync(srcPath, destPath);
@@ -228,12 +199,12 @@ function copyPlugins(dest: string): void {
     }
   }
   
-  print.success(`Copied ${count} plugin file(s) to ${dest}`);
+  print.success(`Copied ${count} plugin file(s)`);
 }
 
-// Copy commands (individual .md files)
-function copyCommands(dest: string): void {
-  print.info(`Copying commands to ${dest}...`);
+// Copy commands (merge, don't delete existing)
+function copyCommands(): void {
+  print.info(`Copying commands to ${PATHS.commands}...`);
 
   const sourceDir = join(TMP_DIR, "output", "opencode", "command");
   if (!existsSync(sourceDir)) {
@@ -241,17 +212,15 @@ function copyCommands(dest: string): void {
     return;
   }
 
-  // Ensure destination exists
-  if (!existsSync(dest)) {
-    mkdirSync(dest, { recursive: true });
+  if (!existsSync(PATHS.commands)) {
+    mkdirSync(PATHS.commands, { recursive: true });
   }
 
-  // Copy individual command files
   const entries = readdirSync(sourceDir);
   let count = 0;
   for (const entry of entries) {
     const srcPath = join(sourceDir, entry);
-    const destPath = join(dest, entry);
+    const destPath = join(PATHS.commands, entry);
     
     if (statSync(srcPath).isFile() && entry.endsWith(".md")) {
       copyFileSync(srcPath, destPath);
@@ -259,12 +228,12 @@ function copyCommands(dest: string): void {
     }
   }
   
-  print.success(`Copied ${count} command file(s) to ${dest}`);
+  print.success(`Copied ${count} command file(s)`);
 }
 
 // Copy zsh config
-function copyZsh(dest: string): void {
-  print.info(`Copying zsh config to ${dest}...`);
+function copyZsh(): void {
+  print.info(`Copying zsh config to ${PATHS.zsh}...`);
 
   const sourceFile = join(TMP_DIR, "shell", "zsh-custom.zsh");
   if (!existsSync(sourceFile)) {
@@ -272,82 +241,67 @@ function copyZsh(dest: string): void {
     return;
   }
 
-  ensureParentDir(dest);
-  copyFileSync(sourceFile, dest);
-  print.success(`Zsh config copied to ${dest}`);
+  ensureParentDir(PATHS.zsh);
+  copyFileSync(sourceFile, PATHS.zsh);
+  print.success(`Zsh config copied`);
 }
 
-// Parse arguments
-function parseArgs(): Options {
-  const args = process.argv.slice(2);
-  const opts: Options = {};
+// Merge opencode config settings from custom-opencode.json
+function mergeOpencodeConfig(): void {
+  print.info(`Merging opencode config into ${PATHS.opencodeConfig}...`);
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    const next = args[i + 1];
+  const sourceFile = join(TMP_DIR, "custom-opencode.json");
+  if (!existsSync(sourceFile)) {
+    print.error("custom-opencode.json not found");
+    return;
+  }
 
-    switch (arg) {
-      case "--rules-path":
-        opts.rulesPath = expandPath(next);
-        i++;
-        break;
-      case "--rules-file-action":
-        opts.rulesAction = next as RulesAction;
-        i++;
-        break;
-      case "--skills-path":
-        opts.skillsPath = expandPath(next);
-        i++;
-        break;
-      case "--agents-path":
-        opts.agentsPath = expandPath(next);
-        i++;
-        break;
-      case "--plugin-path":
-        opts.pluginPath = expandPath(next);
-        i++;
-        break;
-      case "--command-path":
-        opts.commandPath = expandPath(next);
-        i++;
-        break;
-      case "--zsh-path":
-        opts.zshPath = expandPath(next);
-        i++;
-        break;
+  // Read settings to merge
+  let settings: Record<string, unknown>;
+  try {
+    settings = JSON.parse(readFileSync(sourceFile, "utf-8"));
+  } catch (e) {
+    print.error("Failed to parse custom-opencode.json");
+    return;
+  }
 
-      case "--help":
-      case "-h":
-        showUsage();
-        break;
-      default:
-        print.error(`Unknown option: ${arg}`);
-        showUsage();
+  ensureParentDir(PATHS.opencodeConfig);
+
+  // Read existing config or start with empty object
+  let existingConfig: Record<string, unknown> = {};
+  if (existsSync(PATHS.opencodeConfig)) {
+    try {
+      existingConfig = JSON.parse(readFileSync(PATHS.opencodeConfig, "utf-8"));
+    } catch (e) {
+      print.warning("Failed to parse existing config, creating new file");
     }
   }
 
-  return opts;
+  // Merge settings (shallow merge for top-level, deep merge for nested)
+  const merged = {
+    ...existingConfig,
+    model: settings.model,
+    small_model: settings.small_model,
+    agent: {
+      ...(existingConfig.agent as Record<string, unknown> || {}),
+      ...(settings.agent as Record<string, unknown> || {})
+    },
+    mcp: {
+      ...(existingConfig.mcp as Record<string, unknown> || {}),
+      ...(settings.mcp as Record<string, unknown> || {})
+    }
+  };
+
+  writeFileSync(PATHS.opencodeConfig, JSON.stringify(merged, null, 2) + "\n");
+  print.success(`OpenCode config merged`);
 }
 
 // Main
 function main() {
-  const opts = parseArgs();
-
-  // Validate at least one destination specified
-  if (!opts.rulesPath && !opts.skillsPath && !opts.agentsPath && !opts.pluginPath && !opts.commandPath && !opts.zshPath) {
-    print.error("No destination specified. At least one path is required.");
+  // Check for help flag
+  if (process.argv.includes("--help") || process.argv.includes("-h")) {
     showUsage();
   }
-
-  // Determine folders to clone
-  const folders: string[] = [];
-
-  if (opts.rulesPath) folders.push("content/base-rules.md");
-  if (opts.skillsPath) folders.push("output/opencode/skills");
-  if (opts.agentsPath) folders.push("output/opencode/agents");
-  if (opts.pluginPath) folders.push("output/opencode/plugin");
-  if (opts.commandPath) folders.push("output/opencode/command");
-  if (opts.zshPath) folders.push("shell/zsh-custom.zsh");
 
   // Show summary
   console.log(`
@@ -356,25 +310,26 @@ ${colors.blue("║   AI Concise Guidelines - OpenCode Installer              ║
 ${colors.blue("╚═══════════════════════════════════════════════════════════╝")}
 
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
-${colors.blue("Installation Summary:")}
-${opts.rulesPath ? `  • Rules: ${opts.rulesPath}` : ""}
-${opts.skillsPath ? `  • Skills: ${opts.skillsPath} (clean sync)` : ""}
-${opts.agentsPath ? `  • Agents: ${opts.agentsPath} (clean sync)` : ""}
-${opts.pluginPath ? `  • Plugins: ${opts.pluginPath}` : ""}
-${opts.commandPath ? `  • Commands: ${opts.commandPath}` : ""}
-${opts.zshPath ? `  • Zsh: ${opts.zshPath}` : ""}
+${colors.blue("Installing to:")}
+  • Rules:           ${PATHS.rules}
+  • Skills:          ${PATHS.skills} (clean sync)
+  • Agents:          ${PATHS.agents} (clean sync)
+  • Plugins:         ${PATHS.plugins} (merge)
+  • Commands:        ${PATHS.commands} (merge)
+  • Zsh:             ${PATHS.zsh}
+  • OpenCode Config: ${PATHS.opencodeConfig} (merge)
 ${colors.yellow("═══════════════════════════════════════════════════════════")}
 `);
 
   // Execute installation
-  cloneRepository(folders);
-
-  if (opts.rulesPath) copyRules(opts.rulesPath, opts.rulesAction);
-  if (opts.skillsPath) copySkills(opts.skillsPath);
-  if (opts.agentsPath) copyAgents(opts.agentsPath);
-  if (opts.pluginPath) copyPlugins(opts.pluginPath);
-  if (opts.commandPath) copyCommands(opts.commandPath);
-  if (opts.zshPath) copyZsh(opts.zshPath);
+  cloneRepository();
+  copyRules();
+  copySkills();
+  copyAgents();
+  copyPlugins();
+  copyCommands();
+  copyZsh();
+  mergeOpencodeConfig();
 
   console.log(`
 ${colors.green("╔═══════════════════════════════════════════════════════════╗")}

@@ -47,16 +47,8 @@ Always cleans output directory before generating.
 ### Installer Script
 
 ```bash
-# Show help
-bun init.ts --help
-
-# Install to OpenCode (adds to oh-my-opencode)
-bun init.ts --rules-path ~/.config/opencode/AGENTS.md \
-            --skills-path ~/.config/opencode/skill \
-            --agents-path ~/.config/opencode/agent \
-            --plugin-path ~/.config/opencode/plugin \
-            --zsh-path ~/.config/zsh-sync/custom.zsh \
-            --rules-file-action overwrite
+# Install to OpenCode (hardcoded paths)
+bun init.ts
 ```
 
 ---
@@ -127,7 +119,7 @@ content/instructions/auditor.md  → output/opencode/agents/auditor.md (sub-agen
 | Type | Count | Description |
 |------|-------|-------------|
 | Primary Agents | 2 | Modes user can switch to (audit, workshop) |
-| Sub-agents | 10 | Specialized auditors (auditor-*) |
+| Sub-agents | 11 | Specialized auditors (auditor-*) |
 | Skills | 14 | Invokable capabilities |
 | Plugins | 1 | OpenCode plugins (ralph-loop for autonomous loops) |
 

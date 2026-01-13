@@ -34,9 +34,19 @@ const CONTINUATION_PROMPT = `[RALPH LOOP - ITERATION {{ITERATION}}/{{MAX}}]
 
 Your previous attempt did not output the completion promise. Continue working on the task.
 
-IMPORTANT:
-- Review your progress so far
-- Continue from where you left off
+**Before continuing:**
+1. Re-read any plan files (.plan.md, plan.md, etc.)
+2. Review AGENTS.md for project rules
+3. Check todo list — what's done vs pending?
+4. Read changes.log to see what was already modified
+
+**Rules:**
+- Don't repeat completed work
+- Update todo status as you progress
+- Follow all AGENTS.md rules strictly
+- Run quality checks after changes
+
+**Completion:**
 - When FULLY complete, output: <promise>{{PROMISE}}</promise>
 - Do not stop until the task is truly done
 

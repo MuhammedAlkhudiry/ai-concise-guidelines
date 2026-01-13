@@ -35,7 +35,7 @@ Based on changes, spawn the relevant auditors:
 
 | Change Type | Auditors to Spawn |
 |-------------|-------------------|
-| Any code change | `auditor-code-quality`, `auditor-tooling` |
+| Any code change | `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup` |
 | Frontend UI | `auditor-ui` |
 | Backend + Frontend | `auditor-integration` |
 | Database/migrations | `auditor-database` |
@@ -45,7 +45,7 @@ Based on changes, spawn the relevant auditors:
 | Translations touched | `auditor-translation` |
 | Refactoring | `auditor-refactoring` |
 
-**Always run**: `auditor-code-quality`, `auditor-tooling`
+**Always run**: `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup`
 
 **Conditional**: Others based on what changed.
 
