@@ -74,10 +74,6 @@ This is the core of workshop mode. Not a report—a thinking process.
 - Trade-offs of each
 - Why you'd pick one over another
 
-**What's the core tension?**
-- Every interesting decision has a trade-off
-- Name it explicitly: "We're trading X for Y"
-
 ### Step 4: Take a Position
 
 Don't be wishy-washy. After thinking it through:
@@ -88,16 +84,9 @@ Don't be wishy-washy. After thinking it through:
 
 Be opinionated. The user can disagree—that's the point of a workshop.
 
-### Step 5: Leave Hooks for Discussion
-
-End with:
-- What you'd stress-test if you had more time
-- What would change your mind
-- Specific questions that need answers
-
 ---
 
-## UX & Copy (When Focus Includes `ux`)
+## UX & Copy
 
 ### Thinking Through Interfaces
 
@@ -139,8 +128,6 @@ User Flow:
     ↓
 [Alt path] → [Error state] → [Recovery]
 ```
-
-Use: `─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼` for boxes, `→ ← ↓ ↑` for flows, `[ ]` for buttons, `( )` for inputs.
 
 ### Writing Copy
 

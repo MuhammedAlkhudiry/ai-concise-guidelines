@@ -1,3 +1,8 @@
+---
+name: audit-orchestrator
+description: Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.
+---
+
 # Audit Mode
 
 You are an audit orchestrator. After a feature or change is complete, you analyze what was changed and spawn the appropriate specialized auditors to review the work.
@@ -42,17 +47,18 @@ Based on changes, spawn the relevant auditors:
 
 | Change Type | Auditors to Spawn |
 |-------------|-------------------|
-| Any code change | `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup` |
+| Any code change | `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup`, `auditor-performance`, `auditor-naming` |
+| Sizable changes | `auditor-refactoring` |
 | Frontend UI | `auditor-ui` |
+| Frontend state | `auditor-state` |
+| Forms | `auditor-forms` |
 | Backend + Frontend | `auditor-integration` |
 | Database/migrations | `auditor-database` |
 | Auth/input/secrets | `auditor-security` |
-| Performance-sensitive | `auditor-performance` |
-| New features | `auditor-test-coverage` |
+| Tests touched | `auditor-test-coverage` |
 | Translations touched | `auditor-translation` |
-| Refactoring | `auditor-refactoring` |
 
-**Always run**: `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup`
+**Always run**: `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup`, `auditor-performance`, `auditor-naming`
 
 **Conditional**: Others based on what changed.
 

@@ -25,7 +25,6 @@ import { dirname, join } from "node:path";
 // Constants
 // ============================================================================
 
-const HOOK_NAME = "ralph-loop";
 const DEFAULT_STATE_FILE = ".ralph/state.md";
 const DEFAULT_MAX_ITERATIONS = 50;
 const DEFAULT_COMPLETION_PROMISE = "DONE";
@@ -204,10 +203,6 @@ function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function log(message: string, data?: Record<string, unknown>): void {
-  console.log(`[${HOOK_NAME}] ${message}`, data ? JSON.stringify(data) : "");
-}
-
 // ============================================================================
 // Plugin
 // ============================================================================
@@ -256,8 +251,7 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
         .join("\n");
 
       return pattern.test(responseText);
-    } catch (err) {
-      log("Session messages check failed", { sessionID, error: String(err) });
+    } catch {
       return false;
     }
   }
@@ -277,28 +271,17 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
       session_id: sessionID,
     };
 
-    const success = writeState(ctx.directory, state);
-    if (success) {
-      log("Loop started", {
-        sessionID,
-        maxIterations: state.max_iterations,
-        completionPromise: state.completion_promise,
-      });
-    }
-    return success;
+    return writeState(ctx.directory, state);
   }
 
-  function cancelLoop(sessionID: string): boolean {
+  function cancelLoop(sessionID: string): { success: boolean; iteration?: number } {
     const state = readState(ctx.directory);
     if (!state || state.session_id !== sessionID) {
-      return false;
+      return { success: false };
     }
 
     const success = clearState(ctx.directory);
-    if (success) {
-      log("Loop cancelled", { sessionID, iteration: state.iteration });
-    }
-    return success;
+    return { success, iteration: state.iteration };
   }
 
   // Parse command output from /ralph and /ralph-cancel
@@ -344,13 +327,35 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
       const parsed = parseCommandOutput(promptText);
 
       if (parsed.isStart && parsed.prompt) {
-        log("Starting loop", { sessionID: input.sessionID, prompt: parsed.prompt });
-        startLoop(input.sessionID, parsed.prompt, {
+        const success = startLoop(input.sessionID, parsed.prompt, {
           maxIterations: parsed.maxIterations,
         });
+        if (success) {
+          try {
+            await ctx.client.tui.showToast({
+              body: {
+                title: "Ralph Loop Started",
+                message: `Max ${parsed.maxIterations ?? DEFAULT_MAX_ITERATIONS} iterations`,
+                variant: "info",
+                duration: 3000,
+              },
+            });
+          } catch { /* ignore */ }
+        }
       } else if (parsed.isCancel) {
-        log("Cancelling loop", { sessionID: input.sessionID });
-        cancelLoop(input.sessionID);
+        const { success, iteration } = cancelLoop(input.sessionID);
+        if (success) {
+          try {
+            await ctx.client.tui.showToast({
+              body: {
+                title: "Ralph Loop Cancelled",
+                message: `Stopped at iteration ${iteration}`,
+                variant: "info",
+                duration: 3000,
+              },
+            });
+          } catch { /* ignore */ }
+        }
       }
     },
 
@@ -365,7 +370,6 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
 
         const sessionState = getSessionState(sessionID);
         if (sessionState.isRecovering) {
-          log("Skipped: in recovery", { sessionID });
           return;
         }
 
@@ -382,14 +386,7 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
         );
 
         if (completionDetected) {
-          log("Completion detected!", {
-            sessionID,
-            iteration: state.iteration,
-            promise: state.completion_promise,
-          });
           clearState(ctx.directory);
-
-          // Show success toast
           try {
             await ctx.client.tui.showToast({
               body: {
@@ -400,19 +397,12 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
               },
             });
           } catch { /* ignore */ }
-
           return;
         }
 
         // Check max iterations
         if (state.iteration >= state.max_iterations) {
-          log("Max iterations reached", {
-            sessionID,
-            iteration: state.iteration,
-            max: state.max_iterations,
-          });
           clearState(ctx.directory);
-
           try {
             await ctx.client.tui.showToast({
               body: {
@@ -423,22 +413,24 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
               },
             });
           } catch { /* ignore */ }
-
           return;
         }
 
         // Increment and continue
         const newState = incrementIteration(ctx.directory);
         if (!newState) {
-          log("Failed to increment iteration", { sessionID });
+          try {
+            await ctx.client.tui.showToast({
+              body: {
+                title: "Ralph Loop Error",
+                message: "Failed to increment iteration",
+                variant: "error",
+                duration: 3000,
+              },
+            });
+          } catch { /* ignore */ }
           return;
         }
-
-        log("Continuing loop", {
-          sessionID,
-          iteration: newState.iteration,
-          max: newState.max_iterations,
-        });
 
         const continuationPrompt = CONTINUATION_PROMPT
           .replace("{{ITERATION}}", String(newState.iteration))
@@ -464,8 +456,17 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
             body: { parts: [{ type: "text", text: continuationPrompt }] },
             query: { directory: ctx.directory },
           });
-        } catch (err) {
-          log("Failed to inject continuation", { sessionID, error: String(err) });
+        } catch {
+          try {
+            await ctx.client.tui.showToast({
+              body: {
+                title: "Ralph Loop Error",
+                message: "Failed to inject continuation prompt",
+                variant: "error",
+                duration: 3000,
+              },
+            });
+          } catch { /* ignore */ }
         }
       }
 
@@ -476,7 +477,6 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
           const state = readState(ctx.directory);
           if (state?.session_id === sessionInfo.id) {
             clearState(ctx.directory);
-            log("Session deleted, loop cleared", { sessionID: sessionInfo.id });
           }
           sessions.delete(sessionInfo.id);
         }
@@ -493,7 +493,16 @@ export const RalphLoopPlugin: Plugin = async (ctx) => {
             const state = readState(ctx.directory);
             if (state?.session_id === sessionID) {
               clearState(ctx.directory);
-              log("User aborted, loop cleared", { sessionID });
+              try {
+                await ctx.client.tui.showToast({
+                  body: {
+                    title: "Ralph Loop Cancelled",
+                    message: "User aborted, loop cleared",
+                    variant: "info",
+                    duration: 3000,
+                  },
+                });
+              } catch { /* ignore */ }
             }
             sessions.delete(sessionID);
           }

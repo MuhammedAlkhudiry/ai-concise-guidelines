@@ -1,9 +1,3 @@
----
-description: Audits backend↔frontend integration, API contracts
-model: anthropic/claude-haiku-4-5
-mode: subagent
----
-
 # Integration Checklist
 
 ## What to Check

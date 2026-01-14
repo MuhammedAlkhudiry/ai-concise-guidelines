@@ -4,40 +4,33 @@
  * Generator Script
  * Generates OpenCode files from content + config
  *
- * Usage: bun generate.ts
+ * Usage: bun src/generate.ts
  */
 
-import { readdir, readFile, writeFile, mkdir, rm, copyFile } from "fs/promises";
+import { readFile, writeFile, rm } from "fs/promises";
 import { existsSync } from "fs";
-import { join, basename } from "path";
-import { MODELS } from "./config/models";
-import { AGENTS } from "./config/agents";
-import { SKILLS } from "./config/skills";
+import { join } from "path";
+import { MODELS } from "../config/models";
+import { AGENTS } from "../config/agents";
+import { SKILLS } from "../config/skills";
+import { ensureDir, copyDirAsync } from "./fs";
 
 // =============================================================================
 // Paths
 // =============================================================================
 
-const SCRIPT_DIR = import.meta.dir;
-const CONTENT_DIR = join(SCRIPT_DIR, "content");
+const ROOT_DIR = join(import.meta.dir, "..");
+const CONTENT_DIR = join(ROOT_DIR, "content");
 const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
-const CHECKLISTS_DIR = join(CONTENT_DIR, "checklists");
 const COMMANDS_DIR = join(CONTENT_DIR, "commands");
-const PLUGINS_DIR = join(SCRIPT_DIR, "plugins");
-const OUTPUT_DIR = join(SCRIPT_DIR, "output");
+const PLUGINS_DIR = join(ROOT_DIR, "plugins");
+const OUTPUT_DIR = join(ROOT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
-const CUSTOM_CONFIG = join(SCRIPT_DIR, "custom-opencode.json");
-
+const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
 
 // =============================================================================
 // Utilities
 // =============================================================================
-
-async function ensureDir(path: string): Promise<void> {
-  if (!existsSync(path)) {
-    await mkdir(path, { recursive: true });
-  }
-}
 
 function toYaml(obj: Record<string, unknown>, indent = 0): string {
   const pad = "  ".repeat(indent);
@@ -64,14 +57,6 @@ async function readInstruction(name: string): Promise<string> {
   return readFile(path, "utf-8");
 }
 
-async function readChecklist(name: string): Promise<string | null> {
-  const path = join(CHECKLISTS_DIR, `${name}.md`);
-  if (!existsSync(path)) {
-    return null;
-  }
-  return readFile(path, "utf-8");
-}
-
 // =============================================================================
 // Generators
 // =============================================================================
@@ -84,24 +69,7 @@ async function generateAgents(): Promise<number> {
   let count = 0;
 
   for (const [name, config] of Object.entries(AGENTS)) {
-    let template = await readInstruction(config.instruction);
-
-    // For specialized auditors, merge base auditor + checklist
-    if (config.checklist) {
-      const baseAuditor = await readInstruction("auditor");
-      const checklist = await readChecklist(config.checklist);
-      if (checklist) {
-        template = `${baseAuditor}\n\n---\n\n# Specialized Focus: ${config.description}\n\n${checklist}`;
-      }
-    }
-
-    // For skills used as auditors, append checklist if available
-    if (config.appendChecklist) {
-      const checklist = await readChecklist(config.appendChecklist);
-      if (checklist) {
-        template = `${template}\n\n---\n\n# Checklist\n\n${checklist}`;
-      }
-    }
+    const template = await readInstruction(config.instruction);
 
     const frontmatter: Record<string, unknown> = {
       description: config.description,
@@ -109,8 +77,6 @@ async function generateAgents(): Promise<number> {
       mode: config.type === "sub" ? "subagent" : "primary",
     };
 
-    if (config.tools) frontmatter.tools = config.tools;
-    if (config.permission) frontmatter.permission = config.permission;
     if (config.color) frontmatter.color = `"${config.color}"`;
 
     const content = `---
@@ -134,15 +100,7 @@ async function generateSkills(): Promise<number> {
   let count = 0;
 
   for (const [name, config] of Object.entries(SKILLS)) {
-    let template = await readInstruction(config.instruction);
-
-    // Append checklist if skill has one
-    if (config.checklist) {
-      const checklist = await readChecklist(config.checklist);
-      if (checklist) {
-        template = `${template}\n\n---\n\n# Checklist\n\n${checklist}`;
-      }
-    }
+    const template = await readInstruction(config.instruction);
 
     const content = `---
 name: ${name}
@@ -169,18 +127,12 @@ async function copyPlugins(): Promise<number> {
     return 0;
   }
 
-  const pluginsOutDir = join(OPENCODE_DIR, "plugin");
-  await ensureDir(pluginsOutDir);
-
-  const files = await readdir(PLUGINS_DIR);
-  let count = 0;
-
-  for (const file of files) {
-    if (file.endsWith(".ts") || file.endsWith(".js")) {
-      await copyFile(join(PLUGINS_DIR, file), join(pluginsOutDir, file));
-      count++;
-    }
-  }
+  const count = await copyDirAsync({
+    src: PLUGINS_DIR,
+    dest: join(OPENCODE_DIR, "plugin"),
+    mode: "clean",
+    extensions: [".ts", ".js"],
+  });
 
   console.log(`    Copied ${count} plugins`);
   return count;
@@ -194,18 +146,12 @@ async function copyCommands(): Promise<number> {
     return 0;
   }
 
-  const commandsOutDir = join(OPENCODE_DIR, "command");
-  await ensureDir(commandsOutDir);
-
-  const files = await readdir(COMMANDS_DIR);
-  let count = 0;
-
-  for (const file of files) {
-    if (file.endsWith(".md")) {
-      await copyFile(join(COMMANDS_DIR, file), join(commandsOutDir, file));
-      count++;
-    }
-  }
+  const count = await copyDirAsync({
+    src: COMMANDS_DIR,
+    dest: join(OPENCODE_DIR, "command"),
+    mode: "clean",
+    extensions: [".md"],
+  });
 
   console.log(`    Copied ${count} commands`);
   return count;

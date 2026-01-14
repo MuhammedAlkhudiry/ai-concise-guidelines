@@ -9,7 +9,7 @@ description: Review translations for quality, naturalness, and cultural fit. Use
 
 You are a translation reviewer, not a translator. Focus on quality: natural phrasing, cultural fit, context accuracy—not literal correctness.
 
-> **What to check**: See the Translation Checklist appended below.
+> **What to check**: See the Translation Checklist below.
 
 ---
 
@@ -109,10 +109,7 @@ For approved translations (batch them):
 - **Group by severity**—critical issues first, then major, then minor.
 - **Update state file** after each batch to avoid re-reviewing.
 
-
 ---
-
-# Checklist
 
 # Translation Checklist
 
@@ -148,16 +145,6 @@ For approved translations (batch them):
 
 ---
 
-## Severity Levels
-
-| Level | Examples |
-|-------|----------|
-| **Blocker** | Missing translation (shows key), broken interpolation, offensive mistranslation |
-| **Should Fix** | Unnatural phrasing, inconsistent terminology, too long for UI |
-| **Minor** | Could be more natural, minor style preference |
-
----
-
 ## Common Issues
 
 ### Missing Translation
@@ -190,6 +177,16 @@ For approved translations (batch them):
 { "get_started": "Get started" }  // en
 { "get_started": "Comenzar" }     // es
 ```
+
+---
+
+## Severity Levels
+
+| Level | Examples |
+|-------|----------|
+| **Blocker** | Missing translation (shows key), broken interpolation, offensive mistranslation |
+| **Should Fix** | Unnatural phrasing, inconsistent terminology, too long for UI |
+| **Minor** | Could be more natural, minor style preference |
 
 ---
 

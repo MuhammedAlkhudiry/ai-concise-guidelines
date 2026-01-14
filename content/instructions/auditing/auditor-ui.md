@@ -1,9 +1,3 @@
----
-description: Audits UI/UX quality, visual consistency, usability
-model: google/gemini-3-pro-preview
-mode: subagent
----
-
 # UI/UX Checklist
 
 ## What to Check

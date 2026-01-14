@@ -1,9 +1,3 @@
----
-description: Audits security vulnerabilities, injection, auth flaws
-model: anthropic/claude-haiku-4-5
-mode: subagent
----
-
 # Security Checklist
 
 ## What to Check

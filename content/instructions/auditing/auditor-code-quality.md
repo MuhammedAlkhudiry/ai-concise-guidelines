@@ -1,9 +1,3 @@
----
-description: Audits code standards, patterns, clean code
-model: anthropic/claude-haiku-4-5
-mode: subagent
----
-
 # Code Quality Checklist
 
 ## What to Check

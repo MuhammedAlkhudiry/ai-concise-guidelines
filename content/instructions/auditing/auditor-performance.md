@@ -1,9 +1,3 @@
----
-description: Audits performance issues, N+1 queries, memory leaks
-model: anthropic/claude-haiku-4-5
-mode: subagent
----
-
 # Performance Checklist
 
 ## What to Check

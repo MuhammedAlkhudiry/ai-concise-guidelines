@@ -26,7 +26,7 @@ Before proposing anything:
 
 Name the specific problems. Not "this is messy"—be precise.
 
-See the **Refactoring Checklist** appended below for the full list of code smells and what to detect.
+See the **Refactoring Checklist** below for the full list of code smells and what to detect.
 
 ### Step 3: Define Target Shape
 
@@ -180,10 +180,7 @@ What it should look like after. Structure, boundaries, patterns.
 
 **READY TO REFACTOR?**
 
-
 ---
-
-# Checklist
 
 # Refactoring Checklist
 
@@ -223,41 +220,6 @@ What it should look like after. Structure, boundaries, patterns.
 - [ ] Abbreviations that obscure meaning
 - [ ] Names that don't match behavior
 - [ ] Generic names (data, info, utils)
-
----
-
-## Severity Levels
-
-| Level | Action |
-|-------|--------|
-| **Immediate** | Fix now (blocks this PR) — critical duplication, dangerous complexity |
-| **Soon** | Add to sprint — significant tech debt, maintainability risk |
-| **Backlog** | Track for later — minor improvements, nice-to-haves |
-
----
-
-## Output Format
-
-When you find refactoring opportunities, report:
-
-```markdown
-## Refactoring Opportunities
-
-### Immediate (fix in this PR)
-| Issue | Location | Suggestion |
-|-------|----------|------------|
-| Duplicated validation | `UserController.php:45`, `OrderController.php:67` | Extract to `ValidatesRequest` trait |
-
-### Soon (add to sprint)
-| Issue | Location | Suggestion |
-|-------|----------|------------|
-| God class | `PaymentService.php` (500+ lines) | Split into `PaymentProcessor`, `RefundHandler`, `PaymentValidator` |
-
-### Backlog
-| Issue | Location | Suggestion |
-|-------|----------|------------|
-| Could use constants | `config.ts:12-20` | Extract magic strings to enum |
-```
 
 ---
 
@@ -313,6 +275,16 @@ interface CreateOrderParams {
 }
 function createOrder(params: CreateOrderParams) {}
 ```
+
+---
+
+## Severity Levels
+
+| Level | Action |
+|-------|--------|
+| **Immediate** | Fix now (blocks this PR) — critical duplication, dangerous complexity |
+| **Soon** | Add to sprint — significant tech debt, maintainability risk |
+| **Backlog** | Track for later — minor improvements, nice-to-haves |
 
 ---
 

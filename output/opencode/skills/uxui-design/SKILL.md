@@ -66,44 +66,39 @@ Trigger: "ULTRATHINK: [question]"
 
 For: component API, layout architecture, new patterns, accessibility deep-dive
 
-
 ---
 
-# Checklist
+# UI/UX Review Checklist
 
-# UI/UX Checklist
-
-## What to Check
-
-### Visual Consistency
+## Visual Consistency
 - [ ] Colors match design system
 - [ ] Typography follows hierarchy
 - [ ] Spacing is consistent (use design tokens)
 - [ ] Icons are from the same family
 - [ ] Borders/shadows follow patterns
 
-### Layout
+## Layout
 - [ ] Responsive at all breakpoints (mobile, tablet, desktop)
 - [ ] No horizontal scroll on mobile
 - [ ] Content doesn't overflow containers
 - [ ] Proper alignment (left, center, right)
 - [ ] Grid/flex used appropriately
 
-### Interactions
+## Interactions
 - [ ] Hover states present and consistent
 - [ ] Focus states visible (accessibility)
 - [ ] Loading states for async actions
 - [ ] Error states are clear
 - [ ] Success feedback provided
 
-### Usability
+## Usability
 - [ ] Actions are discoverable
 - [ ] Labels are clear and concise
 - [ ] Forms have proper validation feedback
 - [ ] Navigation is intuitive
 - [ ] Empty states are handled
 
-### Accessibility
+## Accessibility
 - [ ] Sufficient color contrast (WCAG AA)
 - [ ] Keyboard navigation works
 - [ ] Screen reader friendly (ARIA labels)
@@ -112,17 +107,7 @@ For: component API, layout architecture, new patterns, accessibility deep-dive
 
 ---
 
-## Severity Levels
-
-| Level | Examples |
-|-------|----------|
-| **Blocker** | Broken layout, inaccessible to keyboard users, critical flow broken |
-| **Should Fix** | Missing hover states, inconsistent spacing, poor mobile experience |
-| **Minor** | Slight alignment issues, could use better animation, minor polish |
-
----
-
-## Common Issues
+## Common Code Issues
 
 ### Missing Loading State
 ```tsx
@@ -161,7 +146,7 @@ button:focus-visible {
 
 ---
 
-## Rules
+## Review Rules
 
 1. **Test on real devices** — Emulators miss touch issues
 2. **Check dark mode** — If supported, test both themes

@@ -8,8 +8,6 @@ export interface SkillConfig {
   instruction: string;
   /** Skill trigger description (when to use this skill) */
   description: string;
-  /** Checklist file to append (for domain-specific skills) */
-  checklist?: string;
 }
 
 export const SKILLS: Record<string, SkillConfig> = {
@@ -27,7 +25,6 @@ export const SKILLS: Record<string, SkillConfig> = {
     instruction: "uxui-design",
     description:
       "Practical UI/UX work within existing design systems. Use for styling, layout, states, accessibility, and design system compliance. Use when working on established products.",
-    checklist: "ui-ux",
   },
   "uxui-creative": {
     instruction: "uxui-creative",
@@ -39,22 +36,10 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Explore and stress-test ideas before building. Use when user wants to brainstorm, think through an approach, explore options, discuss trade-offs, or says 'let's workshop this', 'think through', 'explore idea', or 'brainstorm'.",
   },
-  debugging: {
-    instruction: "debugging",
-    description:
-      "Systematically investigate and fix bugs with evidence-based diagnosis. Use when user mentions a bug, error, something not working, unexpected behavior, or says 'debug this', 'why is this broken', 'fix this bug', or describes symptoms of a problem.",
-  },
-  "code-review": {
-    instruction: "code-review",
-    description:
-      "Review code changes for bugs, security, and design issues. Use when user wants to review code, check a PR, review changes, or says 'review this', 'check my code', 'PR review', or 'code review'.",
-    checklist: "code-quality",
-  },
   refactoring: {
     instruction: "refactoring",
     description:
       "Restructure code without changing behavior. Use when user wants to refactor, clean up code, restructure, or says 'refactor this', 'clean this up', 'this code is messy', or identifies code smells to fix.",
-    checklist: "refactoring",
   },
   "product-strategy": {
     instruction: "product-strategy",
@@ -71,11 +56,6 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Create API handoff documentation for frontend developers. Use when backend work is complete and needs to be documented for frontend integration, or user says 'create handoff', 'document API', 'frontend handoff', or 'API documentation'.",
   },
-  "backend-requirements": {
-    instruction: "backend-requirements",
-    description:
-      "Document frontend data needs for backend developers. Use when frontend needs to communicate API requirements to backend, or user says 'backend requirements', 'what data do I need', 'API requirements', or is describing data needs for a UI.",
-  },
   "user-story-review": {
     instruction: "user-story-review",
     description:
@@ -85,10 +65,9 @@ export const SKILLS: Record<string, SkillConfig> = {
     instruction: "translation",
     description:
       "Review translations for quality, naturalness, and cultural fit. Use when user wants to review translations, check i18n files, or says 'review translations', 'check localization', or mentions translation quality issues.",
-    checklist: "translation",
   },
-  audit: {
-    instruction: "audit",
+  "audit-orchestrator": {
+    instruction: "auditing/audit-orchestrator",
     description:
       "Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.",
   },

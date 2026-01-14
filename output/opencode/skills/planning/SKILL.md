@@ -66,22 +66,9 @@ Reference existing patterns: `[path:line]`
 ### Phase 3: Polish & Edge Cases
 - [ ] 3.1 Task description
 
-## Risks
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Risk 1 | What breaks | How to prevent/detect |
+> **Between phases**: Compact context before starting the next phase. Summarize what was done, drop implementation details, keep only what's needed for remaining work.
 
-## Decisions
-| Decision | Chosen | Why | Alternatives rejected |
-|----------|--------|-----|----------------------|
-| How to do X | Option A | Reason | Option B (too complex), Option C (doesn't scale) |
-
-## Questions
-
-### Answered (for context)
-- **Q**: Question I had **A**: Answer I found `[source]`
-
-### Blockers (need input)
+## Blockers (need input)
 - **Q**: Question I cannot answer from available sources
 ```
 
@@ -155,7 +142,6 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 
 ## Rules
 
-- **NO CHAT OUTPUT**—everything goes to plan file
 - **NO FLUFF**—every line should add information
 - **NO VAGUE TASKS**—"implement feature" is not a task; "add validation to `CreateUserDTO`" is
 - **CHALLENGE ASSUMPTIONS**—if something seems wrong, say so

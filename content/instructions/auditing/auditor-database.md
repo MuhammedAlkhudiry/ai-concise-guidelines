@@ -1,9 +1,3 @@
----
-description: Audits migrations, schema, indexes, data integrity
-model: anthropic/claude-haiku-4-5
-mode: subagent
----
-
 # Database Checklist
 
 ## What to Check

@@ -1,9 +1,3 @@
----
-description: Audits test coverage, missing cases, edge cases
-model: anthropic/claude-haiku-4-5
-mode: subagent
----
-
 # Test Coverage Checklist
 
 ## What to Check
