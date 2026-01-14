@@ -156,6 +156,7 @@ PLAN → EXECUTE → Audit Orchestrator → Done
 - **AFTER-TASK CHECKLIST** — Run type-check/lint/format/tests
 - **UPDATE DOCS** — When changing CLI args, configs, or user-facing behavior, always update `README.md` and `shell/zsh-custom.zsh` if affected
 - **NEVER EDIT OR SELECT A MODEL**, this is always up to the user
+- **READ OPENCODE DOCS** — When working with OpenCode features (plugins, commands, skills, agents, config), always fetch and read https://opencode.ai/docs/ first to ensure correct format and API usage
 ---
 
 ## File Types Summary
