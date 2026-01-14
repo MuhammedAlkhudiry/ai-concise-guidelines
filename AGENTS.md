@@ -23,7 +23,7 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 │   ├── generate.ts          # Generator script
 │   └── init.ts              # Installer script
 ├── plugins/                 # OpenCode plugins (source)
-│   └── ralph-loop.ts        # Autonomous loop plugin
+│   └── loop.ts              # Autonomous loop plugin
 ├── shell/                   # Shell configuration files
 │   ├── zsh-custom.zsh       # Custom zsh config (synced via --zsh-path)
 │   └── zshrc.zsh            # Reference .zshrc (manual setup)

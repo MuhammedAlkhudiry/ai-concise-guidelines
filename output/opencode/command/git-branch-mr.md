@@ -19,7 +19,7 @@ Branch types: `feature/`, `fix/`, `chore/`
 
 DO NOT stage:
 - `docs/ai/sessions/`
-- `.ralph/` or AI state files
+- AI state files
 - IDE configs (`.idea/`, `.vscode/`)
 - Local environment changes (`phpunit.xml`, `.env`)
 - Unrelated changes

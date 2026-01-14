@@ -14,12 +14,35 @@ You are an architect drafting blueprints, not a secretary taking notes. Analyze 
 
 ## Workflow
 
-### Step 0: Check Session Context
+### Step 0: Session Setup (REQUIRED)
 
-If session path is provided:
-1. Read session's `README.md` for what we're building
-2. Read session's `workshop.md` for decisions already made
+Planning ALWAYS requires a session to track state. Sessions enable `/loop` for autonomous execution.
+
+**If session path provided:**
+1. Use the provided session path
+2. Read existing `README.md`, `workshop.md` for context
 3. Write plan to session's `plan.md`
+
+**If NO session path provided — CREATE ONE:**
+1. Generate slug from task description (e.g., "add user auth" → `user-auth`)
+2. Create folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
+3. Create `README.md` with:
+   ```markdown
+   # Session: <Task Title>
+   
+   **Status:** planning
+   **Created:** YYYY-MM-DD
+   
+   ## Context
+   <Brief description of what we're building and why>
+   
+   ## Files
+   - plan.md — Implementation plan
+   ```
+4. Output session path clearly:
+   > **Session created:** `docs/ai/sessions/YYYY-MM-DD-slug/`
+   >
+   > Use `/loop docs/ai/sessions/YYYY-MM-DD-slug/` to start autonomous execution after plan approval.
 
 ### Step 1: Understand the Ask
 
@@ -32,7 +55,7 @@ Before writing anything:
 
 ### Step 2: Draft the Plan
 
-Write to session's `plan.md` (or `docs/ai/<feature-name>/plan.md` if no session):
+Write to session's `plan.md`:
 
 ```markdown
 # Plan: <feature-name>
@@ -160,3 +183,6 @@ End every plan with one of:
 | **DECIDE FIRST** | Need decision on: [specific thing] |
 | **BLOCKED** | Cannot proceed until: [specific blocker] |
 | **NEEDS REFINEMENT** | More research/discussion needed on: [area] |
+
+When plan is **READY TO BUILD**, remind user:
+> To start autonomous execution: `/loop <session-path>`

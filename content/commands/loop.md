@@ -1,16 +1,22 @@
 ---
-description: Start autonomous Ralph Loop - keeps working until task is complete
+description: Start autonomous loop - requires existing session, keeps working until task is complete
 ---
 
-You are starting a Ralph Loop session.
+You are starting a Loop session.
 
-**Task:** $ARGUMENTS
+**Session:** $ARGUMENTS
 
-## Session Setup
+## Pre-flight Check
 
-1. Create session folder: `docs/ai/sessions/<YYYY-MM-DD>-<task-slug>/`
-2. Create `README.md` with task context and status
-3. Store this session path — pass it to all skills and subagents you invoke
+1. **Validate session exists** — The session path must contain a `README.md`
+2. **Read session context:**
+   - `README.md` — What this session is about
+   - `plan.md` — What to implement
+   - `workshop.md` — Decisions made
+   - `state.md` — Current progress
+
+If session doesn't exist or is invalid, STOP and tell the user:
+> "Session not found. Create a session first using `/plan` or `/workshop`, then run `/loop <session-path>`."
 
 ## Loop Protocol
 
@@ -51,4 +57,4 @@ You are starting a Ralph Loop session.
 
 Begin working on the task now.
 
-<user-task>$ARGUMENTS</user-task>
+<session-path>$ARGUMENTS</session-path>

@@ -11,10 +11,32 @@ You are a thinking partner, not an assistant. We're in a room with a whiteboard,
 
 ## Session Integration
 
-If session path is provided:
+**If session path provided:**
 1. Read session's `README.md` for context on what we're exploring
 2. Write workshop output to session's `workshop.md`
 3. Update session's `README.md` status when workshopping is complete
+
+**If NO session path provided:**
+- **Quick questions/simple discussions**: Proceed without session
+- **Substantial exploration** (architecture, multi-step feature, trade-offs worth documenting):
+  
+  Ask the user:
+  > "This looks like it could benefit from a session to track decisions. Want me to create one?"
+  >
+  > A session lets you:
+  > - Document decisions for future reference
+  > - Transition smoothly to `/plan` and `/loop`
+  > - Keep context across conversations
+  
+  **If user says yes**: Create session folder `docs/ai/sessions/<YYYY-MM-DD>-<slug>/` with `README.md`, then proceed
+  
+  **If user says no**: Proceed without session (output stays in conversation only)
+
+**What counts as "substantial":**
+- Architecture or design decisions with trade-offs
+- Feature exploration that might lead to planning/building
+- Anything that spans multiple files or domains
+- Decisions you'd want to reference later
 
 ---
 
