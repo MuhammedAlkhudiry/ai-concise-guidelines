@@ -264,12 +264,6 @@ function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function validateSessionPath(sessionPath: string): boolean {
-  // Check if session path exists and has README.md
-  const readmePath = join(sessionPath, "README.md");
-  return existsSync(readmePath);
-}
-
 // ============================================================================
 // Plugin
 // ============================================================================
@@ -329,11 +323,6 @@ export const LoopPlugin: Plugin = async (ctx) => {
     sessionPath: string,
     options?: { maxIterations?: number; completionPromise?: string }
   ): boolean {
-    // Validate session exists
-    if (!validateSessionPath(sessionPath)) {
-      return false;
-    }
-
     const state: LoopState = {
       active: true,
       iteration: 1,
@@ -413,22 +402,6 @@ export const LoopPlugin: Plugin = async (ctx) => {
         const absoluteSessionPath = parsed.sessionPath.startsWith("/")
           ? parsed.sessionPath
           : join(ctx.directory, parsed.sessionPath);
-
-        if (!validateSessionPath(absoluteSessionPath)) {
-          try {
-            await ctx.client.tui.showToast({
-              body: {
-                title: "Loop Failed",
-                message: `Session not found: ${parsed.sessionPath}`,
-                variant: "error",
-                duration: 5000,
-              },
-            });
-          } catch {
-            /* ignore */
-          }
-          return;
-        }
 
         const success = startLoop(input.sessionID, absoluteSessionPath, {
           maxIterations: parsed.maxIterations,
