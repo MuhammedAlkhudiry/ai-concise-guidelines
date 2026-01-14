@@ -9,6 +9,18 @@ Extract learnings from sessions into permanent project knowledge. User triggers,
 
 ---
 
+## Critical Rule
+
+**If it can be inferred from code, DO NOT extract it.**
+
+AI can read code. AI can trace functions. AI can understand patterns. Knowledge files are ONLY for what code cannot tell you: the WHY, the external constraints, the history of failed approaches, the gotchas that aren't obvious.
+
+Before proposing ANY extraction, ask: *"Could an AI figure this out by reading the codebase?"* If yes → **skip it**.
+
+**"No knowledge to extract"** is a valid and common outcome. Most sessions don't produce knowledge worth persisting — the code itself is the documentation. Don't force extraction when there's nothing meaningful.
+
+---
+
 ## Knowledge Structure
 
 ```
@@ -164,7 +176,12 @@ Ask: *"Archive or delete session?"*
 
 ## Output
 
-After completion, report:
+After completion, report one of:
+
+**If no knowledge to extract:**
+> "No knowledge to extract from this session — everything learned is already visible in the code."
+
+**If knowledge extracted:**
 - Files created/updated
 - Items added
 - Session disposition (archived/deleted/kept)
