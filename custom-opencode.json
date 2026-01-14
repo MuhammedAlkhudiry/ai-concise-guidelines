@@ -1,6 +1,13 @@
 {
   "model": "<smart-model>",
   "small_model": "<fast-model>",
+  "permission": {
+    "external_directory": {
+      "*": "ask",
+      "<home>/PhpstormProjects/*": "allow",
+      "/tmp/*": "allow"
+    }
+  },
   "agent": {
     "plan": {
       "tools": {

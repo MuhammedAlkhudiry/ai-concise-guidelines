@@ -185,7 +185,9 @@ function mergeOpencodeConfig(): void {
 
   let settings: Record<string, unknown>;
   try {
-    settings = JSON.parse(readFileSync(sourceFile, "utf-8"));
+    // Replace <home> placeholder with actual home directory
+    const configContent = readFileSync(sourceFile, "utf-8").replace(/<home>/g, HOME);
+    settings = JSON.parse(configContent);
   } catch {
     print.error("Failed to parse opencode-config.json");
     return;
@@ -206,6 +208,10 @@ function mergeOpencodeConfig(): void {
     ...existingConfig,
     model: settings.model,
     small_model: settings.small_model,
+    permission: {
+      ...(existingConfig.permission as Record<string, unknown> || {}),
+      ...(settings.permission as Record<string, unknown> || {}),
+    },
     agent: {
       ...(existingConfig.agent as Record<string, unknown> || {}),
       ...(settings.agent as Record<string, unknown> || {}),
