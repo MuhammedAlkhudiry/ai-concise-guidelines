@@ -2,6 +2,11 @@
   "model": "anthropic/claude-opus-4-5",
   "small_model": "anthropic/claude-haiku-4-5",
   "agent": {
+    "plan": {
+      "tools": {
+        "write": true
+      }
+    },
     "explore": {
       "model": "anthropic/claude-haiku-4-5"
     },

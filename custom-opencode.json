@@ -2,6 +2,11 @@
   "model": "<smart-model>",
   "small_model": "<fast-model>",
   "agent": {
+    "plan": {
+      "tools": {
+        "write": true
+      }
+    },
     "explore": {
       "model": "<fast-model>"
     },
