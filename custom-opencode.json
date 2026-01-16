@@ -26,9 +26,13 @@
     }
   },
   "mcp": {
-    "playwright": {
+    "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "@playwright/mcp@latest"]
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
     },
     "hugeicons": {
       "type": "local",
