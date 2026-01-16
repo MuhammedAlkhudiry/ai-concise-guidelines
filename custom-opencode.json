@@ -5,7 +5,11 @@
     "external_directory": {
       "*": "ask",
       "<home>/PhpstormProjects/*": "allow",
-      "/tmp/*": "allow"
+      "/tmp/*": "allow",
+      "/private/tmp/*": "allow"
+    },
+    "read": {
+      "**/.env*": "allow"
     }
   },
   "agent": {

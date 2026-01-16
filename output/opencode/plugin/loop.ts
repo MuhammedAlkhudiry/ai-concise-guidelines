@@ -328,3 +328,6 @@ export const LoopPlugin: Plugin = async (ctx) => {
     },
   };
 };
+
+// Default export for compatibility
+export default LoopPlugin;
