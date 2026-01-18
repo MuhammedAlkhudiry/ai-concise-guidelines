@@ -208,6 +208,10 @@ function mergeOpencodeConfig(): void {
     ...existingConfig,
     model: settings.model,
     small_model: settings.small_model,
+    keybinds: {
+      ...(existingConfig.keybinds as Record<string, unknown> || {}),
+      ...(settings.keybinds as Record<string, unknown> || {}),
+    },
     permission: {
       ...(existingConfig.permission as Record<string, unknown> || {}),
       ...(settings.permission as Record<string, unknown> || {}),
