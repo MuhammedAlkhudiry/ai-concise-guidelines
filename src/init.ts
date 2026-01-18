@@ -220,10 +220,9 @@ function mergeOpencodeConfig(): void {
       ...(existingConfig.agent as Record<string, unknown> || {}),
       ...(settings.agent as Record<string, unknown> || {}),
     },
-    mcp: {
-      ...(existingConfig.mcp as Record<string, unknown> || {}),
-      ...(settings.mcp as Record<string, unknown> || {}),
-    },
+    // Overwrite (not merge) plugin and mcp to ensure clean state
+    plugin: settings.plugin,
+    mcp: settings.mcp,
   };
 
   writeFileSync(PATHS.opencodeConfig, JSON.stringify(merged, null, 2) + "\n");

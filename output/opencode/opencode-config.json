@@ -1,5 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "opencode-anthropic-auth",
+    "opencode-gemini-auth@latest",
+    "@mohak34/opencode-notifier@latest"
+  ],
   "keybinds": {
     "model_cycle_favorite": "ctrl+m",
     "model_cycle_favorite_reverse": "ctrl+shift+m"
@@ -31,17 +36,37 @@
     }
   },
   "mcp": {
-    "playwright": {
+    "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "@playwright/mcp@latest"]
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
     },
     "hugeicons": {
       "type": "local",
-      "command": ["npx", "-y", "@hugeicons/mcp-server"]
+      "command": [
+        "npx",
+        "-y",
+        "@hugeicons/mcp-server"
+      ]
     },
     "context7": {
       "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp"]
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "playwriter": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "playwriter@latest"
+      ]
     }
   }
 }
