@@ -37,21 +37,19 @@ This repository contains opinionated AI guidelines, skills, and agents for OpenC
 
 ## Commands
 
-### Generate Output Files
+Use `make` for common tasks:
 
-**ALWAYS run this after modifying content or config:**
+| Command | Description |
+|---------|-------------|
+| `make generate` | Generate output files (always run after modifying content/config) |
+| `make init` | Install generated files to user config |
+| `make install` | Generate + init (recommended) |
 
-```bash
-bun src/generate.ts
-```
-
-Always cleans output directory before generating.
-
-### Installer Script
+Or run scripts directly:
 
 ```bash
-# Install to OpenCode (hardcoded paths)
-bun src/init.ts
+bun src/generate.ts   # Generate only
+bun src/init.ts       # Install only
 ```
 
 ---
@@ -80,7 +78,7 @@ TypeScript configuration files:
 To modify output:
 1. Edit content in `content/`
 2. Edit config in `config/`
-3. Run `bun src/generate.ts`
+3. Run `make install`
 
 ### Markdown Content Structure
 
@@ -135,13 +133,13 @@ PLAN → EXECUTE → Audit Orchestrator → Done
 
 1. Create `content/instructions/<skill-name>.md` (body only)
 2. Add entry to `config/skills.ts`
-3. Run `bun src/generate.ts`
+3. Run `make install`
 
 ### New Agent
 
 1. Create `content/instructions/<agent-name>.md` (body only)
 2. Add entry to `config/agents.ts` with type (primary/sub)
-3. Run `bun src/generate.ts`
+3. Run `make install`
 
 ---
 
