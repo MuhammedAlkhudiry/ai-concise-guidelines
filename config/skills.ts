@@ -76,4 +76,9 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Extract learnings from sessions into permanent project knowledge. Use when user says 'extract knowledge', 'digest sessions', 'save learnings', or wants to close sessions and preserve insights. AI proposes, user approves.",
   },
+  "qa-test-cases": {
+    instruction: "qa-test-cases",
+    description:
+      "Generate test cases for user flows and e2e testing. Use when user wants test cases, QA scenarios, or says 'generate test cases', 'write test cases', 'QA this feature', 'e2e tests', or needs comprehensive test coverage for a feature.",
+  },
 } as const;
