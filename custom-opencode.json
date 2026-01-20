@@ -3,8 +3,7 @@
   "plugin": [
     "opencode-anthropic-auth",
     "opencode-gemini-auth@latest",
-    "@mohak34/opencode-notifier@latest",
-    "@tarquinen/opencode-dcp@latest"
+    "@mohak34/opencode-notifier@latest"
   ],
   "keybinds": {
     "model_cycle_favorite": "ctrl+m",
@@ -43,14 +42,6 @@
         "npx",
         "-y",
         "@hugeicons/mcp-server"
-      ]
-    },
-    "context7": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@upstash/context7-mcp"
       ]
     },
     "playwriter": {
