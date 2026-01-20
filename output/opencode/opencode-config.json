@@ -51,6 +51,15 @@
         "-y",
         "playwriter@latest"
       ]
+    },
+    "mobile-mcp": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@mobilenext/mobile-mcp@latest"
+      ],
+      "enabled": true
     }
   }
 }
