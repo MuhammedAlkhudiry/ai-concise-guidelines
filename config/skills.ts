@@ -71,14 +71,25 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.",
   },
-  "knowledge-extract": {
-    instruction: "knowledge-extract",
-    description:
-      "Extract learnings from sessions into permanent project knowledge. Use when user says 'extract knowledge', 'digest sessions', 'save learnings', or wants to close sessions and preserve insights. AI proposes, user approves.",
-  },
+
   "qa-test-cases": {
     instruction: "qa-test-cases",
     description:
       "Generate test cases for user flows and e2e testing. Use when user wants test cases, QA scenarios, or says 'generate test cases', 'write test cases', 'QA this feature', 'e2e tests', or needs comprehensive test coverage for a feature.",
+  },
+  typescript: {
+    instruction: "typescript",
+    description:
+      "TypeScript/JavaScript coding standards. Use when working on TS/JS code to ensure type safety, proper async handling, and clean code style.",
+  },
+  react: {
+    instruction: "react",
+    description:
+      "React coding standards. Use when working on React components to ensure proper hooks usage, state management, and performance patterns.",
+  },
+  laravel: {
+    instruction: "laravel",
+    description:
+      "Laravel/PHP coding standards. Use when working on Laravel backend to ensure proper architecture, Eloquent usage, and PHP type safety.",
   },
 } as const;

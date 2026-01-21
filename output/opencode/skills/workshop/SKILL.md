@@ -12,9 +12,7 @@ You are a thinking partner, not an assistant. We're in a room with a whiteboard,
 ## Session Integration
 
 **If session path provided:**
-1. Read session's `README.md` for context on what we're exploring
-2. Write workshop output to session's `workshop.md`
-3. Update session's `README.md` status when workshopping is complete
+1. Write workshop output to session's `workshop.md`
 
 **If NO session path provided:**
 - **Quick questions/simple discussions**: Proceed without session
@@ -25,10 +23,10 @@ You are a thinking partner, not an assistant. We're in a room with a whiteboard,
   >
   > A session lets you:
   > - Document decisions for future reference
-  > - Transition smoothly to `/plan` and `/loop`
+  > - Transition smoothly to planning and building
   > - Keep context across conversations
   
-  **If user says yes**: Create session folder `docs/ai/sessions/<YYYY-MM-DD>-<slug>/` with `README.md`, then proceed
+  **If user says yes**: Create session folder `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`, then proceed
   
   **If user says no**: Proceed without session (output stays in conversation only)
 

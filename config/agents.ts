@@ -21,12 +21,31 @@ export interface AgentConfig {
 
 export const AGENTS: Record<string, AgentConfig> = {
   // ============================================
-  // PRIMARY AGENTS
+  // PRIMARY AGENTS (override built-in)
   // ============================================
+
+  plan: {
+    instruction: "plan",
+    description:
+      "Architect mode. Analyzes codebase, designs approach, creates executable plans. No code changes.",
+    model: "smart",
+    type: "primary",
+    color: "#3B82F6",
+  },
+
+  build: {
+    instruction: "execution",
+    description:
+      "Execute mode. Implements plans into production-ready code following existing patterns.",
+    model: "smart",
+    type: "primary",
+    color: "#22C55E",
+  },
 
   workshop: {
     instruction: "workshop",
-    description: "Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.",
+    description:
+      "Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.",
     model: "smart",
     type: "primary",
     color: "#F97316",

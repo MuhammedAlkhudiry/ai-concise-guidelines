@@ -1,6 +1,8 @@
 ---
-name: planning
-description: Create structured implementation plans with scope, phases, and risks. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps.
+description: Architect mode. Analyzes codebase, designs approach, creates executable plans. No code changes.
+model: anthropic/claude-opus-4-5
+mode: primary
+color: "#3B82F6"
 ---
 
 # Plan Mode

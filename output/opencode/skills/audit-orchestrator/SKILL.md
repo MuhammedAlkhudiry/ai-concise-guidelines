@@ -20,9 +20,7 @@ Provide comprehensive code review by delegating to specialized auditors based on
 ### Step 1: Analyze Changes
 
 If session path was provided:
-- Read `README.md` — What this session is about
-- Read `plan.md` — What was planned (if exists)
-- Read `state.md` — Current progress (if exists)
+- Read `plan.md` — What was planned and current progress
 - Pass session path to all subagents you spawn
 - Write final report to session's `audit.md`
 
@@ -76,31 +74,32 @@ Run auditors in parallel where possible.
 
 ### Step 4: Collect Results
 
-Gather all verdicts from subauditors. Categorize findings:
+Gather all findings from subauditors. Two categories only:
 
-| Severity | Action |
-|----------|--------|
-| 🔴 **Blocker** | Must fix before approval |
-| 🟡 **Warning** | Should fix, use judgment |
-| 🟢 **Nitpick** | Optional, skip unless trivial |
+| Category | Meaning |
+|----------|---------|
+| 🔴 **Blocking** | Must fix — breaks functionality, security, or standards |
+| 🟡 **Non-blocking** | Should fix — improvements, consistency, best practices |
 
 ### Step 5: Fix Issues
 
-**You fix the reported issues.** Do not just report—resolve them.
+**Fix ALL issues, not just blockers.**
 
-For each blocker and warning:
+For each finding:
 1. Understand the issue (read the flagged code)
 2. Apply the fix following existing patterns
 3. Mark as resolved
 
-**Fix order:**
-1. All blockers first
-2. Warnings that are quick wins
-3. Skip nitpicks unless trivial
+**Only skip a finding if:**
+- You **disagree** with the auditor's assessment (explain why)
+- The auditor **lacks context** that changes the recommendation (explain what)
 
-**After fixing:**
-- Run `auditor-tooling` again to verify typecheck/lint/tests pass
-- If new issues surface, fix those too
+Do NOT skip just because it's "non-blocking". Non-blocking issues are still issues.
+
+**Fix order:**
+1. All blocking issues first
+2. All non-blocking issues
+3. Verify with `auditor-tooling`
 
 ### Step 6: Final Report
 
@@ -113,14 +112,14 @@ After fixes are applied:
 
 ### Summary
 - Auditors run: X
-- Issues found: X | Fixed: X | Skipped: X
+- Blocking: X | Non-blocking: X
+- Fixed: X | Skipped: X
 
 ### Fixes Applied
 - [file:line] — Fixed [issue description]
-- [file:line] — Fixed [issue description]
 
-### Skipped (nitpicks)
-- [file:line] — [reason for skipping]
+### Skipped (with justification)
+- [file:line] — [why you disagree or what context auditor missed]
 
 ### Verification
 - Typecheck: ✅
@@ -134,9 +133,9 @@ After fixes are applied:
 
 ## Rules
 
-- **FIX, DON'T JUST REPORT** — Your job is to resolve issues, not list them
+- **FIX EVERYTHING** — Fix all issues, blocking AND non-blocking
+- **SKIP ONLY WITH JUSTIFICATION** — If you skip, explain why you disagree or what context is missing
 - **DO NOT skip auditors** — Run all relevant auditors, don't shortcut
-- **Blockers block** — Fix all blockers before declaring approved
 - **Be specific** — Quote file:line for all findings and fixes
 - **Stay in scope** — Fix audit issues only, don't refactor unrelated code
 - **Verify after fixing** — Re-run tooling checks to confirm fixes work
@@ -147,7 +146,7 @@ After fixes are applied:
 
 | Verdict | When |
 |---------|------|
-| **APPROVED** | All blockers fixed, warnings addressed or justified |
+| **APPROVED** | All blocking fixed, non-blocking fixed or justified |
 | **NEEDS USER INPUT** | Issue requires decision (e.g., breaking change, unclear requirement) |
 
 If you cannot fix an issue (e.g., needs user decision), flag it clearly and continue with other fixes.

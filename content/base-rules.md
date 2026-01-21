@@ -33,9 +33,7 @@ When work is substantial enough to warrant documentation, create a session folde
 docs/ai/sessions/<YYYY-MM-DD>-<slug>/
 ├── workshop.md     # Exploration, decisions (if workshopped)
 ├── plan.md         # Implementation plan (if planned)
-├── state.md        # Execution progress, blockers
-├── audit.md        # Audit results (if audited)
-└── learnings.md    # Retrospective, next steps, future work
+└── audit.md        # Audit results (if audited)
 ```
 
 **Rules:**
@@ -51,44 +49,42 @@ Session path is passed explicitly — never scan for "recent" sessions.
 When session path is provided:
 1. **Read session files** for context:
    - `workshop.md` — Decisions already made
-   - `plan.md` — What was planned
-   - `state.md` — Current progress, blockers
+   - `plan.md` — What was planned, current progress
 2. **Write to session files** (not just chat):
    - Workshop output → `workshop.md`
-   - Plans → `plan.md`
-   - Progress/blockers → `state.md`
+   - Plans + progress → `plan.md`
    - Audit results → `audit.md`
-   - Retrospective → `learnings.md`
 3. **Pass session path** when invoking skills or spawning subagents
 
 ---
 
 ## Knowledge
 
-Project knowledge lives in `docs/ai/knowledge/`. Use the `knowledge-extract` skill to extract learnings from sessions.
+Project knowledge lives in `KNOWLEDGE.md` at project root. Use `/init-knowledge` to create or update.
 
-**Structure:**
-```
-docs/ai/knowledge/
-├── knowledge.md          # Global project knowledge
-└── <domain>/
-    └── knowledge.md      # Domain-specific (created as needed)
-```
+**Purpose:** Distilled project overview for fast AI context loading — everything a senior developer would know.
 
-Domains are project-specific — create folders based on your codebase (e.g., `auth/`, `billing/`, `api/`). Don't pre-create empty folders.
+**What belongs here:**
+- Business rules and why they exist
+- Domain terminology (what terms mean in THIS project)
+- Constraints (legal, client, compliance, technical)
+- Decisions made and why (especially verbal ones not in code)
+- Gotchas and edge cases not obvious from code
+- External system quirks and integration details
+- Things user says that affect implementation
+- History: what was tried, changed, or abandoned and why
 
-**What IS knowledge** (add this):
-- WHY decisions were made
-- Constraints (legal, client, external)
-- History (we tried X, failed because Y)
-- Gotchas not obvious from code
-- External context
+**What does NOT belong:**
+- Anything readable from code (schemas, API signatures, config values)
+- Implementation details (AI can read the code)
+- Obvious patterns already in codebase
 
-**What is NOT knowledge** (don't add):
-- Config values, schema, API signatures
-- How code works (AI can read code)
-- Patterns already visible in codebase
+**Format:**
+- Sections by domain/bounded context (Orders, Users, Payments, etc.)
+- Nested subsections as deep as needed
+- One fact per line: `<fact> — <reason/source>` when why matters
+- `## History` section at end for tracking changes, migrations, abandoned approaches
 
-**Rule:** If AI can infer it from code, don't add to knowledge.
+**Rule:** If AI can infer it from code, don't add. If user says something important, add it.
 
-**Bubble-up to AGENTS.md:** When information is critical to the project overview (architecture decisions, key constraints, foundational patterns), suggest adding to AGENTS.md. User must approve.
+**Updating:** Run `/init-knowledge` after significant work or when new business context is discovered.

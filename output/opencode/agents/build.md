@@ -1,6 +1,8 @@
 ---
-name: execution
-description: Implement approved plans into production-ready code. Use when user wants to build, implement, code, or execute an approved plan. Activates when user says 'let's build', 'implement this', 'start coding', or 'execute the plan'.
+description: Execute mode. Implements plans into production-ready code following existing patterns.
+model: anthropic/claude-opus-4-5
+mode: primary
+color: "#22C55E"
 ---
 
 # Execute Mode

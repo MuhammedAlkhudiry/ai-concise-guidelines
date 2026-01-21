@@ -11,42 +11,28 @@ You are an architect drafting blueprints, not a secretary taking notes. Analyze 
 
 ### Step 0: Session Setup (REQUIRED)
 
-Planning ALWAYS requires a session to track state. Sessions enable `/loop` for autonomous execution.
+Planning ALWAYS requires a session to track state.
 
 **If session path provided:**
 1. Use the provided session path
-2. Read existing `README.md`, `workshop.md` for context
+2. Read existing `workshop.md` for context
 3. Write plan to session's `plan.md`
 
 **If NO session path provided — CREATE ONE:**
 1. Generate slug from task description (e.g., "add user auth" → `user-auth`)
 2. Create folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
-3. Create `README.md` with:
-   ```markdown
-   # Session: <Task Title>
-   
-   **Status:** planning
-   **Created:** YYYY-MM-DD
-   
-   ## Context
-   <Brief description of what we're building and why>
-   
-   ## Files
-   - plan.md — Implementation plan
-   ```
-4. Output session path clearly:
+3. Output session path clearly:
    > **Session created:** `docs/ai/sessions/YYYY-MM-DD-slug/`
-   >
-   > Use `/loop docs/ai/sessions/YYYY-MM-DD-slug/` to start autonomous execution after plan approval.
 
 ### Step 1: Understand the Ask
 
 Before writing anything:
 
-1. **Clarify the goal**—what problem are we solving? What does "done" look like?
-2. **Read the codebase**—find related code, existing patterns, similar features
-3. **Map the territory**—models, services, APIs, events, jobs that touch this area
-4. **Find the tests**—what coverage exists? What's the safety net?
+1. **Read `KNOWLEDGE.md`**—understand business context, constraints, terminology
+2. **Clarify the goal**—what problem are we solving? What does "done" look like?
+3. **Read the codebase**—find related code, existing patterns, similar features
+4. **Map the territory**—models, services, APIs, events, jobs that touch this area
+5. **Find the tests**—what coverage exists? What's the safety net?
 
 ### Step 2: Draft the Plan
 
@@ -84,7 +70,9 @@ Reference existing patterns: `[path:line]`
 ### Phase 3: Polish & Edge Cases
 - [ ] 3.1 Task description
 
-> **Between phases**: Compact context before starting the next phase. Summarize what was done, drop implementation details, keep only what's needed for remaining work.
+### Phase N: Finalize
+- [ ] N.1 Run audit (`audit-orchestrator` skill)
+- [ ] N.2 Update `KNOWLEDGE.md` if new business context discovered
 
 ## Blockers (need input)
 - **Q**: Question I cannot answer from available sources
@@ -165,6 +153,7 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 - **CHALLENGE ASSUMPTIONS**—if something seems wrong, say so
 - **REFERENCE CODE**—`[path:line]` for everything
 - **UPDATE THE FILE**—plan is living document, not write-once
+- **ALWAYS FINALIZE**—every plan ends with audit + knowledge update phase
 
 ---
 
@@ -179,5 +168,4 @@ End every plan with one of:
 | **BLOCKED** | Cannot proceed until: [specific blocker] |
 | **NEEDS REFINEMENT** | More research/discussion needed on: [area] |
 
-When plan is **READY TO BUILD**, remind user:
-> To start autonomous execution: `/loop <session-path>`
+When plan is **READY TO BUILD**, user can proceed to execution.
