@@ -30,7 +30,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Architect mode. Analyzes codebase, designs approach, creates executable plans. No code changes.",
     model: "smart",
     type: "primary",
-    color: "#3B82F6",
+    color: "#A855F7",
   },
 
   build: {
@@ -39,7 +39,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Execute mode. Implements plans into production-ready code following existing patterns.",
     model: "smart",
     type: "primary",
-    color: "#22C55E",
+    color: "#EF4444",
   },
 
   workshop: {
@@ -48,7 +48,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.",
     model: "smart",
     type: "primary",
-    color: "#F97316",
+    color: "#3B82F6",
   },
 
   // ============================================

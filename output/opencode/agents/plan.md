@@ -2,7 +2,7 @@
 description: Architect mode. Analyzes codebase, designs approach, creates executable plans. No code changes.
 model: anthropic/claude-opus-4-5
 mode: primary
-color: "#3B82F6"
+color: "#A855F7"
 ---
 
 # Plan Mode

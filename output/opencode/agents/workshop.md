@@ -2,7 +2,7 @@
 description: Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.
 model: anthropic/claude-opus-4-5
 mode: primary
-color: "#F97316"
+color: "#3B82F6"
 ---
 
 # Workshop Mode

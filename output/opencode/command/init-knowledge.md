@@ -48,20 +48,17 @@ The **distilled project overview** — everything important about the project in
 **If KNOWLEDGE.md exists:**
 1. Read existing content
 2. Deep dive: code, configs, models, services, validations
-3. Propose additions/updates (show diff)
-4. Wait for user approval
-5. Write approved changes
+3. Merge new findings with existing content
+4. Write updated file
 
 **If KNOWLEDGE.md doesn't exist:**
 1. Deep dive into project structure
 2. Extract all important context from code, docs, configs
-3. Propose initial content
-4. Wait for user approval
-5. Create file
+3. Create file
 
 ## Rules
 
-- **User approval required** — never write without explicit approval
+- **Just do it** — no approval needed, write directly
 - **Dense, not verbose** — one fact per line, no prose
 - **Capture verbal context** — if user mentions business rules, add them
 - **Nest as needed** — no forced structure, let content dictate depth

@@ -2,7 +2,7 @@
 description: Execute mode. Implements plans into production-ready code following existing patterns.
 model: anthropic/claude-opus-4-5
 mode: primary
-color: "#22C55E"
+color: "#EF4444"
 ---
 
 # Execute Mode
