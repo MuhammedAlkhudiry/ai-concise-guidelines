@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(~/PhpstormProjects/*)",
+      "Read(~/PhpstormProjects/*)",
+      "Edit(/tmp/*)",
+      "Read(/tmp/*)",
+      "Edit(/private/tmp/*)",
+      "Read(/private/tmp/*)",
+      "Edit(~/.config/*)",
+      "Read(~/.config/*)",
+      "Read(**/.env*)"
+    ]
+  }
+}
