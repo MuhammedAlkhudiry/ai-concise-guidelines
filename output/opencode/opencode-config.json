@@ -6,10 +6,10 @@
     "@mohak34/opencode-notifier@latest"
   ],
   "keybinds": {
-    "model_cycle_favorite": "ctrl+m",
-    "model_cycle_favorite_reverse": "ctrl+shift+m"
+    "model_cycle_favorite": "ctrl+a",
+    "model_cycle_favorite_reverse": "ctrl+shift+a"
   },
-  "model": "anthropic/claude-opus-4-5",
+  "model": "openai/gpt-5.2",
   "small_model": "anthropic/claude-haiku-4-5",
   "permission": {
     "external_directory": {
@@ -32,7 +32,7 @@
       "model": "anthropic/claude-haiku-4-5"
     },
     "general": {
-      "model": "anthropic/claude-opus-4-5"
+      "model": "openai/gpt-5.2"
     }
   },
   "mcp": {
