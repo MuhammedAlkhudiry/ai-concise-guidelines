@@ -1,6 +1,6 @@
 ---
 description: Identifies tech debt, duplication, refactoring opportunities
-model: openai/gpt-5.2
+model: anthropic/claude-opus-4-5
 mode: subagent
 reasoningEffort: medium
 ---

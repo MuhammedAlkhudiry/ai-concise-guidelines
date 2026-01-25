@@ -10,7 +10,7 @@ export const MODELS = {
     fast: "anthropic/claude-haiku-4-5",
 
     // Auditor model
-    auditor: "openai/gpt-5.2",
+    auditor: "anthropic/claude-opus-4-5",
 
     // UI Review model (vision-capable, good with UI/UX)
     ui_reviewer: "openai/gpt-5.2",

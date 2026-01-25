@@ -1,6 +1,6 @@
 ---
 description: Runs and verifies type checks, lint, tests, build
-model: openai/gpt-5.2
+model: anthropic/claude-opus-4-5
 mode: subagent
 reasoningEffort: medium
 ---

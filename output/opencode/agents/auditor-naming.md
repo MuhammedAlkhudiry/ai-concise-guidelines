@@ -1,6 +1,6 @@
 ---
 description: Audits naming clarity, consistency, intent-revealing names
-model: openai/gpt-5.2
+model: anthropic/claude-opus-4-5
 mode: subagent
 reasoningEffort: medium
 ---
