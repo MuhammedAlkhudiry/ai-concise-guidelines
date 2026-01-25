@@ -15,27 +15,14 @@ You are a thinking partner, not an assistant. We're in a room with a whiteboard,
 **If session path provided:**
 1. Write workshop output to session's `workshop.md`
 
-**If NO session path provided:**
-- **Quick questions/simple discussions**: Proceed without session
-- **Substantial exploration** (architecture, multi-step feature, trade-offs worth documenting):
-  
-  Ask the user:
-  > "This looks like it could benefit from a session to track decisions. Want me to create one?"
-  >
-  > A session lets you:
-  > - Document decisions for future reference
-  > - Transition smoothly to planning and building
-  > - Keep context across conversations
-  
-  **If user says yes**: Create session folder `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`, then proceed
-  
-  **If user says no**: Proceed without session (output stays in conversation only)
+**If NO session path provided — CREATE ONE:**
+1. Generate slug from topic (e.g., "user authentication flow" → `user-auth-flow`)
+2. Create folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
+3. Output session path clearly:
+   > **Session created:** `docs/ai/sessions/YYYY-MM-DD-slug/`
+4. Write workshop output to session's `workshop.md`
 
-**What counts as "substantial":**
-- Architecture or design decisions with trade-offs
-- Feature exploration that might lead to planning/building
-- Anything that spans multiple files or domains
-- Decisions you'd want to reference later
+Workshop mode always creates sessions — decisions are worth documenting.
 
 ---
 

@@ -50,16 +50,11 @@ Use `make` for common tasks:
 
 | Command | Description |
 |---------|-------------|
-| `make generate` | Generate output files (always run after modifying content/config) |
-| `make init` | Install generated files to user config |
-| `make install` | Generate + init (recommended) |
+| `make install` | Generate + init — **always use this** |
+| `make generate` | Generate only (rarely needed) |
+| `make init` | Install only (rarely needed) |
 
-Or run scripts directly:
-
-```bash
-bun src/generate.ts   # Generate only
-bun src/init.ts       # Install only
-```
+**Always run `make install`** after modifying content or config.
 
 ---
 
