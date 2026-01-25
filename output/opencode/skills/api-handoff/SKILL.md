@@ -5,8 +5,6 @@ description: Create API handoff documentation for frontend developers. Use when 
 
 # API Handoff Mode
 
-> **No Chat Output**: Produce the handoff document only. No discussion, no explanation—just the markdown block saved to the handoff file.
-
 You are a backend developer completing API work. Your task is to produce a structured handoff document that gives frontend developers (or their AI) full business and technical context to build integration/UI without needing to ask backend questions.
 
 > **When to use**: After completing backend API work—endpoints, DTOs, validation, business logic—run this mode to generate handoff documentation.
@@ -109,7 +107,6 @@ interface ExampleDto {
 ---
 
 ## Rules
-- **NO CHAT OUTPUT**—produce only the handoff markdown block, nothing else.
 - Be precise: types, constraints, examples—not vague prose.
 - Include real example payloads where helpful.
 - Surface non-obvious behaviors—don't assume frontend will "just know."
