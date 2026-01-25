@@ -2,7 +2,7 @@
 description: Audits security vulnerabilities, injection, auth flaws
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Security Checklist

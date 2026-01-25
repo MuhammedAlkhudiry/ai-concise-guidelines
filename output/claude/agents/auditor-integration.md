@@ -1,7 +1,7 @@
 ---
 name: auditor-integration
 description: Audits backend↔frontend integration, API contracts
-model: haiku
+model: sonnet
 ---
 
 # Integration Checklist

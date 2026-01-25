@@ -1,7 +1,7 @@
 ---
 name: auditor-forms
 description: Audits form validation, error display, submission, accessibility
-model: haiku
+model: sonnet
 ---
 
 # Forms Checklist

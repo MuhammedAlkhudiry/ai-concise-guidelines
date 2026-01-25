@@ -1,7 +1,7 @@
 ---
 name: auditor-naming
 description: Audits naming clarity, consistency, intent-revealing names
-model: haiku
+model: sonnet
 ---
 
 # Naming Checklist

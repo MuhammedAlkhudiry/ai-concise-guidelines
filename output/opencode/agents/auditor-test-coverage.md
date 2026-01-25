@@ -2,7 +2,7 @@
 description: Audits test coverage, missing cases, edge cases
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Test Coverage Checklist

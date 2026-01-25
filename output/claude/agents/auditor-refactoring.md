@@ -1,7 +1,7 @@
 ---
 name: auditor-refactoring
 description: Identifies tech debt, duplication, refactoring opportunities
-model: haiku
+model: sonnet
 ---
 
 # Refactoring Checklist

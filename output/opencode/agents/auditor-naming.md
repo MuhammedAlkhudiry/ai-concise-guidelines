@@ -2,7 +2,7 @@
 description: Audits naming clarity, consistency, intent-revealing names
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Naming Checklist

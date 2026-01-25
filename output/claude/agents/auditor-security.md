@@ -1,7 +1,7 @@
 ---
 name: auditor-security
 description: Audits security vulnerabilities, injection, auth flaws
-model: haiku
+model: sonnet
 ---
 
 # Security Checklist

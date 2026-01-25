@@ -2,7 +2,7 @@
 description: Audits performance issues, N+1 queries, memory leaks
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Performance Checklist

@@ -1,7 +1,7 @@
 ---
 name: auditor-code-quality
 description: Audits code standards, patterns, clean code
-model: haiku
+model: sonnet
 ---
 
 # Code Quality Checklist

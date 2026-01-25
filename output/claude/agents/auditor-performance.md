@@ -1,7 +1,7 @@
 ---
 name: auditor-performance
 description: Audits performance issues, N+1 queries, memory leaks
-model: haiku
+model: sonnet
 ---
 
 # Performance Checklist

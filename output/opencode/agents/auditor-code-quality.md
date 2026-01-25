@@ -2,7 +2,7 @@
 description: Audits code standards, patterns, clean code
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Code Quality Checklist

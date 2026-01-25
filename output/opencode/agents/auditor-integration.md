@@ -2,7 +2,7 @@
 description: Audits backend↔frontend integration, API contracts
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Integration Checklist

@@ -1,7 +1,7 @@
 ---
 name: auditor-translation
 description: Audits translations, i18n completeness, text quality
-model: haiku
+model: sonnet
 ---
 
 # Translation Checklist

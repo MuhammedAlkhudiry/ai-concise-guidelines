@@ -1,7 +1,7 @@
 ---
 name: auditor-cleanup
 description: Audits for dead code, debug artifacts, unused imports, leftover TODOs
-model: haiku
+model: sonnet
 ---
 
 # Cleanup Checklist

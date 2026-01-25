@@ -2,7 +2,7 @@
 description: Audits form validation, error display, submission, accessibility
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Forms Checklist

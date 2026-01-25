@@ -2,7 +2,7 @@
 description: Audits state management, data flow, re-renders, normalization
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # State Management Checklist

@@ -1,7 +1,7 @@
 ---
 name: auditor-state
 description: Audits state management, data flow, re-renders, normalization
-model: haiku
+model: sonnet
 ---
 
 # State Management Checklist

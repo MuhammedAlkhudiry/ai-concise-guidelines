@@ -2,7 +2,7 @@
 description: Runs and verifies type checks, lint, tests, build
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Tooling Auditor

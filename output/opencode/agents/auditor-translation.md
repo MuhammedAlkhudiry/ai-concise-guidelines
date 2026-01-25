@@ -2,7 +2,7 @@
 description: Audits translations, i18n completeness, text quality
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Translation Checklist

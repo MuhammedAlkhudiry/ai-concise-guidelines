@@ -2,7 +2,7 @@
 description: Audits UI/UX quality, visual consistency, usability
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # UI/UX Checklist

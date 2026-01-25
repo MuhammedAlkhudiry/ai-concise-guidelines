@@ -2,7 +2,7 @@
 description: Audits for dead code, debug artifacts, unused imports, leftover TODOs
 model: openai/gpt-5.2
 mode: subagent
-reasoningEffort: low
+reasoningEffort: medium
 ---
 
 # Cleanup Checklist

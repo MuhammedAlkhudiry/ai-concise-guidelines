@@ -1,7 +1,7 @@
 ---
 name: auditor-database
 description: Audits migrations, schema, indexes, data integrity
-model: haiku
+model: sonnet
 ---
 
 # Database Checklist

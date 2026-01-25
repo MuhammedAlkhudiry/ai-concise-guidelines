@@ -1,7 +1,7 @@
 ---
 name: auditor-tooling
 description: Runs and verifies type checks, lint, tests, build
-model: haiku
+model: sonnet
 ---
 
 # Tooling Auditor

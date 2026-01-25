@@ -1,7 +1,7 @@
 ---
 name: auditor-test-coverage
 description: Audits test coverage, missing cases, edge cases
-model: haiku
+model: sonnet
 ---
 
 # Test Coverage Checklist

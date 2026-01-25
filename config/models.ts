@@ -5,22 +5,23 @@
 
 // OpenCode uses full model identifiers
 export const MODELS = {
-  // Primary models
-  smart: "openai/gpt-5.2",
-  fast: "anthropic/claude-haiku-4-5",
+    // Primary models
+    smart: "openai/gpt-5.2",
+    fast: "anthropic/claude-haiku-4-5",
 
-  // Auditor model
-  auditor: "openai/gpt-5.2",
+    // Auditor model
+    auditor: "openai/gpt-5.2",
 
-  // UI Review model (vision-capable, good with UI/UX)
-  ui_reviewer: "openai/gpt-5.2",
+    // UI Review model (vision-capable, good with UI/UX)
+    ui_reviewer: "openai/gpt-5.2",
 } as const;
 
 // Claude Code uses short aliases
 export const CLAUDE_CODE_MODELS: Record<keyof typeof MODELS, string> = {
-  smart: "opus",
-  fast: "haiku",
-  ui_reviewer: "sonnet", // Claude Code doesn't support Gemini, fallback to Sonnet
+    smart: "opus",
+    fast: "haiku",
+    auditor: "sonnet",
+    ui_reviewer: "sonnet", // Claude Code doesn't support Gemini, fallback to Sonnet
 } as const;
 
 export type ModelType = keyof typeof MODELS;
