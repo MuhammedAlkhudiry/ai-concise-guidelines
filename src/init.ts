@@ -2,7 +2,7 @@
 
 /**
  * Installer Script
- * Installs generated OpenCode files to user config
+ * Installs generated files for both OpenCode and Claude Code
  *
  * Usage: bun src/init.ts [OPTIONS]
  */
@@ -11,7 +11,7 @@ import { existsSync, readFileSync, writeFileSync, copyFileSync } from "fs";
 import { join } from "path";
 import { execSync } from "child_process";
 import { colors, print, printBox, printSeparator } from "./print";
-import { ensureDirSync, ensureParentDirSync, copyDirSync, countInDir, type CopyMode } from "./fs";
+import { ensureDirSync, ensureParentDirSync, copyDirSync, type CopyMode } from "./fs";
 
 // =============================================================================
 // Constants
@@ -23,15 +23,29 @@ const HOME = process.env.HOME || "";
 const ROOT_DIR = join(import.meta.dir, "..");
 const LOCAL_MODE = process.argv.includes("--local") || process.argv.includes("-l");
 
-// Destination paths
-const PATHS = {
+// =============================================================================
+// Destination Paths
+// =============================================================================
+
+const OPENCODE_PATHS = {
   rules: join(HOME, ".config/opencode/AGENTS.md"),
   skills: join(HOME, ".config/opencode/skill"),
   agents: join(HOME, ".config/opencode/agent"),
   plugins: join(HOME, ".config/opencode/plugin"),
   commands: join(HOME, ".config/opencode/command"),
+  config: join(HOME, ".config/opencode/opencode.json"),
+};
+
+const CLAUDE_PATHS = {
+  rules: join(HOME, ".claude/CLAUDE.md"),
+  skills: join(HOME, ".claude/skills"),
+  agents: join(HOME, ".claude/agents"),
+  commands: join(HOME, ".claude/commands"),
+  settings: join(HOME, ".claude/settings.json"),
+};
+
+const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
-  opencodeConfig: join(HOME, ".config/opencode/opencode.json"),
 };
 
 // =============================================================================
@@ -51,7 +65,7 @@ function getSourceDir(): string {
   return LOCAL_MODE ? ROOT_DIR : TMP_DIR;
 }
 
-function buildCopyTasks(): CopyTask[] {
+function buildOpencodeTasks(): CopyTask[] {
   const sourceDir = getSourceDir();
   const opencodeDir = join(sourceDir, "output", "opencode");
 
@@ -59,14 +73,14 @@ function buildCopyTasks(): CopyTask[] {
     {
       name: "skills",
       src: join(opencodeDir, "skills"),
-      dest: PATHS.skills,
+      dest: OPENCODE_PATHS.skills,
       mode: "clean",
       countType: "dir",
     },
     {
       name: "agents",
       src: join(opencodeDir, "agents"),
-      dest: PATHS.agents,
+      dest: OPENCODE_PATHS.agents,
       mode: "clean",
       extensions: [".md"],
       countType: "file",
@@ -74,7 +88,7 @@ function buildCopyTasks(): CopyTask[] {
     {
       name: "plugins",
       src: join(opencodeDir, "plugin"),
-      dest: PATHS.plugins,
+      dest: OPENCODE_PATHS.plugins,
       mode: "merge",
       extensions: [".ts", ".js"],
       countType: "file",
@@ -82,7 +96,38 @@ function buildCopyTasks(): CopyTask[] {
     {
       name: "commands",
       src: join(opencodeDir, "command"),
-      dest: PATHS.commands,
+      dest: OPENCODE_PATHS.commands,
+      mode: "merge",
+      extensions: [".md"],
+      countType: "file",
+    },
+  ];
+}
+
+function buildClaudeTasks(): CopyTask[] {
+  const sourceDir = getSourceDir();
+  const claudeDir = join(sourceDir, "output", "claude");
+
+  return [
+    {
+      name: "skills",
+      src: join(claudeDir, "skills"),
+      dest: CLAUDE_PATHS.skills,
+      mode: "clean",
+      countType: "dir",
+    },
+    {
+      name: "agents",
+      src: join(claudeDir, "agents"),
+      dest: CLAUDE_PATHS.agents,
+      mode: "clean",
+      extensions: [".md"],
+      countType: "file",
+    },
+    {
+      name: "commands",
+      src: join(claudeDir, "commands"),
+      dest: CLAUDE_PATHS.commands,
       mode: "merge",
       extensions: [".md"],
       countType: "file",
@@ -115,12 +160,13 @@ function executeCopyTask(task: CopyTask): void {
 function cloneRepository(): void {
   if (LOCAL_MODE) {
     print.info("Using local output directory...");
-    const outputDir = join(ROOT_DIR, "output", "opencode");
-    if (!existsSync(outputDir)) {
+    const opencodeOutputDir = join(ROOT_DIR, "output", "opencode");
+    const claudeOutputDir = join(ROOT_DIR, "output", "claude");
+    if (!existsSync(opencodeOutputDir) || !existsSync(claudeOutputDir)) {
       print.error("Local output not found. Run 'bun src/generate.ts' first.");
       process.exit(1);
     }
-    print.success("Local output directory found");
+    print.success("Local output directories found");
     return;
   }
 
@@ -133,6 +179,10 @@ function cloneRepository(): void {
     "output/opencode/plugin",
     "output/opencode/command",
     "output/opencode/opencode-config.json",
+    "output/claude/skills",
+    "output/claude/agents",
+    "output/claude/commands",
+    "output/claude/settings.json",
     "shell/zsh-custom.zsh",
   ];
 
@@ -146,8 +196,8 @@ function cloneRepository(): void {
   }
 }
 
-function copyRules(): void {
-  print.info(`Copying rules to ${PATHS.rules}...`);
+function copyOpencodeRules(): void {
+  print.info(`Copying OpenCode rules to ${OPENCODE_PATHS.rules}...`);
 
   const sourceFile = join(getSourceDir(), "content", "base-rules.md");
   if (!existsSync(sourceFile)) {
@@ -155,13 +205,27 @@ function copyRules(): void {
     return;
   }
 
-  ensureParentDirSync(PATHS.rules);
-  copyFileSync(sourceFile, PATHS.rules);
-  print.success(`Rules copied to ${PATHS.rules}`);
+  ensureParentDirSync(OPENCODE_PATHS.rules);
+  copyFileSync(sourceFile, OPENCODE_PATHS.rules);
+  print.success(`OpenCode rules copied`);
+}
+
+function copyClaudeRules(): void {
+  print.info(`Copying Claude Code rules to ${CLAUDE_PATHS.rules}...`);
+
+  const sourceFile = join(getSourceDir(), "content", "base-rules.md");
+  if (!existsSync(sourceFile)) {
+    print.error("Base rules file not found");
+    return;
+  }
+
+  ensureParentDirSync(CLAUDE_PATHS.rules);
+  copyFileSync(sourceFile, CLAUDE_PATHS.rules);
+  print.success(`Claude Code rules copied`);
 }
 
 function copyZsh(): void {
-  print.info(`Copying zsh config to ${PATHS.zsh}...`);
+  print.info(`Copying zsh config to ${SHARED_PATHS.zsh}...`);
 
   const sourceFile = join(getSourceDir(), "shell", "zsh-custom.zsh");
   if (!existsSync(sourceFile)) {
@@ -169,13 +233,13 @@ function copyZsh(): void {
     return;
   }
 
-  ensureParentDirSync(PATHS.zsh);
-  copyFileSync(sourceFile, PATHS.zsh);
+  ensureParentDirSync(SHARED_PATHS.zsh);
+  copyFileSync(sourceFile, SHARED_PATHS.zsh);
   print.success(`Zsh config copied`);
 }
 
 function mergeOpencodeConfig(): void {
-  print.info(`Merging opencode config into ${PATHS.opencodeConfig}...`);
+  print.info(`Merging OpenCode config into ${OPENCODE_PATHS.config}...`);
 
   const sourceFile = join(getSourceDir(), "output", "opencode", "opencode-config.json");
   if (!existsSync(sourceFile)) {
@@ -193,12 +257,12 @@ function mergeOpencodeConfig(): void {
     return;
   }
 
-  ensureParentDirSync(PATHS.opencodeConfig);
+  ensureParentDirSync(OPENCODE_PATHS.config);
 
   let existingConfig: Record<string, unknown> = {};
-  if (existsSync(PATHS.opencodeConfig)) {
+  if (existsSync(OPENCODE_PATHS.config)) {
     try {
-      existingConfig = JSON.parse(readFileSync(PATHS.opencodeConfig, "utf-8"));
+      existingConfig = JSON.parse(readFileSync(OPENCODE_PATHS.config, "utf-8"));
     } catch {
       print.warning("Failed to parse existing config, creating new file");
     }
@@ -225,8 +289,76 @@ function mergeOpencodeConfig(): void {
     mcp: settings.mcp,
   };
 
-  writeFileSync(PATHS.opencodeConfig, JSON.stringify(merged, null, 2) + "\n");
+  writeFileSync(OPENCODE_PATHS.config, JSON.stringify(merged, null, 2) + "\n");
   print.success(`OpenCode config merged`);
+}
+
+function mergeClaudeSettings(): void {
+  print.info(`Merging Claude Code settings into ${CLAUDE_PATHS.settings}...`);
+
+  const sourceFile = join(getSourceDir(), "output", "claude", "settings.json");
+  if (!existsSync(sourceFile)) {
+    print.error("settings.json not found (run 'bun src/generate.ts' first)");
+    return;
+  }
+
+  let settings: Record<string, unknown>;
+  try {
+    const configContent = readFileSync(sourceFile, "utf-8").replace(/<home>/g, HOME);
+    settings = JSON.parse(configContent);
+  } catch {
+    print.error("Failed to parse settings.json");
+    return;
+  }
+
+  ensureParentDirSync(CLAUDE_PATHS.settings);
+
+  let existingConfig: Record<string, unknown> = {};
+  if (existsSync(CLAUDE_PATHS.settings)) {
+    try {
+      existingConfig = JSON.parse(readFileSync(CLAUDE_PATHS.settings, "utf-8"));
+    } catch {
+      print.warning("Failed to parse existing settings, creating new file");
+    }
+  }
+
+  // Merge permissions arrays
+  const existingPermissions = existingConfig.permissions as Record<string, string[]> || {};
+  const newPermissions = settings.permissions as Record<string, string[]> || {};
+
+  const mergedPermissions: Record<string, string[]> = {};
+  
+  // Merge allow arrays
+  if (existingPermissions.allow || newPermissions.allow) {
+    mergedPermissions.allow = [
+      ...new Set([
+        ...(existingPermissions.allow || []),
+        ...(newPermissions.allow || []),
+      ]),
+    ];
+  }
+
+  // Merge deny arrays
+  if (existingPermissions.deny || newPermissions.deny) {
+    mergedPermissions.deny = [
+      ...new Set([
+        ...(existingPermissions.deny || []),
+        ...(newPermissions.deny || []),
+      ]),
+    ];
+  }
+
+  const merged = {
+    ...existingConfig,
+    ...settings,
+  };
+
+  if (Object.keys(mergedPermissions).length > 0) {
+    merged.permissions = mergedPermissions;
+  }
+
+  writeFileSync(CLAUDE_PATHS.settings, JSON.stringify(merged, null, 2) + "\n");
+  print.success(`Claude Code settings merged`);
 }
 
 function cleanup(): void {
@@ -243,7 +375,8 @@ function cleanup(): void {
 function showUsage(): never {
   console.log(`
 ${colors.blue("+=============================================================+")}
-${colors.blue("|   AI Concise Guidelines - OpenCode Installer                |")}
+${colors.blue("|   AI Concise Guidelines - Installer                         |")}
+${colors.blue("|   Supports: OpenCode + Claude Code                          |")}
 ${colors.blue("+=============================================================+")}
 
 Usage: bun src/init.ts [OPTIONS]
@@ -253,13 +386,24 @@ Options:
   --local, -l    Use local output directory instead of cloning from GitHub
 
 Installs to:
-  - Rules:          ${PATHS.rules}
-  - Skills:         ${PATHS.skills}
-  - Agents:         ${PATHS.agents}
-  - Plugins:        ${PATHS.plugins}
-  - Commands:       ${PATHS.commands}
-  - Zsh:            ${PATHS.zsh}
-  - OpenCode Config: ${PATHS.opencodeConfig}
+
+  ${colors.blue("OpenCode:")}
+    Rules:    ${OPENCODE_PATHS.rules}
+    Skills:   ${OPENCODE_PATHS.skills}
+    Agents:   ${OPENCODE_PATHS.agents}
+    Plugins:  ${OPENCODE_PATHS.plugins}
+    Commands: ${OPENCODE_PATHS.commands}
+    Config:   ${OPENCODE_PATHS.config}
+
+  ${colors.green("Claude Code:")}
+    Rules:    ${CLAUDE_PATHS.rules}
+    Skills:   ${CLAUDE_PATHS.skills}
+    Agents:   ${CLAUDE_PATHS.agents}
+    Commands: ${CLAUDE_PATHS.commands}
+    Settings: ${CLAUDE_PATHS.settings}
+
+  ${colors.yellow("Shared:")}
+    Zsh:      ${SHARED_PATHS.zsh}
 `);
   process.exit(0);
 }
@@ -278,32 +422,58 @@ function main() {
   // Show header
   const modeLabel = LOCAL_MODE ? colors.yellow("(local)") : colors.green("(remote)");
   console.log();
-  printBox("AI Concise Guidelines - OpenCode Installer");
+  printBox("AI Concise Guidelines - Installer");
   console.log();
   printSeparator();
   console.log(colors.blue(`Installing from: ${modeLabel}`));
-  console.log(`  - Rules:           ${PATHS.rules}`);
-  console.log(`  - Skills:          ${PATHS.skills} (clean sync)`);
-  console.log(`  - Agents:          ${PATHS.agents} (clean sync)`);
-  console.log(`  - Plugins:         ${PATHS.plugins} (merge)`);
-  console.log(`  - Commands:        ${PATHS.commands} (merge)`);
-  console.log(`  - Zsh:             ${PATHS.zsh}`);
-  console.log(`  - OpenCode Config: ${PATHS.opencodeConfig} (merge)`);
+  console.log();
+  console.log(colors.blue("  OpenCode:"));
+  console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
+  console.log(`    Skills:   ${OPENCODE_PATHS.skills} (clean)`);
+  console.log(`    Agents:   ${OPENCODE_PATHS.agents} (clean)`);
+  console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (merge)`);
+  console.log(`    Commands: ${OPENCODE_PATHS.commands} (merge)`);
+  console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
+  console.log();
+  console.log(colors.green("  Claude Code:"));
+  console.log(`    Rules:    ${CLAUDE_PATHS.rules}`);
+  console.log(`    Skills:   ${CLAUDE_PATHS.skills} (clean)`);
+  console.log(`    Agents:   ${CLAUDE_PATHS.agents} (clean)`);
+  console.log(`    Commands: ${CLAUDE_PATHS.commands} (merge)`);
+  console.log(`    Settings: ${CLAUDE_PATHS.settings} (merge)`);
+  console.log();
+  console.log(colors.yellow("  Shared:"));
+  console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   printSeparator();
   console.log();
 
   // Execute installation
   cloneRepository();
-  copyRules();
 
-  // Execute data-driven copy tasks
-  const tasks = buildCopyTasks();
-  for (const task of tasks) {
+  // OpenCode installation
+  console.log();
+  console.log(colors.blue("Installing OpenCode..."));
+  copyOpencodeRules();
+  const opencodeTasks = buildOpencodeTasks();
+  for (const task of opencodeTasks) {
     executeCopyTask(task);
   }
-
-  copyZsh();
   mergeOpencodeConfig();
+
+  // Claude Code installation
+  console.log();
+  console.log(colors.green("Installing Claude Code..."));
+  copyClaudeRules();
+  const claudeTasks = buildClaudeTasks();
+  for (const task of claudeTasks) {
+    executeCopyTask(task);
+  }
+  mergeClaudeSettings();
+
+  // Shared
+  console.log();
+  console.log(colors.yellow("Installing shared configs..."));
+  copyZsh();
 
   console.log();
   printBox("Installation completed successfully!", "green");

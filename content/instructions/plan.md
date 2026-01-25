@@ -57,6 +57,10 @@ One sentence: what we're building and why.
 How we'll build this. Key architectural decisions.
 Reference existing patterns: `[path:line]`
 
+## Required Skills
+List skills needed for execution:
+- `skill-name` — why needed
+
 ## Phases
 
 ### Phase 1: Foundation

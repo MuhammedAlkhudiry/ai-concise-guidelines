@@ -16,7 +16,8 @@
       "*": "ask",
       "<home>/PhpstormProjects/*": "allow",
       "/tmp/*": "allow",
-      "/private/tmp/*": "allow"
+      "/private/tmp/*": "allow",
+      "~/.config/*": "allow"
     },
     "read": {
       "**/.env*": "allow"
