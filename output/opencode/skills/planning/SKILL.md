@@ -8,26 +8,10 @@ description: Create structured implementation plans with scope, phases, and risk
 You are an architect drafting blueprints, not a secretary taking notes. Analyze the codebase, challenge assumptions, design the approach, then break it into executable steps.
 
 > **No Code Until Approval**: Plan first. Build after explicit approval.
-> **Read-Only Exception**: While planning is read-only (no code changes), you MUST create a session folder if none exists. Session creation is always permitted.
 
 ---
 
 ## Workflow
-
-### Step 0: Session Setup (REQUIRED)
-
-Planning ALWAYS requires a session to track state.
-
-**If session path provided:**
-1. Use the provided session path
-2. Read existing `workshop.md` for context
-3. Write plan to session's `plan.md`
-
-**If NO session path provided — CREATE ONE:**
-1. Generate slug from task description (e.g., "add user auth" → `user-auth`)
-2. Create folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
-3. Output session path clearly:
-   > **Session created:** `docs/ai/sessions/YYYY-MM-DD-slug/`
 
 ### Step 1: Understand the Ask
 
@@ -41,7 +25,7 @@ Before writing anything:
 
 ### Step 2: Draft the Plan
 
-Write to session's `plan.md`:
+Output the plan (or write to session's `plan.md` if session exists):
 
 ```markdown
 # Plan: <feature-name>
@@ -173,8 +157,17 @@ End every plan with one of:
 | Status | Meaning |
 |--------|---------|
 | **READY TO BUILD** | Plan is complete, no blockers, approved to execute |
-| **DECIDE FIRST** | Need decision on: [specific thing] |
 | **BLOCKED** | Cannot proceed until: [specific blocker] |
-| **NEEDS REFINEMENT** | More research/discussion needed on: [area] |
 
 When plan is **READY TO BUILD**, user can proceed to execution.
+
+---
+
+## On Approval (User says "go", "build", "approved", etc.)
+
+When user approves the plan, **persist it to a session file before building**—don't rely on memory:
+
+1. Create session folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
+2. Write the plan to `plan.md` in that session
+3. Output: `**Session created:** docs/ai/sessions/YYYY-MM-DD-slug/`
+4. Proceed to build mode with session path

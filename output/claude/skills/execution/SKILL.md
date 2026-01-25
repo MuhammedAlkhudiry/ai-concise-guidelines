@@ -15,6 +15,11 @@ Turn a plan into real, production-ready code. No pseudo, no experiments, no scop
 
 ## Session Context
 
+**Before building:** If going through planning or the change warrants sizable work, create a session first:
+1. Generate slug from task (e.g., "add user auth" → `user-auth`)
+2. Create folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
+3. Output: `**Session created:** docs/ai/sessions/YYYY-MM-DD-slug/`
+
 If session path is provided:
 1. **Read session files:** `plan.md`, `workshop.md`
 2. **Update `plan.md`:** mark items done, note blockers, track decisions

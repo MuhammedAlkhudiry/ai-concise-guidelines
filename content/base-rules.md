@@ -1,5 +1,6 @@
 ## Critical Rules
 
+- **RE-READ THE REQUEST** — Before responding, re-read the user's request to ensure you're addressing what they actually asked
 - **NO SHORTCUTS** — If a task only works via a shortcut/unsafe workaround, STOP and notify the user. Do not proceed without explicit approval.
 - **STAY IN SCOPE** — If an error/blocker is outside your task, HALT and report. Do not modify outside scope.
 - **TEST ONLY WHAT MATTERS** — Cover critical paths, ignore noise. Tests must be fast, reliable, essential. Useless tests are forbidden.
