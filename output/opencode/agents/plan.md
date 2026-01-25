@@ -1,6 +1,6 @@
 ---
 description: Architect mode. Analyzes codebase, designs approach, creates executable plans. No code changes.
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2
 mode: primary
 color: "#A855F7"
 ---

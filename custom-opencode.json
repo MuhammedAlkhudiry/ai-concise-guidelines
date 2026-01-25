@@ -6,8 +6,8 @@
     "@mohak34/opencode-notifier@latest"
   ],
   "keybinds": {
-    "model_cycle_favorite": "ctrl+m",
-    "model_cycle_favorite_reverse": "ctrl+shift+m"
+    "model_cycle_favorite": "ctrl+a",
+    "model_cycle_favorite_reverse": "ctrl+shift+a"
   },
   "model": "<smart-model>",
   "small_model": "<fast-model>",

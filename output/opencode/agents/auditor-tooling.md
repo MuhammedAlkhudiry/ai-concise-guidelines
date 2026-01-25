@@ -1,7 +1,8 @@
 ---
 description: Runs and verifies type checks, lint, tests, build
-model: anthropic/claude-haiku-4-5
+model: openai/gpt-5.2
 mode: subagent
+reasoningEffort: low
 ---
 
 # Tooling Auditor

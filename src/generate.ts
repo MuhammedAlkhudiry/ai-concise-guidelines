@@ -75,6 +75,7 @@ async function generateAgents(): Promise<number> {
       description: config.description,
       model: MODELS[config.model],
       mode: config.type === "sub" ? "subagent" : "primary",
+      ...(config.additional ?? {}),
     };
 
     if (config.color) frontmatter.color = `"${config.color}"`;

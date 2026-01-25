@@ -5,11 +5,14 @@
 
 export const MODELS = {
   // Primary models
-  smart: "anthropic/claude-opus-4-5",
+  smart: "openai/gpt-5.2",
   fast: "anthropic/claude-haiku-4-5",
 
+  // Auditor model
+  auditor: "openai/gpt-5.2",
+
   // UI Review model (vision-capable, good with UI/UX)
-  ui_reviewer: "google/gemini-3-pro-preview",
+  ui_reviewer: "openai/gpt-5.2",
 } as const;
 
 export type ModelType = keyof typeof MODELS;

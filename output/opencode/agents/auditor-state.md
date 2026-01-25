@@ -1,7 +1,8 @@
 ---
 description: Audits state management, data flow, re-renders, normalization
-model: anthropic/claude-haiku-4-5
+model: openai/gpt-5.2
 mode: subagent
+reasoningEffort: low
 ---
 
 # State Management Checklist

@@ -1,7 +1,8 @@
 ---
 description: Audits UI/UX quality, visual consistency, usability
-model: google/gemini-3-pro-preview
+model: openai/gpt-5.2
 mode: subagent
+reasoningEffort: low
 ---
 
 # UI/UX Checklist

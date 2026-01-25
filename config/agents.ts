@@ -13,6 +13,8 @@ export interface AgentConfig {
   description: string;
   /** Model type to use */
   model: ModelType;
+  /** Additional model/provider options (passed through) */
+  additional?: Record<string, unknown>;
   /** Agent type: primary (user-invokable mode) or sub (spawned by other agents) */
   type: "primary" | "sub";
   /** Hex color code for the agent (e.g., #FF5733) */

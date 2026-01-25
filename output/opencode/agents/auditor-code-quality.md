@@ -1,7 +1,8 @@
 ---
 description: Audits code standards, patterns, clean code
-model: anthropic/claude-haiku-4-5
+model: openai/gpt-5.2
 mode: subagent
+reasoningEffort: low
 ---
 
 # Code Quality Checklist

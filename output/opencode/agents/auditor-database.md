@@ -1,7 +1,8 @@
 ---
 description: Audits migrations, schema, indexes, data integrity
-model: anthropic/claude-haiku-4-5
+model: openai/gpt-5.2
 mode: subagent
+reasoningEffort: low
 ---
 
 # Database Checklist

@@ -1,6 +1,6 @@
 ---
 description: Thinking partner for brainstorming. Stress-tests ideas, pokes holes, stays critical.
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2
 mode: primary
 color: "#3B82F6"
 ---

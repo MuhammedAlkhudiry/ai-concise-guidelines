@@ -1,6 +1,6 @@
 /**
  * Auditor configurations
- * All auditors are subagents using fast model (except ui which needs vision)
+ * All auditors are subagents using auditor model (except ui which needs vision)
  */
 
 import { type AgentConfig } from "./agents";
@@ -26,6 +26,10 @@ const AUDITOR_DESCRIPTIONS: Record<string, string> = {
   "translation": "Audits translations, i18n completeness, text quality",
 };
 
+const AUDITOR_ADDITIONAL: AgentConfig["additional"] = {
+  reasoningEffort: "medium",
+};
+
 // Special model overrides (default is "fast")
 const MODEL_OVERRIDES: Record<string, AgentConfig["model"]> = {
   "ui": "ui_reviewer", // needs vision
@@ -38,7 +42,8 @@ export const AUDITORS: Record<string, AgentConfig> = Object.fromEntries(
     {
       instruction: `auditing/auditor-${name}`,
       description,
-      model: MODEL_OVERRIDES[name] ?? "fast",
+      model: MODEL_OVERRIDES[name] ?? "auditor",
+      additional: AUDITOR_ADDITIONAL,
       type: "sub" as const,
     },
   ])
