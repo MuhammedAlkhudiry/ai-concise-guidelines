@@ -65,8 +65,7 @@ List skills needed for execution:
 - [ ] 3.1 Task description
 
 ### Phase N: Finalize
-- [ ] N.1 Run audit (`audit-orchestrator` skill)
-- [ ] N.2 Update `KNOWLEDGE.md` if new business context discovered
+- [ ] N.1 Update `KNOWLEDGE.md` if new business context discovered
 
 ## Blockers (need input)
 - **Q**: Question I cannot answer from available sources

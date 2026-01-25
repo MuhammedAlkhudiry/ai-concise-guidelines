@@ -12,10 +12,6 @@
 - **TRANSLATE EVERYTHING** — Every user-facing string must be translated. Provide natural, contextual translations—never literal. If translation is missing from user/context, write it yourself.
 - **TASK IS NOT DONE** — Run type-check/lint/format/analysis/relevant-tests. Fix only task-related issues. Task IS NOT DONE until this is complete.
 - **THINK HOLISTICALLY** — When changing any behavior (e.g., validation, API params, business logic), ask: *What else does this affect?* Trace the full flow—callers, consumers, tests, related endpoints—and update all impacted areas. Do not change one spot and leave others broken.
-- **WORKFLOW** — Follow the mode skill for each phase:
-  - **Plan** → Use the `planning` skill
-  - **Build** → Use the `execution` skill
-  - **Audit** → Use the `audit-orchestrator` skill (mandatory after build)
   Do not implement directly—use the appropriate skill.
 - **PARALLELIZE EXECUTION** — When todo list has multiple independent tasks, spawn subagents to execute them in parallel. Don't work sequentially on tasks that have no dependencies. Use your judgment:
     - Independent file changes → parallel
