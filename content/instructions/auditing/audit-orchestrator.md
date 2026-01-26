@@ -40,20 +40,12 @@ Based on changes, spawn the relevant auditors:
 
 | Change Type | Auditors to Spawn |
 |-------------|-------------------|
-| Any code change | `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup`, `auditor-performance`, `auditor-naming` |
-| Sizable changes | `auditor-refactoring` |
-| Frontend UI | `auditor-ui` |
-| Frontend state | `auditor-state` |
-| Forms | `auditor-forms` |
+| Frontend changes | `auditor-frontend-ui-ux` |
+| Backend changes | `auditor-backend` |
 | Backend + Frontend | `auditor-integration` |
-| Database/migrations | `auditor-database` |
-| Auth/input/secrets | `auditor-security` |
 | Tests touched | `auditor-test-coverage` |
-| Translations touched | `auditor-translation` |
 
-**Always run**: `auditor-code-quality`, `auditor-tooling`, `auditor-cleanup`, `auditor-performance`, `auditor-naming`
-
-**Conditional**: Others based on what changed.
+Select auditors based on what files changed. Both `auditor-backend` and `auditor-frontend-ui-ux` include code quality checks.
 
 ### Step 3: Spawn Auditors
 
@@ -94,7 +86,7 @@ Do NOT skip just because it's "non-blocking". Non-blocking issues are still issu
 **Fix order:**
 1. All blocking issues first
 2. All non-blocking issues
-3. Verify with `auditor-tooling`
+3. Verify with tooling checks (typecheck, lint, tests)
 
 ### Step 6: Final Report
 
