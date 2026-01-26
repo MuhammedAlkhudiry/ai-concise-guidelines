@@ -69,7 +69,7 @@ export const SKILLS: Record<string, SkillConfig> = {
   "audit-orchestrator": {
     instruction: "auditing/audit-orchestrator",
     description:
-      "Run comprehensive audit on completed work. Use after implementation is done, or when user says 'audit this', 'review the work', 'check for issues'. Spawns specialized auditors and fixes found issues.",
+      "Run comprehensive audit on completed work. Use ONLY when user explicitly asks - says 'audit this', 'review the work', 'check for issues'. Never trigger automatically after implementation. Spawns specialized auditors and fixes found issues.",
   },
 
   "qa-test-cases": {
