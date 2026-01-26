@@ -51,6 +51,52 @@ export const AGENTS: Record<string, AgentConfig> = {
     model: "smart",
     type: "primary",
     color: "#3B82F6",
+    // Higher temperature for creative thinking and varied perspectives
+    additional: { temperature: 1 },
+  },
+
+  // ============================================
+  // CREATIVE SUBAGENTS (higher temperature)
+  // ============================================
+
+  "uxui-creative": {
+    instruction: "uxui-creative",
+    description:
+      "Distinctive, bold UI design that avoids generic AI aesthetics. For landing pages, new products, marketing sites.",
+    model: "smart",
+    type: "sub",
+    // High temperature for creative, distinctive design choices
+    additional: { temperature: 1 },
+  },
+
+  "product-strategy": {
+    instruction: "product-strategy",
+    description:
+      "Find 10x product opportunities. Strategic thinking, high-impact features, no safe ideas.",
+    model: "smart",
+    type: "sub",
+    // Higher temperature for bold, creative strategic thinking
+    additional: { temperature: 1 },
+  },
+
+  "feature-research": {
+    instruction: "feature-research",
+    description:
+      "Deep research on features with co-founder mindset. Explores options, challenges assumptions.",
+    model: "smart",
+    type: "sub",
+    // Moderate-high temperature for exploratory thinking
+    additional: { temperature: 0.8 },
+  },
+
+  translation: {
+    instruction: "translation",
+    description:
+      "Review translations for quality, naturalness, and cultural fit. Natural language output.",
+    model: "smart",
+    type: "sub",
+    // Moderate temperature for natural, varied language
+    additional: { temperature: 0.5 },
   },
 
   // ============================================

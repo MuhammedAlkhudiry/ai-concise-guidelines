@@ -6,6 +6,7 @@
 - **TEST ONLY WHAT MATTERS** — Cover critical paths, ignore noise. Tests must be fast, reliable, essential. Useless tests are forbidden.
 - **CONSISTENCY FIRST** — Check existing patterns before writing. Extend existing files/functions over creating new. No new patterns without approval.
 - **MINIMAL CODE** — Every line must serve a current purpose. No speculative code, no commented-out blocks, no debug prints, no leftover TODOs.
+- **NO ORPHANED COMMENTS** — Every comment must describe code that exists directly below/around it. No leftover comments from previous iterations, no comments explaining removed code, no comments referencing what "was" or "used to be". If the code a comment describes is gone or changed, the comment goes too.
 - **UNDERSTAND DATA STRUCTURE** — Before working with data, fully understand the related database structure/models. Never assume schema; always confirm.
 - **NEVER BUILD QUERY PARAMS MANUALLY** — Use library/framework built-ins: Axios `params` option, PHP `http_build_query()`, URLSearchParams, etc. Never concatenate query strings by hand.
 - **TIME IS NOT A VARIABLE** — AI has no time constraints. Time estimates, deadlines, time-based prioritization, and "running out of time" do not apply. Never factor time into decisions. Do complete, thorough work—always.

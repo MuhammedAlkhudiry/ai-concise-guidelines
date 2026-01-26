@@ -167,6 +167,8 @@ PLAN → EXECUTE → Audit Orchestrator → Done
 - **UPDATE DOCS** — When changing CLI args, configs, or user-facing behavior, always update `README.md` and `shell/zsh-custom.zsh` if affected
 - **NEVER EDIT OR SELECT A MODEL**, this is always up to the user
 - **READ CLAUDE DOCS** — When working with Claude Code features (plugins, commands, skills, agents, config), always fetch and read https://docs.anthropic.com/en/docs/claude-code first to ensure correct format and API usage
+- **READ OPENCODE DOCS** — When working with OpenCode features (agents, config, models, temperature), refer to `opencode-docs-ref.md` or fetch https://opencode.ai/docs for current documentation
+
 ---
 
 ## File Types Summary
