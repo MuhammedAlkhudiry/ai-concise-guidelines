@@ -6,11 +6,11 @@
 // OpenCode uses full model identifiers
 export const MODELS = {
     // Primary models
-    smart: "openai/gpt-5.2",
+    smart: "anthropic/claude-opus-4-5",
     fast: "anthropic/claude-haiku-4-5",
 
     // Auditor model
-    auditor: "anthropic/claude-opus-4-5",
+    auditor: "openai/gpt-5.2",
 
     // UI Review model (vision-capable, good with UI/UX)
     ui_reviewer: "openai/gpt-5.2",
