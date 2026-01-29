@@ -6,14 +6,14 @@
 // OpenCode uses full model identifiers
 export const MODELS = {
     // Primary models
-    smart: "anthropic/claude-opus-4-5",
+    smart: "openai/gpt-5.2-codex",
     fast: "anthropic/claude-haiku-4-5",
 
     // Auditor model
-    auditor: "openai/gpt-5.2",
+    auditor: "openai/gpt-5.2-codex",
 
     // UI Review model (vision-capable, good with UI/UX)
-    ui_reviewer: "openai/gpt-5.2",
+    ui_reviewer: "openai/gpt-5.2-codex",
 } as const;
 
 // Claude Code uses short aliases
