@@ -20,8 +20,6 @@ Provide comprehensive code review by delegating to specialized auditors based on
 ### Step 1: Analyze Changes
 
 If session path was provided:
-- Read `plan.md` — What was planned and current progress
-- Pass session path to all subagents you spawn
 - Write final report to session's `audit.md`
 
 Then, understand the scope:
@@ -129,7 +127,7 @@ After fixes are applied:
 - **SKIP ONLY WITH JUSTIFICATION** — If you skip, explain why you disagree or what context is missing
 - **DO NOT skip auditors** — Run all relevant auditors, don't shortcut
 - **Be specific** — Quote file:line for all findings and fixes
-- **Stay in scope** — Fix audit issues only, don't refactor unrelated code
+- **Audit scope only** — Fix audit issues, don't refactor unrelated code
 - **Verify after fixing** — Re-run tooling checks to confirm fixes work
 
 ---

@@ -17,7 +17,6 @@ Critical rules for TypeScript and JavaScript development.
 - `const` by default; `let` only when mutation needed; never `var`
 - Destructure props/objects at function entry
 - Arrow functions for callbacks; named functions for top-level/exported
-- No dead code, unused imports, or commented-out blocks
 
 ## Async & Error Handling
 

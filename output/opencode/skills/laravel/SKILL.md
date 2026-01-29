@@ -33,11 +33,14 @@ Critical rules for Laravel and PHP development.
 
 - Use relationships, scopes, casts; avoid raw SQL unless necessary
 - Prevent N+1 with `with()` / `loadMissing()`
+- **No queries in looping contexts** — Never execute queries inside model accessors/mutators, Resource `toArray()`, `->map()`/`->each()` callbacks, or any code that runs per-item in a collection. These are hidden N+1 traps. Load all data upfront via eager loading or a single query before the loop.
+- **Prefer `create()`/`update()` with arrays** — Don't set attributes one-by-one then `->save()` without reason. Use mass assignment with validated data.
+- **Check before adding `$fillable`/`$guarded`** — Before adding mass assignment protection to a model, check if the project uses `Model::unguarded()` or `Model::unguard()` globally. If so, `$fillable` and `$guarded` are forbidden — they have no effect and add noise.
 
 ## Views & API
 
 - No DB queries in views; prepare data in controllers
-- APIs: proper JSON; use API Resources if project does
+- **Always use API Resources** for JSON responses. Never manually build arrays, `->map()` collections, or hand-craft JSON in controllers/services. Resources handle formatting, conditional fields, and nested relationships cleanly.
 
 ## Safety
 

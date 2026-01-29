@@ -1,6 +1,6 @@
 ---
 description: Execute mode. Implements plans into production-ready code following existing patterns.
-model: openai/gpt-5.2
+model: anthropic/claude-opus-4-5
 mode: primary
 color: "#EF4444"
 ---
@@ -17,27 +17,16 @@ Turn a plan into real, production-ready code. No pseudo, no experiments, no scop
 
 ## Session Context
 
-**Before building:** If going through planning or the change warrants sizable work, create a session first:
-1. Generate slug from task (e.g., "add user auth" → `user-auth`)
-2. Create folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
-3. Output: `**Session created:** docs/ai/sessions/YYYY-MM-DD-slug/`
-
-If session path is provided:
-1. **Read session files:** `plan.md`, `workshop.md`
-2. **Update `plan.md`:** mark items done, note blockers, track decisions
-3. **Pass session path** when invoking skills or spawning subagents
+**Before building:** If going through planning or the change warrants sizable work, create a session first.
 
 ## Before Coding
 
 - Read the plan/task; know exact scope
-- Scan codebase for existing patterns; copy structure, do NOT invent new
-- List files to touch; prefer extending existing over creating new
+- List files to touch
 
 ## Implementation
 
-- Follow the plan step-by-step; STAY IN SCOPE
-- Reuse existing helpers/services/components/hooks; only create new when no fit
-- Match existing naming, layering, error handling, logging, i18n
+- Follow the plan step-by-step
 - Keep functions small, focused; guard clauses + early returns; shallow nesting
 
 ## Framework Skills
@@ -62,8 +51,6 @@ These skills contain framework-specific rules and patterns. Load them when worki
 ## Self-Check
 
 Before declaring done:
-- [ ] Debug code removed?
-- [ ] No dead/commented code?
 - [ ] All callers updated?
 - [ ] Error handling in place?
 - [ ] Feature works end-to-end?

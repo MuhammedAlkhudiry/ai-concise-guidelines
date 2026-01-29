@@ -173,8 +173,6 @@ What it should look like after. Structure, boundaries, patterns.
 - **Behavior stays the same**—unless explicitly changing it (then it's not pure refactoring)
 - **Small steps**—if a step feels big, break it down further
 - **Test after each step**—don't batch changes and hope
-- **Follow existing patterns**—don't introduce new abstractions unless codebase already uses them
-- **Kill dead code**—don't preserve it "just in case"
 - **Name things well**—refactoring is a chance to fix bad names
 - **Leave it better**—if you touch it, improve it
 
@@ -203,8 +201,6 @@ What it should look like after. Structure, boundaries, patterns.
 ### Tech Debt
 - [ ] Outdated patterns (new patterns exist)
 - [ ] Workarounds that should be fixed
-- [ ] TODOs and FIXMEs accumulated
-- [ ] Dead code paths
 - [ ] Unused dependencies
 
 ### Abstraction Issues

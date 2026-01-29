@@ -9,7 +9,6 @@ model: sonnet
 ## Code Quality
 
 ### Pattern Consistency
-- [ ] New code follows existing project patterns (don't invent new patterns)
 - [ ] Component structure matches existing (folder layout, file naming)
 - [ ] Naming conventions match codebase (components, hooks, utils)
 - [ ] Import ordering and grouping consistent
@@ -22,9 +21,7 @@ model: sonnet
 
 ### Clean Code
 - [ ] No deep nesting (max 3 levels, extract components)
-- [ ] Clear, descriptive naming (no abbreviations)
 - [ ] No magic numbers/strings (use constants/theme)
-- [ ] No duplicate code (extract to shared components/hooks)
 
 ### Type Safety
 - [ ] TypeScript types explicit (no `any`, no implicit any)
@@ -157,26 +154,7 @@ model: sonnet
 
 ## Translations
 
-### Completeness
-- [ ] All new user-facing strings have translations
-- [ ] No hardcoded strings in components
-- [ ] All supported languages have entries
-- [ ] Fallback language has all strings
-
-### Quality
-- [ ] Translations are natural (not literal)
-- [ ] Grammar is correct
-- [ ] Tone matches the app
-- [ ] Appropriate formality level
-
-### Context
-- [ ] Translations fit the UI context
-- [ ] Button text is action-oriented
-- [ ] Error messages are helpful
-- [ ] Length works in UI (no truncation)
-
-### Technical
-- [ ] Interpolation variables preserved
-- [ ] Pluralization handled correctly
-- [ ] Date/number formats localized
-- [ ] Keys follow naming convention
+- [ ] All supported languages have entries for new strings
+- [ ] Interpolation variables preserved (match source language exactly)
+- [ ] Length works in UI (no truncation in longer languages)
+- [ ] Keys follow project naming convention

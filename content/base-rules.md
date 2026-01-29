@@ -6,6 +6,15 @@
 - **TEST ONLY WHAT MATTERS** — Cover critical paths, ignore noise. Tests must be fast, reliable, essential. Useless tests are forbidden.
 - **CONSISTENCY FIRST** — Check existing patterns before writing. Extend existing files/functions over creating new. No new patterns without approval.
 - **MINIMAL CODE** — Every line must serve a current purpose. No speculative code, no commented-out blocks, no debug prints, no leftover TODOs.
+- **NO USELESS VARIABLES** — Never assign a property/method result to a variable just to use it once or twice inline. Access the value directly. Variables are only justified when: the value is reused 3+ times, the expression is complex/expensive, or the variable name adds meaningful clarity the original expression lacks.
+    ```
+    // BAD — pointless variable used twice
+    const user = order.user;
+    if (user && user.isActive()) { sendEmail(user); }
+
+    // GOOD — access directly
+    if (order.user?.isActive()) { sendEmail(order.user); }
+    ```
 - **NO ORPHANED COMMENTS** — Every comment must describe code that exists directly below/around it. No leftover comments from previous iterations, no comments explaining removed code, no comments referencing what "was" or "used to be". If the code a comment describes is gone or changed, the comment goes too.
 - **UNDERSTAND DATA STRUCTURE** — Before working with data, fully understand the related database structure/models. Never assume schema; always confirm.
 - **NEVER BUILD QUERY PARAMS MANUALLY** — Use library/framework built-ins: Axios `params` option, PHP `http_build_query()`, URLSearchParams, etc. Never concatenate query strings by hand.
@@ -14,9 +23,9 @@
 - **TASK IS NOT DONE** — Run type-check/lint/format/analysis/relevant-tests. Fix only task-related issues. Task IS NOT DONE until this is complete.
 - **THINK HOLISTICALLY** — When changing any behavior (e.g., validation, API params, business logic), ask: *What else does this affect?* Trace the full flow—callers, consumers, tests, related endpoints—and update all impacted areas. Do not change one spot and leave others broken.
   Do not implement directly—use the appropriate skill.
-- **PARALLELIZE EXECUTION** — When todo list has multiple independent tasks, spawn subagents to execute them in parallel. Don't work sequentially on tasks that have no dependencies. Use your judgment:
-    - Independent file changes → parallel
-    - Frontend + backend for same feature → parallel
+- **PARALLELIZE EXECUTION** — AI can only parallelize with subagents. When todo list has multiple independent tasks, spawn general subagents (with relevant skills loaded) to execute them in parallel. Don't work sequentially on tasks that have no dependencies. Use your judgment:
+    - Independent file changes → parallel subagents
+    - Frontend + backend for same feature → parallel subagents
     - Tasks with shared state/dependencies → sequential
     - When in doubt, parallelize and coordinate results
 
@@ -76,6 +85,7 @@ Project knowledge lives in `KNOWLEDGE.md` at project root. Use `/init-knowledge`
 - Anything readable from code (schemas, API signatures, config values)
 - Implementation details (AI can read the code)
 - Obvious patterns already in codebase
+- Code snippets — only `[file:line]` or `[path:line-line]` references allowed when needed
 
 **Format:**
 - Sections by domain/bounded context (Orders, Users, Payments, etc.)

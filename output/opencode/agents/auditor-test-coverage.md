@@ -1,6 +1,6 @@
 ---
 description: Audits test coverage, missing cases, edge cases
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2
 mode: subagent
 reasoningEffort: medium
 ---

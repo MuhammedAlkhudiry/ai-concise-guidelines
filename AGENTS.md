@@ -157,13 +157,6 @@ PLAN → EXECUTE → Audit Orchestrator → Done
 
 ## Critical Rules
 
-- **NO SHORTCUTS** — Stop and notify if only unsafe workarounds work
-- **STAY IN SCOPE** — Halt if blocker is outside task scope
-- **PROTECT DATA** — Never modify development DB destructively
-- **NO SELF-APPROVAL** — Use auditor sub-agent for code approval
-- **NO DEAD CODE** — No commented blocks, debug prints, leftover TODOs
-- **PREFER EXTENDING** — Extend existing files over creating new ones
-- **AFTER-TASK CHECKLIST** — Run type-check/lint/format/tests
 - **UPDATE DOCS** — When changing CLI args, configs, or user-facing behavior, always update `README.md` and `shell/zsh-custom.zsh` if affected
 - **NEVER EDIT OR SELECT A MODEL**, this is always up to the user
 - **READ CLAUDE DOCS** — When working with Claude Code features (plugins, commands, skills, agents, config), always fetch and read https://docs.anthropic.com/en/docs/claude-code first to ensure correct format and API usage

@@ -3,7 +3,6 @@
 ## Code Quality
 
 ### Pattern Consistency
-- [ ] New code follows existing project patterns (don't invent new patterns)
 - [ ] Service/repository/controller separation matches codebase
 - [ ] Naming conventions match existing code (methods, variables, classes)
 - [ ] File/folder structure follows project layout
@@ -17,14 +16,9 @@
 ### Clean Code
 - [ ] Functions are small and focused (single responsibility)
 - [ ] No deep nesting (max 3 levels, use early returns)
-- [ ] Clear, descriptive naming (no abbreviations)
 - [ ] No magic numbers/strings (use constants/config)
-- [ ] No duplicate code (extract to shared methods/services)
 
 ### Code Hygiene
-- [ ] No dead code or commented blocks
-- [ ] No debug statements (dd, dump, Log::debug, var_dump)
-- [ ] No TODOs or FIXMEs left behind
 - [ ] No hardcoded values that should be config/env
 
 ### Maintainability

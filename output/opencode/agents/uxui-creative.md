@@ -1,6 +1,6 @@
 ---
 description: Distinctive, bold UI design that avoids generic AI aesthetics. For landing pages, new products, marketing sites.
-model: openai/gpt-5.2
+model: anthropic/claude-opus-4-5
 mode: subagent
 temperature: 1
 ---

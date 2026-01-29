@@ -167,7 +167,5 @@ When plan is **READY TO BUILD**, user can proceed to execution.
 
 When user approves the plan, **persist it to a session file before building**—don't rely on memory:
 
-1. Create session folder: `docs/ai/sessions/<YYYY-MM-DD>-<slug>/`
-2. Write the plan to `plan.md` in that session
-3. Output: `**Session created:** docs/ai/sessions/YYYY-MM-DD-slug/`
-4. Proceed to build mode with session path
+1. Create a session and write the plan to `plan.md`
+2. Proceed to build mode with session path
