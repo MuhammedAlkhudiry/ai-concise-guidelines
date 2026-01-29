@@ -1,6 +1,6 @@
 ---
 description: Execute mode. Implements plans into production-ready code following existing patterns.
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2-codex
 mode: primary
 color: "#EF4444"
 ---

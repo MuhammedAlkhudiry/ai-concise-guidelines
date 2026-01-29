@@ -1,6 +1,6 @@
 ---
 description: Find 10x product opportunities. Strategic thinking, high-impact features, no safe ideas.
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2-codex
 mode: subagent
 temperature: 1
 ---

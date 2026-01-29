@@ -1,6 +1,6 @@
 ---
 description: Audits backend code quality, performance, database, security
-model: openai/gpt-5.2
+model: openai/gpt-5.2-codex
 mode: subagent
 reasoningEffort: medium
 ---

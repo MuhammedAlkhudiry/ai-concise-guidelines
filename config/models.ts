@@ -7,7 +7,7 @@
 export const MODELS = {
     // Primary models
     smart: "openai/gpt-5.2-codex",
-    fast: "anthropic/claude-haiku-4-5",
+    fast: "fireworks-ai/accounts/fireworks/models/kimi-k2p5",
 
     // Auditor model
     auditor: "openai/gpt-5.2-codex",

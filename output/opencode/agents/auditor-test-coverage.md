@@ -1,6 +1,6 @@
 ---
 description: Audits test coverage, missing cases, edge cases
-model: openai/gpt-5.2
+model: openai/gpt-5.2-codex
 mode: subagent
 reasoningEffort: medium
 ---

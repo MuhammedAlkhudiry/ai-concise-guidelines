@@ -1,6 +1,6 @@
 ---
 description: Review translations for quality, naturalness, and cultural fit. Natural language output.
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2-codex
 mode: subagent
 temperature: 0.5
 ---

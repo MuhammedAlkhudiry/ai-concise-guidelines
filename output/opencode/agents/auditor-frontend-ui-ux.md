@@ -1,6 +1,6 @@
 ---
 description: Audits frontend code quality, UI/UX, forms, state, translations
-model: openai/gpt-5.2
+model: openai/gpt-5.2-codex
 mode: subagent
 reasoningEffort: medium
 ---

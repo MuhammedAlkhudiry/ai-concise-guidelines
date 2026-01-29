@@ -1,6 +1,6 @@
 ---
 description: Deep research on features with co-founder mindset. Explores options, challenges assumptions.
-model: anthropic/claude-opus-4-5
+model: openai/gpt-5.2-codex
 mode: subagent
 temperature: 0.8
 ---
