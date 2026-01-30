@@ -15,6 +15,15 @@
     // GOOD — access directly
     if (order.user?.isActive()) { sendEmail(order.user); }
     ```
+- **NO USELESS WRAPPERS** — Never create a function that only calls another function. Pass the original function directly or call it inline. Wrappers are only justified when they add parameters, transform data, or combine multiple calls.
+    ```
+    // BAD — pointless wrapper
+    const handleSubmit = () => { mutation.mutate(); };
+    <Button onClick={handleSubmit} />
+
+    // GOOD — call directly
+    <Button onClick={() => mutation.mutate()} />
+    ```
 - **NO ORPHANED COMMENTS** — Every comment must describe code that exists directly below/around it. No leftover comments from previous iterations, no comments explaining removed code, no comments referencing what "was" or "used to be". If the code a comment describes is gone or changed, the comment goes too.
 - **UNDERSTAND DATA STRUCTURE** — Before working with data, fully understand the related database structure/models. Never assume schema; always confirm.
 - **NEVER BUILD QUERY PARAMS MANUALLY** — Use library/framework built-ins: Axios `params` option, PHP `http_build_query()`, URLSearchParams, etc. Never concatenate query strings by hand.
