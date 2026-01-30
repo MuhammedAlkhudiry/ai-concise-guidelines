@@ -30,17 +30,13 @@ const LOCAL_MODE = process.argv.includes("--local") || process.argv.includes("-l
 const OPENCODE_PATHS = {
   rules: join(HOME, ".config/opencode/AGENTS.md"),
   skills: join(HOME, ".config/opencode/skill"),
-  agents: join(HOME, ".config/opencode/agent"),
   plugins: join(HOME, ".config/opencode/plugin"),
-  commands: join(HOME, ".config/opencode/command"),
   config: join(HOME, ".config/opencode/opencode.json"),
 };
 
 const CLAUDE_PATHS = {
   rules: join(HOME, ".claude/CLAUDE.md"),
   skills: join(HOME, ".claude/skills"),
-  agents: join(HOME, ".claude/agents"),
-  commands: join(HOME, ".claude/commands"),
   settings: join(HOME, ".claude/settings.json"),
 };
 
@@ -78,27 +74,11 @@ function buildOpencodeTasks(): CopyTask[] {
       countType: "dir",
     },
     {
-      name: "agents",
-      src: join(opencodeDir, "agents"),
-      dest: OPENCODE_PATHS.agents,
-      mode: "clean",
-      extensions: [".md"],
-      countType: "file",
-    },
-    {
       name: "plugins",
       src: join(opencodeDir, "plugin"),
       dest: OPENCODE_PATHS.plugins,
       mode: "merge",
       extensions: [".ts", ".js"],
-      countType: "file",
-    },
-    {
-      name: "commands",
-      src: join(opencodeDir, "command"),
-      dest: OPENCODE_PATHS.commands,
-      mode: "merge",
-      extensions: [".md"],
       countType: "file",
     },
   ];
@@ -115,22 +95,6 @@ function buildClaudeTasks(): CopyTask[] {
       dest: CLAUDE_PATHS.skills,
       mode: "clean",
       countType: "dir",
-    },
-    {
-      name: "agents",
-      src: join(claudeDir, "agents"),
-      dest: CLAUDE_PATHS.agents,
-      mode: "clean",
-      extensions: [".md"],
-      countType: "file",
-    },
-    {
-      name: "commands",
-      src: join(claudeDir, "commands"),
-      dest: CLAUDE_PATHS.commands,
-      mode: "merge",
-      extensions: [".md"],
-      countType: "file",
     },
   ];
 }
@@ -175,13 +139,9 @@ function cloneRepository(): void {
   const folders = [
     "content/base-rules.md",
     "output/opencode/skills",
-    "output/opencode/agents",
     "output/opencode/plugin",
-    "output/opencode/command",
     "output/opencode/opencode-config.json",
     "output/claude/skills",
-    "output/claude/agents",
-    "output/claude/commands",
     "output/claude/settings.json",
     "shell/zsh-custom.zsh",
   ];
@@ -390,16 +350,12 @@ Installs to:
   ${colors.blue("OpenCode:")}
     Rules:    ${OPENCODE_PATHS.rules}
     Skills:   ${OPENCODE_PATHS.skills}
-    Agents:   ${OPENCODE_PATHS.agents}
     Plugins:  ${OPENCODE_PATHS.plugins}
-    Commands: ${OPENCODE_PATHS.commands}
     Config:   ${OPENCODE_PATHS.config}
 
   ${colors.green("Claude Code:")}
     Rules:    ${CLAUDE_PATHS.rules}
     Skills:   ${CLAUDE_PATHS.skills}
-    Agents:   ${CLAUDE_PATHS.agents}
-    Commands: ${CLAUDE_PATHS.commands}
     Settings: ${CLAUDE_PATHS.settings}
 
   ${colors.yellow("Shared:")}
@@ -430,16 +386,12 @@ function main() {
   console.log(colors.blue("  OpenCode:"));
   console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
   console.log(`    Skills:   ${OPENCODE_PATHS.skills} (clean)`);
-  console.log(`    Agents:   ${OPENCODE_PATHS.agents} (clean)`);
   console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (merge)`);
-  console.log(`    Commands: ${OPENCODE_PATHS.commands} (merge)`);
   console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
   console.log();
   console.log(colors.green("  Claude Code:"));
   console.log(`    Rules:    ${CLAUDE_PATHS.rules}`);
   console.log(`    Skills:   ${CLAUDE_PATHS.skills} (clean)`);
-  console.log(`    Agents:   ${CLAUDE_PATHS.agents} (clean)`);
-  console.log(`    Commands: ${CLAUDE_PATHS.commands} (merge)`);
   console.log(`    Settings: ${CLAUDE_PATHS.settings} (merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));

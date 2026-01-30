@@ -10,8 +10,7 @@
 import { readFile, writeFile, rm } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
-import { MODELS, CLAUDE_CODE_MODELS } from "../config/models";
-import { AGENTS } from "../config/agents";
+import { MODELS } from "../config/models";
 import { SKILLS } from "../config/skills";
 import { ensureDir, copyDirAsync } from "./fs";
 
@@ -22,7 +21,6 @@ import { ensureDir, copyDirAsync } from "./fs";
 const ROOT_DIR = join(import.meta.dir, "..");
 const CONTENT_DIR = join(ROOT_DIR, "content");
 const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
-const COMMANDS_DIR = join(CONTENT_DIR, "commands");
 const PLUGINS_DIR = join(ROOT_DIR, "plugins");
 const OUTPUT_DIR = join(ROOT_DIR, "output");
 
@@ -37,23 +35,6 @@ const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
 // Utilities
 // =============================================================================
 
-function toYaml(obj: Record<string, unknown>, indent = 0): string {
-  const pad = "  ".repeat(indent);
-  const lines: string[] = [];
-
-  for (const [key, value] of Object.entries(obj)) {
-    if (typeof value === "object" && value !== null) {
-      lines.push(`${pad}${key}:`);
-      lines.push(toYaml(value as Record<string, unknown>, indent + 1));
-    } else {
-      const formattedKey = key.includes("*") ? `"${key}"` : key;
-      lines.push(`${pad}${formattedKey}: ${value}`);
-    }
-  }
-
-  return lines.join("\n");
-}
-
 async function readInstruction(name: string): Promise<string> {
   const path = join(INSTRUCTIONS_DIR, `${name}.md`);
   if (!existsSync(path)) {
@@ -65,39 +46,6 @@ async function readInstruction(name: string): Promise<string> {
 // =============================================================================
 // OpenCode Generators
 // =============================================================================
-
-async function generateOpencodeAgents(): Promise<number> {
-  console.log("  [OpenCode] Generating agents...");
-
-  const agentsDir = join(OPENCODE_DIR, "agents");
-  await ensureDir(agentsDir);
-  let count = 0;
-
-  for (const [name, config] of Object.entries(AGENTS)) {
-    const template = await readInstruction(config.instruction);
-
-    const frontmatter: Record<string, unknown> = {
-      description: config.description,
-      model: MODELS[config.model],
-      mode: config.type === "sub" ? "subagent" : "primary",
-      ...(config.additional ?? {}),
-    };
-
-    if (config.color) frontmatter.color = `"${config.color}"`;
-
-    const content = `---
-${toYaml(frontmatter)}
----
-
-${template}`;
-
-    await writeFile(join(agentsDir, `${name}.md`), content);
-    count++;
-  }
-
-  console.log(`    Generated ${count} agents`);
-  return count;
-}
 
 async function generateOpencodeSkills(): Promise<number> {
   console.log("  [OpenCode] Generating skills...");
@@ -144,25 +92,6 @@ async function copyOpencodePlugins(): Promise<number> {
   return count;
 }
 
-async function copyOpencodeCommands(): Promise<number> {
-  console.log("  [OpenCode] Copying commands...");
-
-  if (!existsSync(COMMANDS_DIR)) {
-    console.log("    No commands directory found, skipping");
-    return 0;
-  }
-
-  const count = await copyDirAsync({
-    src: COMMANDS_DIR,
-    dest: join(OPENCODE_DIR, "command"),
-    mode: "clean",
-    extensions: [".md"],
-  });
-
-  console.log(`    Copied ${count} commands`);
-  return count;
-}
-
 async function generateOpencodeConfig(): Promise<void> {
   console.log("  [OpenCode] Generating config...");
 
@@ -186,37 +115,6 @@ async function generateOpencodeConfig(): Promise<void> {
 // Claude Code Generators
 // =============================================================================
 
-async function generateClaudeAgents(): Promise<number> {
-  console.log("  [Claude Code] Generating agents...");
-
-  const agentsDir = join(CLAUDE_DIR, "agents");
-  await ensureDir(agentsDir);
-  let count = 0;
-
-  for (const [name, config] of Object.entries(AGENTS)) {
-    const template = await readInstruction(config.instruction);
-
-    // Claude Code agent frontmatter is simpler
-    const frontmatter: Record<string, unknown> = {
-      name: name,
-      description: config.description,
-      model: CLAUDE_CODE_MODELS[config.model],
-    };
-
-    const content = `---
-${toYaml(frontmatter)}
----
-
-${template}`;
-
-    await writeFile(join(agentsDir, `${name}.md`), content);
-    count++;
-  }
-
-  console.log(`    Generated ${count} agents`);
-  return count;
-}
-
 async function generateClaudeSkills(): Promise<number> {
   console.log("  [Claude Code] Generating skills...");
 
@@ -226,7 +124,6 @@ async function generateClaudeSkills(): Promise<number> {
   for (const [name, config] of Object.entries(SKILLS)) {
     const template = await readInstruction(config.instruction);
 
-    // Claude Code skill frontmatter (same as OpenCode for now)
     const content = `---
 name: ${name}
 description: ${config.description}
@@ -241,25 +138,6 @@ ${template}`;
   }
 
   console.log(`    Generated ${count} skills`);
-  return count;
-}
-
-async function copyClaudeCommands(): Promise<number> {
-  console.log("  [Claude Code] Copying commands...");
-
-  if (!existsSync(COMMANDS_DIR)) {
-    console.log("    No commands directory found, skipping");
-    return 0;
-  }
-
-  const count = await copyDirAsync({
-    src: COMMANDS_DIR,
-    dest: join(CLAUDE_DIR, "commands"),
-    mode: "clean",
-    extensions: [".md"],
-  });
-
-  console.log(`    Copied ${count} commands`);
   return count;
 }
 
@@ -343,30 +221,22 @@ async function main() {
   }
 
   // Create output structures for both tools
-  await ensureDir(join(OPENCODE_DIR, "agents"));
   await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
-  await ensureDir(join(OPENCODE_DIR, "command"));
 
-  await ensureDir(join(CLAUDE_DIR, "agents"));
   await ensureDir(join(CLAUDE_DIR, "skills"));
-  await ensureDir(join(CLAUDE_DIR, "commands"));
 
   // Generate OpenCode
   console.log("OpenCode:");
-  const opcAgentCount = await generateOpencodeAgents();
   const opcSkillCount = await generateOpencodeSkills();
   const opcPluginCount = await copyOpencodePlugins();
-  const opcCommandCount = await copyOpencodeCommands();
   await generateOpencodeConfig();
 
   console.log();
 
   // Generate Claude Code
   console.log("Claude Code:");
-  const ccAgentCount = await generateClaudeAgents();
   const ccSkillCount = await generateClaudeSkills();
-  const ccCommandCount = await copyClaudeCommands();
   await generateClaudeSettings();
 
   console.log("\n" + "=".repeat(50));
@@ -376,8 +246,8 @@ async function main() {
   console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
   console.log(`  Claude Code: ${CLAUDE_DIR}/`);
   console.log(`\nSummary:`);
-  console.log(`  OpenCode:    ${opcAgentCount} agents, ${opcSkillCount} skills, ${opcPluginCount} plugins, ${opcCommandCount} commands`);
-  console.log(`  Claude Code: ${ccAgentCount} agents, ${ccSkillCount} skills, ${ccCommandCount} commands`);
+  console.log(`  OpenCode:    ${opcSkillCount} skills, ${opcPluginCount} plugins`);
+  console.log(`  Claude Code: ${ccSkillCount} skills`);
 }
 
 main().catch((err) => {

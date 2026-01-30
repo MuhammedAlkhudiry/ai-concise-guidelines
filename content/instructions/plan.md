@@ -51,11 +51,13 @@ List skills needed for execution:
 - [ ] 1.1 Task description `[file:line]`
 - [ ] 1.2 Task description
 
-### Phase 2: Core Logic
+### Phase 2: Core Logic ⟂ Phase 3: Integration
+> Phases 2 and 3 can run in parallel (no shared dependencies)
+
 - [ ] 2.1 Task description
 - [ ] 2.2 Task description
 
-### Phase 3: Polish & Edge Cases
+### Phase 3: Integration
 - [ ] 3.1 Task description
 
 ### Phase N: Finalize
@@ -89,6 +91,12 @@ Each task should be:
 - **Verifiable**—you know when it's done
 - **Ordered**—dependencies flow correctly
 - **Referenced**—points to specific code `[file:line]`
+
+### Parallelization Strategy
+For each phase, decide whether it can run in parallel with other phases:
+- **Identify independent phases**—phases with no shared dependencies can run as parallel subagents
+- **Mark parallel groups**—explicitly note which phases can execute simultaneously (e.g., `Phase 2 ⟂ Phase 3`)
+- **Sequential by default**—phases that depend on prior phase output must run in order
 
 ### Real Trade-offs
 Don't hide decisions. Surface them:

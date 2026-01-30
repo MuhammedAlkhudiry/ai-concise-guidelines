@@ -26,9 +26,7 @@
   },
   "agent": {
     "plan": {
-      "tools": {
-        "write": true
-      }
+      "disable": true
     },
     "explore": {
       "model": "<fast-model>"

@@ -34,10 +34,10 @@ Categorize changed files:
 
 ### Step 2: Select Auditors
 
-Based on changes, spawn the relevant auditors:
+Based on changes, select the relevant auditor skills:
 
-| Change Type | Auditors to Spawn |
-|-------------|-------------------|
+| Change Type | Auditor Skills |
+|-------------|----------------|
 | Frontend changes | `auditor-frontend-ui-ux` |
 | Backend changes | `auditor-backend` |
 | Backend + Frontend | `auditor-integration` |
@@ -45,17 +45,20 @@ Based on changes, spawn the relevant auditors:
 
 Select auditors based on what files changed. Both `auditor-backend` and `auditor-frontend-ui-ux` include code quality checks.
 
-### Step 3: Spawn Auditors
+### Step 3: Spawn Auditor Sub-Agents
 
-For each selected auditor, spawn as a subagent with:
+For each selected auditor, **spawn a sub-agent** that loads the corresponding auditor skill. Each auditor is a skill — load it via the `skill` tool inside the sub-agent.
+
+Spawn each sub-agent with:
 
 ```
+Load the skill: [auditor-skill-name]
 Session: [path to session folder, if exists]
 Review these changes: [list of files]
 Focus: [specific concern from checklist]
 ```
 
-Run auditors in parallel where possible.
+Run auditor sub-agents in parallel where possible.
 
 ### Step 4: Collect Results
 
