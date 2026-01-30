@@ -25,7 +25,7 @@ Before writing anything:
 
 ### Step 2: Draft the Plan
 
-Output the plan (or write to session's `plan.md` if session exists):
+Always write the plan to a file—never just output to chat. Use session's `plan.md` if a session exists, otherwise create a session first:
 
 ```markdown
 # Plan: <feature-name>
@@ -148,6 +148,7 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 
 ## Rules
 
+- **ALWAYS IN FILE**—every plan must be written to a session `plan.md` file, never only in chat
 - **NO FLUFF**—every line should add information
 - **NO VAGUE TASKS**—"implement feature" is not a task; "add validation to `CreateUserDTO`" is
 - **CHALLENGE ASSUMPTIONS**—if something seems wrong, say so
@@ -172,7 +173,4 @@ When plan is **READY TO BUILD**, user can proceed to execution.
 
 ## On Approval (User says "go", "build", "approved", etc.)
 
-When user approves the plan, **persist it to a session file before building**—don't rely on memory:
-
-1. Create a session and write the plan to `plan.md`
-2. Proceed to build mode with session path
+Plan is already in `plan.md` (written during drafting). Proceed to build mode with session path.
