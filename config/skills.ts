@@ -160,4 +160,9 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Git branch and merge request workflow. Use when user says 'create branch', 'create MR', 'push and create PR', or wants to go through the git branch workflow.",
   },
+  "cloudflare-tunnel": {
+    instruction: "cloudflare-tunnel",
+    description:
+      "Set up Cloudflare Tunnel for stable, free public HTTPS URL to local dev server. Use when user says 'setup tunnel', 'expose local', 'cloudflare tunnel', 'public URL', or wants to share local dev environment externally.",
+  },
 } as const;
