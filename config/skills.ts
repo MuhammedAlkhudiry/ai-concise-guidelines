@@ -160,6 +160,11 @@ export const SKILLS: Record<string, SkillConfig> = {
     description:
       "Git branch and merge request workflow. Use when user says 'create branch', 'create MR', 'push and create PR', or wants to go through the git branch workflow.",
   },
+  "monorepo-makefile": {
+    instruction: "monorepo-makefile",
+    description:
+      "Set up a root Makefile that forwards commands to monorepo subprojects. Use when user says 'run from root', 'makefile forwarding', 'monorepo commands', or wants to avoid cd-ing into subdirectories to run commands.",
+  },
   "cloudflare-tunnel": {
     instruction: "cloudflare-tunnel",
     description:
