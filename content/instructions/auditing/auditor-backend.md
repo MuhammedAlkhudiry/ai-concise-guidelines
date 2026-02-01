@@ -1,5 +1,39 @@
 # Backend Checklist
 
+## Verification Patterns (Stub Detection)
+
+Before checking code quality, verify implementations are real — not stubs or placeholders.
+
+**Principle: Existence ≠ Implementation.** A file existing does not mean the feature works.
+
+### 4-Level Verification
+
+| Level | Check | How |
+|-------|-------|-----|
+| **Exists** | File is at expected path | File check |
+| **Substantive** | Real implementation, not placeholder | Check for TODO/placeholder/empty returns, verify meaningful line count |
+| **Wired** | Connected to the rest of the system | Imports resolve, called from somewhere, route registered |
+| **Functional** | Actually works when invoked | Tests pass, endpoint returns real data |
+
+### Red Flags (auto-fail)
+
+- Functions that return `null`, `{}`, `[]`, or hardcoded data without querying a data source
+- Handlers that only `console.log` or only call `preventDefault()`
+- Files under 10 lines that claim to implement real features
+- `TODO`, `FIXME`, `placeholder`, `not implemented` in implementation code
+- API routes that return static responses without database/service calls
+- Queries that exist but whose results aren't returned in the response
+- Awaited calls whose results are never used
+
+### Wiring Checks
+
+- **Route → Handler:** Route file exists AND handler has real logic AND route is registered
+- **Handler → Database:** Handler queries DB/service AND uses the result in response
+- **Validation → Handler:** Input validation exists AND is wired to the handler (not just defined)
+- **Middleware → Route:** Auth/permission middleware applied AND actually checks credentials
+
+---
+
 ## Code Quality
 
 ### Pattern Consistency

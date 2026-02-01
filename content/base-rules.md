@@ -40,6 +40,19 @@
 
 ---
 
+## Project Documents
+
+Two optional documents at project root provide high-level context:
+
+| Document | Purpose | What it contains |
+|----------|---------|-----------------|
+| `KNOWLEDGE.md` | What IS — project context | Business rules, decisions, constraints, terminology, gotchas |
+| `PRD.md` | What WILL BE — product direction | Roadmap, initiatives, priorities, scope boundaries, open questions |
+
+`KNOWLEDGE.md` is descriptive (present/past). `PRD.md` is prescriptive (future). They don't overlap.
+
+---
+
 ## Sessions
 
 When work is substantial enough to warrant documentation, create a session folder. User decides, or agent proposes.
@@ -47,8 +60,9 @@ When work is substantial enough to warrant documentation, create a session folde
 **Structure:**
 ```
 docs/ai/sessions/<YYYY-MM-DD>-<slug>/
+├── master-plan.md  # Multi-plan coordination (only if work spans multiple plans)
 ├── workshop.md     # Exploration, decisions (if workshopped)
-├── plan.md         # Implementation plan (if planned)
+├── plan.md         # Implementation plan (or plan-N-slug.md if multiple)
 └── audit.md        # Audit results (if audited)
 ```
 
@@ -57,6 +71,7 @@ docs/ai/sessions/<YYYY-MM-DD>-<slug>/
 - **Same folder for continuation** — Multi-day work stays in one session.
 - **Keep plan current** — Always ensure `plan.md` is up-to-date: mark completed items as done, note blockers. Plan must reflect actual state.
 - **Plans stay high-level** — No detailed code snippets, DB schemas, or specific implementation in plans. General technical approach and architecture notes are fine.
+- **Master plan only when split** — `master-plan.md` is created when a plan is too big and splits into multiple child plans. Single plans don't need one.
 
 **Session Context (ALL modes/skills):**
 
@@ -64,6 +79,7 @@ Session path is passed explicitly — never scan for "recent" sessions.
 
 When session path is provided:
 1. **Read session files** for context:
+   - `master-plan.md` — Initiative coordination, upstream decisions
    - `workshop.md` — Decisions already made
    - `plan.md` — What was planned, current progress
 2. **Write to session files** (not just chat):
@@ -95,6 +111,7 @@ Project knowledge lives in `KNOWLEDGE.md` at project root. Use `/init-knowledge`
 - Implementation details (AI can read the code)
 - Obvious patterns already in codebase
 - Code snippets — only `[file:line]` or `[path:line-line]` references allowed when needed
+- Future plans or roadmap (that belongs in `PRD.md`)
 
 **Format:**
 - Sections by domain/bounded context (Orders, Users, Payments, etc.)

@@ -1,5 +1,40 @@
 # Frontend UI/UX Checklist
 
+## Verification Patterns (Stub Detection)
+
+Before checking code quality, verify implementations are real — not stubs or placeholders.
+
+**Principle: Existence ≠ Implementation.** A file existing does not mean the feature works.
+
+### 4-Level Verification
+
+| Level | Check | How |
+|-------|-------|-----|
+| **Exists** | File is at expected path, exports component/function | File + export check |
+| **Substantive** | Returns real JSX, not placeholder div | Check for meaningful content, state usage, event handlers with logic |
+| **Wired** | Connected to the app — imported and used somewhere | grep for imports, route registration |
+| **Functional** | Renders correctly, interactions work | Build passes, tests pass, visual verification |
+
+### Red Flags (auto-fail)
+
+- Components returning `<div>Placeholder</div>`, `<div>{/* TODO */}</div>`, or `null`
+- Event handlers that are empty: `onClick={() => {}}`, `onSubmit={(e) => e.preventDefault()}` with no other logic
+- Hooks returning hardcoded values: `return { user: null, login: () => {} }`
+- State that exists but is never rendered in JSX
+- Fetch/API calls that exist but whose responses are ignored
+- Components with only static content where dynamic content is expected
+- `console.log`-only handlers
+
+### Wiring Checks
+
+- **Component → API:** Component has fetch/axios/useQuery call AND uses the response in render
+- **Form → Handler:** onSubmit calls API/mutation AND handles success/error, not just `preventDefault()`
+- **State → Render:** State variables appear in JSX (`.map()`, interpolation), not just defined
+- **Route → Component:** Component is registered in router AND renders at expected path
+- **Hook → Consumer:** Custom hook is imported and called somewhere, return values are consumed
+
+---
+
 ## Code Quality
 
 ### Pattern Consistency

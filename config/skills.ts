@@ -18,7 +18,7 @@ export const SKILLS: Record<string, SkillConfig> = {
   planning: {
     instruction: "plan",
     description:
-      "Create structured implementation plans with scope, phases, and risks. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps.",
+      "Create structured implementation plans with phases and assumptions. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps.",
   },
   execution: {
     instruction: "execution",
@@ -149,6 +149,11 @@ export const SKILLS: Record<string, SkillConfig> = {
     instruction: "init-knowledge",
     description:
       "Initialize or update KNOWLEDGE.md with project business context. Use when user says 'init knowledge', 'create knowledge file', 'update knowledge', or wants to capture project context for AI.",
+  },
+  "init-prd": {
+    instruction: "init-prd",
+    description:
+      "Initialize or update PRD.md product roadmap through structured questioning. Use when user says 'init prd', 'create roadmap', 'define features', 'product roadmap', 'what are we building', or wants to capture product vision and feature initiatives.",
   },
   "check-and-fix": {
     instruction: "check-and-fix",

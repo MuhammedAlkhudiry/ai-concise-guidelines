@@ -15,6 +15,16 @@ The **distilled project overview** — everything important about the project in
 - Edge cases and gotchas
 - What was tried and abandoned
 
+**Does NOT contain:**
+- Future plans, roadmap, or feature ideas (that belongs in `PRD.md`)
+- Anything readable from code
+
+## Companion: PRD.md
+
+If the project has a product roadmap or feature backlog, it belongs in `PRD.md` — not KNOWLEDGE.md. Use the `init-prd` skill to create it through structured questioning.
+
+When running init-knowledge, if no `PRD.md` exists and the user mentions future plans or roadmap items, suggest running `init-prd` to create one properly.
+
 ## Format
 
 ```
@@ -90,3 +100,4 @@ Wait for all explore agents to return. Collect their findings.
 - **Nest as needed** — no forced structure, let content dictate depth
 - **Merge, don't duplicate** — update existing entries
 - **Parallelize** — spawn explore agents concurrently for speed
+- **Suggest PRD.md** — if user mentions future plans and no PRD.md exists, suggest they create one
