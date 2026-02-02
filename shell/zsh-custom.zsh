@@ -180,6 +180,39 @@ p() {
 }
 
 # --- OpenCode ---
+# Smart project launcher for opencode with fuzzy matching via fzf
+# Usage: ai              - runs opencode in current directory
+#        ai my-project   - fuzzy match "my-project" then run opencode
+ai() {
+    local query="$*"
+    
+    if [[ -n "$query" ]]; then
+        local selected
+        selected=$(ls -1 "$PROJECTS_DIR" | fzf \
+            --height=40% \
+            --reverse \
+            --border=rounded \
+            --prompt="AI > " \
+            --header="Select a project" \
+            --query="$query" \
+            --select-1 \
+            --exit-0)
+        
+        if [[ -z "$selected" ]]; then
+            return 1
+        fi
+        
+        if [[ ! -d "$PROJECTS_DIR/$selected" ]]; then
+            echo "Directory not found: $PROJECTS_DIR/$selected"
+            return 1
+        fi
+        
+        cd "$PROJECTS_DIR/$selected"
+    fi
+    
+    opencode
+}
+
 export PATH="$HOME/.opencode/bin:$PATH"
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 

@@ -8,4 +8,3 @@ export const MODELS = {
     fast: "anthropic/claude-haiku-4-5",
 } as const;
 
-export type ModelType = keyof typeof MODELS;
