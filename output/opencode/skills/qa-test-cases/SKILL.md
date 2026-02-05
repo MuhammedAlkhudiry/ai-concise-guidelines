@@ -1,6 +1,6 @@
 ---
 name: qa-test-cases
-description: Generate test cases for user flows and e2e testing. Use when user wants test cases, QA scenarios, or says 'generate test cases', 'write test cases', 'QA this feature', 'e2e tests', or needs comprehensive test coverage for a feature.
+description: "Generate test cases for user flows and e2e testing. Use when user wants test cases, QA scenarios, or says 'generate test cases', 'write test cases', 'QA this feature', 'e2e tests', or needs comprehensive test coverage for a feature."
 ---
 
 # QA Test Cases (User Flows & E2E Testing)

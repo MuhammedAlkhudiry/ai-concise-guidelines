@@ -1,6 +1,6 @@
 ---
 name: uxui-creative
-description: Distinctive, bold UI design that avoids generic AI aesthetics. Use for landing pages, new products, marketing sites, or when user wants something that stands out. Covers typography, themes, animations, and anti-patterns.
+description: "Distinctive, bold UI design that avoids generic AI aesthetics. Use for landing pages, new products, marketing sites, or when user wants something that stands out. Covers typography, themes, animations, and anti-patterns."
 ---
 
 # UX/UI Creative

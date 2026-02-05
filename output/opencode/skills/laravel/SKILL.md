@@ -1,6 +1,6 @@
 ---
 name: laravel
-description: Laravel/PHP coding standards. Use when working on Laravel backend to ensure proper architecture, Eloquent usage, and PHP type safety.
+description: "Laravel/PHP coding standards. Use when working on Laravel backend to ensure proper architecture, Eloquent usage, and PHP type safety."
 ---
 
 # Laravel / PHP

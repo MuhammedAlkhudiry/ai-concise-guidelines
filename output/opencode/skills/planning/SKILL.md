@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Create structured implementation plans with phases and assumptions. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps.
+description: "Create structured implementation plans with phases and assumptions. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps."
 ---
 
 # Plan Mode
@@ -138,6 +138,7 @@ Reference existing patterns: `[path:line]`
 ## Required Skills
 List skills needed for execution:
 - `skill-name` — why needed
+- `code-simplifier` — simplify code after implementation (standard)
 
 ## Phases
 
@@ -153,6 +154,11 @@ List skills needed for execution:
 
 ### Phase 3: Integration
 - [ ] 3.1 Task description
+
+### Phase N-1: Simplify
+> Load `code-simplifier` skill
+- [ ] (N-1).1 Review and simplify all code changes from this plan
+- [ ] (N-1).2 Verify all tests still pass after simplification
 
 ### Phase N: Finalize
 - [ ] N.1 Update `KNOWLEDGE.md` if new business context discovered

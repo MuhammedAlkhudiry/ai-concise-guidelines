@@ -1,6 +1,6 @@
 ---
 name: init-knowledge
-description: Initialize or update KNOWLEDGE.md with project business context. Use when user says 'init knowledge', 'create knowledge file', 'update knowledge', or wants to capture project context for AI.
+description: "Initialize or update KNOWLEDGE.md with project business context. Use when user says 'init knowledge', 'create knowledge file', 'update knowledge', or wants to capture project context for AI."
 ---
 
 # Init Knowledge

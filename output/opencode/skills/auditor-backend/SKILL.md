@@ -1,6 +1,6 @@
 ---
 name: auditor-backend
-description: Audit backend code quality, performance, database, and security. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone.
+description: "Audit backend code quality, performance, database, and security. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone."
 ---
 
 # Backend Checklist

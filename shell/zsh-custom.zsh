@@ -220,3 +220,79 @@ export PATH="$HOME/.opencode/bin:$PATH"
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# =============================================================================
+# Terminal Tab Colors (Kitty)
+# =============================================================================
+
+# Set tab color with RGB values (both active and inactive)
+_tab_color() {
+  [[ -z "$KITTY_PID" ]] && return
+  local hex=$(printf "#%02x%02x%02x" $1 $2 $3)
+  # Inactive slightly darker (70% brightness)
+  local r_dim=$(( $1 * 7 / 10 ))
+  local g_dim=$(( $2 * 7 / 10 ))
+  local b_dim=$(( $3 * 7 / 10 ))
+  local hex_dim=$(printf "#%02x%02x%02x" $r_dim $g_dim $b_dim)
+  kitten @ set-tab-color --self active_bg=$hex inactive_bg=$hex_dim active_fg=#1e1e2e inactive_fg=#1e1e2e 2>/dev/null
+}
+
+# Reset tab color to default
+_tab_reset() {
+  [[ -z "$KITTY_PID" ]] && return
+  kitten @ set-tab-color --self active_bg=none inactive_bg=none active_fg=none inactive_fg=none 2>/dev/null
+}
+
+# Set tab title with marker
+_tab_marker() {
+  [[ -z "$KITTY_PID" ]] && return
+  kitten @ set-tab-title --self "$1 ${PWD##*/}" 2>/dev/null
+}
+
+# Reset tab title to default (empty = use template)
+_tab_title_reset() {
+  [[ -z "$KITTY_PID" ]] && return
+  kitten @ set-tab-title --self "" 2>/dev/null
+}
+
+# Nice color palette (10 colors)
+_colors=(
+  "100 180 255"  # blue
+  "255 140 100"  # coral
+  "140 230 140"  # green
+  "255 180 100"  # orange
+  "200 150 255"  # purple
+  "100 220 220"  # cyan
+  "255 130 180"  # pink
+  "180 200 100"  # lime
+  "255 200 140"  # peach
+  "150 180 220"  # slate
+)
+
+# Set tab color based on directory name (consistent per directory)
+_dir_color() {
+  local dir="${PWD##*/}"  # basename only
+  local sum=0
+  for (( i=0; i<${#dir}; i++ )); do
+    sum=$(( sum + $(printf '%d' "'${dir:$i:1}") * (i + 1) ))
+  done
+  local idx=$(( sum % ${#_colors[@]} + 1 ))
+  _tab_color ${=_colors[$idx]}
+}
+
+# Hook: circle+yellow for dev, diamond+color for opencode/ai
+preexec() {
+  if [[ "$1" =~ ^dev ]]; then
+    _tab_color 255 220 80  # yellow for dev
+    _tab_marker "●"        # circle marker
+  elif [[ "$1" =~ ^(opencode|ai) ]]; then
+    _dir_color             # dir color for opencode/ai
+    _tab_marker "◆"        # diamond marker
+  fi
+}
+
+# Reset tab color and title when command finishes
+precmd() {
+  _tab_reset
+  _tab_title_reset
+}

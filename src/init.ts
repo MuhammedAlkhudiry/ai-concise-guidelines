@@ -42,6 +42,7 @@ const CLAUDE_PATHS = {
 
 const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
+  kitty: join(HOME, ".config/kitty/kitty.conf"),
 };
 
 // =============================================================================
@@ -144,6 +145,7 @@ function cloneRepository(): void {
     "output/claude/skills",
     "output/claude/settings.json",
     "shell/zsh-custom.zsh",
+    "shell/kitty.conf",
   ];
 
   try {
@@ -196,6 +198,20 @@ function copyZsh(): void {
   ensureParentDirSync(SHARED_PATHS.zsh);
   copyFileSync(sourceFile, SHARED_PATHS.zsh);
   print.success(`Zsh config copied`);
+}
+
+function copyKitty(): void {
+  print.info(`Copying kitty config to ${SHARED_PATHS.kitty}...`);
+
+  const sourceFile = join(getSourceDir(), "shell", "kitty.conf");
+  if (!existsSync(sourceFile)) {
+    print.error("kitty.conf not found");
+    return;
+  }
+
+  ensureParentDirSync(SHARED_PATHS.kitty);
+  copyFileSync(sourceFile, SHARED_PATHS.kitty);
+  print.success(`Kitty config copied`);
 }
 
 function mergeOpencodeConfig(): void {
@@ -360,6 +376,7 @@ Installs to:
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
+    Kitty:    ${SHARED_PATHS.kitty}
 `);
   process.exit(0);
 }
@@ -396,6 +413,7 @@ function main() {
   console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
+  console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
   printSeparator();
   console.log();
 
@@ -426,6 +444,7 @@ function main() {
   console.log();
   console.log(colors.yellow("Installing shared configs..."));
   copyZsh();
+  copyKitty();
 
   console.log();
   printBox("Installation completed successfully!", "green");

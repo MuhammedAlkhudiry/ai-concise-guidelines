@@ -1,6 +1,6 @@
 ---
 name: uxui-design
-description: Practical UI/UX work within existing design systems. Use for styling, layout, states, accessibility, and design system compliance. Use when working on established products.
+description: "Practical UI/UX work within existing design systems. Use for styling, layout, states, accessibility, and design system compliance. Use when working on established products."
 ---
 
 # UX/UI Design

@@ -1,6 +1,6 @@
 ---
 name: user-story-review
-description: Review user stories from a developer perspective. Use when user wants to review user stories, check story quality, or says 'review this story', 'is this story clear', 'story feedback', or has user stories that need developer review before implementation.
+description: "Review user stories from a developer perspective. Use when user wants to review user stories, check story quality, or says 'review this story', 'is this story clear', 'story feedback', or has user stories that need developer review before implementation."
 ---
 
 # User Story Review Mode (Dev Feedback, Codebase-Aware)

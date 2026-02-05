@@ -1,6 +1,6 @@
 ---
 name: auditor-test-coverage
-description: Audit test coverage, missing cases, and edge cases. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone.
+description: "Audit test coverage, missing cases, and edge cases. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone."
 ---
 
 # Test Coverage Checklist

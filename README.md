@@ -57,6 +57,7 @@ The installer configures both tools automatically:
 | Content | Path |
 |---------|------|
 | Zsh Config | `~/.config/zsh-sync/custom.zsh` |
+| Kitty Config | `~/.config/kitty/kitty.conf` |
 
 ## What's Included
 

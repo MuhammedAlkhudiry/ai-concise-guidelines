@@ -1,6 +1,6 @@
 ---
 name: git-branch-mr
-description: Git branch and merge request workflow. Use when user says 'create branch', 'create MR', 'push and create PR', or wants to go through the git branch workflow.
+description: "Git branch and merge request workflow. Use when user says 'create branch', 'create MR', 'push and create PR', or wants to go through the git branch workflow."
 ---
 
 # Git Branch & Merge Request

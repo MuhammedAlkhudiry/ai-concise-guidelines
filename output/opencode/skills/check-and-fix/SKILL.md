@@ -1,6 +1,6 @@
 ---
 name: check-and-fix
-description: Run all checks (typecheck, lint, format, tests) and fix any failures. Use when user says 'check and fix', 'run checks', 'lint and fix', or wants to verify code quality.
+description: "Run all checks (typecheck, lint, format, tests) and fix any failures. Use when user says 'check and fix', 'run checks', 'lint and fix', or wants to verify code quality."
 ---
 
 # Check and Fix

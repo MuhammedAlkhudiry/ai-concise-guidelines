@@ -1,6 +1,6 @@
 ---
 name: product-strategy
-description: Find 10x product opportunities and high-leverage improvements. Use when user wants strategic product thinking, mentions '10x', wants to find high-impact features, or says 'what would make this 10x better', 'product strategy', or 'what should we build next'.
+description: "Find 10x product opportunities and high-leverage improvements. Use when user wants strategic product thinking, mentions '10x', wants to find high-impact features, or says 'what would make this 10x better', 'product strategy', or 'what should we build next'."
 ---
 
 # 10x Mode
@@ -89,10 +89,10 @@ For each idea, assess:
 | **Feasibility** | Can we actually build this? |
 
 Use a simple scoring:
-- 🔥 **Must do** — High impact, clearly worth it
-- 👍 **Strong** — Good impact, should prioritize
-- 🤔 **Maybe** — Interesting but needs more thought
-- ❌ **Pass** — Not worth it right now
+- **Must do** — High impact, clearly worth it
+- **Strong** — Good impact, should prioritize
+- **Maybe** — Interesting but needs more thought
+- **Pass** — Not worth it right now
 
 ### Step 4: Identify the Highest-Leverage Moves
 
@@ -176,7 +176,7 @@ What would make this 10x more valuable?
 **Unlocks**: What becomes possible
 **Effort**: High/Very High
 **Risk**: What could go wrong
-**Score**: 🔥/👍/🤔/❌
+**Score**: Must do/Strong/Maybe/Pass
 
 ### 2. ...
 
@@ -189,7 +189,7 @@ What would make this 10x more valuable?
 **Why 10x**: Why this matters more than it seems
 **Impact**: What changes for users
 **Effort**: Medium
-**Score**: 🔥/👍/🤔/❌
+**Score**: Must do/Strong/Maybe/Pass
 
 ### 2. ...
 
@@ -201,7 +201,7 @@ What would make this 10x more valuable?
 **What**: Description (one line)
 **Why powerful**: Why this punches above its weight
 **Effort**: Low
-**Score**: 🔥/👍/🤔/❌
+**Score**: Must do/Strong/Maybe/Pass
 
 ### 2. ...
 

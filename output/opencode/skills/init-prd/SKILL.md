@@ -1,6 +1,6 @@
 ---
 name: init-prd
-description: Initialize or update PRD.md product roadmap through structured questioning. Use when user says 'init prd', 'create roadmap', 'define features', 'product roadmap', 'what are we building', or wants to capture product vision and feature initiatives.
+description: "Initialize or update PRD.md product roadmap through structured questioning. Use when user says 'init prd', 'create roadmap', 'define features', 'product roadmap', 'what are we building', or wants to capture product vision and feature initiatives."
 ---
 
 # Init PRD
@@ -74,10 +74,10 @@ Apply the `product-strategy` framework to each initiative:
 | **Feasibility** | Can we actually build this given constraints? |
 
 **Classify each initiative:**
-- 🔥 **Must do** — High impact, clearly worth it
-- 👍 **Strong** — Good impact, should prioritize
-- 🤔 **Maybe** — Interesting but needs more thought
-- ❌ **Pass** — Not worth it right now (remove from PRD or park in backlog)
+- **Must do** — High impact, clearly worth it
+- **Strong** — Good impact, should prioritize
+- **Maybe** — Interesting but needs more thought
+- **Pass** — Not worth it right now (remove from PRD or park in backlog)
 
 **Challenge the user's assumptions.** If an initiative scores poorly on the strategic criteria, say so. The user may still want it — but they should know the trade-off. Use the product-strategy prompts to unstick thinking:
 - "What would make a user tell their friend about this?"
@@ -125,7 +125,7 @@ One sentence: the single most important thing this product does.
 
 ### 1. [Initiative Name] — [Status: planned | in progress | done]
 **Priority:** P0 | P1 | P2
-**Strategic Score:** 🔥 | 👍 | 🤔
+**Strategic Score:** Must do | Strong | Maybe
 **Dependencies:** none | needs #N
 **Session:** — | docs/ai/sessions/YYYY-MM-DD-slug/
 

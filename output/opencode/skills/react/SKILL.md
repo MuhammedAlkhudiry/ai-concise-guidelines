@@ -1,6 +1,6 @@
 ---
 name: react
-description: React coding standards. Use when working on React components to ensure proper hooks usage, state management, and performance patterns.
+description: "React coding standards. Use when working on React components to ensure proper hooks usage, state management, and performance patterns."
 ---
 
 # React

@@ -1,6 +1,6 @@
 ---
 name: cloudflare-tunnel
-description: Set up Cloudflare Tunnel for stable, free public HTTPS URL to local dev server. Use when user says 'setup tunnel', 'expose local', 'cloudflare tunnel', 'public URL', or wants to share local dev environment externally.
+description: "Set up Cloudflare Tunnel for stable, free public HTTPS URL to local dev server. Use when user says 'setup tunnel', 'expose local', 'cloudflare tunnel', 'public URL', or wants to share local dev environment externally."
 ---
 
 # Cloudflare Tunnel Setup

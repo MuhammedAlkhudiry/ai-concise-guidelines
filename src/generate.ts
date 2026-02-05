@@ -2,16 +2,15 @@
 
 /**
  * Generator Script
- * Generates files for both OpenCode and Claude Code from content + config
+ * Generates files for both OpenCode and Claude Code from content
  *
  * Usage: bun src/generate.ts
  */
 
-import { readFile, writeFile, rm } from "fs/promises";
+import { readFile, writeFile, rm, readdir } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
 import { MODELS } from "../config/models";
-import { SKILLS } from "../config/skills";
 import { ensureDir, copyDirAsync } from "./fs";
 
 // =============================================================================
@@ -20,7 +19,7 @@ import { ensureDir, copyDirAsync } from "./fs";
 
 const ROOT_DIR = join(import.meta.dir, "..");
 const CONTENT_DIR = join(ROOT_DIR, "content");
-const INSTRUCTIONS_DIR = join(CONTENT_DIR, "instructions");
+const SKILLS_DIR = join(CONTENT_DIR, "skills");
 const PLUGINS_DIR = join(ROOT_DIR, "plugins");
 const OUTPUT_DIR = join(ROOT_DIR, "output");
 
@@ -32,15 +31,39 @@ const CLAUDE_DIR = join(OUTPUT_DIR, "claude");
 const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
 
 // =============================================================================
-// Utilities
+// Skills Generator
 // =============================================================================
 
-async function readInstruction(name: string): Promise<string> {
-  const path = join(INSTRUCTIONS_DIR, `${name}.md`);
-  if (!existsSync(path)) {
-    throw new Error(`Instruction file not found: ${path}`);
+async function getSkillNames(): Promise<string[]> {
+  if (!existsSync(SKILLS_DIR)) {
+    return [];
   }
-  return readFile(path, "utf-8");
+
+  const entries = await readdir(SKILLS_DIR, { withFileTypes: true });
+  return entries
+    .filter((e) => e.isDirectory())
+    .filter((e) => existsSync(join(SKILLS_DIR, e.name, "SKILL.md")))
+    .map((e) => e.name)
+    .sort();
+}
+
+async function copySkills(destDir: string): Promise<number> {
+  const skillNames = await getSkillNames();
+  let count = 0;
+
+  for (const name of skillNames) {
+    const srcSkillDir = join(SKILLS_DIR, name);
+    const destSkillDir = join(destDir, name);
+
+    await copyDirAsync({
+      src: srcSkillDir,
+      dest: destSkillDir,
+      mode: "clean",
+    });
+    count++;
+  }
+
+  return count;
 }
 
 // =============================================================================
@@ -51,25 +74,10 @@ async function generateOpencodeSkills(): Promise<number> {
   console.log("  [OpenCode] Generating skills...");
 
   const skillsDir = join(OPENCODE_DIR, "skills");
-  let count = 0;
+  await ensureDir(skillsDir);
 
-  for (const [name, config] of Object.entries(SKILLS)) {
-    const template = await readInstruction(config.instruction);
-
-    const content = `---
-name: ${name}
-description: ${config.description}
----
-
-${template}`;
-
-    const skillDir = join(skillsDir, name);
-    await ensureDir(skillDir);
-    await writeFile(join(skillDir, "SKILL.md"), content);
-    count++;
-  }
-
-  console.log(`    Generated ${count} skills`);
+  const count = await copySkills(skillsDir);
+  console.log(`    Copied ${count} skills`);
   return count;
 }
 
@@ -119,25 +127,10 @@ async function generateClaudeSkills(): Promise<number> {
   console.log("  [Claude Code] Generating skills...");
 
   const skillsDir = join(CLAUDE_DIR, "skills");
-  let count = 0;
+  await ensureDir(skillsDir);
 
-  for (const [name, config] of Object.entries(SKILLS)) {
-    const template = await readInstruction(config.instruction);
-
-    const content = `---
-name: ${name}
-description: ${config.description}
----
-
-${template}`;
-
-    const skillDir = join(skillsDir, name);
-    await ensureDir(skillDir);
-    await writeFile(join(skillDir, "SKILL.md"), content);
-    count++;
-  }
-
-  console.log(`    Generated ${count} skills`);
+  const count = await copySkills(skillsDir);
+  console.log(`    Copied ${count} skills`);
   return count;
 }
 
@@ -193,9 +186,6 @@ async function generateClaudeSettings(): Promise<void> {
     }
   }
 
-  // Note: MCP servers are configured differently in Claude Code (via ~/.claude.json or .mcp.json)
-  // We'll skip MCP transformation and let users configure it manually or via a separate file
-
   await writeFile(
     join(CLAUDE_DIR, "settings.json"),
     JSON.stringify(claudeSettings, null, 2) + "\n"
@@ -215,6 +205,11 @@ async function main() {
     process.exit(1);
   }
 
+  if (!existsSync(SKILLS_DIR)) {
+    console.error(`ERROR: Skills directory not found: ${SKILLS_DIR}`);
+    process.exit(1);
+  }
+
   // Always clean output directory
   if (existsSync(OUTPUT_DIR)) {
     await rm(OUTPUT_DIR, { recursive: true });
@@ -223,7 +218,6 @@ async function main() {
   // Create output structures for both tools
   await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
-
   await ensureDir(join(CLAUDE_DIR, "skills"));
 
   // Generate OpenCode

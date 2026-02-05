@@ -1,6 +1,6 @@
 ---
 name: monorepo-makefile
-description: Set up a root Makefile that forwards commands to monorepo subprojects. Use when user says 'run from root', 'makefile forwarding', 'monorepo commands', or wants to avoid cd-ing into subdirectories to run commands.
+description: "Set up a root Makefile that forwards commands to monorepo subprojects. Use when user says 'run from root', 'makefile forwarding', 'monorepo commands', or wants to avoid cd-ing into subdirectories to run commands."
 ---
 
 # Monorepo Makefile

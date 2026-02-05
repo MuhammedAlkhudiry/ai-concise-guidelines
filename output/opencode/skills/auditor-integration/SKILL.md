@@ -1,6 +1,6 @@
 ---
 name: auditor-integration
-description: Audit backend-frontend integration and API contracts. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone.
+description: "Audit backend-frontend integration and API contracts. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone."
 ---
 
 # Integration Checklist

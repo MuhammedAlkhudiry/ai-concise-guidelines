@@ -1,6 +1,6 @@
 ---
 name: auditor-frontend-ui-ux
-description: Audit frontend code quality, UI/UX, forms, state management, and translations. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone.
+description: "Audit frontend code quality, UI/UX, forms, state management, and translations. Typically loaded by the audit-orchestrator skill via sub-agents, but can be used standalone."
 ---
 
 # Frontend UI/UX Checklist

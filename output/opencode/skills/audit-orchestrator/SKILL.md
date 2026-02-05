@@ -1,6 +1,6 @@
 ---
 name: audit-orchestrator
-description: Run comprehensive audit on completed work. Use ONLY when user explicitly asks - says 'audit this', 'review the work', 'check for issues'. Never trigger automatically after implementation. Spawns specialized auditor sub-agents and fixes found issues.
+description: "Run comprehensive audit on completed work. Use ONLY when user explicitly asks - says 'audit this', 'review the work', 'check for issues'. Never trigger automatically after implementation. Spawns specialized auditor sub-agents and fixes found issues."
 ---
 
 # Audit Mode
