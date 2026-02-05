@@ -53,6 +53,12 @@ Two optional documents at project root provide high-level context:
 
 ---
 
+## Library Documentation
+
+When working with a library, check `docs/libs/<lib-name>/` first — may contain condensed, project-specific docs.
+
+---
+
 ## Sessions
 
 When work is substantial enough to warrant documentation, create a session folder. User decides, or agent proposes.
