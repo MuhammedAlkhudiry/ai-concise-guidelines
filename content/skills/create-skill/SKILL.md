@@ -68,6 +68,17 @@ skill-name/
     └── assets/           Files used in output (templates, etc.)
 ```
 
+### Installation Locations
+
+Skills are installed in global agent-compatible locations:
+
+| Scope | Path |
+|-------|------|
+| **Global (recommended)** | `~/.agents/skills/<name>/SKILL.md` |
+| **Project-specific** | `.agents/skills/<name>/SKILL.md` |
+
+Both OpenCode and Claude Code read from `~/.agents/skills/` for global skills.
+
 ### SKILL.md Structure
 
 **Frontmatter (YAML):**
