@@ -36,7 +36,7 @@ The installer configures both tools automatically:
 | Content | Path |
 |---------|------|
 | Rules | `~/.claude/CLAUDE.md` |
-| Skills | `~/.claude/skills/` |
+| Skills | `~/.agents/skills/` (global) |
 | Agents | `~/.claude/agents/` |
 | Commands | `~/.claude/commands/` |
 | Settings | `~/.claude/settings.json` |
@@ -46,7 +46,7 @@ The installer configures both tools automatically:
 | Content | Path |
 |---------|------|
 | Rules | `~/.config/opencode/AGENTS.md` |
-| Skills | `~/.config/opencode/skill/` |
+| Skills | `~/.agents/skills/` (global) |
 | Agents | `~/.config/opencode/agent/` |
 | Plugins | `~/.config/opencode/plugin/` |
 | Commands | `~/.config/opencode/command/` |
