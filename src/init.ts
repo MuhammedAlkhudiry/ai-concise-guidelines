@@ -29,14 +29,14 @@ const LOCAL_MODE = process.argv.includes("--local") || process.argv.includes("-l
 
 const OPENCODE_PATHS = {
   rules: join(HOME, ".config/opencode/AGENTS.md"),
-  skills: join(HOME, ".config/opencode/skill"),
+  skills: join(HOME, ".agents/skills"),
   plugins: join(HOME, ".config/opencode/plugin"),
   config: join(HOME, ".config/opencode/opencode.json"),
 };
 
 const CLAUDE_PATHS = {
   rules: join(HOME, ".claude/CLAUDE.md"),
-  skills: join(HOME, ".claude/skills"),
+  skills: join(HOME, ".agents/skills"),
   settings: join(HOME, ".claude/settings.json"),
 };
 
