@@ -2,7 +2,7 @@
 
 /**
  * Installer Script
- * Installs generated files for both OpenCode and Claude Code
+ * Installs generated files for OpenCode, Claude Code, and Codex
  *
  * Usage: bun src/init.ts [OPTIONS]
  */
@@ -38,6 +38,10 @@ const CLAUDE_PATHS = {
   rules: join(HOME, ".claude/CLAUDE.md"),
   skills: join(HOME, ".agents/skills"),
   settings: join(HOME, ".claude/settings.json"),
+};
+
+const CODEX_PATHS = {
+  rules: join(HOME, ".codex/AGENTS.md"),
 };
 
 const SHARED_PATHS = {
@@ -184,6 +188,20 @@ function copyClaudeRules(): void {
   ensureParentDirSync(CLAUDE_PATHS.rules);
   copyFileSync(sourceFile, CLAUDE_PATHS.rules);
   print.success(`Claude Code rules copied`);
+}
+
+function copyCodexRules(): void {
+  print.info(`Copying Codex rules to ${CODEX_PATHS.rules}...`);
+
+  const sourceFile = join(getSourceDir(), "content", "base-rules.md");
+  if (!existsSync(sourceFile)) {
+    print.error("Base rules file not found");
+    return;
+  }
+
+  ensureParentDirSync(CODEX_PATHS.rules);
+  copyFileSync(sourceFile, CODEX_PATHS.rules);
+  print.success(`Codex rules copied`);
 }
 
 function copyZsh(): void {
@@ -352,7 +370,7 @@ function showUsage(): never {
   console.log(`
 ${colors.blue("+=============================================================+")}
 ${colors.blue("|   AI Concise Guidelines - Installer                         |")}
-${colors.blue("|   Supports: OpenCode + Claude Code                          |")}
+${colors.blue("|   Supports: OpenCode + Claude Code + Codex                  |")}
 ${colors.blue("+=============================================================+")}
 
 Usage: bun src/init.ts [OPTIONS]
@@ -373,6 +391,9 @@ Installs to:
     Rules:    ${CLAUDE_PATHS.rules}
     Skills:   ${CLAUDE_PATHS.skills}
     Settings: ${CLAUDE_PATHS.settings}
+
+  ${colors.blue("Codex:")}
+    Rules:    ${CODEX_PATHS.rules}
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
@@ -411,6 +432,9 @@ function main() {
   console.log(`    Skills:   ${CLAUDE_PATHS.skills} (clean)`);
   console.log(`    Settings: ${CLAUDE_PATHS.settings} (merge)`);
   console.log();
+  console.log(colors.blue("  Codex:"));
+  console.log(`    Rules:    ${CODEX_PATHS.rules}`);
+  console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
@@ -439,6 +463,11 @@ function main() {
     executeCopyTask(task);
   }
   mergeClaudeSettings();
+
+  // Codex installation
+  console.log();
+  console.log(colors.blue("Installing Codex..."));
+  copyCodexRules();
 
   // Shared
   console.log();

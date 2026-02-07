@@ -1,6 +1,6 @@
 # Opinionated AI Guidelines
 
-Opinionated AI guidelines, skills, and agents for **Claude Code** and **OpenCode**.
+Opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, and **Codex**.
 
 > **For Contributors**: See [AGENTS.md](./AGENTS.md) for details on modifying content and regenerating output files.
 
@@ -29,7 +29,7 @@ curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelin
 
 ### Installed Paths
 
-The installer configures both tools automatically:
+The installer configures all tools automatically:
 
 **Claude Code** (`~/.claude/`)
 
@@ -51,6 +51,12 @@ The installer configures both tools automatically:
 | Plugins | `~/.config/opencode/plugin/` |
 | Commands | `~/.config/opencode/command/` |
 | Config | `~/.config/opencode/opencode.json` |
+
+**Codex** (`~/.codex/`)
+
+| Content | Path |
+|---------|------|
+| Rules | `~/.codex/AGENTS.md` |
 
 **Shared**
 
