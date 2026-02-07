@@ -12,7 +12,7 @@
     "model_cycle_favorite": "ctrl+a",
     "model_cycle_favorite_reverse": "ctrl+shift+a"
   },
-  "model": "anthropic/claude-opus-4-5",
+  "model": "anthropic/claude-opus-4-6",
   "small_model": "anthropic/claude-haiku-4-5",
   "permission": {
     "external_directory": {
@@ -34,7 +34,7 @@
       "model": "anthropic/claude-haiku-4-5"
     },
     "general": {
-      "model": "anthropic/claude-opus-4-5"
+      "model": "anthropic/claude-opus-4-6"
     }
   },
   "mcp": {

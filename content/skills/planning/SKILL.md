@@ -138,6 +138,7 @@ Reference existing patterns: `[path:line]`
 ## Required Skills
 List skills needed for execution:
 - `skill-name` — why needed
+- `project-skill-creation` — create/update project-local skills when the plan introduces or changes modular domains
 - `code-simplifier` — simplify code after implementation (standard)
 
 ## Phases
@@ -154,6 +155,11 @@ List skills needed for execution:
 
 ### Phase 3: Integration
 - [ ] 3.1 Task description
+
+### Phase N-2: Project Skill Updates (when applicable)
+> Load `project-skill-creation` skill
+- [ ] (N-2).1 Identify domains changed by this plan that need project-local skill guidance
+- [ ] (N-2).2 Create or update `.agents/skills/<domain>/SKILL.md` for each changed domain
 
 ### Phase N-1: Simplify
 > Load `code-simplifier` skill

@@ -32,6 +32,7 @@
 - **TASK IS NOT DONE** — Run type-check/lint/format/analysis/relevant-tests. Fix only task-related issues. Task IS NOT DONE until this is complete.
 - **THINK HOLISTICALLY** — When changing any behavior (e.g., validation, API params, business logic), ask: *What else does this affect?* Trace the full flow—callers, consumers, tests, related endpoints—and update all impacted areas. Do not change one spot and leave others broken.
   Do not implement directly—use the appropriate skill.
+- **USE RELEVANT PROJECT SKILLS** — Before implementation, check for domain-specific skills (especially project-local skills in `/.agents/skills/`) and load the ones that match the task. Prefer updating existing project skills when domain behavior changes.
 - **PARALLELIZE EXECUTION** — AI can only parallelize with subagents. When todo list has multiple independent tasks, spawn general subagents (with relevant skills loaded) to execute them in parallel. Don't work sequentially on tasks that have no dependencies. Use your judgment:
     - Independent file changes → parallel subagents
     - Frontend + backend for same feature → parallel subagents

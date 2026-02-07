@@ -61,7 +61,7 @@ The installer configures both tools automatically:
 
 ## What's Included
 
-### Skills (16)
+### Skills (17)
 
 | Skill | Description |
 |-------|-------------|
@@ -81,6 +81,7 @@ The installer configures both tools automatically:
 | `user-story-review` | Review user stories from developer perspective |
 | `qa-test-cases` | Generate test cases for e2e testing |
 | `translation` | Review translations for quality |
+| `project-skill-creation` | Create project-local skills for modular domains |
 
 ### Agents (17)
 
