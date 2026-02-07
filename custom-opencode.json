@@ -36,23 +36,5 @@
     "general": {
       "model": "<smart-model>"
     }
-  },
-  "mcp": {
-    "hugeicons": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@hugeicons/mcp-server"
-      ]
-    },
-    "playwriter": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "playwriter@latest"
-      ]
-    }
   }
 }

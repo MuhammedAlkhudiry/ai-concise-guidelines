@@ -6,6 +6,7 @@
 - **TEST ONLY WHAT MATTERS** — Cover critical paths, ignore noise. Tests must be fast, reliable, essential. Useless tests are forbidden.
 - **CONSISTENCY FIRST** — Check existing patterns before writing. Extend existing files/functions over creating new. No new patterns without approval.
 - **MINIMAL CODE** — Every line must serve a current purpose. No speculative code, no commented-out blocks, no debug prints, no leftover TODOs.
+- **PREFER UPDATES TO BACKWARD COMPATIBILITY** — Default to updating code directly instead of patching or supporting "old + new" paths in parallel. Add backward compatibility only when a change would clearly break an inter-system API contract (for example backend ↔ frontend). For in-system changes, always update directly and do not add BC layers. If the user says the environment is not production, never implement BC.
 - **NO USELESS VARIABLES** — Never assign a property/method result to a variable just to use it once or twice inline. Access the value directly. Variables are only justified when: the value is reused 3+ times, the expression is complex/expensive, or the variable name adds meaningful clarity the original expression lacks.
     ```
     // BAD — pointless variable used twice

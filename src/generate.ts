@@ -2,7 +2,7 @@
 
 /**
  * Generator Script
- * Generates files for both OpenCode and Claude Code from content
+ * Generates files for OpenCode, Claude Code, and Codex from content
  *
  * Usage: bun src/generate.ts
  */
@@ -11,6 +11,7 @@ import { readFile, writeFile, rm, readdir } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
 import { MODELS } from "../config/models";
+import { MCP_SERVERS } from "../config/mcp";
 import { ensureDir, copyDirAsync } from "./fs";
 
 // =============================================================================
@@ -26,6 +27,7 @@ const OUTPUT_DIR = join(ROOT_DIR, "output");
 // Tool-specific output directories
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
 const CLAUDE_DIR = join(OUTPUT_DIR, "claude");
+const CODEX_DIR = join(OUTPUT_DIR, "codex");
 
 // Config files
 const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
@@ -115,7 +117,13 @@ async function generateOpencodeConfig(): Promise<void> {
     .replace(/<smart-model>/g, MODELS.smart)
     .replace(/<fast-model>/g, MODELS.fast);
 
-  await writeFile(join(OPENCODE_DIR, "opencode-config.json"), processed);
+  const config = JSON.parse(processed) as Record<string, unknown>;
+  config.mcp = MCP_SERVERS;
+
+  await writeFile(
+    join(OPENCODE_DIR, "opencode-config.json"),
+    JSON.stringify(config, null, 2) + "\n"
+  );
   console.log("    Generated opencode-config.json");
 }
 
@@ -194,11 +202,45 @@ async function generateClaudeSettings(): Promise<void> {
 }
 
 // =============================================================================
+// Codex Generators
+// =============================================================================
+
+function toTomlString(value: string): string {
+  return JSON.stringify(value);
+}
+
+async function generateCodexMcpConfig(): Promise<number> {
+  console.log("  [Codex] Generating MCP config...");
+
+  const serverNames = Object.keys(MCP_SERVERS).sort();
+  const lines: string[] = [
+    "# Managed by ai-concise-guidelines. Do not edit by hand.",
+    "# Source of truth: config/mcp.ts",
+    "",
+  ];
+
+  for (const serverName of serverNames) {
+    const server = MCP_SERVERS[serverName];
+    if (server.type !== "local") continue;
+
+    const [command, ...args] = server.command;
+    lines.push(`[mcp_servers.${serverName}]`);
+    lines.push(`command = ${toTomlString(command)}`);
+    lines.push(`args = [${args.map(toTomlString).join(", ")}]`);
+    lines.push("");
+  }
+
+  await writeFile(join(CODEX_DIR, "mcp-servers.toml"), lines.join("\n"));
+  console.log(`    Generated mcp-servers.toml (${serverNames.length} servers)`);
+  return serverNames.length;
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
 async function main() {
-  console.log("\nGenerating files for OpenCode and Claude Code...\n");
+  console.log("\nGenerating files for OpenCode, Claude Code, and Codex...\n");
 
   if (!existsSync(CONTENT_DIR)) {
     console.error(`ERROR: Content directory not found: ${CONTENT_DIR}`);
@@ -216,6 +258,7 @@ async function main() {
   }
 
   // Create output structures for both tools
+  await ensureDir(CODEX_DIR);
   await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
   await ensureDir(join(CLAUDE_DIR, "skills"));
@@ -233,15 +276,23 @@ async function main() {
   const ccSkillCount = await generateClaudeSkills();
   await generateClaudeSettings();
 
+  console.log();
+
+  // Generate Codex
+  console.log("Codex:");
+  const codexMcpCount = await generateCodexMcpConfig();
+
   console.log("\n" + "=".repeat(50));
   console.log("Generation complete!");
   console.log("=".repeat(50));
   console.log(`\nOutput directories:`);
   console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
   console.log(`  Claude Code: ${CLAUDE_DIR}/`);
+  console.log(`  Codex:       ${CODEX_DIR}/`);
   console.log(`\nSummary:`);
   console.log(`  OpenCode:    ${opcSkillCount} skills, ${opcPluginCount} plugins`);
   console.log(`  Claude Code: ${ccSkillCount} skills`);
+  console.log(`  Codex:       ${codexMcpCount} MCP servers`);
 }
 
 main().catch((err) => {

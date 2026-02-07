@@ -57,6 +57,7 @@ The installer configures all tools automatically:
 | Content | Path |
 |---------|------|
 | Rules | `~/.codex/AGENTS.md` |
+| Config | `~/.codex/config.toml` (MCP managed block) |
 
 **Shared**
 

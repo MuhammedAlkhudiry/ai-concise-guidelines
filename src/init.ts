@@ -42,6 +42,7 @@ const CLAUDE_PATHS = {
 
 const CODEX_PATHS = {
   rules: join(HOME, ".codex/AGENTS.md"),
+  config: join(HOME, ".codex/config.toml"),
 };
 
 const SHARED_PATHS = {
@@ -131,7 +132,8 @@ function cloneRepository(): void {
     print.info("Using local output directory...");
     const opencodeOutputDir = join(ROOT_DIR, "output", "opencode");
     const claudeOutputDir = join(ROOT_DIR, "output", "claude");
-    if (!existsSync(opencodeOutputDir) || !existsSync(claudeOutputDir)) {
+    const codexOutputDir = join(ROOT_DIR, "output", "codex");
+    if (!existsSync(opencodeOutputDir) || !existsSync(claudeOutputDir) || !existsSync(codexOutputDir)) {
       print.error("Local output not found. Run 'bun src/generate.ts' first.");
       process.exit(1);
     }
@@ -148,6 +150,7 @@ function cloneRepository(): void {
     "output/opencode/opencode-config.json",
     "output/claude/skills",
     "output/claude/settings.json",
+    "output/codex/mcp-servers.toml",
     "shell/zsh-custom.zsh",
     "shell/kitty.conf",
   ];
@@ -202,6 +205,77 @@ function copyCodexRules(): void {
   ensureParentDirSync(CODEX_PATHS.rules);
   copyFileSync(sourceFile, CODEX_PATHS.rules);
   print.success(`Codex rules copied`);
+}
+
+function getManagedMcpServerNames(managedContent: string): Set<string> {
+  return new Set(
+    Array.from(managedContent.matchAll(/^\[mcp_servers\.([^\]]+)\]\s*$/gm), ([, name]) => name)
+  );
+}
+
+function removeManagedMcpServers(configToml: string, managedServerNames: Set<string>): string {
+  if (managedServerNames.size === 0) {
+    return configToml;
+  }
+
+  const lines = configToml.split(/\r?\n/);
+  const cleanedLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const sectionMatch = lines[i].match(/^\[mcp_servers\.([^\]]+)\]\s*$/);
+    if (!sectionMatch || !managedServerNames.has(sectionMatch[1])) {
+      cleanedLines.push(lines[i]);
+      continue;
+    }
+
+    while (cleanedLines.length > 0 && cleanedLines[cleanedLines.length - 1].trim() === "") {
+      cleanedLines.pop();
+    }
+
+    i++;
+    while (i < lines.length && !/^\[[^\]]+\]\s*$/.test(lines[i])) {
+      i++;
+    }
+    i--;
+  }
+
+  return cleanedLines.join("\n");
+}
+
+function mergeCodexMcpConfig(): void {
+  print.info(`Merging Codex MCP config into ${CODEX_PATHS.config}...`);
+
+  const sourceFile = join(getSourceDir(), "output", "codex", "mcp-servers.toml");
+  if (!existsSync(sourceFile)) {
+    print.error("mcp-servers.toml not found (run 'bun src/generate.ts' first)");
+    return;
+  }
+
+  const managedContent = readFileSync(sourceFile, "utf-8").trimEnd();
+  const startMarker = "# >>> ai-concise-guidelines mcp >>>";
+  const endMarker = "# <<< ai-concise-guidelines mcp <<<";
+  const managedBlock = `${startMarker}\n${managedContent}\n${endMarker}\n`;
+
+  ensureParentDirSync(CODEX_PATHS.config);
+
+  const existing = existsSync(CODEX_PATHS.config)
+    ? readFileSync(CODEX_PATHS.config, "utf-8")
+    : "";
+
+  const escapedStart = startMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedEnd = endMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const managedPattern = new RegExp(`${escapedStart}[\\s\\S]*?${escapedEnd}\\n?`, "g");
+  const orphanMarkerPattern = new RegExp(`^(${escapedStart}|${escapedEnd})\\s*$\\n?`, "gm");
+
+  const withoutManagedBlock = existing.replace(managedPattern, "").replace(orphanMarkerPattern, "");
+  const cleaned = removeManagedMcpServers(
+    withoutManagedBlock,
+    getManagedMcpServerNames(managedContent)
+  ).trimEnd();
+  const merged = cleaned.length > 0 ? `${cleaned}\n\n${managedBlock}` : managedBlock;
+
+  writeFileSync(CODEX_PATHS.config, merged);
+  print.success("Codex MCP config merged");
 }
 
 function copyZsh(): void {
@@ -394,6 +468,7 @@ Installs to:
 
   ${colors.blue("Codex:")}
     Rules:    ${CODEX_PATHS.rules}
+    Config:   ${CODEX_PATHS.config}
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
@@ -434,6 +509,7 @@ function main() {
   console.log();
   console.log(colors.blue("  Codex:"));
   console.log(`    Rules:    ${CODEX_PATHS.rules}`);
+  console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
@@ -468,6 +544,7 @@ function main() {
   console.log();
   console.log(colors.blue("Installing Codex..."));
   copyCodexRules();
+  mergeCodexMcpConfig();
 
   // Shared
   console.log();
