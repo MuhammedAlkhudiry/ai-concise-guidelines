@@ -221,12 +221,18 @@ async function generateCodexMcpConfig(): Promise<number> {
 
   for (const serverName of serverNames) {
     const server = MCP_SERVERS[serverName];
-    if (server.type !== "local") continue;
-
-    const [command, ...args] = server.command;
     lines.push(`[mcp_servers.${serverName}]`);
-    lines.push(`command = ${toTomlString(command)}`);
-    lines.push(`args = [${args.map(toTomlString).join(", ")}]`);
+
+    if (server.type === "local") {
+      const [command, ...args] = server.command;
+      lines.push(`command = ${toTomlString(command)}`);
+      lines.push(`args = [${args.map(toTomlString).join(", ")}]`);
+    }
+
+    if (server.type === "remote") {
+      lines.push(`url = ${toTomlString(server.url)}`);
+    }
+
     lines.push("");
   }
 

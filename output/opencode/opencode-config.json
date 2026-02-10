@@ -53,6 +53,10 @@
         "-y",
         "playwriter@latest"
       ]
+    },
+    "solo": {
+      "type": "remote",
+      "url": "http://localhost:45678/"
     }
   }
 }

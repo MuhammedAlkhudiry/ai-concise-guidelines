@@ -8,7 +8,12 @@ export interface LocalMcpServer {
   command: [string, ...string[]];
 }
 
-export type McpServer = LocalMcpServer;
+export interface RemoteMcpServer {
+  type: "remote";
+  url: string;
+}
+
+export type McpServer = LocalMcpServer | RemoteMcpServer;
 
 export const MCP_SERVERS: Record<string, McpServer> = {
   hugeicons: {
@@ -18,5 +23,9 @@ export const MCP_SERVERS: Record<string, McpServer> = {
   playwriter: {
     type: "local",
     command: ["npx", "-y", "playwriter@latest"],
+  },
+  solo: {
+    type: "remote",
+    url: "http://localhost:45678/",
   },
 };

@@ -3,6 +3,7 @@
 - **RE-READ THE REQUEST** — Before responding, re-read the user's request to ensure you're addressing what they actually asked
 - **NO SHORTCUTS** — If a task only works via a shortcut/unsafe workaround, STOP and notify the user. Do not proceed without explicit approval.
 - **STAY IN SCOPE** — If an error/blocker is outside your task, HALT and report. Do not modify outside scope.
+- **SOLO FOR DEV SERVERS ONLY** — NEVER EVER start development servers directly. Use the Solo MCP only for dev server management. When you obtain a dev server URL, save it in the project `AGENTS.md` file.
 - **TEST ONLY WHAT MATTERS** — Cover critical paths, ignore noise. Tests must be fast, reliable, essential. Useless tests are forbidden.
 - **CONSISTENCY FIRST** — Check existing patterns before writing. Extend existing files/functions over creating new. No new patterns without approval.
 - **MINIMAL CODE** — Every line must serve a current purpose. No speculative code, no commented-out blocks, no debug prints, no leftover TODOs.
