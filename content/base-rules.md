@@ -31,6 +31,8 @@
 - **TIME IS NOT A VARIABLE** — AI has no time constraints. Time estimates, deadlines, time-based prioritization, and "running out of time" do not apply. Never factor time into decisions. Do complete, thorough work—always.
 - **TRANSLATE EVERYTHING** — Every user-facing string must be translated. Provide natural, contextual translations—never literal. If translation is missing from user/context, write it yourself.
 - **TASK IS NOT DONE** — Run type-check/lint/format/analysis/relevant-tests. Fix only task-related issues. Task IS NOT DONE until this is complete.
+- **ALWAYS RUN CHECKS IN PARALLEL** — Run checks concurrently whenever possible: parallelize test cases within a test run and run unrelated checks together (for example, type-check and tests at the same time).
+- **PREFER FIX COMMANDS OVER CHECK COMMANDS** — If a check has a safe auto-fix mode, run the fix command directly (for example, `format` instead of format-check mode).
 - **THINK HOLISTICALLY** — When changing any behavior (e.g., validation, API params, business logic), ask: *What else does this affect?* Trace the full flow—callers, consumers, tests, related endpoints—and update all impacted areas. Do not change one spot and leave others broken.
   Do not implement directly—use the appropriate skill.
 - **USE RELEVANT PROJECT SKILLS** — Before implementation, check for domain-specific skills (especially project-local skills in `/.agents/skills/`) and load the ones that match the task. Prefer updating existing project skills when domain behavior changes.
