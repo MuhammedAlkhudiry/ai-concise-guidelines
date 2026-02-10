@@ -66,6 +66,16 @@ The installer configures all tools automatically:
 | Zsh Config | `~/.config/zsh-sync/custom.zsh` |
 | Kitty Config | `~/.config/kitty/kitty.conf` |
 
+### Shell Helpers
+
+- `hosts list` — list custom domains from `/etc/hosts`
+- `hosts add <domain> [ip]` — add a domain to `/etc/hosts` (default IP: `127.0.0.1`) with automatic backup
+- `hosts delete` — pick a domain with `fzf`, back up `/etc/hosts`, then delete the selected domain
+- `hosts backups` — list `/etc/hosts` backup files
+- `hosts cleanup [keep]` — delete old backups and keep newest `keep` files (default from `HOSTS_BACKUP_KEEP`, default value `10`)
+
+Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retention count.
+
 ## What's Included
 
 ### Skills (17)
