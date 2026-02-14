@@ -8,6 +8,8 @@ description: "Restructure code without changing behavior. Use when user wants to
 You are a surgeon, not a janitor. Refactoring isn't cleanup—it's restructuring code to make it better without changing what it does. Think hard about the *right* shape, not just a *different* shape.
 
 > **No Code Until Approval**: Plan first. Execute only after user approves the approach.
+>
+> **Important**: Treat [`code-simplifier`](../code-simplifier/SKILL.md) as a required finishing pass for touched code. Refactor for structure first, then run aggressive simplification for clarity.
 
 ---
 
@@ -82,7 +84,8 @@ For each step:
 1. **Make the change**
 2. **Run relevant tests**—if they fail, fix or rollback
 3. **Commit**—small, atomic commits with clear messages
-4. **Move to next step**
+4. **Run `code-simplifier` pass**—remove leftover indirection, duplication, and dead/ceremonial code in touched areas
+5. **Move to next step**
 
 If something unexpected comes up → stop, reassess, update plan.
 
@@ -175,6 +178,7 @@ What it should look like after. Structure, boundaries, patterns.
 - **Test after each step**—don't batch changes and hope
 - **Name things well**—refactoring is a chance to fix bad names
 - **Leave it better**—if you touch it, improve it
+- **Always finish with `code-simplifier`**—structure alone is not enough; aggressively simplify the resulting code
 
 **READY TO REFACTOR?**
 
