@@ -45,6 +45,12 @@ const CODEX_PATHS = {
   config: join(HOME, ".codex/config.toml"),
 };
 
+const CURSOR_PATHS = {
+  settings: join(HOME, "Library/Application Support/Cursor/User/settings.json"),
+  keybindings: join(HOME, "Library/Application Support/Cursor/User/keybindings.json"),
+  mcp: join(HOME, ".cursor/mcp.json"),
+};
+
 const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
   kitty: join(HOME, ".config/kitty/kitty.conf"),
@@ -133,7 +139,8 @@ function cloneRepository(): void {
     const opencodeOutputDir = join(ROOT_DIR, "output", "opencode");
     const claudeOutputDir = join(ROOT_DIR, "output", "claude");
     const codexOutputDir = join(ROOT_DIR, "output", "codex");
-    if (!existsSync(opencodeOutputDir) || !existsSync(claudeOutputDir) || !existsSync(codexOutputDir)) {
+    const cursorOutputDir = join(ROOT_DIR, "output", "cursor");
+    if (!existsSync(opencodeOutputDir) || !existsSync(claudeOutputDir) || !existsSync(codexOutputDir) || !existsSync(cursorOutputDir)) {
       print.error("Local output not found. Run 'bun src/generate.ts' first.");
       process.exit(1);
     }
@@ -151,6 +158,9 @@ function cloneRepository(): void {
     "output/claude/skills",
     "output/claude/settings.json",
     "output/codex/mcp-servers.toml",
+    "output/cursor/mcp.json",
+    "cursor/settings.json",
+    "cursor/keybindings.json",
     "shell/zsh-custom.zsh",
     "shell/kitty.conf",
   ];
@@ -306,6 +316,91 @@ function copyKitty(): void {
   print.success(`Kitty config copied`);
 }
 
+function copyCursorSettings(): void {
+  print.info(`Copying Cursor settings to ${CURSOR_PATHS.settings}...`);
+
+  const sourceFile = join(getSourceDir(), "cursor", "settings.json");
+  if (!existsSync(sourceFile)) {
+    print.error("cursor/settings.json not found");
+    return;
+  }
+
+  let settings: Record<string, unknown>;
+  try {
+    const configContent = readFileSync(sourceFile, "utf-8").replace(/<home>/g, HOME);
+    settings = JSON.parse(configContent);
+  } catch {
+    print.error("Failed to parse cursor/settings.json");
+    return;
+  }
+
+  ensureParentDirSync(CURSOR_PATHS.settings);
+
+  let existingConfig: Record<string, unknown> = {};
+  if (existsSync(CURSOR_PATHS.settings)) {
+    try {
+      existingConfig = JSON.parse(readFileSync(CURSOR_PATHS.settings, "utf-8"));
+    } catch {
+      print.warning("Failed to parse existing Cursor settings, creating new file");
+    }
+  }
+
+  const merged = { ...existingConfig, ...settings };
+  writeFileSync(CURSOR_PATHS.settings, JSON.stringify(merged, null, 2) + "\n");
+  print.success(`Cursor settings copied`);
+}
+
+function copyCursorKeybindings(): void {
+  print.info(`Copying Cursor keybindings to ${CURSOR_PATHS.keybindings}...`);
+
+  const sourceFile = join(getSourceDir(), "cursor", "keybindings.json");
+  if (!existsSync(sourceFile)) {
+    print.error("cursor/keybindings.json not found");
+    return;
+  }
+
+  ensureParentDirSync(CURSOR_PATHS.keybindings);
+  copyFileSync(sourceFile, CURSOR_PATHS.keybindings);
+  print.success(`Cursor keybindings copied`);
+}
+
+function mergeCursorMcpConfig(): void {
+  print.info(`Merging Cursor MCP config into ${CURSOR_PATHS.mcp}...`);
+
+  const sourceFile = join(getSourceDir(), "output", "cursor", "mcp.json");
+  if (!existsSync(sourceFile)) {
+    print.error("output/cursor/mcp.json not found (run 'bun src/generate.ts' first)");
+    return;
+  }
+
+  let managedConfig: { mcpServers?: Record<string, unknown> };
+  try {
+    managedConfig = JSON.parse(readFileSync(sourceFile, "utf-8"));
+  } catch {
+    print.error("Failed to parse output/cursor/mcp.json");
+    return;
+  }
+
+  ensureParentDirSync(CURSOR_PATHS.mcp);
+
+  let existingConfig: { mcpServers?: Record<string, unknown> } = {};
+  if (existsSync(CURSOR_PATHS.mcp)) {
+    try {
+      existingConfig = JSON.parse(readFileSync(CURSOR_PATHS.mcp, "utf-8"));
+    } catch {
+      print.warning("Failed to parse existing Cursor MCP config, creating new file");
+    }
+  }
+
+  const managedServers = managedConfig.mcpServers || {};
+  const existingServers = existingConfig.mcpServers || {};
+  const mergedServers = { ...existingServers, ...managedServers };
+
+  const merged = { ...existingConfig, mcpServers: mergedServers };
+  writeFileSync(CURSOR_PATHS.mcp, JSON.stringify(merged, null, 2) + "\n");
+  print.success("Cursor MCP config merged");
+}
+
 function mergeOpencodeConfig(): void {
   print.info(`Merging OpenCode config into ${OPENCODE_PATHS.config}...`);
 
@@ -444,7 +539,7 @@ function showUsage(): never {
   console.log(`
 ${colors.blue("+=============================================================+")}
 ${colors.blue("|   AI Concise Guidelines - Installer                         |")}
-${colors.blue("|   Supports: OpenCode + Claude Code + Codex                  |")}
+${colors.blue("|   Supports: OpenCode + Claude Code + Codex + Cursor         |")}
 ${colors.blue("+=============================================================+")}
 
 Usage: bun src/init.ts [OPTIONS]
@@ -469,6 +564,11 @@ Installs to:
   ${colors.blue("Codex:")}
     Rules:    ${CODEX_PATHS.rules}
     Config:   ${CODEX_PATHS.config}
+
+  ${colors.cyan("Cursor:")}
+    Settings:    ${CURSOR_PATHS.settings}
+    Keybindings: ${CURSOR_PATHS.keybindings}
+    MCP:         ${CURSOR_PATHS.mcp}
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
@@ -511,6 +611,11 @@ function main() {
   console.log(`    Rules:    ${CODEX_PATHS.rules}`);
   console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
   console.log();
+  console.log(colors.cyan("  Cursor:"));
+  console.log(`    Settings:    ${CURSOR_PATHS.settings} (merge)`);
+  console.log(`    Keybindings: ${CURSOR_PATHS.keybindings}`);
+  console.log(`    MCP:         ${CURSOR_PATHS.mcp} (merge)`);
+  console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
@@ -545,6 +650,13 @@ function main() {
   console.log(colors.blue("Installing Codex..."));
   copyCodexRules();
   mergeCodexMcpConfig();
+
+  // Cursor installation
+  console.log();
+  console.log(colors.cyan("Installing Cursor..."));
+  copyCursorSettings();
+  copyCursorKeybindings();
+  mergeCursorMcpConfig();
 
   // Shared
   console.log();

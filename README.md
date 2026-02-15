@@ -1,6 +1,6 @@
 # Opinionated AI Guidelines
 
-Opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, and **Codex**.
+Opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, **Codex**, and **Cursor**.
 
 > **For Contributors**: See [AGENTS.md](./AGENTS.md) for details on modifying content and regenerating output files.
 
@@ -59,6 +59,14 @@ The installer configures all tools automatically:
 | Rules | `~/.codex/AGENTS.md` |
 | Config | `~/.codex/config.toml` (MCP managed block) |
 
+**Cursor** (macOS: `~/Library/Application Support/Cursor/User/`)
+
+| Content | Path |
+|---------|------|
+| Settings | `~/Library/Application Support/Cursor/User/settings.json` |
+| Keybindings | `~/Library/Application Support/Cursor/User/keybindings.json` |
+| MCP | `~/.cursor/mcp.json` |
+
 **Shared**
 
 | Content | Path |
@@ -78,7 +86,7 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 
 ## What's Included
 
-### Skills (17)
+### Skills (18)
 
 | Skill | Description |
 |-------|-------------|
@@ -99,6 +107,7 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 | `qa-test-cases` | Generate test cases for e2e testing |
 | `translation` | Review translations for quality |
 | `project-skill-creation` | Create project-local skills for modular domains |
+| `init-patterns` | Initialize or update project-specific `CODE_PATTERNS.md` templates from current code |
 
 ### Agents (17)
 

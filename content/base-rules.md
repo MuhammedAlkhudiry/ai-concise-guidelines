@@ -52,9 +52,10 @@ Two optional documents at project root provide high-level context:
 | Document | Purpose | What it contains |
 |----------|---------|-----------------|
 | `KNOWLEDGE.md` | What IS — project context | Business rules, decisions, constraints, terminology, gotchas |
+| `CODE_PATTERNS.md` | How code IS written | Project-specific templates and concise notes for local file types |
 | `PRD.md` | What WILL BE — product direction | Roadmap, initiatives, priorities, scope boundaries, open questions |
 
-`KNOWLEDGE.md` is descriptive (present/past). `PRD.md` is prescriptive (future). They don't overlap.
+`KNOWLEDGE.md` is descriptive (present/past). `CODE_PATTERNS.md` is prescriptive for implementation style. `PRD.md` is prescriptive for product direction.
 
 ---
 
@@ -133,3 +134,33 @@ Project knowledge lives in `KNOWLEDGE.md` at project root. Use `/init-knowledge`
 **Rule:** If AI can infer it from code, don't add. If user says something important, add it.
 
 **Updating:** Run `/init-knowledge` after significant work or when new business context is discovered.
+
+---
+
+## Code Patterns
+
+Project coding templates live in `CODE_PATTERNS.md` at project root. Use `/init-patterns` to create or update.
+
+**Purpose:** Canonical file templates for recurring code types, with concise notes on how they should be written in this project.
+
+**What belongs here:**
+- File templates for recurring types that actually exist in the current project
+- Naming/location conventions when not obvious
+- Concise implementation notes per template
+- Project-specific code style guidance that cannot be inferred from one file
+
+**What does NOT belong:**
+- Business/domain context (that belongs in `KNOWLEDGE.md`)
+- Roadmap, initiatives, future plans (that belongs in `PRD.md`)
+- Multiple competing variants of the same file type
+- Verbose essays or historical discussion
+
+**Format:**
+- Group by area (backend/frontend/domain)
+- One canonical template per file type
+- Include path pattern and code block per template
+- Include short notes (`2-4` bullets) directly below each template
+
+**Rule:** Mirror existing project conventions first; never import unified patterns from other repositories.
+
+**Updating:** Run `/init-patterns` when conventions evolve, new file types are introduced, or examples become outdated.

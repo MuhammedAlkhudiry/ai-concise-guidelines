@@ -30,6 +30,12 @@ If the project has a product roadmap or feature backlog, it belongs in `PRD.md` 
 
 When running init-knowledge, if no `PRD.md` exists and the user mentions future plans or roadmap items, suggest running `init-prd` to create one properly.
 
+## Companion: CODE_PATTERNS.md
+
+If the project needs canonical templates for how code files should be written, it belongs in `CODE_PATTERNS.md` — not KNOWLEDGE.md. Use the `init-patterns` skill for that.
+
+When running init-knowledge, if the user asks for coding templates or file-type examples, suggest running `init-patterns`.
+
 ## Format
 
 ```

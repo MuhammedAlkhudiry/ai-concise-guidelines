@@ -1,6 +1,6 @@
 ---
 name: git-branch-mr
-description: "Git branch and merge request workflow. Use when user says 'create branch', 'create MR', 'push and create PR', or wants to go through the git branch workflow."
+description: "Git branch and MR workflow. Use when user says 'create branch', 'create MR', 'push and create PR'."
 ---
 
 # Git Branch & Merge Request
@@ -42,4 +42,4 @@ Message can match branch name or be a short sentence.
 
 Run: `git push -u origin <branch-name>`
 
-Then create merge request using `gh` (GitHub) or `glab` (GitLab).
+Then create merge request using `gh` (GitHub) or `glab` (GitLab). Keep the MR description minimal.

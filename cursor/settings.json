@@ -1,0 +1,25 @@
+{
+  "window.commandCenter": true,
+  "files.autoSave": "afterDelay",
+  "workbench.colorTheme": "Darcula",
+  "workbench.editor.showTabs": "none",
+  "editor.fontFamily": "JetBrains Mono",
+  "editor.fontLigatures": true,
+  "editor.multiCursorModifier": "alt",
+  "editorCursor.foreground": "#666666",
+  "workbench.colorCustomizations": {
+    "editor.background": "#1a1a1a",
+    "sideBar.background": "#1a1a1a",
+    "activityBar.background": "#1a1a1a",
+    "titleBar.activeBackground": "#1a1a1a",
+    "titleBar.inactiveBackground": "#1a1a1a",
+    "panel.background": "#1a1a1a",
+    "terminal.background": "#1a1a1a",
+    "tab.activeBackground": "#1a1a1a",
+    "tab.inactiveBackground": "#151515",
+    "tab.unfocusedActiveBackground": "#1a1a1a",
+    "tab.unfocusedInactiveBackground": "#151515"
+  },
+  "workbench.editor.enablePreview": false,
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
+}

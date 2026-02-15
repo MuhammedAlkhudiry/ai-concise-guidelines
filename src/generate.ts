@@ -28,6 +28,7 @@ const OUTPUT_DIR = join(ROOT_DIR, "output");
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
 const CLAUDE_DIR = join(OUTPUT_DIR, "claude");
 const CODEX_DIR = join(OUTPUT_DIR, "codex");
+const CURSOR_DIR = join(OUTPUT_DIR, "cursor");
 
 // Config files
 const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
@@ -242,6 +243,35 @@ async function generateCodexMcpConfig(): Promise<number> {
 }
 
 // =============================================================================
+// Cursor Generators
+// =============================================================================
+
+async function generateCursorMcpConfig(): Promise<number> {
+  console.log("  [Cursor] Generating MCP config...");
+
+  const mcpServers: Record<string, { command?: string; args?: string[]; url?: string }> = {};
+
+  for (const [name, server] of Object.entries(MCP_SERVERS)) {
+    if (server.type === "local") {
+      const [command, ...args] = server.command;
+      mcpServers[name] = { command, args };
+    } else {
+      mcpServers[name] = { url: server.url };
+    }
+  }
+
+  const config = { mcpServers };
+  await ensureDir(CURSOR_DIR);
+  await writeFile(
+    join(CURSOR_DIR, "mcp.json"),
+    JSON.stringify(config, null, 2) + "\n"
+  );
+  const count = Object.keys(mcpServers).length;
+  console.log(`    Generated mcp.json (${count} servers)`);
+  return count;
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -263,11 +293,12 @@ async function main() {
     await rm(OUTPUT_DIR, { recursive: true });
   }
 
-  // Create output structures for both tools
+  // Create output structures for all tools
   await ensureDir(CODEX_DIR);
   await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
   await ensureDir(join(CLAUDE_DIR, "skills"));
+  await ensureDir(CURSOR_DIR);
 
   // Generate OpenCode
   console.log("OpenCode:");
@@ -288,6 +319,12 @@ async function main() {
   console.log("Codex:");
   const codexMcpCount = await generateCodexMcpConfig();
 
+  console.log();
+
+  // Generate Cursor
+  console.log("Cursor:");
+  const cursorMcpCount = await generateCursorMcpConfig();
+
   console.log("\n" + "=".repeat(50));
   console.log("Generation complete!");
   console.log("=".repeat(50));
@@ -295,10 +332,12 @@ async function main() {
   console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
   console.log(`  Claude Code: ${CLAUDE_DIR}/`);
   console.log(`  Codex:       ${CODEX_DIR}/`);
+  console.log(`  Cursor:      ${CURSOR_DIR}/`);
   console.log(`\nSummary:`);
   console.log(`  OpenCode:    ${opcSkillCount} skills, ${opcPluginCount} plugins`);
   console.log(`  Claude Code: ${ccSkillCount} skills`);
   console.log(`  Codex:       ${codexMcpCount} MCP servers`);
+  console.log(`  Cursor:      ${cursorMcpCount} MCP servers`);
 }
 
 main().catch((err) => {

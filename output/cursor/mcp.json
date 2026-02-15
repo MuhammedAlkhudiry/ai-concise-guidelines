@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "hugeicons": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@hugeicons/mcp-server"
+      ]
+    },
+    "playwriter": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "playwriter@latest"
+      ]
+    },
+    "solo": {
+      "url": "http://localhost:45678/"
+    }
+  }
+}

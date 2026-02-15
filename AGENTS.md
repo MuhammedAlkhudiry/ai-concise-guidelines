@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents working in this repository.
 
 ## Project Overview
 
-This repository contains opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, and **Codex**. The content is installed to user machines via `src/init.ts`. This is a **documentation/configuration repository** with a generator script.
+This repository contains opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, **Codex**, and **Cursor**. The content is installed to user machines via `src/init.ts`. This is a **documentation/configuration repository** with a generator script.
 
 ## Repository Structure
 
@@ -17,7 +17,7 @@ This repository contains opinionated AI guidelines, skills, and agents for **Cla
 │           └── references/  # Optional bundled resources
 ├── config/                  # Configuration (DRY)
 │   ├── models.ts            # Model definitions (OpenCode + Claude Code)
-│   └── mcp.ts               # MCP server definitions (OpenCode + Codex)
+│   └── mcp.ts               # MCP server definitions (OpenCode + Codex + Cursor)
 ├── src/                     # Scripts and shared utilities
 │   ├── fs.ts                # Shared filesystem utilities
 │   ├── print.ts             # Colored console output
@@ -25,6 +25,9 @@ This repository contains opinionated AI guidelines, skills, and agents for **Cla
 │   └── init.ts              # Installer script (all tools)
 ├── plugins/                 # OpenCode plugins (source)
 │   └── loop.ts              # Autonomous loop plugin
+├── cursor/                  # Cursor IDE configuration (source)
+│   ├── settings.json        # Cursor settings
+│   └── keybindings.json    # Cursor keybindings
 ├── shell/                   # Shell configuration files
 │   ├── zsh-custom.zsh       # Custom zsh config
 │   └── zshrc.zsh            # Reference .zshrc (manual setup)
@@ -36,8 +39,10 @@ This repository contains opinionated AI guidelines, skills, and agents for **Cla
 │   ├── claude/              # Claude Code output
 │       ├── skills/          # All skills (copied)
 │       └── settings.json
-│   └── codex/               # Codex output
-│       └── mcp-servers.toml
+│   ├── codex/               # Codex output
+│   │   └── mcp-servers.toml
+│   └── cursor/              # Cursor output
+│       └── mcp.json
 └── AGENTS.md                # AI agent instructions for this repo
 ```
 
