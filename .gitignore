@@ -1,6 +1,9 @@
 ### Example user template template
 ### Example user template
 
+# Editor local history
+.history
+
 # IntelliJ project files
 .idea
 *.iml
