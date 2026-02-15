@@ -5,6 +5,14 @@
     "command": "composerMode.agent"
   },
   {
+    "key": "cmd+shift+n",
+    "command": "composer.createNewWithPrevContext"
+  },
+  {
+    "key": "cmd+shift+n",
+    "command": "composer.createNewComposerTab"
+  },
+  {
     "key": "cmd+5",
     "command": "workbench.action.terminal.toggleTerminal"
   },
@@ -12,10 +20,10 @@
     "key": "cmd+e",
     "command": "-workbench.action.toggleAgentLayout"
   },
-    {
-        "key": "cmd+e",
-        "command": "workbench.action.quickOpen"
-    },
+  {
+    "key": "cmd+e",
+    "command": "workbench.action.quickOpen"
+  },
   {
     "key": "cmd+ctrl+p",
     "command": "workbench.action.openRecent"
@@ -29,5 +37,15 @@
     "key": "cmd+2",
     "command": "workbench.action.toggleSidebarVisibility",
     "when": "focusedView == 'workbench.scm'"
+  },
+  {
+    "key": "cmd+b",
+    "command": "references-view.findReferences",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+w",
+    "command": "editor.action.smartSelect.expand",
+    "when": "editorTextFocus"
   }
 ]

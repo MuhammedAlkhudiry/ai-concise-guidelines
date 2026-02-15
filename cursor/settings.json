@@ -2,10 +2,16 @@
   "window.commandCenter": true,
   "files.autoSave": "afterDelay",
   "workbench.colorTheme": "Darcula",
+  "problems.visibility": "hide",
   "workbench.editor.showTabs": "none",
   "editor.fontFamily": "JetBrains Mono",
   "editor.fontLigatures": true,
   "editor.multiCursorModifier": "alt",
+  "editor.gotoLocation.multipleDefinitions": "goto",
+  "editor.gotoLocation.multipleDeclarations": "goto",
+  "editor.gotoLocation.multipleImplementations": "goto",
+  "editor.gotoLocation.multipleReferences": "goto",
+  "editor.gotoLocation.multipleTypeDefinitions": "goto",
   "editorCursor.foreground": "#666666",
   "workbench.colorCustomizations": {
     "editor.background": "#1a1a1a",
@@ -21,5 +27,7 @@
     "tab.unfocusedInactiveBackground": "#151515"
   },
   "workbench.editor.enablePreview": false,
-  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

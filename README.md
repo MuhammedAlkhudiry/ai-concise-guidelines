@@ -66,6 +66,9 @@ The installer configures all tools automatically:
 | Settings | `~/Library/Application Support/Cursor/User/settings.json` |
 | Keybindings | `~/Library/Application Support/Cursor/User/keybindings.json` |
 | MCP | `~/.cursor/mcp.json` |
+| Extensions | Installed from `cursor/extensions.txt` |
+
+Settings hide problems. To hide other status bar items (Launchpad, Cursor Tab, etc.) while keeping git: right‑click the status bar → **Manage Status Bar Items** → uncheck the ones to hide.
 
 **Shared**
 

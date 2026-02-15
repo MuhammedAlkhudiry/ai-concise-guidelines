@@ -27,7 +27,8 @@ This repository contains opinionated AI guidelines, skills, and agents for **Cla
 │   └── loop.ts              # Autonomous loop plugin
 ├── cursor/                  # Cursor IDE configuration (source)
 │   ├── settings.json        # Cursor settings
-│   └── keybindings.json    # Cursor keybindings
+│   ├── keybindings.json    # Cursor keybindings
+│   └── extensions.txt      # Extensions to install (one ID per line)
 ├── shell/                   # Shell configuration files
 │   ├── zsh-custom.zsh       # Custom zsh config
 │   └── zshrc.zsh            # Reference .zshrc (manual setup)

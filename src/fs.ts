@@ -42,6 +42,13 @@ export async function ensureDir(path: string): Promise<void> {
   }
 }
 
+/**
+ * Ensure parent directory exists (async)
+ */
+export async function ensureParentDir(path: string): Promise<void> {
+  await ensureDir(dirname(path));
+}
+
 // =============================================================================
 // Copy utilities
 // =============================================================================

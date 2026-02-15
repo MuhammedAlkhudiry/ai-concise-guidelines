@@ -1,0 +1,11 @@
+# Cursor extensions to install via make install
+# One extension ID per line. Lines starting with # are ignored.
+biati.ddev-manager
+bmewburn.vscode-intelephense-client
+dbaeumer.vscode-eslint
+esbenp.prettier-vscode
+k--kato.intellij-idea-keybindings
+laravel.vscode-laravel
+rokoroku.vscode-theme-darcula
+usernamehw.errorlens
+xyz.local-history
