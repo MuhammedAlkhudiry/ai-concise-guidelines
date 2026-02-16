@@ -89,10 +89,11 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 
 ## What's Included
 
-### Skills (18)
+### Skills (19)
 
 | Skill | Description |
 |-------|-------------|
+| `init-agents` | Initialize or update `AGENTS.md` / `CLAUDE.md` with AI agent guidance |
 | `planning` | Create structured implementation plans |
 | `execution` | Implement approved plans into code |
 | `workshop` | Explore and stress-test ideas |
