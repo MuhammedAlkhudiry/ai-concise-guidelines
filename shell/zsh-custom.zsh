@@ -96,6 +96,102 @@ dev() {
     fi
 }
 
+# --- Git Branch & MR Workflow ---
+# Usage: gbr <type> <description> [base-branch] [files...]
+#        gbr feature add-user-auth main app/Models/User.php
+#        gbr fix login-redirect --current  # uses current branch as base
+#
+# Environment: MR_TITLE (optional) - custom MR title, defaults to commit message
+gbr() {
+    local branch_type="${1}"
+    local description="${2}"
+    local base_branch="${3:-main}"
+    shift 2
+
+    # Handle optional base branch or --current flag
+    if [[ "$base_branch" == "--current" ]]; then
+        base_branch=$(git branch --show-current)
+        shift 1
+    else
+        shift 1
+    fi
+
+    local files=("$@")
+    local branch_name="${branch_type}/${description}"
+
+    # Validate
+    if [[ -z "$branch_type" ]] || [[ -z "$description" ]]; then
+        echo "Usage: gbr <type> <description> [base-branch] [files...]"
+        echo "Types: feature, fix, chore"
+        return 1
+    fi
+
+    if [[ "$branch_type" != "feature" && "$branch_type" != "fix" && "$branch_type" != "chore" ]]; then
+        echo "Invalid type. Use: feature, fix, or chore"
+        return 1
+    fi
+
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        echo "Not a git repository"
+        return 1
+    fi
+
+    # Pre-flight: status check
+    echo "→ Checking status..."
+    if ! git status --short | grep -q "^"; then
+        echo "  Working directory clean"
+    else
+        echo "  Uncommitted changes detected (will stash if needed)"
+    fi
+
+    # Sync with base
+    echo "→ Syncing with ${base_branch}..."
+    git checkout "$base_branch" || return 1
+    git pull || return 1
+
+    # Create branch
+    echo "→ Creating branch ${branch_name}..."
+    git checkout -b "$branch_name" || return 1
+
+    # Stage files (or all if none specified)
+    if [[ ${#files[@]} -gt 0 ]]; then
+        echo "→ Staging specified files..."
+        git add "${files[@]}" || return 1
+    else
+        echo "→ Staging all changes..."
+        git add -A || return 1
+    fi
+
+    # Check if anything to commit
+    if git diff --cached --quiet; then
+        echo "No changes to commit"
+        return 1
+    fi
+
+    # Commit
+    local commit_msg="${branch_type}: ${description//-/ }"
+    echo "→ Committing: ${commit_msg}"
+    git commit -m "$commit_msg" || return 1
+
+    # Push
+    echo "→ Pushing to origin..."
+    git push -u origin "$branch_name" || return 1
+
+    # Create MR (auto-detect gh/glab)
+    local mr_title="${MR_TITLE:-$commit_msg}"
+    echo "→ Creating MR: ${mr_title}..."
+
+    if command -v glab >/dev/null 2>&1; then
+        glab mr create --title "$mr_title" --description "" --source-branch "$branch_name" --target-branch "$base_branch"
+    elif command -v gh >/dev/null 2>&1; then
+        gh pr create --title "$mr_title" --body "" --head "$branch_name" --base "$base_branch"
+    else
+        echo "  (No gh/glab found - MR not created)"
+    fi
+
+    echo "✓ Done: ${branch_name}"
+}
+
 # --- AI Tools Refresh ---
 # Helper function to run init.ts from remote
 # --- Tool Initialization ---
