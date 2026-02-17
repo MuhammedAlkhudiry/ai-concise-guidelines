@@ -102,6 +102,7 @@ dev() {
 #        gbr fix login-redirect --current  # uses current branch as base
 #
 # Environment: MR_TITLE (optional) - custom MR title, defaults to commit message
+unalias gbr 2>/dev/null
 gbr() {
     local branch_type="${1}"
     local description="${2}"
