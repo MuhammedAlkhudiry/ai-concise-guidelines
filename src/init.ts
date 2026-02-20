@@ -2,7 +2,7 @@
 
 /**
  * Installer Script
- * Installs generated files for OpenCode, Claude Code, and Codex
+ * Installs generated files for OpenCode, Claude Code, Codex, Cursor, and Windsurf
  *
  * Usage: bun src/init.ts [OPTIONS]
  */
@@ -53,6 +53,11 @@ const CURSOR_PATHS = {
   settings: join(HOME, "Library/Application Support/Cursor/User/settings.json"),
   keybindings: join(HOME, "Library/Application Support/Cursor/User/keybindings.json"),
   mcp: join(HOME, ".cursor/mcp.json"),
+};
+
+const WINDSURF_PATHS = {
+  globalRules: join(HOME, ".codeium/memories/global_rules.md"),
+  mcp: join(HOME, ".codeium/mcp_config.json"),
 };
 
 const SHARED_PATHS = {
@@ -141,6 +146,8 @@ function cloneRepository(): void {
     "output/claude/settings.json",
     "output/codex/mcp-servers.toml",
     "output/cursor/mcp.json",
+    "output/windsurf/global_rules.md",
+    "output/windsurf/mcp_config.json",
     "cursor/settings.json",
     "cursor/keybindings.json",
     "cursor/extensions.txt",
@@ -529,6 +536,47 @@ async function installCursorExtensionsAsync(): Promise<void> {
   print.success(`Cursor extensions: ${installed}/${toInstall.length} new, ${wantedExtensions.length - toInstall.length} already installed`);
 }
 
+async function installWindsurf(): Promise<void> {
+  print.info(`Copying Windsurf global rules to ${WINDSURF_PATHS.globalRules}...`);
+  const rulesSource = join(getSourceDir(), "output", "windsurf", "global_rules.md");
+  if (!existsSync(rulesSource)) {
+    print.error("output/windsurf/global_rules.md not found (run 'bun src/generate.ts' first)");
+    return;
+  }
+  await ensureParentDir(WINDSURF_PATHS.globalRules);
+  await copyFile(rulesSource, WINDSURF_PATHS.globalRules);
+  print.success("Windsurf global rules copied");
+
+  print.info(`Merging Windsurf MCP config into ${WINDSURF_PATHS.mcp}...`);
+  const mcpSource = join(getSourceDir(), "output", "windsurf", "mcp_config.json");
+  if (!existsSync(mcpSource)) {
+    print.error("output/windsurf/mcp_config.json not found (run 'bun src/generate.ts' first)");
+    return;
+  }
+  let managedConfig: { mcpServers?: Record<string, unknown> };
+  try {
+    managedConfig = JSON.parse(await readFile(mcpSource, "utf-8"));
+  } catch {
+    print.error("Failed to parse output/windsurf/mcp_config.json");
+    return;
+  }
+  await ensureParentDir(WINDSURF_PATHS.mcp);
+  let existingConfig: { mcpServers?: Record<string, unknown> } = {};
+  if (existsSync(WINDSURF_PATHS.mcp)) {
+    try {
+      existingConfig = JSON.parse(await readFile(WINDSURF_PATHS.mcp, "utf-8"));
+    } catch {
+      print.warning("Failed to parse existing Windsurf MCP config, creating new file");
+    }
+  }
+  const managedServers = managedConfig.mcpServers || {};
+  const existingServers = existingConfig.mcpServers || {};
+  const mergedServers = { ...existingServers, ...managedServers };
+  const merged = { ...existingConfig, mcpServers: mergedServers };
+  await writeFile(WINDSURF_PATHS.mcp, JSON.stringify(merged, null, 2) + "\n");
+  print.success("Windsurf MCP config merged");
+}
+
 async function installShared(): Promise<void> {
   const zshSource = join(getSourceDir(), "shell", "zsh-custom.zsh");
   if (existsSync(zshSource)) {
@@ -558,7 +606,7 @@ function showUsage(): never {
   console.log(`
 ${colors.blue("+=============================================================+")}
 ${colors.blue("|   AI Concise Guidelines - Installer                         |")}
-${colors.blue("|   Supports: OpenCode + Claude Code + Codex + Cursor         |")}
+${colors.blue("|   Supports: OpenCode + Claude Code + Codex + Cursor + Windsurf  |")}
 ${colors.blue("+=============================================================+")}
 
 Usage: bun src/init.ts [OPTIONS]
@@ -588,6 +636,10 @@ Installs to:
     Settings:    ${CURSOR_PATHS.settings}
     Keybindings: ${CURSOR_PATHS.keybindings}
     MCP:         ${CURSOR_PATHS.mcp}
+
+  ${colors.magenta("Windsurf:")}
+    Global Rules: ${WINDSURF_PATHS.globalRules}
+    MCP:         ${WINDSURF_PATHS.mcp}
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
@@ -635,6 +687,10 @@ async function main() {
   console.log(`    Keybindings: ${CURSOR_PATHS.keybindings}`);
   console.log(`    MCP:         ${CURSOR_PATHS.mcp} (merge)`);
   console.log();
+  console.log(colors.magenta("  Windsurf:"));
+  console.log(`    Global Rules: ${WINDSURF_PATHS.globalRules}`);
+  console.log(`    MCP:         ${WINDSURF_PATHS.mcp} (merge)`);
+  console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
@@ -644,7 +700,7 @@ async function main() {
   // Execute installation
   cloneRepository();
 
-  // Parallel installation: skills + OpenCode + Claude + Codex + Cursor + Shared
+  // Parallel installation: skills + OpenCode + Claude + Codex + Cursor + Windsurf + Shared
   console.log();
   console.log(colors.blue("Installing in parallel..."));
   await Promise.all([
@@ -653,6 +709,7 @@ async function main() {
     installClaude(),
     installCodex(),
     installCursor(),
+    installWindsurf(),
     installShared(),
   ]);
 

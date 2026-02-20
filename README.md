@@ -1,6 +1,6 @@
 # Opinionated AI Guidelines
 
-Opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, **Codex**, and **Cursor**.
+Opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, **Codex**, **Cursor**, and **Windsurf**.
 
 > **For Contributors**: See [AGENTS.md](./AGENTS.md) for details on modifying content and regenerating output files.
 
@@ -69,6 +69,12 @@ The installer configures all tools automatically:
 | Extensions | Installed from `cursor/extensions.txt` |
 
 Settings hide problems. To hide other status bar items (Launchpad, Cursor Tab, etc.) while keeping git: right‑click the status bar → **Manage Status Bar Items** → uncheck the ones to hide.
+
+**Windsurf** (`~/.codeium/`)
+
+| Content | Path |
+|---------|------|
+| Global Rules | `~/.codeium/memories/global_rules.md` |
 
 **Shared**
 
