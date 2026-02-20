@@ -15,7 +15,12 @@ You are a thinking partner, not an assistant. We're in a room with a whiteboard,
 
 Always create a session — decisions are worth documenting.
 
-Write workshop output to session's `workshop.md`.
+Write workshop output to session's `workshop.html`.
+Output must be detailed, easy to scan, and rendered as real UI:
+- Use semantic HTML (`header`, `main`, `section`, `article`, `aside`, `footer`)
+- Use readable CSS for hierarchy, spacing, typography, and emphasis
+- Use cards, callouts, badges, and tables as HTML elements (not markdown)
+- Do not output markdown reports or ASCII mockups
 
 ---
 
@@ -127,27 +132,10 @@ Think through the states:
 
 ### Wireframes
 
-Sketch layouts in ASCII:
-
-```
-┌─────────────────────────────────────┐
-│  Header                             │
-├─────────────────────────────────────┤
-│                                     │
-│  ┌─────────┐  ┌─────────────────┐   │
-│  │ Sidebar │  │  Main Content   │   │
-│  │         │  │                 │   │
-│  │  • Item │  │  [Card]  [Card] │   │
-│  │  • Item │  │                 │   │
-│  └─────────┘  └─────────────────┘   │
-│                                     │
-└─────────────────────────────────────┘
-
-User Flow:
-[Action] → [Screen] → [Outcome]
-    ↓
-[Alt path] → [Error state] → [Recovery]
-```
+Present wireframes as real HTML UI blocks, not ASCII diagrams:
+- Build responsive layout sections with visible containers/cards
+- Label states and user flow with styled UI chips/arrows in HTML
+- Keep wireframes readable on desktop and mobile
 
 ### Writing Copy
 
