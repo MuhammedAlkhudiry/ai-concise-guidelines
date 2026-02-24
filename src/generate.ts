@@ -2,7 +2,7 @@
 
 /**
  * Generator Script
- * Generates files for OpenCode, Claude Code, and Codex from content
+ * Generates files for OpenCode, Claude Code, Codex, Cursor, and Windsurf from content
  *
  * Usage: bun src/generate.ts
  */
@@ -29,6 +29,7 @@ const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
 const CLAUDE_DIR = join(OUTPUT_DIR, "claude");
 const CODEX_DIR = join(OUTPUT_DIR, "codex");
 const CURSOR_DIR = join(OUTPUT_DIR, "cursor");
+const WINDSURF_DIR = join(OUTPUT_DIR, "windsurf");
 
 // Config files
 const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
@@ -272,8 +273,48 @@ async function generateCursorMcpConfig(): Promise<number> {
 }
 
 // =============================================================================
-// Main
+// Windsurf Generators
 // =============================================================================
+
+async function generateWindsurfRules(): Promise<void> {
+  console.log("  [Windsurf] Generating global rules...");
+
+  const sourceFile = join(CONTENT_DIR, "base-rules.md");
+  if (!existsSync(sourceFile)) {
+    console.log("    Base rules file not found, skipping");
+    return;
+  }
+
+  await ensureDir(WINDSURF_DIR);
+  const content = await readFile(sourceFile, "utf-8");
+  await writeFile(join(WINDSURF_DIR, "global_rules.md"), content);
+  console.log("    Generated global_rules.md");
+}
+
+async function generateWindsurfMcpConfig(): Promise<number> {
+  console.log("  [Windsurf] Generating MCP config...");
+
+  const mcpServers: Record<string, { command?: string; args?: string[]; serverUrl?: string; headers?: Record<string, string> }> = {};
+
+  for (const [name, server] of Object.entries(MCP_SERVERS)) {
+    if (server.type === "local") {
+      const [command, ...args] = server.command;
+      mcpServers[name] = { command, args };
+    } else {
+      mcpServers[name] = { serverUrl: server.url };
+    }
+  }
+
+  const config = { mcpServers };
+  await ensureDir(WINDSURF_DIR);
+  await writeFile(
+    join(WINDSURF_DIR, "mcp_config.json"),
+    JSON.stringify(config, null, 2) + "\n"
+  );
+  const count = Object.keys(mcpServers).length;
+  console.log(`    Generated mcp_config.json (${count} servers)`);
+  return count;
+}
 
 async function main() {
   console.log("\nGenerating files for OpenCode, Claude Code, and Codex...\n");
@@ -299,6 +340,7 @@ async function main() {
   await ensureDir(join(OPENCODE_DIR, "plugin"));
   await ensureDir(join(CLAUDE_DIR, "skills"));
   await ensureDir(CURSOR_DIR);
+  await ensureDir(WINDSURF_DIR);
 
   // Generate OpenCode
   console.log("OpenCode:");
@@ -325,6 +367,13 @@ async function main() {
   console.log("Cursor:");
   const cursorMcpCount = await generateCursorMcpConfig();
 
+  console.log();
+
+  // Generate Windsurf
+  console.log("Windsurf:");
+  await generateWindsurfRules();
+  const windsurfMcpCount = await generateWindsurfMcpConfig();
+
   console.log("\n" + "=".repeat(50));
   console.log("Generation complete!");
   console.log("=".repeat(50));
@@ -333,11 +382,13 @@ async function main() {
   console.log(`  Claude Code: ${CLAUDE_DIR}/`);
   console.log(`  Codex:       ${CODEX_DIR}/`);
   console.log(`  Cursor:      ${CURSOR_DIR}/`);
+  console.log(`  Windsurf:    ${WINDSURF_DIR}/`);
   console.log(`\nSummary:`);
   console.log(`  OpenCode:    ${opcSkillCount} skills, ${opcPluginCount} plugins`);
   console.log(`  Claude Code: ${ccSkillCount} skills`);
   console.log(`  Codex:       ${codexMcpCount} MCP servers`);
   console.log(`  Cursor:      ${cursorMcpCount} MCP servers`);
+  console.log(`  Windsurf:    global rules, ${windsurfMcpCount} MCP servers`);
 }
 
 main().catch((err) => {

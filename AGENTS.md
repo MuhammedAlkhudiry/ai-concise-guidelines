@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents working in this repository.
 
 ## Project Overview
 
-This repository contains opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, **Codex**, and **Cursor**. The content is installed to user machines via `src/init.ts`. This is a **documentation/configuration repository** with a generator script.
+This repository contains opinionated AI guidelines, skills, and agents for **Claude Code**, **OpenCode**, **Codex**, **Cursor**, and **Windsurf**. The content is installed to user machines via `src/init.ts`. This is a **documentation/configuration repository** with a generator script.
 
 ## Repository Structure
 
@@ -42,8 +42,10 @@ This repository contains opinionated AI guidelines, skills, and agents for **Cla
 │       └── settings.json
 │   ├── codex/               # Codex output
 │   │   └── mcp-servers.toml
-│   └── cursor/              # Cursor output
-│       └── mcp.json
+│   ├── cursor/              # Cursor output
+│   │   └── mcp.json
+│   └── windsurf/            # Windsurf output
+│       └── global_rules.md
 └── AGENTS.md                # AI agent instructions for this repo
 ```
 
@@ -100,6 +102,8 @@ Output is generated for **all tools**:
 - `output/opencode/` — OpenCode format
 - `output/claude/` — Claude Code format
 - `output/codex/` — Codex MCP config snippet
+- `output/cursor/` — Cursor MCP config
+- `output/windsurf/` — Windsurf global rules
 
 Skills are copied wholesale (folder structure preserved).
 
