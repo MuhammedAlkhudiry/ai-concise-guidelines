@@ -123,14 +123,7 @@ If `master-plan.md` exists in session:
 
 ### Update KNOWLEDGE.md
 
-If new business context was discovered during execution, update KNOWLEDGE.md. Especially note decisions that affect other PRD initiatives — "chose Stripe webhooks" matters for any future initiative that processes events.
-
-### Update PRD.md (if exists)
-
-If `PRD.md` exists, update the relevant initiative:
-- Status: `in progress` → `done` (if this completes the initiative or master-plan's final child plan)
-- Session link: add the session path
-- New constraints or open questions discovered during execution
+If new business context was discovered during execution, update KNOWLEDGE.md. Especially note decisions that affect downstream execution plans, especially for future work that processes events.
 
 ---
 

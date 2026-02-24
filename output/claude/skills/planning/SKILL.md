@@ -19,11 +19,8 @@ You are an architect drafting blueprints, not a secretary taking notes. Analyze 
 Before anything else, load all available context:
 
 1. **Read `KNOWLEDGE.md`** — business context, constraints, terminology (what IS)
-2. **Read `PRD.md` if it exists** — product roadmap, initiatives, scope boundaries (what WILL BE)
-3. **Read `master-plan.md` if it exists in session** — initiative coordination, upstream decisions, downstream needs
-4. **Read upstream plans if referenced** — decisions and constraints from completed plans
-
-From PRD.md, understand: where does this work sit in the bigger picture? What downstream initiatives need from this work? What's explicitly out of scope?
+2. **Read `master-plan.md` if it exists in session** — initiative coordination, upstream decisions, downstream needs
+3. **Read upstream plans if referenced** — decisions and constraints from completed plans
 
 ### Step 1: Understand the Ask
 
@@ -119,7 +116,6 @@ Always write the plan to a file — never just output to chat. Use session's `pl
 # Plan: <feature-name>
 Status: draft | Created: YYYY-MM-DD
 
-PRD: PRD.md → Initiative #N (if PRD exists)
 Master plan: master-plan.md → Plan N of M (if master exists)
 Upstream: [what came before, key decisions] (if applicable)
 Downstream: [what comes after, what it needs from this plan] (if applicable)

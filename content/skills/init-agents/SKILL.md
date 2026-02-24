@@ -21,8 +21,7 @@ A **vendor-agnostic markdown file** that provides persistent, project-specific g
 
 **Does NOT contain:**
 - Business rules (that belongs in `KNOWLEDGE.md`)
-- Product roadmap (that belongs in `PRD.md`)
-- Code templates (that belongs in `CODE_PATTERNS.md`)
+- Product roadmap (not included in this document)
 
 ## Tool Conventions
 
@@ -102,7 +101,7 @@ Gather in parallel:
 - Build/lint/test commands from scripts
 - Project structure and key entry points
 - Existing rules (`.cursorrules`, `.cursor/rules/`, `.github/copilot-instructions.md`, `CONTRIBUTING.md`)
-- `KNOWLEDGE.md`, `CODE_PATTERNS.md`, `PRD.md` if they exist — reference them, don't duplicate
+- `KNOWLEDGE.md`, if it exists — reference it, don't duplicate
 
 ### Step 2: Extract Commands
 
@@ -144,8 +143,6 @@ Examples beat paragraphs of description.
 | Document | Use When |
 |----------|----------|
 | `KNOWLEDGE.md` | Business context, domain rules, gotchas — suggest `init-knowledge` if missing |
-| `CODE_PATTERNS.md` | Code templates, file-type examples — suggest `init-patterns` if missing |
-| `PRD.md` | Product direction, roadmap — suggest `init-prd` if user mentions future plans |
 
 When running init-agents, if companion docs exist, reference them in AGENTS.md (e.g. "See KNOWLEDGE.md for business context"). Don't duplicate their content.
 

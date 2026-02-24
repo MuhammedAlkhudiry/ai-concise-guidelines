@@ -13,7 +13,6 @@ Thorough documentation reading skill. **Do not skim** — read comprehensively.
 - "Understand how X works"
 - "Learn about this library"
 - "What does X documentation say about Y"
-- "Store docs for X locally"
 
 ## Core Rules
 
@@ -49,67 +48,6 @@ After reading, provide:
 - **Common Patterns** — How it's typically used
 - **Gotchas** — Things that trip people up
 - **Quick Reference** — Most important APIs/commands
-
-## Storing Documentation Locally
-
-When user wants docs stored (or docs are frequently referenced):
-
-```
-docs/libs/<lib-name>/
-├── README.md           # Overview, when to use, key concepts
-├── getting-started.md  # Installation, setup, quickstart
-├── core-concepts.md    # Mental model, key abstractions
-├── api-reference.md    # Important APIs (condensed)
-├── patterns.md         # Common usage patterns
-└── advanced.md         # Advanced topics (if relevant)
-```
-
-### Storage Rules
-
-- **Condense, don't copy** — Summarize in your own words, extract what matters
-- **Add context** — Note what's relevant to THIS project specifically
-- **Include examples** — Code snippets are valuable
-- **Link to source** — Always include original doc URLs
-- **Version it** — Note the library version docs are for
-
-### README.md Template
-
-```markdown
-# <Library Name>
-
-> <One-line description>
-
-**Version:** X.Y.Z  
-**Docs:** <URL>  
-**Last Updated:** <Date>
-
-## What It Does
-
-<2-3 sentences explaining the library's purpose>
-
-## When to Use
-
-- <Use case 1>
-- <Use case 2>
-
-## Key Concepts
-
-### <Concept 1>
-<Explanation>
-
-### <Concept 2>
-<Explanation>
-
-## Quick Start
-
-\`\`\`<language>
-<minimal working example>
-\`\`\`
-
-## Project-Specific Notes
-
-<How this library is used in THIS project, if applicable>
-```
 
 ## Crawling Documentation Sites
 
@@ -208,19 +146,19 @@ After reading documentation, always provide:
 6. Read API → key functions
 7. Summarize with key concepts, patterns, gotchas
 
-### Example 2: "Store React Query docs locally"
+### Example 2: "Summarize React Query docs for me"
 
 1. Fetch https://tanstack.com/query/latest
 2. Map navigation structure
 3. Ask: "React Query docs are extensive. Focus areas?"
 4. User: "Queries, mutations, and caching"
 5. Read those sections thoroughly
-6. Create:
-   - `docs/libs/react-query/README.md`
-   - `docs/libs/react-query/queries.md`
-   - `docs/libs/react-query/mutations.md`
-   - `docs/libs/react-query/caching.md`
-7. Condense content, add examples, note gotchas
+6. Provide comprehensive summary with:
+   - Overview of React Query
+   - How queries work (with examples)
+   - How mutations work (with examples)
+   - Caching behavior and configuration
+7. Note gotchas and best practices
 
 ### Example 3: "What do the Playwright docs say about network interception?"
 

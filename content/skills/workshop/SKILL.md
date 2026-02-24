@@ -47,11 +47,10 @@ User provides:
 Before forming opinions:
 
 1. **Read `KNOWLEDGE.md`** — understand what exists
-2. **Read `PRD.md` if it exists** — understand where this fits in the bigger picture
-3. **Search the codebase** — existing patterns, similar features, established conventions
-4. **Check library docs** — don't guess APIs, verify them
-5. **Look for prior art** — how have others solved this?
-6. **Find the constraints** — what's already decided? What can't change?
+2. **Search the codebase** — existing patterns, similar features, established conventions
+3. **Check library docs** — don't guess APIs, verify them
+4. **Look for prior art** — how have others solved this?
+5. **Find the constraints** — what's already decided? What can't change?
 
 Cite what you find. If it influenced your thinking, say so.
 

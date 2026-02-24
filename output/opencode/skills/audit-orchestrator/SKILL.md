@@ -19,10 +19,19 @@ Provide comprehensive code review by delegating to specialized auditors based on
 
 ### Step 1: Analyze Changes
 
+First, **run code simplifier** on all changed files to clean up noise, indirection, and unnecessary complexity before auditing.
+
+Load the `code-simplifier` skill and apply to changed code.
+
+Then, understand the scope:
+
 If session path was provided:
 - Write final report to session's `audit.md`
 
-Then, understand the scope:
+```bash
+git diff --name-only HEAD~1  # or appropriate range
+git diff --stat HEAD~1
+```
 
 ```bash
 git diff --name-only HEAD~1  # or appropriate range
@@ -41,14 +50,17 @@ Categorize changed files:
 
 Based on changes, select the relevant auditor skills:
 
+First, run the simplifier to clean up code before auditing. Then select auditors based on what files changed:
+
 | Change Type | Auditor Skills |
 |-------------|----------------|
+| Always (runs first) | `code-simplifier` — Simplifies and cleans code before other audits |
 | Frontend changes | `auditor-frontend-ui-ux` |
 | Backend changes | `auditor-backend` |
 | Backend + Frontend | `auditor-integration` |
 | Tests touched | `auditor-test-coverage` |
 
-Select auditors based on what files changed. Both `auditor-backend` and `auditor-frontend-ui-ux` include code quality checks.
+Both `auditor-backend` and `auditor-frontend-ui-ux` include code quality checks.
 
 ### Step 3: Spawn Auditor Sub-Agents
 

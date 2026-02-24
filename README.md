@@ -111,7 +111,6 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 | `qa-test-cases` | Generate test cases for e2e testing |
 | `translation` | Review translations for quality |
 | `project-skill-creation` | Create project-local skills for modular domains |
-| `init-patterns` | Initialize or update project-specific `CODE_PATTERNS.md` templates from current code |
 
 ### Agents (17)
 
