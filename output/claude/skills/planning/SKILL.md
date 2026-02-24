@@ -250,7 +250,7 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 - **NO FLUFF** — every line should add information
 - **NO VAGUE TASKS** — "implement feature" is not a task; "add validation to `CreateUserDTO`" is
 - **SNIPPETS ARE REQUIRED** — include **full code implementations** in the plan; all decisions must be definitive, never tentative ("maybe", "consider", "perhaps")
-- **DECIDE, DON'T DEFER** — every implementation detail must be decided: class names, method signatures, file paths, algorithms
+- **DECIDE, DON'T DEFER** — every implementation detail must be decided.
 - **CHALLENGE ASSUMPTIONS** — if something seems wrong, say so
 - **REFERENCE CODE** — `[path:line]` for everything
 - **UPDATE THE FILE** — plan is living document, not write-once
