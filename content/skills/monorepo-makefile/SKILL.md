@@ -5,7 +5,8 @@ description: "Set up a root Makefile that forwards commands to monorepo subproje
 
 # Monorepo Makefile
 
-Set up a root Makefile that forwards arbitrary commands to subproject directories. Eliminates `cd` into subdirectories.
+Set up a root Makefile that forwards full commands to subproject directories.
+Avoid calling primary CLIs from the root; pass the entire command in the make target invocation.
 
 ## Pattern
 
@@ -17,12 +18,12 @@ endif
 
 # --- Forwarding targets ---
 <target>:
-	@cd <subdir> && <tool> $(ARGS)
+	@cd <subdir> && $(ARGS)
 
 # --- Error on unknown targets ---
 ifneq ($(firstword $(MAKECMDGOALS)),<target>)
 %:
-	$(error Unknown target '$@'. Use: make <target> <command>)
+	$(error Unknown target '$@'. Use: make <target> <full-command>)
 endif
 
 # --- Silently swallow extra args for valid targets ---
@@ -32,49 +33,49 @@ ifeq ($(firstword $(MAKECMDGOALS)),<target>)
 endif
 ```
 
-- `ARGS` captures everything after the target name
-- `%:` catch-all silently swallows extra args for valid forwarding targets
-- Unknown targets (e.g., `make foo`) error with usage hint
-- One `ifeq` block per forwarding target for both arg capture and catch-all
+- `ARGS` captures everything after the target name.
+- The forwarded call is the full command, e.g. `npm run start`.
+- Unknown targets should fail with a usage hint.
+- Keep one `ifeq` pair per forwarding target.
 
 ## Setup
 
-1. **Identify subprojects** — list each subdirectory and its primary CLI tool (bun, npm, pnpm, ddev, docker, cargo, etc.)
-2. **Create root Makefile** with one forwarding target per subproject
-3. **Update project docs** (AGENTS.md, README) to use `make <target> <command>` syntax
+1. **Identify subprojects** — list each subdirectory and the command context.
+2. **Create root Makefile** with one forwarding target per subproject using the exact folder name.
+3. **Update docs** (AGENTS.md, README) to use `make <target> <full-command>`.
 
-## Example: Bun + DDEV Monorepo
+## Example: Full-command forwarding
 
 ```makefile
-ifeq (app,$(firstword $(MAKECMDGOALS)))
+ifeq (frontend,$(firstword $(MAKECMDGOALS)))
   ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 endif
 
-ifeq (api,$(firstword $(MAKECMDGOALS)))
+ifeq (backend,$(firstword $(MAKECMDGOALS)))
   ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 endif
 
-app:
-	@cd frontend && bun $(ARGS)
+frontend:
+	@cd frontend && $(ARGS)
 
-api:
-	@cd backend && ddev $(ARGS)
+backend:
+	@cd backend && $(ARGS)
 
 # Error on unknown targets
-ifneq ($(firstword $(MAKECMDGOALS)),app)
-ifneq ($(firstword $(MAKECMDGOALS)),api)
+ifneq ($(firstword $(MAKECMDGOALS)),frontend)
+ifneq ($(firstword $(MAKECMDGOALS)),backend)
 %:
-	$(error Unknown target '$@'. Use: make app <command> or make api <command>)
+	$(error Unknown target '$@'. Use: make frontend <full-command> or make backend <full-command>)
 endif
 endif
 
 # Silently swallow extra args for valid targets
-ifeq ($(firstword $(MAKECMDGOALS)),app)
+ifeq ($(firstword $(MAKECMDGOALS)),frontend)
 %:
 	@:
 endif
 
-ifeq ($(firstword $(MAKECMDGOALS)),api)
+ifeq ($(firstword $(MAKECMDGOALS)),backend)
 %:
 	@:
 endif
@@ -82,39 +83,34 @@ endif
 
 Usage:
 ```bash
-make app start              # cd frontend && bun start
-make app run lint           # cd frontend && bun run lint
-make app run build:preview  # colons in args work fine
-make app test               # cd frontend && bun test
-make api exec vendor/bin/pest   # cd backend && ddev exec vendor/bin/pest
-make api composer dev       # cd backend && ddev composer dev
+make frontend npm run start          # cd frontend && npm run start
+make frontend npm run lint           # cd frontend && npm run lint
+make frontend npm run build:prod     # colons in args work
+make backend python -m pytest        # cd backend && python -m pytest
+make backend ls                      # cd backend && ls
 ```
 
-## Other Tool Combinations
+## Other Folder Examples
 
 ```makefile
-# npm monorepo
-web:
-	@cd packages/web && npm $(ARGS)
+packages/web:
+	@cd packages/web && $(ARGS)
 
-# Docker Compose
-svc:
-	@cd services && docker compose $(ARGS)
+services:
+	@cd services && $(ARGS)
 
-# Cargo workspace
-core:
-	@cd crates/core && cargo $(ARGS)
+crates/core:
+	@cd crates/core && $(ARGS)
 
-# Python
-ml:
-	@cd ml-service && python $(ARGS)
+ml-service:
+	@cd ml-service && $(ARGS)
 ```
 
 ## Rules
 
-- **One target per subproject** — short names: `app`, `api`, `web`, `svc`
-- **`@` prefix** — suppresses Make echoing the command itself
-- **Error on unknown targets** — use nested `ifneq` to error, `ifeq` to silently swallow args for valid targets
-- **Colons in args work** — `make app run build:ios:dev` forwards correctly
-- **Test after creating** — run a harmless command like `make app --version` to verify
-- **Update docs** — replace raw `cd subdir && tool` commands with `make <target>` equivalents
+- **One target per subproject** — target must match the folder path exactly (for example `frontend`, `backend`, `packages/web`).
+- **`@` prefix** — suppresses Make echoing commands.
+- **Error on unknown targets** — provide `make <target> <full-command>` usage.
+- **Colons in args work** — `make frontend npm run build:ios:dev`.
+- **Test after creating** — run `make frontend pwd` or another harmless command.
+- **Update docs** — replace `cd <subdir> && <command>` with `make <folder-name> <full-command>`.

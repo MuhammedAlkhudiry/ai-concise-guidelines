@@ -151,21 +151,31 @@ List skills needed for execution:
 - `skill-name` — why needed
 - `project-skill-creation` — create/update project-local skills when the plan introduces or changes modular domains
 - `code-simplifier` — simplify code after implementation (standard)
+- `tdd` — define and sequence RED-GREEN-REFACTOR validation for each behavior change
 
 ## Phases
+
+### Phase Review Protocol
+
+- Keep each phase scoped so a human can review in ~5 minutes.
+- After each phase tasks are drafted, stop execution and request explicit human approval before starting the next phase.
+- Add a review gate line in every phase block so pause points are explicit in the plan.
 
 ### Phase 1: Foundation
 - [ ] 1.1 Task description `[file:line]`
 - [ ] 1.2 Task description
+- [ ] 1.R Human review + approval (approx. 5 minutes)
 
 ### Phase 2: Core Logic ⟂ Phase 3: Integration
 > Phases 2 and 3 can run in parallel (no shared dependencies)
 
 - [ ] 2.1 Task description
 - [ ] 2.2 Task description
+- [ ] 2.R Human review + approval (approx. 5 minutes)
 
 ### Phase 3: Integration
 - [ ] 3.1 Task description
+- [ ] 3.R Human review + approval (approx. 5 minutes)
 
 ### Phase N-2: Project Skill Updates (when applicable)
 > Load `project-skill-creation` skill
@@ -176,9 +186,11 @@ List skills needed for execution:
 > Load `code-simplifier` skill
 - [ ] (N-1).1 Review and simplify all code changes from this plan
 - [ ] (N-1).2 Verify all tests still pass after simplification
+- [ ] (N-1).R Human review + approval (approx. 5 minutes)
 
 ### Phase N: Finalize
 - [ ] N.1 Update `KNOWLEDGE.md` if new business context discovered
+- [ ] N.R Human review + approval (approx. 5 minutes)
 ```
 
 **No scope section.** Questions replaced it.
@@ -250,7 +262,7 @@ Only raise questions you genuinely cannot answer. For answered questions, show y
 - **NO FLUFF** — every line should add information
 - **NO VAGUE TASKS** — "implement feature" is not a task; "add validation to `CreateUserDTO`" is
 - **SNIPPETS ARE REQUIRED** — include **full code implementations** in the plan; all decisions must be definitive, never tentative ("maybe", "consider", "perhaps")
-- **DECIDE, DON'T DEFER** — every implementation detail must be decided: class names, method signatures, file paths, algorithms
+- **DECIDE, DON'T DEFER** — every implementation detail must be decided.
 - **CHALLENGE ASSUMPTIONS** — if something seems wrong, say so
 - **REFERENCE CODE** — `[path:line]` for everything
 - **UPDATE THE FILE** — plan is living document, not write-once

@@ -95,7 +95,7 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 
 ## What's Included
 
-### Skills (19)
+### Skills (20)
 
 | Skill | Description |
 |-------|-------------|
@@ -117,6 +117,7 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 | `qa-test-cases` | Generate test cases for e2e testing |
 | `translation` | Review translations for quality |
 | `project-skill-creation` | Create project-local skills for modular domains |
+| `tdd` | Apply test-driven development for implementation work |
 
 ### Agents (17)
 
