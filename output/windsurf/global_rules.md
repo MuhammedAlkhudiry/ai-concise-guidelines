@@ -1,6 +1,7 @@
 - **SOLO** — Never start dev servers directly; use Solo MCP only, and save any dev URL in `AGENTS.md`.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
-- **COMPATIBILITY** — Update code directly by default; add BC only when an inter-system contract requires it.
+- **COMPATIBILITY** — Prefer correctness over backward compatibility and avoid excessive fallback protection. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
+- **BC-ESCALATION** — If I keep backward compatibility and it adds complexity, I must explicitly raise: "I did this to keep backward compatibility; let me know if it is OK to convert this to a clean cut."
 - **COMMENTS** — Keep comments tied to current code only; remove stale or removed comments.
 - **STRUCTURE** — Confirm the data model before touching data; never assume schema details.
 - **QUERY** — Build query strings only with framework/library helpers; never concatenate manually.
