@@ -20,10 +20,6 @@ export const MCP_SERVERS: Record<string, McpServer> = {
     type: "local",
     command: ["npx", "-y", "@hugeicons/mcp-server"],
   },
-  playwriter: {
-    type: "local",
-    command: ["npx", "-y", "playwriter@latest"],
-  },
   solo: {
     type: "remote",
     url: "http://localhost:45678/",

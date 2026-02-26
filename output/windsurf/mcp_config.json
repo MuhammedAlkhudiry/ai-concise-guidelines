@@ -7,13 +7,6 @@
         "@hugeicons/mcp-server"
       ]
     },
-    "playwriter": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "playwriter@latest"
-      ]
-    },
     "solo": {
       "serverUrl": "http://localhost:45678/"
     }

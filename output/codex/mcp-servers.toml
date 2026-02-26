@@ -5,9 +5,5 @@
 command = "npx"
 args = ["-y", "@hugeicons/mcp-server"]
 
-[mcp_servers.playwriter]
-command = "npx"
-args = ["-y", "playwriter@latest"]
-
 [mcp_servers.solo]
 url = "http://localhost:45678/"
