@@ -59,4 +59,4 @@ Message can match branch name or be a short sentence.
 
 Run: `git push -u origin <branch-name>`
 
-Then create merge request using `gh` (GitHub) or `glab` (GitLab). Keep the MR description minimal.
+Then create merge request using `gh` (GitHub) or `glab` (GitLab) with title only and no description/body.

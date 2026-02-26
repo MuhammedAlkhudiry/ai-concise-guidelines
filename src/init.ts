@@ -8,7 +8,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, copyFileSync } from "fs";
-import { readFile, writeFile, copyFile } from "fs/promises";
+import { readFile, writeFile, copyFile, chmod } from "fs/promises";
 import { join } from "path";
 import { execSync, exec } from "child_process";
 import { promisify } from "util";
@@ -62,6 +62,8 @@ const WINDSURF_PATHS = {
 
 const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
+  zshenv: join(HOME, ".zshenv"),
+  gbr: join(HOME, "bin/gbr"),
   kitty: join(HOME, ".config/kitty/kitty.conf"),
 };
 
@@ -152,6 +154,7 @@ function cloneRepository(): void {
     "cursor/keybindings.json",
     "cursor/extensions.txt",
     "shell/zsh-custom.zsh",
+    "shell/gbr.zsh",
     "shell/kitty.conf",
   ];
 
@@ -587,6 +590,33 @@ async function installShared(): Promise<void> {
   } else {
     print.error("zsh-custom.zsh not found");
   }
+
+  const gbrSource = join(getSourceDir(), "shell", "gbr.zsh");
+  if (existsSync(gbrSource)) {
+    print.info(`Installing gbr command to ${SHARED_PATHS.gbr}...`);
+    await ensureParentDir(SHARED_PATHS.gbr);
+    await copyFile(gbrSource, SHARED_PATHS.gbr);
+    await chmod(SHARED_PATHS.gbr, 0o755);
+    print.success("gbr command installed");
+  } else {
+    print.error("gbr.zsh not found");
+  }
+
+  print.info(`Ensuring ~/bin is in PATH via ${SHARED_PATHS.zshenv}...`);
+  await ensureParentDir(SHARED_PATHS.zshenv);
+  const pathLine = 'export PATH="$HOME/bin:$PATH"';
+  const zshenvContent = existsSync(SHARED_PATHS.zshenv)
+    ? await readFile(SHARED_PATHS.zshenv, "utf-8")
+    : "";
+
+  if (!zshenvContent.includes(pathLine)) {
+    const nextContent = `${zshenvContent.trimEnd()}\n${pathLine}\n`;
+    await writeFile(SHARED_PATHS.zshenv, nextContent);
+    print.success("Added ~/bin PATH entry to .zshenv");
+  } else {
+    print.success("PATH entry already present in .zshenv");
+  }
+
   const kittySource = join(getSourceDir(), "shell", "kitty.conf");
   if (existsSync(kittySource)) {
     print.info(`Copying kitty config to ${SHARED_PATHS.kitty}...`);
@@ -643,6 +673,8 @@ Installs to:
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
+    Zshenv:   ${SHARED_PATHS.zshenv}
+    gbr:      ${SHARED_PATHS.gbr}
     Kitty:    ${SHARED_PATHS.kitty}
 `);
   process.exit(0);
@@ -693,6 +725,8 @@ async function main() {
   console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
+  console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
+  console.log(`    gbr:      ${SHARED_PATHS.gbr}`);
   console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
   printSeparator();
   console.log();

@@ -81,6 +81,8 @@ Settings hide problems. To hide other status bar items (Launchpad, Cursor Tab, e
 | Content | Path |
 |---------|------|
 | Zsh Config | `~/.config/zsh-sync/custom.zsh` |
+| Zsh Env | `~/.zshenv` (ensures `~/bin` is on PATH) |
+| GBR Command | `~/bin/gbr` |
 | Kitty Config | `~/.config/kitty/kitty.conf` |
 
 ### Shell Helpers
