@@ -42,7 +42,10 @@ endif
 
 1. **Identify subprojects** — list each subdirectory and the command context.
 2. **Create root Makefile** with one forwarding target per subproject using the exact folder name.
-3. **Update docs** (AGENTS.md, README) to use `make <target> <full-command>`.
+3. **Add check targets per repo** — for every subproject target `<repo>`, add tool-specific check commands.
+   Examples (not exhaustive): `make <repo>-prettier`, `make <repo>-eslint`, `make <repo>-phpstan`, `make <repo>-test`, and aggregate `make <repo>-check`.
+4. **Add root aggregate check target** — add `make check` that depends on all `<repo>-check` targets.
+5. **Update docs** (AGENTS.md, README) to use `make <target> <full-command>` and the new check targets.
 
 ## Example: Full-command forwarding
 
@@ -90,6 +93,47 @@ make backend python -m pytest        # cd backend && python -m pytest
 make backend ls                      # cd backend && ls
 ```
 
+## Per-Repo Check Targets
+
+Add explicit check targets per repo so agents run checks without rediscovering project scripts.
+
+```makefile
+frontend-eslint:
+	@$(MAKE) frontend npm run lint
+
+frontend-prettier:
+	@$(MAKE) frontend npm run format:check
+
+frontend-tsc:
+	@$(MAKE) frontend npm run typecheck
+
+frontend-test:
+	@$(MAKE) frontend npm run test
+
+frontend-check: frontend-eslint frontend-prettier frontend-tsc frontend-test
+
+backend-phpcs:
+	@$(MAKE) backend composer run lint
+
+backend-php-cs-fixer:
+	@$(MAKE) backend composer run format:check
+
+backend-phpstan:
+	@$(MAKE) backend composer run analyse
+
+backend-test:
+	@$(MAKE) backend composer run test
+
+backend-check: backend-phpcs backend-php-cs-fixer backend-phpstan backend-test
+
+check: frontend-check backend-check
+```
+
+- Target names above are examples, not a fixed list.
+- Name targets by tool where possible (`<repo>-prettier`, `<repo>-eslint`, `<repo>-phpstan`, etc.).
+- Ensure each repo's target set covers `check-and-fix` categories: typecheck/analysis, lint, format, tests.
+- `check` is the root entrypoint that runs all repos.
+
 ## Other Folder Examples
 
 ```makefile
@@ -112,5 +156,7 @@ ml-service:
 - **`@` prefix** — suppresses Make echoing commands.
 - **Error on unknown targets** — provide `make <target> <full-command>` usage.
 - **Colons in args work** — `make frontend npm run build:ios:dev`.
+- **Check commands per repo** — add tool-specific targets like `<repo>-prettier`, `<repo>-eslint`, `<repo>-phpstan`, `<repo>-test`, plus `<repo>-check`.
+- **Root check command** — add `check` target that depends on all `<repo>-check`.
 - **Test after creating** — run `make frontend pwd` or another harmless command.
-- **Update docs** — replace `cd <subdir> && <command>` with `make <folder-name> <full-command>`.
+- **Update docs** — replace `cd <subdir> && <command>` with `make <folder-name> <full-command>`, and document `make check` plus per-repo check targets.

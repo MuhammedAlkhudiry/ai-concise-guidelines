@@ -97,7 +97,7 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 
 ## What's Included
 
-### Skills (20)
+### Skills (18)
 
 | Skill | Description |
 |-------|-------------|
@@ -106,7 +106,6 @@ Set `HOSTS_BACKUP_KEEP` in your shell if you want a different automatic retentio
 | `execution` | Implement approved plans into code |
 | `workshop` | Explore and stress-test ideas |
 | `refactoring` | Restructure code without changing behavior |
-| `audit-orchestrator` | Run comprehensive audits on completed work |
 | `typescript` | TypeScript/JavaScript coding standards |
 | `react` | React coding standards |
 | `laravel` | Laravel/PHP coding standards |

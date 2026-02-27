@@ -139,18 +139,6 @@ content/skills/<name>/  →  output/opencode/skills/<name>/
                         →  output/claude/skills/<name>/
 ```
 
-### Audit Flow
-
-```
-EXECUTE → Audit Orchestrator (skill) → Auditor Sub-Agents (load auditor skills) → Done
-```
-
-- `audit-orchestrator` skill spawns sub-agents that load specialized auditor skills
-- Auditors review and report; orchestrator fixes issues
-- Main agent **cannot self-approve**—audit approval required
-
----
-
 ## Adding New Content
 
 ### New Skill
