@@ -1,4 +1,5 @@
 - **SOLO** — Never start dev servers directly; use Solo MCP only, and save any dev URL in `AGENTS.md`.
+- **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **COMPATIBILITY** — Prefer correctness over backward compatibility and avoid excessive fallback protection. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
 - **BC-ESCALATION** — If I keep backward compatibility and it adds complexity, I must explicitly raise: "I did this to keep backward compatibility; let me know if it is OK to convert this to a clean cut."

@@ -7,7 +7,18 @@ description: "Run all checks (typecheck, lint, format, tests) and fix any failur
 
 Run all project checks and ensure they pass. Fix any issues found.
 
-## Discover Commands
+## Preferred Entry Point
+
+Use monorepo Make targets first so you do not manually rediscover checks:
+
+1. If root `Makefile` has `check`, run `make check`
+2. If `check` is missing, run per-repo targets:
+   examples (not exhaustive): `make <repo>-prettier`, `make <repo>-eslint`, `make <repo>-phpstan`, `make <repo>-test`, or aggregate `make <repo>-check`
+3. Only fall back to manual discovery when these targets do not exist
+
+Tool target names are project-defined; expected coverage categories are: typecheck/analysis, lint, format, tests.
+
+## Discover Commands (Fallback Only)
 
 First, find how checks are run in this project:
 
@@ -31,7 +42,9 @@ Common patterns:
 
 ## Run Checks
 
-Run each check that exists in the project:
+If Make targets exist, run them and use their output as the source of truth.
+
+If no Make targets exist, run each check that exists in the project:
 
 1. **Type check** (if TypeScript)
 2. **Lint** (ESLint, PHPStan, etc.)
@@ -49,6 +62,7 @@ For each failing check:
 
 ## Rules
 
+- **Prefer Make check targets** — Use `make check`, tool-specific commands (for example `make <repo>-prettier`), or `make <repo>-check` when available
 - **Fix, don't skip** — All checks must pass
 - **Stay in scope** — Only fix issues related to current work, flag pre-existing issues
 - **Re-run after fixes** — Verify each fix before moving on
