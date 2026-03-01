@@ -189,6 +189,17 @@ async function generateClaudeSettings(): Promise<void> {
       }
     }
 
+    // Transform bash permissions
+    if (opencodeConfig.permission.bash) {
+      for (const [pattern, rule] of Object.entries(opencodeConfig.permission.bash)) {
+        if (rule === "allow") {
+          allow.push(`Bash(${pattern})`);
+        } else if (rule === "deny") {
+          deny.push(`Bash(${pattern})`);
+        }
+      }
+    }
+
     if (allow.length > 0 || deny.length > 0) {
       claudeSettings.permissions = {};
       if (allow.length > 0) (claudeSettings.permissions as Record<string, unknown>).allow = allow;

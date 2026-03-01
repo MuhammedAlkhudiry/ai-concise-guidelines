@@ -9,7 +9,17 @@
       "Read(/private/tmp/*)",
       "Edit(~/.config/*)",
       "Read(~/.config/*)",
-      "Read(**/.env*)"
+      "Read(**/.env*)",
+      "Bash(ddev *)",
+      "Bash(git *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)"
     ]
   }
 }

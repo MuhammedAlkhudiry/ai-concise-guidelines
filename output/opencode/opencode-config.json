@@ -24,6 +24,18 @@
     },
     "read": {
       "**/.env*": "allow"
+    },
+    "bash": {
+      "ddev *": "allow",
+      "git *": "allow",
+      "grep *": "allow",
+      "rg *": "allow",
+      "find *": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "wc *": "allow"
     }
   },
   "agent": {
