@@ -40,7 +40,7 @@ const OPENCODE_PATHS = {
 
 const CLAUDE_PATHS = {
   rules: join(HOME, ".claude/CLAUDE.md"),
-  skills: join(HOME, ".agents/skills"),
+  skills: join(HOME, ".claude/skills"),
   settings: join(HOME, ".claude/settings.json"),
 };
 
@@ -360,9 +360,28 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
   print.success("OpenCode config merged");
 }
 
+async function installClaudeSkills(): Promise<void> {
+  const sourceDir = getSourceDir();
+  const src = join(sourceDir, "output", "claude", "skills");
+  if (!existsSync(src)) {
+    print.error("Claude skills folder not found");
+    return;
+  }
+  print.info(`Copying Claude skills to ${CLAUDE_PATHS.skills}...`);
+  const count = await copyDirAsync({
+    src,
+    dest: CLAUDE_PATHS.skills,
+    mode: "clean",
+  });
+  print.success(`Copied ${count} Claude skills`);
+}
+
 async function installClaude(): Promise<void> {
   copyClaudeRules();
-  await mergeClaudeSettingsAsync();
+  await Promise.all([
+    installClaudeSkills(),
+    mergeClaudeSettingsAsync(),
+  ]);
 }
 
 async function mergeClaudeSettingsAsync(): Promise<void> {
