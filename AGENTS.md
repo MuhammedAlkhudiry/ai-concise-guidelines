@@ -38,14 +38,15 @@ This repository contains opinionated AI guidelines, skills, and agents for **Cla
 │   │   ├── plugin/
 │   │   └── opencode-config.json
 │   ├── claude/              # Claude Code output
-│       ├── skills/          # All skills (copied)
-│       └── settings.json
+│   │   ├── skills/          # All skills (copied)
+│   │   └── settings.json
 │   ├── codex/               # Codex output
 │   │   └── mcp-servers.toml
 │   ├── cursor/              # Cursor output
 │   │   └── mcp.json
 │   └── windsurf/            # Windsurf output
-│       └── global_rules.md
+│       ├── global_rules.md
+│       └── mcp_config.json
 └── AGENTS.md                # AI agent instructions for this repo
 ```
 

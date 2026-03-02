@@ -62,7 +62,6 @@ async function copySkills(destDir: string): Promise<number> {
     await copyDirAsync({
       src: srcSkillDir,
       dest: destSkillDir,
-      mode: "clean",
     });
     count++;
   }
@@ -96,7 +95,6 @@ async function copyOpencodePlugins(): Promise<number> {
   const count = await copyDirAsync({
     src: PLUGINS_DIR,
     dest: join(OPENCODE_DIR, "plugin"),
-    mode: "clean",
     extensions: [".ts", ".js"],
   });
 

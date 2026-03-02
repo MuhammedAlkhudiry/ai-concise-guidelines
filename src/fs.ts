@@ -53,15 +53,11 @@ export async function ensureParentDir(path: string): Promise<void> {
 // Copy utilities
 // =============================================================================
 
-export type CopyMode = "clean" | "merge";
-
 export interface CopyDirOptions {
   /** Source directory */
   src: string;
-  /** Destination directory */
+  /** Destination directory (deleted first, then recreated) */
   dest: string;
-  /** Copy mode: 'clean' deletes dest first, 'merge' keeps existing files */
-  mode: CopyMode;
   /** File extensions to include (e.g., ['.ts', '.js']). If omitted, copies all files */
   extensions?: string[];
 }
@@ -71,12 +67,11 @@ export interface CopyDirOptions {
  * Returns count of files copied
  */
 export function copyDirSync(options: CopyDirOptions): number {
-  const { src, dest, mode, extensions } = options;
+  const { src, dest, extensions } = options;
 
   if (!existsSync(src)) return 0;
 
-  // Clean mode: delete destination first
-  if (mode === "clean" && existsSync(dest)) {
+  if (existsSync(dest)) {
     rmSync(dest, { recursive: true, force: true });
   }
 
@@ -90,10 +85,8 @@ export function copyDirSync(options: CopyDirOptions): number {
     const destPath = join(dest, entry.name);
 
     if (entry.isDirectory()) {
-      // Recursively copy subdirectories
-      count += copyDirSync({ src: srcPath, dest: destPath, mode, extensions });
+      count += copyDirSync({ src: srcPath, dest: destPath, extensions });
     } else if (entry.isFile()) {
-      // Check extension filter
       if (extensions && extensions.length > 0) {
         const hasValidExt = extensions.some((ext) => entry.name.endsWith(ext));
         if (!hasValidExt) continue;
@@ -111,12 +104,11 @@ export function copyDirSync(options: CopyDirOptions): number {
  * Returns count of files copied
  */
 export async function copyDirAsync(options: CopyDirOptions): Promise<number> {
-  const { src, dest, mode, extensions } = options;
+  const { src, dest, extensions } = options;
 
   if (!existsSync(src)) return 0;
 
-  // Clean mode: delete destination first
-  if (mode === "clean" && existsSync(dest)) {
+  if (existsSync(dest)) {
     await rm(dest, { recursive: true, force: true });
   }
 
@@ -130,7 +122,7 @@ export async function copyDirAsync(options: CopyDirOptions): Promise<number> {
     const destPath = join(dest, entry.name);
 
     if (entry.isDirectory()) {
-      count += await copyDirAsync({ src: srcPath, dest: destPath, mode, extensions });
+      count += await copyDirAsync({ src: srcPath, dest: destPath, extensions });
     } else if (entry.isFile()) {
       if (extensions && extensions.length > 0) {
         const hasValidExt = extensions.some((ext) => entry.name.endsWith(ext));

@@ -13,7 +13,7 @@ import { join } from "path";
 import { execSync, exec } from "child_process";
 import { promisify } from "util";
 import { colors, print, printBox, printSeparator } from "./print";
-import { ensureDirSync, ensureParentDirSync, copyDirSync, copyDirAsync, ensureParentDir, type CopyMode } from "./fs";
+import { ensureDirSync, ensureParentDirSync, copyDirSync, copyDirAsync, ensureParentDir } from "./fs";
 
 const execAsync = promisify(exec);
 
@@ -75,9 +75,7 @@ interface CopyTask {
   name: string;
   src: string;
   dest: string;
-  mode: CopyMode;
   extensions?: string[];
-  countType: "file" | "dir";
 }
 
 function getSourceDir(): string {
@@ -93,9 +91,7 @@ function buildOpencodeTasks(): CopyTask[] {
       name: "plugins",
       src: join(opencodeDir, "plugin"),
       dest: OPENCODE_PATHS.plugins,
-      mode: "merge",
       extensions: [".ts", ".js"],
-      countType: "file",
     },
   ];
 }
@@ -111,7 +107,6 @@ function executeCopyTask(task: CopyTask): void {
   const count = copyDirSync({
     src: task.src,
     dest: task.dest,
-    mode: task.mode,
     extensions: task.extensions,
   });
 
@@ -294,7 +289,6 @@ async function installSharedSkills(): Promise<void> {
   const count = await copyDirAsync({
     src,
     dest: OPENCODE_PATHS.skills,
-    mode: "clean",
   });
   print.success(`Copied ${count} skills`);
 }
@@ -311,7 +305,6 @@ async function installOpencode(): Promise<void> {
     const count = await copyDirAsync({
       src: task.src,
       dest: task.dest,
-      mode: task.mode,
       extensions: task.extensions,
     });
     print.success(`Copied ${count} ${task.name}`);
@@ -371,7 +364,6 @@ async function installClaudeSkills(): Promise<void> {
   const count = await copyDirAsync({
     src,
     dest: CLAUDE_PATHS.skills,
-    mode: "clean",
   });
   print.success(`Copied ${count} Claude skills`);
 }
@@ -721,7 +713,7 @@ async function main() {
   console.log(colors.blue("  OpenCode:"));
   console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
   console.log(`    Skills:   ${OPENCODE_PATHS.skills} (clean)`);
-  console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (merge)`);
+  console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (clean)`);
   console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
   console.log();
   console.log(colors.green("  Claude Code:"));
