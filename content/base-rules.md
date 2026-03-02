@@ -12,6 +12,7 @@
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
 - **PARALLELIZE** — For independent tasks, use subagents and run in parallel; serialize only tasks with shared state.
+- **MAKE-SENSE** — When the user says "make sense?", treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 
 - **KNOWLEDGE** — Keep `KNOWLEDGE.md` descriptive with business rules, decisions, constraints, terminology, and gotchas.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
