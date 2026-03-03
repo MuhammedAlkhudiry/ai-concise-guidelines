@@ -131,7 +131,16 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 function remote() {
     local namespace=$1
-    local shell_type=${2:-bash}
+    shift
+
+    if [ -z "$namespace" ]; then
+        echo "Usage: remote <namespace> [--] [command]"
+        echo "Examples:"
+        echo "  remote ajeer-prod"
+        echo "  remote ajeer-prod \"php artisan about\""
+        echo "  remote ajeer-prod -- php artisan queue:work --once"
+        return 1
+    fi
 
     # Determine context based on namespace suffix
     if [[ $namespace == *-dev ]]; then
@@ -155,14 +164,29 @@ function remote() {
         return 1
     fi
 
-    if [[ $shell_type != "bash" && $shell_type != "sh" ]]; then
-        echo "Invalid shell type. Please specify either 'bash' or 'sh'."
-        return 1
+    # Command mode:
+    # - remote <namespace> "php artisan about"
+    # - remote <namespace> -- php artisan queue:work --once
+    if [[ "$1" == "--" ]]; then
+        shift
     fi
 
-    echo "Attempting to connect to pod '$pod_name' in namespace '$namespace' (context: $context) using shell '$shell_type'."
+    if [ "$#" -gt 0 ]; then
+        local remote_command
+        if [ "$#" -eq 1 ]; then
+            remote_command="$1"
+        else
+            remote_command=$(printf "%q " "$@")
+            remote_command=${remote_command% }
+        fi
+        echo "Running command in pod '$pod_name' (namespace: $namespace, context: $context): $remote_command"
+        kubectl exec -n "$namespace" --context "$context" -it "$pod_name" -- sh -lc "$remote_command"
+        return $?
+    fi
 
-    kubectl exec -n "$namespace" --context "$context" -it "$pod_name" -- $shell_type
+    echo "Attempting interactive shell in pod '$pod_name' (namespace: $namespace, context: $context)."
+    kubectl exec -n "$namespace" --context "$context" -it "$pod_name" -- bash || \
+    kubectl exec -n "$namespace" --context "$context" -it "$pod_name" -- sh
 }
 
 # --- PHP ---
