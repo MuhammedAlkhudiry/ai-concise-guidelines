@@ -18,6 +18,7 @@ Use `--local` / `-l` to install from local output instead of cloning from GitHub
 
 - `gbr`
 - `remote`
+- `remote-info`
 - `hosts`
 
 ## License

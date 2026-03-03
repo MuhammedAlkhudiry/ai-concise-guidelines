@@ -138,6 +138,17 @@ function remote() {
     return 1
 }
 
+function remote-info() {
+    if [[ -x "$HOME/bin/remote-info" ]]; then
+        "$HOME/bin/remote-info" "$@"
+        return $?
+    fi
+
+    echo "remote-info executable not found at $HOME/bin/remote-info"
+    echo "Run the installer again: bun src/init.ts --local"
+    return 1
+}
+
 # --- PHP ---
 export PATH="/opt/homebrew/opt/php@8.2/bin:$PATH"
 export PATH="/opt/homebrew/opt/php@8.2/sbin:$PATH"

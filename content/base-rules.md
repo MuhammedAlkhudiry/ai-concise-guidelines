@@ -16,4 +16,4 @@
 
 - **KNOWLEDGE** — Keep `KNOWLEDGE.md` descriptive with business rules, decisions, constraints, terminology, and gotchas.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
-- **BIN-CMDS** — Available `~/bin` commands: `gbr` (create branch, commit, push, and open MR/PR), `remote` (open pod shell or run command in `*-dev|*-stg|*-uat|*-prod` namespaces), `hosts` (list/add/delete hosts entries with backups and cleanup).
+- **BIN-CMDS** — Available `~/bin` commands: `gbr` (create branch, commit, push, and open MR/PR), `remote` (open pod shell or run command in `*-dev|*-stg|*-uat|*-prod` namespaces), `remote-info` (show full namespace diagnostics including pods/workloads/events), `hosts` (list/add/delete hosts entries with backups and cleanup).
