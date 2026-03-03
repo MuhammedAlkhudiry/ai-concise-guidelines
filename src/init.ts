@@ -63,9 +63,15 @@ const WINDSURF_PATHS = {
 const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
   zshenv: join(HOME, ".zshenv"),
-  gbr: join(HOME, "bin/gbr"),
+  binDir: join(HOME, "bin"),
   kitty: join(HOME, ".config/kitty/kitty.conf"),
 };
+
+const SHARED_BIN_COMMANDS = [
+  { name: "gbr", source: "gbr.zsh" },
+  { name: "remote", source: "remote.zsh" },
+  { name: "hosts", source: "hosts.zsh" },
+];
 
 // =============================================================================
 // Copy Task System
@@ -150,6 +156,8 @@ function cloneRepository(): void {
     "cursor/extensions.txt",
     "shell/zsh-custom.zsh",
     "shell/gbr.zsh",
+    "shell/remote.zsh",
+    "shell/hosts.zsh",
     "shell/kitty.conf",
   ];
 
@@ -602,15 +610,20 @@ async function installShared(): Promise<void> {
     print.error("zsh-custom.zsh not found");
   }
 
-  const gbrSource = join(getSourceDir(), "shell", "gbr.zsh");
-  if (existsSync(gbrSource)) {
-    print.info(`Installing gbr command to ${SHARED_PATHS.gbr}...`);
-    await ensureParentDir(SHARED_PATHS.gbr);
-    await copyFile(gbrSource, SHARED_PATHS.gbr);
-    await chmod(SHARED_PATHS.gbr, 0o755);
-    print.success("gbr command installed");
-  } else {
-    print.error("gbr.zsh not found");
+  for (const command of SHARED_BIN_COMMANDS) {
+    const sourcePath = join(getSourceDir(), "shell", command.source);
+    const destinationPath = join(SHARED_PATHS.binDir, command.name);
+
+    if (!existsSync(sourcePath)) {
+      print.error(`${command.source} not found`);
+      continue;
+    }
+
+    print.info(`Installing ${command.name} command to ${destinationPath}...`);
+    await ensureParentDir(destinationPath);
+    await copyFile(sourcePath, destinationPath);
+    await chmod(destinationPath, 0o755);
+    print.success(`${command.name} command installed`);
   }
 
   print.info(`Ensuring ~/bin is in PATH via ${SHARED_PATHS.zshenv}...`);
@@ -685,7 +698,7 @@ Installs to:
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
     Zshenv:   ${SHARED_PATHS.zshenv}
-    gbr:      ${SHARED_PATHS.gbr}
+    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})
     Kitty:    ${SHARED_PATHS.kitty}
 `);
   process.exit(0);
@@ -737,7 +750,7 @@ async function main() {
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
-  console.log(`    gbr:      ${SHARED_PATHS.gbr}`);
+  console.log(`    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`);
   console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
   printSeparator();
   console.log();

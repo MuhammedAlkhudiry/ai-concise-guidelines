@@ -12,6 +12,14 @@ curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelin
 
 Use `--local` / `-l` to install from local output instead of cloning from GitHub.
 
+## Shared Shell Commands
+
+`make install` installs these commands into `~/bin`:
+
+- `gbr`
+- `remote`
+- `hosts`
+
 ## License
 
 MIT
