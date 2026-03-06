@@ -6,6 +6,7 @@ description: "Create an executable implementation plan with phases, assumptions,
 # Planning
 
 Plan first. Do not implement until the plan is approved.
+After each phase, stop and wait for human review before continuing.
 
 ## Workflow
 
@@ -37,7 +38,9 @@ Keep the plan extremely concise:
 
 - Keep phases small enough for quick human review.
 - Keep each phase description to one short actionable bullet when possible.
-- Mark independent phases that can run in parallel.
+- Default to sequential phases.
+- End every phase with a human review stop.
+- Only use parallel phases if the user explicitly asks for a full build plan.
 - Include a simplify pass and a final audit pass.
 - Reference relevant code with `[path:line]` when it changes the plan.
 
