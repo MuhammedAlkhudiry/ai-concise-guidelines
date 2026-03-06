@@ -33,6 +33,7 @@ For UX discussions, cover:
 
 ## Rules
 
+- Treat this as `every word count` work: cut anything non-essential.
 - No silent assumptions.
 - No code unless the user changes the task.
 - Cite evidence when it shapes the recommendation.

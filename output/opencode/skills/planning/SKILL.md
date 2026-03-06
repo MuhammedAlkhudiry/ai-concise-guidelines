@@ -29,7 +29,9 @@ Write to `plan.md` or `plan-<slug>.md`. Include:
 
 Keep the plan extremely concise:
 
+- Treat this as `every word count` work: cut anything non-essential.
 - Prefer the minimum wording needed to make execution unambiguous.
+- Full code is allowed when it is the clearest way to make execution unambiguous.
 - Use short bullets, not long paragraphs.
 - Omit obvious filler, repetition, and generic project-management language.
 - If a section does not change execution or review, cut it.
