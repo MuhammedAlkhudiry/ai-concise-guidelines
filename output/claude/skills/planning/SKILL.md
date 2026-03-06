@@ -1,98 +1,142 @@
 ---
 name: planning
-description: "Create executable implementation plans with clear phases, assumptions, and code decisions."
+description: "Create structured implementation plans with phases and assumptions. Use when user wants to plan a feature, architect a solution, design an approach, or says 'let's plan', 'create a plan', 'how should we build this', or needs to break down work into steps."
 ---
 
 # Plan Mode
 
-## Rules
+Architect first, implement only after explicit approval. A plan must be executable, decisive, and written to file.
 
-- Plan only. Do not implement until explicit approval.
-- Write every plan to file (`plan.md` or `plan-<n>-<slug>.md`).
-- Ask questions only with the question tool.
-- If uncertainty can change structure or approach, ask.
-- If not asked, record it under `## Assumptions`.
+## Core Principles
+
+- No implementation before approval.
+- Full code snippets are required for implementation decisions.
 - No tentative language (`maybe`, `consider`, `perhaps`).
-- Include concrete code snippets for key implementation points.
-- Reference existing code with `[path:line]`.
+- Questions must go through the question tool, never chat text.
+- Plans are living documents; keep updating them.
 
 ## Workflow
 
-1. Load context: `KNOWLEDGE.md`, `master-plan.md` (if present), upstream plans.
-2. Inspect code: related modules, patterns, tests, integration points.
-3. Research first: code, docs, similar features, web; ask only unresolved structural questions.
-4. Scope check:
-   - Split if any: 3+ subsystems, 6+ phases, unclear single deliverable, unresolved early dependencies.
-   - If split: create `master-plan.md` + first child plan; list remaining child plans.
-5. Draft plan file using template below.
+### 1. Read Context First
 
-## Plan Template
+Load, in order:
 
-```markdown
-# Plan: <feature>
-Status: draft | Created: YYYY-MM-DD
+1. `KNOWLEDGE.md`
+2. `master-plan.md` (if present)
+3. Referenced upstream plans
 
-Master plan: <path or N/A>
-Upstream: <summary or N/A>
-Downstream: <summary or N/A>
+### 2. Resolve Ambiguity
 
-## Goal
-One sentence outcome.
+Ask early and aggressively for anything that could change plan structure:
 
-## Assumptions
-- Explicit defaults not confirmed by user.
+- Stack and architecture choices
+- Scope boundaries
+- Scale and performance expectations
+- User roles/permissions
+- Integration points and delivery model
 
-## Approach
-- Chosen architecture and why.
-- Code references: `[path:line]`.
-- Key implementation snippets (definitive).
+Heuristic: if a wrong assumption would change phases or approach, ask.
 
-## Required Skills
-- <skill> — reason
-- tdd
-- code-simplifier
-- project-skill-creation (if domains changed)
+### 3. Audit Assumptions
 
-## Phases
-### Phase 1: <name>
-- [ ] 1.1 Atomic task `[path:line]`
-- [ ] 1.2 Atomic task
-- [ ] 1.R Human review + approval (~5 min)
+For each decision, classify:
 
-### Phase 2: <name> ⟂ Phase 3: <name> (if parallel)
-- [ ] 2.1 ...
-- [ ] 2.R Human review + approval (~5 min)
+- Structure-changing uncertainty: ask now.
+- Minor-rework uncertainty: list under `Assumptions`.
+- Unsure: ask.
 
-### Phase N-1: Simplify
-- [ ] Simplify changed code
-- [ ] Run relevant checks/tests
-- [ ] (N-1).R Human review + approval (~5 min)
+### 4. Scope Check and Split
 
-### Phase N: Finalize
-- [ ] Update `KNOWLEDGE.md` if new business context appears
-- [ ] N.R Human review + approval (~5 min)
-```
+Split into multiple plans if any signal appears:
 
-## Quality Bar
+- 3+ distinct subsystems
+- 6+ phases
+- Deliverable cannot be described in one clean sentence
+- Long dependency chains with unresolved decisions
 
-- Tasks must be atomic, verifiable, ordered, and referenced.
-- Mark parallel phases explicitly; otherwise run sequentially.
+If split:
+
+1. Propose boundaries via question tool.
+2. Confirm dependency order.
+3. Create `master-plan.md` and first child plan.
+4. List remaining child plans in one line each.
+
+If not split: use `plan.md` only.
+
+### 5. Draft the Plan File
+
+Always write to `plan.md` (or `plan-N-slug.md`).
+
+Required sections:
+
+- Goal
+- Assumptions
+- Approach (with concrete architecture decisions)
+- Required Skills
+- Phases (with explicit review gates)
+
+Phase rules:
+
+- Scope each phase for about 5-minute human review.
+- Mark independent phases for parallelization (`Phase 2 ⟂ Phase 3`).
+- Include a final simplify phase and a finalization/audit phase.
+
+### 6. Iterate Every Turn
+
+1. Re-read plan file first.
+2. Update checklist status (`[x]`, `[~]`).
+3. Log key decisions and rationale.
+4. Revalidate assumptions with new information.
+
+## Plan Quality Bar
+
+Tasks must be:
+
+- Atomic
+- Verifiable
+- Correctly ordered
+- Code-referenced with `[path:line]`
+
+Trade-offs must be explicit:
+
+- Options considered
+- Selected option + rationale
+- What was intentionally not chosen
+
+## Research Before Asking
+
+Before asking unresolved questions:
+
+1. Search codebase
+2. Check docs
+3. Inspect similar features
+4. Search web for prior art when needed
+
+When answering from research, show evidence with file/line references.
 
 ## Status Markers
 
-- `[ ]` pending
-- `[x]` done
-- `[~]` blocked (reason)
-- `[!]` needs decision
+```markdown
+- [ ] Pending
+- [x] Done
+- [~] Blocked (reason: ...)
+- [!] Needs decision
+```
 
-## Per-Turn Updates
+## Non-Negotiable Rules
 
-1. Read plan file first.
-2. Update task statuses.
-3. Record decisions in `## Approach`.
-4. Re-check `## Assumptions`.
+- Every plan lives in a file, never chat-only.
+- No silent assumptions.
+- No vague tasks.
+- Full snippets required for implementation decisions.
+- Decide details; do not defer.
+- Challenge weak assumptions.
+- Reference relevant code with `[path:line]`.
+- End with finalize/audit and `KNOWLEDGE.md` update when business context changes.
 
-## Plan Exit
+## Completion States
 
-- `READY TO BUILD` or `BLOCKED: <reason>`.
-- On approval (`go`, `build`, `approved`), switch to execution using the plan file.
+- `READY TO BUILD`: complete and approved.
+- `BLOCKED`: cannot proceed until a specific blocker is resolved.
+
+On approval (`go`, `build`, `approved`), move to execution mode using the existing plan file.
