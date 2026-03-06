@@ -1,102 +1,49 @@
 ---
 name: init-knowledge
-description: "Initialize or update KNOWLEDGE.md with project business context. Use when user says 'init knowledge', 'create knowledge file', 'update knowledge', or wants to capture project context for AI."
+description: "Create or update `KNOWLEDGE.md` with business context, decisions, terminology, and project constraints."
 ---
 
 # Init Knowledge
 
-Initialize or update `KNOWLEDGE.md` at project root.
+Maintain `KNOWLEDGE.md` as the dense project memory file.
 
-## What KNOWLEDGE.md Is
+## What Belongs There
 
-The **distilled project overview** — everything important about the project in one dense file. This is what a senior developer would know after months on the project, compressed for fast AI context loading.
-
-**Contains:**
 - Business rules and constraints
-- Domain terminology and what terms mean in THIS project
-- How systems work and integrate
-- Why decisions were made
-- External dependencies and their quirks
-- Edge cases and gotchas
-- What was tried and abandoned
+- Domain terminology
+- System boundaries and integrations
+- Decisions and why they matter
+- External dependencies and quirks
+- Gotchas, edge cases, and abandoned approaches
 
-**Does NOT contain:**
-- Future plans, roadmap, or feature ideas (not included in this document)
-- Anything readable from code
+Do not copy code structure that is already obvious from the repo.
 
 ## Format
 
-```
+Use bounded sections with short factual bullets:
+
+```markdown
 # KNOWLEDGE
 
-## <Domain>
-
-### <Subsection>
-- <fact> — <reason/source>
-- <fact>
-
-### <Subsection>
-- <fact>
-
-## <Another Domain>
-...
+## Domain
+### Subsection
+- Fact
+- Fact — why it matters
 
 ## History
-- **<YYYY-MM>**: <what changed/was tried> — <why/outcome>
+- **YYYY-MM**: Decision or change — outcome
 ```
 
-- Sections = bounded contexts (Orders, Users, Inventory, etc.)
-- Nest as deep as needed
-- One fact per line
-- `— <reason>` only when why isn't obvious
+## Workflow
 
-## Process
-
-### Step 1: Spawn Explore Agents
-
-Release a swarm of `explore` sub-agents to gather knowledge in parallel:
-
-| Agent | Task |
-|-------|------|
-| Architecture | Explore project structure, folder layout, entry points |
-| Backend | Explore backend: routes, controllers, services, models, middleware |
-| Frontend | Explore frontend: components, pages, state management, routing |
-| Database | Explore database: migrations, models, relationships, constraints |
-| Config | Explore configs: env files, package.json, composer.json, build configs |
-| External | Explore external integrations: APIs, webhooks, third-party services |
-
-Spawn agents with prompts like:
-```
-Explore the [area] of this codebase. Return:
-- Key patterns and conventions used
-- Important files and their purposes
-- Business logic and domain concepts
-- Gotchas or non-obvious behavior
-- Any hardcoded values or magic numbers that encode business rules
-```
-
-### Step 2: Collect and Synthesize
-
-Wait for all explore agents to return. Collect their findings.
-
-### Step 3: Write KNOWLEDGE.md
-
-**If KNOWLEDGE.md exists:**
-1. Read existing content
-2. Merge new findings (don't duplicate)
-3. Update outdated entries
-4. Write updated file
-
-**If KNOWLEDGE.md doesn't exist:**
-1. Create file with synthesized findings
-2. Organize by domain/bounded context
+1. Inspect the codebase, configs, docs, and user-provided context.
+2. Group findings by domain.
+3. Merge with existing `KNOWLEDGE.md` instead of duplicating.
+4. Remove stale entries when the current code contradicts them.
 
 ## Rules
 
-- **Just do it** — no approval needed, write directly
-- **Dense, not verbose** — one fact per line, no prose
-- **Capture verbal context** — if user mentions business rules, add them
-- **Nest as needed** — no forced structure, let content dictate depth
-- **Merge, don't duplicate** — update existing entries
-- **Parallelize** — spawn explore agents concurrently for speed
-- **Escalate** — if the user asks about future plans, clarify desired storage location before documenting.
+- Keep it dense, not narrative.
+- One fact per line.
+- Prefer business meaning over implementation trivia.
+- Update it whenever new durable project knowledge is discovered.

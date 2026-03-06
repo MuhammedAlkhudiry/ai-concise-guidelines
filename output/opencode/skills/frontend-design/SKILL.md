@@ -55,17 +55,4 @@ When the interface needs a stronger visual identity:
 - Animation on every element
 - Trendy color choices without a clear visual direction
 
-## Quick Checks
-
-- [ ] Layout and spacing feel intentional
-- [ ] States are complete
-- [ ] Accessibility basics are covered
-- [ ] Mobile layout holds up
-- [ ] Existing systems are respected, or the new theme is clearly cohesive
-- [ ] The result does not look generic
-
-## ULTRATHINK
-
-Trigger: `ULTRATHINK: [question]`
-
 Use for layout architecture, theme direction, typography pairing, animation choices, and accessibility tradeoffs.
