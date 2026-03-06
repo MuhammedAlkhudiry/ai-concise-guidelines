@@ -11,6 +11,7 @@
 - **PARALLEL** — Run checks in parallel whenever possible, including test workers and unrelated checks.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
+- **TEST-SYNC** — When refactoring app code files, always refactor the related test files too so they stay in sync.
 - **PARALLELIZE** — For independent tasks, use subagents and run in parallel; serialize only tasks with shared state.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **SHOW-THE-CODE** — When discussing an approach, keep talk brief and grounded in concrete code, diffs, or examples: talk is cheap, show the code. Still explain reasoning, tradeoffs, and risks when they matter.
