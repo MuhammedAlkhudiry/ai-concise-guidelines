@@ -171,6 +171,7 @@ To add an external skill (e.g., from GitHub):
 ## Critical Rules
 
 - **UPDATE DOCS** — When changing CLI args, configs, or user-facing behavior, always update `README.md` and `shell/zsh-custom.zsh` if affected
+- **TEXT BLOCKERS** — When reviewing or editing text, always report conflicts, contradictions, and needed corrections; treat them as blockers until resolved
 - **SKILL CONCISION** — When editing any skill, every word counts, so keep it extremely concise
 - **NEVER EDIT OR SELECT A MODEL**, this is always up to the user
 - **READ CLAUDE DOCS** — When working with Claude Code features (plugins, commands, skills, agents, config), always fetch and read https://docs.anthropic.com/en/docs/claude-code first to ensure correct format and API usage
