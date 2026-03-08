@@ -1,5 +1,6 @@
 - **SOLO** — Never start dev servers directly; use Solo MCP only, and save any dev URL in `AGENTS.md`.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
+- **RTK** — Always use `rtk` for all terminal commands. Before installing RTK, verify the correct binary with `rtk gain`. If RTK is missing or the installed `rtk` is the wrong project, on macOS install it with `brew install rtk`.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` and TypeScript by default; use Python only when it is clearly the best tool for the specific task.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **COMPATIBILITY** — Prefer correctness over backward compatibility and avoid excessive fallback protection. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
