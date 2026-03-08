@@ -62,7 +62,7 @@ content/instructions/*.md + config/*.ts → src/generate.ts → output/opencode/
 
 ### Session Structure
 ```
-docs/ai/sessions/<YYYY-MM-DD>-<slug>/
+.docs/ai/sessions/<YYYY-MM-DD>-<slug>/
 ├── workshop.md   # Exploration phase
 ├── plan.md       # Implementation plan (living document)
 └── audit.md      # Audit results

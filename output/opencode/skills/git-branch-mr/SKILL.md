@@ -38,7 +38,7 @@ Branch types: `feature/`, `fix/`, `chore/`
 ### Stage Only Relevant Files
 
 DO NOT stage:
-- `docs/ai/sessions/`
+- `.docs/ai/sessions/`
 - AI state files
 - IDE configs (`.idea/`, `.vscode/`)
 - Local environment changes (`phpunit.xml`, `.env`)

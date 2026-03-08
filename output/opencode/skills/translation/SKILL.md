@@ -9,7 +9,7 @@ Review translations for meaning, tone, context, and technical correctness. Do no
 
 ## State File
 
-For large reviews, keep state in `docs/ai/<feature-or-file>/translation-review.md` with:
+For large reviews, keep state in `.docs/ai/<feature-or-file>/translation-review.md` with:
 
 - Files and languages
 - Progress

@@ -10,15 +10,15 @@ After each phase, stop and wait for human review before continuing.
 
 ## Workflow
 
-1. Read `KNOWLEDGE.md`, `master-plan.md`, and any referenced plans.
+1. Read `KNOWLEDGE.md`, `.docs/ai/sessions/master-plan.md`, and any referenced plans.
 2. Inspect the codebase and similar features before making assumptions.
 3. Resolve structure-changing uncertainty early.
-4. Decide whether the work belongs in one plan file or a master plan plus child plans.
+4. Decide whether the work belongs in one session plan file or a session master plan plus child plans.
 5. Write the plan file and keep it updated every turn.
 
 ## Plan File
 
-Write to `plan.md` or `plan-<slug>.md`. Include:
+Write plan files only under `.docs/ai/sessions/`, using `.docs/ai/sessions/plan.md`, `.docs/ai/sessions/plan-<slug>.md`, and `.docs/ai/sessions/master-plan.md` as needed. Include:
 
 - Goal
 - Assumptions
@@ -26,6 +26,8 @@ Write to `plan.md` or `plan-<slug>.md`. Include:
 - Required skills
 - Phases
 - Decisions or open blockers
+
+If the user explicitly says not to use a file, do not create files under `.docs/ai/sessions/`; reply in chat with a mini plan instead.
 
 Keep the plan extremely concise:
 

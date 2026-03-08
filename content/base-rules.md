@@ -3,7 +3,7 @@
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` and TypeScript by default; use Python only when it is clearly the best tool for the specific task.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **COMPATIBILITY** — Prefer correctness over backward compatibility and avoid excessive fallback protection. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
-- **BC-ESCALATION** — If I keep backward compatibility and it adds complexity, I must explicitly raise: "I did this to keep backward compatibility; let me know if it is OK to convert this to a clean cut."
+- **BC-ESCALATION** — If I keep backward compatibility and it adds complexity, I must explicitly call that out and ask whether a clean-cut change would be acceptable.
 - **COMMENTS** — Keep comments tied to current code only; remove stale or removed comments.
 - **STRUCTURE** — Confirm the data model before touching data; never assume schema details.
 - **QUERY** — Build query strings only with framework/library helpers; never concatenate manually.
@@ -16,9 +16,8 @@
 - **PARALLELIZE** — For independent tasks, use subagents and run in parallel; serialize only tasks with shared state.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **GAP-CHECK** — Always point out anything the user missed or could miss.
-- **PDF-POPPLER** — Use Poppler for any PDF processing; if it is not installed, stop and ask the user.
+- **SPARK** — When there is a concrete, non-obvious, high-signal suggestion, end replies with a short `SPARK` section that suggests workflow improvements, useful tools, ideas, or UX/DX, product, performance, or automation improvements that could make the work better, faster, safer, or clearer. Skip it when there is nothing meaningful to add.
 - **SHOW-THE-CODE** — When discussing an approach, keep talk brief and grounded in concrete code, diffs, or examples: talk is cheap, show the code. Still explain reasoning, tradeoffs, and risks when they matter.
 
 - **KNOWLEDGE** — Keep `KNOWLEDGE.md` descriptive with business rules, decisions, constraints, terminology, and gotchas.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
-- **BIN-CMDS** — Available `~/bin` commands: `gbr` (create branch, commit, push, and open MR/PR), `remote` (open pod shell or run command in `*-dev|*-stg|*-uat|*-prod` namespaces), `remote-info` (show concise namespace diagnostics with clean sections and CPU/memory usage; use `--full` for expanded snapshot), `hosts` (list/add/delete hosts entries with backups and cleanup).

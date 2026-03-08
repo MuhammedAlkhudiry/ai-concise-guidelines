@@ -10,7 +10,7 @@ Write a dense handoff doc that lets frontend developers or agents integrate with
 ## Use
 
 - If the API is simple CRUD with obvious validation, skip the full template. Provide method, path, auth, and example request/response only.
-- Otherwise write or update `docs/ai/<feature-name>/api-handoff.md`. If an older version must stay, create `api-handoff-v2.md`, `api-handoff-v3.md`, and so on.
+- Otherwise write or update `.docs/ai/<feature-name>/api-handoff.md`. If an older version must stay, create `api-handoff-v2.md`, `api-handoff-v3.md`, and so on.
 
 ## Workflow
 
