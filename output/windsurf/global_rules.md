@@ -14,8 +14,10 @@
 - **TEST-SYNC** — When refactoring app code files, always refactor the related test files too so they stay in sync.
 - **PARALLELIZE** — For independent tasks, use subagents and run in parallel; serialize only tasks with shared state.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
+- **GAP-CHECK** — Always point out anything the user missed or could miss.
+- **PDF-POPPLER** — Use Poppler for any PDF processing; if it is not installed, stop and ask the user.
 - **SHOW-THE-CODE** — When discussing an approach, keep talk brief and grounded in concrete code, diffs, or examples: talk is cheap, show the code. Still explain reasoning, tradeoffs, and risks when they matter.
 
 - **KNOWLEDGE** — Keep `KNOWLEDGE.md` descriptive with business rules, decisions, constraints, terminology, and gotchas.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
-- **BIN-CMDS** — Available `~/bin` commands: `gbr` (create branch, commit, push, and open MR/PR), `remote` (open pod shell or run command in `*-dev|*-stg|*-uat|*-prod` namespaces), `remote-info` (show full namespace diagnostics including pods/workloads/events), `hosts` (list/add/delete hosts entries with backups and cleanup).
+- **BIN-CMDS** — Available `~/bin` commands: `gbr` (create branch, commit, push, and open MR/PR), `remote` (open pod shell or run command in `*-dev|*-stg|*-uat|*-prod` namespaces), `remote-info` (show concise namespace diagnostics with clean sections and CPU/memory usage; use `--full` for expanded snapshot), `hosts` (list/add/delete hosts entries with backups and cleanup).
