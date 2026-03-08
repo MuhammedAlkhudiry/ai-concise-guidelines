@@ -10,11 +10,10 @@
 - **QUERY** — Build query strings only with framework/library helpers; never concatenate manually.
 - **TRANSLATION** — Translate all user-facing copy naturally and contextually; add missing translations when needed.
 - **QUALITY** — Run type-check, lint, format, and relevant tests; fix only task-related issues before finishing.
-- **PARALLEL** — Run checks in parallel whenever possible, including test workers and unrelated checks.
+- **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
 - **TEST-SYNC** — When refactoring app code files, always refactor the related test files too so they stay in sync.
-- **PARALLELIZE** — For independent tasks, use subagents and run in parallel; serialize only tasks with shared state.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **GAP-CHECK** — Always point out anything the user missed or could miss.
 - **SPARK** — When there is a concrete, non-obvious, high-signal suggestion, end replies with a short `SPARK` section that suggests workflow improvements, useful tools, ideas, or UX/DX, product, performance, or automation improvements that could make the work better, faster, safer, or clearer. Skip it when there is nothing meaningful to add.
