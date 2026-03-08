@@ -70,6 +70,7 @@ const SHARED_PATHS = {
 const SHARED_BIN_COMMANDS = [
   { name: "gbr", source: "gbr.zsh" },
   { name: "remote", source: "remote.zsh" },
+  { name: "remote-tinker", source: "remote-tinker.zsh" },
   { name: "remote-info", source: "remote-info.zsh" },
   { name: "hosts", source: "hosts.zsh" },
 ];
@@ -158,6 +159,7 @@ function cloneRepository(): void {
     "shell/zsh-custom.zsh",
     "shell/gbr.zsh",
     "shell/remote.zsh",
+    "shell/remote-tinker.zsh",
     "shell/remote-info.zsh",
     "shell/hosts.zsh",
     "shell/kitty.conf",
