@@ -8,12 +8,12 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, copyFileSync } from "fs";
-import { readFile, writeFile, copyFile, chmod } from "fs/promises";
+import { readFile, writeFile, copyFile, chmod, readdir } from "fs/promises";
 import { join } from "path";
 import { execSync, exec } from "child_process";
 import { promisify } from "util";
 import { colors, print, printBox, printSeparator } from "./print";
-import { ensureDirSync, ensureParentDirSync, copyDirSync, copyDirAsync, ensureParentDir } from "./fs";
+import { ensureDir, ensureDirSync, ensureParentDirSync, copyDirSync, copyDirAsync, ensureParentDir } from "./fs";
 
 const execAsync = promisify(exec);
 
@@ -297,12 +297,11 @@ async function installSharedSkills(): Promise<void> {
     print.error("Skills folder not found");
     return;
   }
-  print.info(`Copying skills to ${OPENCODE_PATHS.skills}...`);
-  const count = await copyDirAsync({
+  await syncManagedSkillsAsync({
     src,
     dest: OPENCODE_PATHS.skills,
+    label: "skills",
   });
-  print.success(`Copied ${count} skills`);
 }
 
 async function installOpencode(): Promise<void> {
@@ -372,12 +371,11 @@ async function installClaudeSkills(): Promise<void> {
     print.error("Claude skills folder not found");
     return;
   }
-  print.info(`Copying Claude skills to ${CLAUDE_PATHS.skills}...`);
-  const count = await copyDirAsync({
+  await syncManagedSkillsAsync({
     src,
     dest: CLAUDE_PATHS.skills,
+    label: "Claude skills",
   });
-  print.success(`Copied ${count} Claude skills`);
 }
 
 async function installClaude(): Promise<void> {
@@ -656,6 +654,34 @@ async function installShared(): Promise<void> {
   }
 }
 
+interface ManagedSkillSyncOptions {
+  src: string;
+  dest: string;
+  label: string;
+}
+
+async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
+  const { src, dest, label } = options;
+  print.info(`Syncing ${label} to ${dest} (preserving existing custom skills)...`);
+
+  await ensureDir(dest);
+
+  const entries = await readdir(src, { withFileTypes: true });
+  const skillNames = entries
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+
+  for (const skillName of skillNames) {
+    await copyDirAsync({
+      src: join(src, skillName),
+      dest: join(dest, skillName),
+    });
+  }
+
+  print.success(`Synced ${skillNames.length} ${label}`);
+}
+
 // =============================================================================
 // Main
 // =============================================================================
@@ -704,6 +730,10 @@ Installs to:
     Zshenv:   ${SHARED_PATHS.zshenv}
     Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})
     Kitty:    ${SHARED_PATHS.kitty}
+
+Notes:
+  - Managed skills overwrite matching generated skills only.
+  - Existing custom skills in user skill folders are preserved.
 `);
   process.exit(0);
 }
@@ -729,13 +759,13 @@ async function main() {
   console.log();
   console.log(colors.blue("  OpenCode:"));
   console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
-  console.log(`    Skills:   ${OPENCODE_PATHS.skills} (clean)`);
+  console.log(`    Skills:   ${OPENCODE_PATHS.skills} (managed overwrite, preserve others)`);
   console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (clean)`);
   console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
   console.log();
   console.log(colors.green("  Claude Code:"));
   console.log(`    Rules:    ${CLAUDE_PATHS.rules}`);
-  console.log(`    Skills:   ${CLAUDE_PATHS.skills} (clean)`);
+  console.log(`    Skills:   ${CLAUDE_PATHS.skills} (managed overwrite, preserve others)`);
   console.log(`    Settings: ${CLAUDE_PATHS.settings} (merge)`);
   console.log();
   console.log(colors.blue("  Codex:"));
