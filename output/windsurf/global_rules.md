@@ -3,7 +3,7 @@
 - **RTK** — Always use `rtk` for all terminal commands. Before installing RTK, verify the correct binary with `rtk gain`. If RTK is missing or the installed `rtk` is the wrong project, on macOS install it with `brew install rtk`.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` and TypeScript by default; use Python only when it is clearly the best tool for the specific task.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
-- **COMPATIBILITY** — Prefer correctness over backward compatibility and avoid excessive fallback protection. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
+- **COMPATIBILITY** — Prefer the correct change over backward compatibility or artificially small fixes. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change. For bugs, prefer the smallest correct fix first.
 - **BC-ESCALATION** — If I keep backward compatibility and it adds complexity, I must explicitly call that out and ask whether a clean-cut change would be acceptable.
 - **COMMENTS** — Keep comments tied to current code only; remove stale or removed comments.
 - **STRUCTURE** — Confirm the data model before touching data; never assume schema details.
@@ -16,8 +16,10 @@
 - **TEST-SYNC** — When refactoring app code files, always refactor the related test files too so they stay in sync.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **GAP-CHECK** — Always point out anything the user missed or could miss.
+- **PLAN-ROLL-OUT** — When working through a plan, always state the next phase or immediate next steps and any production rollout work still required such as DB changes, migrations, commands, environment/config updates, or other deployment steps. Mention deployable status (`good to go?` or not) only when all work is done.
 - **SPARK** — When there is a concrete, non-obvious, high-signal suggestion, end replies with a short `SPARK` section that suggests workflow improvements, useful tools, ideas, or UX/DX, product, performance, or automation improvements that could make the work better, faster, safer, or clearer. Skip it when there is nothing meaningful to add.
 - **SHOW-THE-CODE** — When discussing an approach, keep talk brief and grounded in concrete code, diffs, or examples: talk is cheap, show the code. Still explain reasoning, tradeoffs, and risks when they matter.
+- **AGENTS-CONCISE** — When updating `AGENTS.md` files, keep each added point single-point and concise.
 
 - **KNOWLEDGE** — Keep `KNOWLEDGE.md` descriptive with business rules, decisions, constraints, terminology, and gotchas.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
