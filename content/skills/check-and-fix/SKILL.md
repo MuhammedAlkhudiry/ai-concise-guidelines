@@ -1,40 +1,42 @@
 ---
 name: check-and-fix
-description: "Run project checks and fix task-related failures. Use when the user asks to run checks, lint and fix, or verify code quality."
+description: "Run project checks from repo-root `CHECKLIST.md`, fix task-related failures, and keep the checklist current. Use when the user asks to run checks, lint and fix, or verify code quality."
 ---
 
 # Check and Fix
 
-Run the project checks, fix relevant failures, and finish with clean results.
+Run the repo verification checklist, fix relevant failures, and finish with clean results.
 
-## Order
+## Checklist First
 
-1. Prefer `make check` if the repo provides it.
-2. Otherwise prefer repo-level make targets such as `make <repo>-check`, `make <repo>-eslint`, `make <repo>-prettier`, `make <repo>-phpstan`, `make <repo>-test`.
-3. Only if make targets do not exist, discover commands from `Makefile`, `package.json`, `composer.json`, or `pyproject.toml`.
+Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 
-## What to Run
+1. If `CHECKLIST.md` exists, read it first and use its commands.
+2. If it does not exist, create it before running checks.
+3. Build the first version from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
+4. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
+5. Update the checklist when a listed command is wrong, stale, or missing.
 
-Cover these categories when they exist:
+## Command Selection
 
-- Typecheck or static analysis
-- Lint
-- Format check or formatter fix
-- Tests
-
-Run independent checks in parallel when practical.
+- Prefer repo-level commands such as `make check` when they already cover multiple categories.
+- Use exact runnable commands only. No guesses, placeholders, or "pick one" lists.
+- Keep `CHECKLIST.md` as plain command lines, one command per line.
+- Do not add markdown structure inside the target repo checklist.
+- Use `#` comments only when a short note is required.
 
 ## Fix Loop
 
-1. Run a check.
+1. Run the relevant checklist command.
 2. Read the exact failure.
 3. Fix only issues related to the current task or directly blocking clean output.
-4. Re-run the failing check.
+4. Re-run the same command.
 5. Continue until all relevant checks pass or a real blocker remains.
 
 ## Rules
 
-- Prefer auto-fix variants when safe.
-- Do not skip failing checks without saying why.
+- Run independent checklist commands in parallel when practical.
+- Use the checklist for verification commands, then choose the matching safe fix command from repo scripts or make targets when needed.
+- Do not skip a checklist item without saying why.
 - If a failure is pre-existing and unrelated, report it clearly instead of widening scope.
-- Final report should list each category as `PASS`, `FAIL`, or `BLOCKED`.
+- Final report should list each checklist item as `PASS`, `FAIL`, or `BLOCKED`.
