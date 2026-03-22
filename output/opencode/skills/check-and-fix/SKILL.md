@@ -24,6 +24,8 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 - Keep `CHECKLIST.md` as plain command lines, one command per line.
 - Do not add markdown structure inside the target repo checklist.
 - Use `#` comments only when a short note is required.
+- In monorepos, use short `#` repo headers and list that repo's commands directly below the header.
+- Include every real verification tool the repo expects, not just linting and tests. Examples: `phpstan`, `rector`, `tsc`, `biome`, `eslint`, framework checks, and repo-specific validators.
 
 ## Fix Loop
 
@@ -40,3 +42,4 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 - Do not skip a checklist item without saying why.
 - If a failure is pre-existing and unrelated, report it clearly instead of widening scope.
 - Final report should list each checklist item as `PASS`, `FAIL`, or `BLOCKED`.
+- In monorepos, keep checklist entries grouped per repo so the scope of each command is explicit.
