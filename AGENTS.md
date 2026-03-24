@@ -1,5 +1,5 @@
-- **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for Claude Code, OpenCode, Codex, Cursor, and Windsurf.
-- **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `cursor/`, `shell/`), not generated artifacts.
+- **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for OpenCode and Codex.
+- **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.
 - **NO-OUTPUT-EDITS** — Never edit `output/**` directly; regenerate from source.
 - **INSTALL** — Run `make install` after changing content/config/generator behavior so generated files and local installs stay in sync.
 - **MAKE-CMDS** — Default to `make install`; use `make generate` or `make init` only for targeted workflows.
@@ -9,6 +9,5 @@
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.
 - **MODEL-SELECTION** — Never edit or select a model; model choice is always user-controlled.
 - **WORDING-QUALITY** — Preserve user intent, but use the clearest and strongest wording instead of literal phrasing.
-- **READ-CLAUDE-DOCS** — Before Claude Code-specific work (plugins, commands, skills, agents, config), read [https://docs.anthropic.com/en/docs/claude-code](https://docs.anthropic.com/en/docs/claude-code).
-- **READ-OPENCODE-DOCS** — Before OpenCode-specific work (agents, config, models, temperature), use `opencode-docs-ref.md` or [https://opencode.ai/docs](https://opencode.ai/docs).
+- **READ-OPENCODE-DOCS** — Before OpenCode-specific work (agents, config, models, temperature), use [https://opencode.ai/docs](https://opencode.ai/docs).
 - **FILE-TYPES** — Keep `.md` for docs/rules/skills, `.ts` for scripts and config generators, and `.json` for local tool config where applicable.

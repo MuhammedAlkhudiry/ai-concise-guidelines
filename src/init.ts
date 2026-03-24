@@ -2,20 +2,17 @@
 
 /**
  * Installer Script
- * Installs generated files for OpenCode, Claude Code, Codex, Cursor, and Windsurf
+ * Installs generated files for OpenCode and Codex
  *
  * Usage: bun src/init.ts [OPTIONS]
  */
 
-import { existsSync, readFileSync, writeFileSync, copyFileSync } from "fs";
+import { existsSync, copyFileSync } from "fs";
 import { readFile, writeFile, copyFile, chmod, readdir } from "fs/promises";
 import { join } from "path";
-import { execSync, exec } from "child_process";
-import { promisify } from "util";
+import { execSync } from "child_process";
 import { colors, print, printBox, printSeparator } from "./print";
-import { ensureDir, ensureDirSync, ensureParentDirSync, copyDirSync, copyDirAsync, ensureParentDir } from "./fs";
-
-const execAsync = promisify(exec);
+import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "./fs";
 
 // =============================================================================
 // Constants
@@ -38,26 +35,9 @@ const OPENCODE_PATHS = {
   config: join(HOME, ".config/opencode/opencode.json"),
 };
 
-const CLAUDE_PATHS = {
-  rules: join(HOME, ".claude/CLAUDE.md"),
-  skills: join(HOME, ".claude/skills"),
-  settings: join(HOME, ".claude/settings.json"),
-};
-
 const CODEX_PATHS = {
   rules: join(HOME, ".codex/AGENTS.md"),
   config: join(HOME, ".codex/config.toml"),
-};
-
-const CURSOR_PATHS = {
-  settings: join(HOME, "Library/Application Support/Cursor/User/settings.json"),
-  keybindings: join(HOME, "Library/Application Support/Cursor/User/keybindings.json"),
-  mcp: join(HOME, ".cursor/mcp.json"),
-};
-
-const WINDSURF_PATHS = {
-  globalRules: join(HOME, ".codeium/memories/global_rules.md"),
-  mcp: join(HOME, ".codeium/mcp_config.json"),
 };
 
 const SHARED_PATHS = {
@@ -104,23 +84,6 @@ function buildOpencodeTasks(): CopyTask[] {
   ];
 }
 
-function executeCopyTask(task: CopyTask): void {
-  print.info(`Copying ${task.name} to ${task.dest}...`);
-
-  if (!existsSync(task.src)) {
-    print.error(`${task.name} folder not found`);
-    return;
-  }
-
-  const count = copyDirSync({
-    src: task.src,
-    dest: task.dest,
-    extensions: task.extensions,
-  });
-
-  print.success(`Copied ${count} ${task.name}`);
-}
-
 // =============================================================================
 // Individual Operations
 // =============================================================================
@@ -129,10 +92,8 @@ function cloneRepository(): void {
   if (LOCAL_MODE) {
     print.info("Using local output directory...");
     const opencodeOutputDir = join(ROOT_DIR, "output", "opencode");
-    const claudeOutputDir = join(ROOT_DIR, "output", "claude");
     const codexOutputDir = join(ROOT_DIR, "output", "codex");
-    const cursorOutputDir = join(ROOT_DIR, "output", "cursor");
-    if (!existsSync(opencodeOutputDir) || !existsSync(claudeOutputDir) || !existsSync(codexOutputDir) || !existsSync(cursorOutputDir)) {
+    if (!existsSync(opencodeOutputDir) || !existsSync(codexOutputDir)) {
       print.error("Local output not found. Run 'bun src/generate.ts' first.");
       process.exit(1);
     }
@@ -147,15 +108,7 @@ function cloneRepository(): void {
     "output/opencode/skills",
     "output/opencode/plugin",
     "output/opencode/opencode-config.json",
-    "output/claude/skills",
-    "output/claude/settings.json",
     "output/codex/mcp-servers.toml",
-    "output/cursor/mcp.json",
-    "output/windsurf/global_rules.md",
-    "output/windsurf/mcp_config.json",
-    "cursor/settings.json",
-    "cursor/keybindings.json",
-    "cursor/extensions.txt",
     "shell/zsh-custom.zsh",
     "shell/gbr.zsh",
     "shell/remote.zsh",
@@ -187,20 +140,6 @@ function copyOpencodeRules(): void {
   ensureParentDirSync(OPENCODE_PATHS.rules);
   copyFileSync(sourceFile, OPENCODE_PATHS.rules);
   print.success(`OpenCode rules copied`);
-}
-
-function copyClaudeRules(): void {
-  print.info(`Copying Claude Code rules to ${CLAUDE_PATHS.rules}...`);
-
-  const sourceFile = join(getSourceDir(), "content", "base-rules.md");
-  if (!existsSync(sourceFile)) {
-    print.error("Base rules file not found");
-    return;
-  }
-
-  ensureParentDirSync(CLAUDE_PATHS.rules);
-  copyFileSync(sourceFile, CLAUDE_PATHS.rules);
-  print.success(`Claude Code rules copied`);
 }
 
 function copyCodexRules(): void {
@@ -252,33 +191,6 @@ function removeManagedMcpServers(configToml: string, managedServerNames: Set<str
   return cleanedLines.join("\n");
 }
 
-function copyCursorKeybindings(): void {
-  print.info(`Copying Cursor keybindings to ${CURSOR_PATHS.keybindings}...`);
-
-  const sourceFile = join(getSourceDir(), "cursor", "keybindings.json");
-  if (!existsSync(sourceFile)) {
-    print.error("cursor/keybindings.json not found");
-    return;
-  }
-
-  ensureParentDirSync(CURSOR_PATHS.keybindings);
-  copyFileSync(sourceFile, CURSOR_PATHS.keybindings);
-  print.success(`Cursor keybindings copied`);
-}
-
-function getCursorCli(): string | null {
-  try {
-    execSync("cursor --version", { stdio: "pipe" });
-    return "cursor";
-  } catch {
-    const macPath = "/Applications/Cursor.app/Contents/Resources/app/bin/cursor";
-    if (process.platform === "darwin" && existsSync(macPath)) {
-      return macPath;
-    }
-    return null;
-  }
-}
-
 function cleanup(): void {
   if (!LOCAL_MODE && existsSync(TMP_DIR)) {
     const { rmSync } = require("fs");
@@ -292,7 +204,7 @@ function cleanup(): void {
 
 async function installSharedSkills(): Promise<void> {
   const sourceDir = getSourceDir();
-  const src = join(sourceDir, "output", "claude", "skills");
+  const src = join(sourceDir, "output", "opencode", "skills");
   if (!existsSync(src)) {
     print.error("Skills folder not found");
     return;
@@ -364,61 +276,6 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
   print.success("OpenCode config merged");
 }
 
-async function installClaudeSkills(): Promise<void> {
-  const sourceDir = getSourceDir();
-  const src = join(sourceDir, "output", "claude", "skills");
-  if (!existsSync(src)) {
-    print.error("Claude skills folder not found");
-    return;
-  }
-  await syncManagedSkillsAsync({
-    src,
-    dest: CLAUDE_PATHS.skills,
-    label: "Claude skills",
-  });
-}
-
-async function installClaude(): Promise<void> {
-  copyClaudeRules();
-  await Promise.all([
-    installClaudeSkills(),
-    mergeClaudeSettingsAsync(),
-  ]);
-}
-
-async function mergeClaudeSettingsAsync(): Promise<void> {
-  print.info(`Merging Claude Code settings into ${CLAUDE_PATHS.settings}...`);
-  const sourceFile = join(getSourceDir(), "output", "claude", "settings.json");
-  if (!existsSync(sourceFile)) {
-    print.error("settings.json not found (run 'bun src/generate.ts' first)");
-    return;
-  }
-  const configContent = (await readFile(sourceFile, "utf-8")).replace(/<home>/g, HOME);
-  const settings = JSON.parse(configContent) as Record<string, unknown>;
-  await ensureParentDir(CLAUDE_PATHS.settings);
-  let existingConfig: Record<string, unknown> = {};
-  if (existsSync(CLAUDE_PATHS.settings)) {
-    try {
-      existingConfig = JSON.parse(await readFile(CLAUDE_PATHS.settings, "utf-8"));
-    } catch {
-      print.warning("Failed to parse existing settings, creating new file");
-    }
-  }
-  const existingPermissions = (existingConfig.permissions as Record<string, string[]>) || {};
-  const newPermissions = (settings.permissions as Record<string, string[]>) || {};
-  const mergedPermissions: Record<string, string[]> = {};
-  if (existingPermissions.allow || newPermissions.allow) {
-    mergedPermissions.allow = [...new Set([...(existingPermissions.allow || []), ...(newPermissions.allow || [])])];
-  }
-  if (existingPermissions.deny || newPermissions.deny) {
-    mergedPermissions.deny = [...new Set([...(existingPermissions.deny || []), ...(newPermissions.deny || [])])];
-  }
-  const merged = { ...existingConfig, ...settings };
-  if (Object.keys(mergedPermissions).length > 0) merged.permissions = mergedPermissions;
-  await writeFile(CLAUDE_PATHS.settings, JSON.stringify(merged, null, 2) + "\n");
-  print.success("Claude Code settings merged");
-}
-
 async function installCodex(): Promise<void> {
   copyCodexRules();
   await mergeCodexMcpConfigAsync();
@@ -446,159 +303,6 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
   const merged = cleaned.length > 0 ? `${cleaned}\n\n${managedBlock}` : managedBlock;
   await writeFile(CODEX_PATHS.config, merged);
   print.success("Codex MCP config merged");
-}
-
-async function installCursor(): Promise<void> {
-  await copyCursorSettingsAsync();
-  copyCursorKeybindings();
-  await mergeCursorMcpConfigAsync();
-  await installCursorExtensionsAsync();
-}
-
-async function copyCursorSettingsAsync(): Promise<void> {
-  print.info(`Copying Cursor settings to ${CURSOR_PATHS.settings}...`);
-  const sourceFile = join(getSourceDir(), "cursor", "settings.json");
-  if (!existsSync(sourceFile)) {
-    print.error("cursor/settings.json not found");
-    return;
-  }
-  let settings: Record<string, unknown>;
-  try {
-    const configContent = (await readFile(sourceFile, "utf-8")).replace(/<home>/g, HOME);
-    settings = JSON.parse(configContent);
-  } catch {
-    print.error("Failed to parse cursor/settings.json");
-    return;
-  }
-  await ensureParentDir(CURSOR_PATHS.settings);
-  let existingConfig: Record<string, unknown> = {};
-  if (existsSync(CURSOR_PATHS.settings)) {
-    try {
-      existingConfig = JSON.parse(await readFile(CURSOR_PATHS.settings, "utf-8"));
-    } catch {
-      print.warning("Failed to parse existing Cursor settings, creating new file");
-    }
-  }
-  const merged = { ...existingConfig, ...settings };
-  await writeFile(CURSOR_PATHS.settings, JSON.stringify(merged, null, 2) + "\n");
-  print.success("Cursor settings copied");
-}
-
-async function mergeCursorMcpConfigAsync(): Promise<void> {
-  print.info(`Merging Cursor MCP config into ${CURSOR_PATHS.mcp}...`);
-  const sourceFile = join(getSourceDir(), "output", "cursor", "mcp.json");
-  if (!existsSync(sourceFile)) {
-    print.error("output/cursor/mcp.json not found (run 'bun src/generate.ts' first)");
-    return;
-  }
-  let managedConfig: { mcpServers?: Record<string, unknown> };
-  try {
-    managedConfig = JSON.parse(await readFile(sourceFile, "utf-8"));
-  } catch {
-    print.error("Failed to parse output/cursor/mcp.json");
-    return;
-  }
-  await ensureParentDir(CURSOR_PATHS.mcp);
-  let existingConfig: { mcpServers?: Record<string, unknown> } = {};
-  if (existsSync(CURSOR_PATHS.mcp)) {
-    try {
-      existingConfig = JSON.parse(await readFile(CURSOR_PATHS.mcp, "utf-8"));
-    } catch {
-      print.warning("Failed to parse existing Cursor MCP config, creating new file");
-    }
-  }
-  const managedServers = managedConfig.mcpServers || {};
-  const existingServers = existingConfig.mcpServers || {};
-  const mergedServers = { ...existingServers, ...managedServers };
-  const merged = { ...existingConfig, mcpServers: mergedServers };
-  await writeFile(CURSOR_PATHS.mcp, JSON.stringify(merged, null, 2) + "\n");
-  print.success("Cursor MCP config merged");
-}
-
-async function installCursorExtensionsAsync(): Promise<void> {
-  const sourceFile = join(getSourceDir(), "cursor", "extensions.txt");
-  if (!existsSync(sourceFile)) {
-    print.info("cursor/extensions.txt not found, skipping extension install");
-    return;
-  }
-  const cursorCli = getCursorCli();
-  if (!cursorCli) {
-    print.warning("Cursor CLI not found (install Shell Command from Command Palette). Skipping extensions.");
-    return;
-  }
-  const content = await readFile(sourceFile, "utf-8");
-  const wantedExtensions = content
-    .split(/\r?\n/)
-    .map((line) => line.replace(/#.*$/, "").trim())
-    .filter((id) => id.length > 0);
-  if (wantedExtensions.length === 0) {
-    print.info("No extensions in cursor/extensions.txt");
-    return;
-  }
-  let installedSet: Set<string>;
-  try {
-    const listOutput = await execAsync(`${cursorCli} --list-extensions`, { encoding: "utf-8" });
-    installedSet = new Set(listOutput.stdout.split(/\r?\n/).map((s) => s.trim()).filter(Boolean));
-  } catch {
-    installedSet = new Set();
-  }
-  const toInstall = wantedExtensions.filter((id) => !installedSet.has(id));
-  if (toInstall.length === 0) {
-    print.success(`Cursor extensions: ${wantedExtensions.length} already installed`);
-    return;
-  }
-  print.info(`Installing ${toInstall.length} Cursor extensions...`);
-  let installed = 0;
-  for (const id of toInstall) {
-    try {
-      await execAsync(`${cursorCli} --install-extension ${id} --force`);
-      installed++;
-    } catch {
-      print.warning(`Failed to install ${id}`);
-    }
-  }
-  print.success(`Cursor extensions: ${installed}/${toInstall.length} new, ${wantedExtensions.length - toInstall.length} already installed`);
-}
-
-async function installWindsurf(): Promise<void> {
-  print.info(`Copying Windsurf global rules to ${WINDSURF_PATHS.globalRules}...`);
-  const rulesSource = join(getSourceDir(), "output", "windsurf", "global_rules.md");
-  if (!existsSync(rulesSource)) {
-    print.error("output/windsurf/global_rules.md not found (run 'bun src/generate.ts' first)");
-    return;
-  }
-  await ensureParentDir(WINDSURF_PATHS.globalRules);
-  await copyFile(rulesSource, WINDSURF_PATHS.globalRules);
-  print.success("Windsurf global rules copied");
-
-  print.info(`Merging Windsurf MCP config into ${WINDSURF_PATHS.mcp}...`);
-  const mcpSource = join(getSourceDir(), "output", "windsurf", "mcp_config.json");
-  if (!existsSync(mcpSource)) {
-    print.error("output/windsurf/mcp_config.json not found (run 'bun src/generate.ts' first)");
-    return;
-  }
-  let managedConfig: { mcpServers?: Record<string, unknown> };
-  try {
-    managedConfig = JSON.parse(await readFile(mcpSource, "utf-8"));
-  } catch {
-    print.error("Failed to parse output/windsurf/mcp_config.json");
-    return;
-  }
-  await ensureParentDir(WINDSURF_PATHS.mcp);
-  let existingConfig: { mcpServers?: Record<string, unknown> } = {};
-  if (existsSync(WINDSURF_PATHS.mcp)) {
-    try {
-      existingConfig = JSON.parse(await readFile(WINDSURF_PATHS.mcp, "utf-8"));
-    } catch {
-      print.warning("Failed to parse existing Windsurf MCP config, creating new file");
-    }
-  }
-  const managedServers = managedConfig.mcpServers || {};
-  const existingServers = existingConfig.mcpServers || {};
-  const mergedServers = { ...existingServers, ...managedServers };
-  const merged = { ...existingConfig, mcpServers: mergedServers };
-  await writeFile(WINDSURF_PATHS.mcp, JSON.stringify(merged, null, 2) + "\n");
-  print.success("Windsurf MCP config merged");
 }
 
 async function installShared(): Promise<void> {
@@ -690,7 +394,7 @@ function showUsage(): never {
   console.log(`
 ${colors.blue("+=============================================================+")}
 ${colors.blue("|   AI Concise Guidelines - Installer                         |")}
-${colors.blue("|   Supports: OpenCode + Claude Code + Codex + Cursor + Windsurf  |")}
+${colors.blue("|   Supports: OpenCode + Codex                                |")}
 ${colors.blue("+=============================================================+")}
 
 Usage: bun src/init.ts [OPTIONS]
@@ -707,23 +411,9 @@ Installs to:
     Plugins:  ${OPENCODE_PATHS.plugins}
     Config:   ${OPENCODE_PATHS.config}
 
-  ${colors.green("Claude Code:")}
-    Rules:    ${CLAUDE_PATHS.rules}
-    Skills:   ${CLAUDE_PATHS.skills}
-    Settings: ${CLAUDE_PATHS.settings}
-
   ${colors.blue("Codex:")}
     Rules:    ${CODEX_PATHS.rules}
     Config:   ${CODEX_PATHS.config}
-
-  ${colors.cyan("Cursor:")}
-    Settings:    ${CURSOR_PATHS.settings}
-    Keybindings: ${CURSOR_PATHS.keybindings}
-    MCP:         ${CURSOR_PATHS.mcp}
-
-  ${colors.magenta("Windsurf:")}
-    Global Rules: ${WINDSURF_PATHS.globalRules}
-    MCP:         ${WINDSURF_PATHS.mcp}
 
   ${colors.yellow("Shared:")}
     Zsh:      ${SHARED_PATHS.zsh}
@@ -763,23 +453,9 @@ async function main() {
   console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (clean)`);
   console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
   console.log();
-  console.log(colors.green("  Claude Code:"));
-  console.log(`    Rules:    ${CLAUDE_PATHS.rules}`);
-  console.log(`    Skills:   ${CLAUDE_PATHS.skills} (managed overwrite, preserve others)`);
-  console.log(`    Settings: ${CLAUDE_PATHS.settings} (merge)`);
-  console.log();
   console.log(colors.blue("  Codex:"));
   console.log(`    Rules:    ${CODEX_PATHS.rules}`);
   console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
-  console.log();
-  console.log(colors.cyan("  Cursor:"));
-  console.log(`    Settings:    ${CURSOR_PATHS.settings} (merge)`);
-  console.log(`    Keybindings: ${CURSOR_PATHS.keybindings}`);
-  console.log(`    MCP:         ${CURSOR_PATHS.mcp} (merge)`);
-  console.log();
-  console.log(colors.magenta("  Windsurf:"));
-  console.log(`    Global Rules: ${WINDSURF_PATHS.globalRules}`);
-  console.log(`    MCP:         ${WINDSURF_PATHS.mcp} (merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
@@ -792,16 +468,13 @@ async function main() {
   // Execute installation
   cloneRepository();
 
-  // Parallel installation: skills + OpenCode + Claude + Codex + Cursor + Windsurf + Shared
+  // Parallel installation: shared skills + OpenCode + Codex + Shared
   console.log();
   console.log(colors.blue("Installing in parallel..."));
   await Promise.all([
     installSharedSkills(),
     installOpencode(),
-    installClaude(),
     installCodex(),
-    installCursor(),
-    installWindsurf(),
     installShared(),
   ]);
 

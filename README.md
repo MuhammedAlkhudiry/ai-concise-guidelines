@@ -1,6 +1,6 @@
 # Opinionated AI Guidelines
 
-Opinionated AI guidelines and skills for **Claude Code**, **OpenCode**, **Codex**, **Cursor**, and **Windsurf**.
+Opinionated AI guidelines and skills for **OpenCode** and **Codex**.
 
 > **For Contributors**: See [AGENTS.md](./AGENTS.md) for details on modifying content and regenerating output files.
 

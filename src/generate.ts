@@ -2,7 +2,7 @@
 
 /**
  * Generator Script
- * Generates files for OpenCode, Claude Code, Codex, Cursor, and Windsurf from content
+ * Generates files for OpenCode and Codex from content
  *
  * Usage: bun src/generate.ts
  */
@@ -26,10 +26,7 @@ const OUTPUT_DIR = join(ROOT_DIR, "output");
 
 // Tool-specific output directories
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
-const CLAUDE_DIR = join(OUTPUT_DIR, "claude");
 const CODEX_DIR = join(OUTPUT_DIR, "codex");
-const CURSOR_DIR = join(OUTPUT_DIR, "cursor");
-const WINDSURF_DIR = join(OUTPUT_DIR, "windsurf");
 
 // Config files
 const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
@@ -128,91 +125,6 @@ async function generateOpencodeConfig(): Promise<void> {
 }
 
 // =============================================================================
-// Claude Code Generators
-// =============================================================================
-
-async function generateClaudeSkills(): Promise<number> {
-  console.log("  [Claude Code] Generating skills...");
-
-  const skillsDir = join(CLAUDE_DIR, "skills");
-  await ensureDir(skillsDir);
-
-  const count = await copySkills(skillsDir);
-  console.log(`    Copied ${count} skills`);
-  return count;
-}
-
-async function generateClaudeSettings(): Promise<void> {
-  console.log("  [Claude Code] Generating settings...");
-
-  if (!existsSync(CUSTOM_CONFIG)) {
-    console.log("    No custom-opencode.json found, skipping settings");
-    return;
-  }
-
-  const content = await readFile(CUSTOM_CONFIG, "utf-8");
-  const opencodeConfig = JSON.parse(content);
-
-  // Transform OpenCode config to Claude Code settings format
-  const claudeSettings: Record<string, unknown> = {};
-
-  // Transform permissions if present
-  if (opencodeConfig.permission) {
-    const allow: string[] = [];
-    const deny: string[] = [];
-
-    // Transform external_directory permissions
-    if (opencodeConfig.permission.external_directory) {
-      for (const [path, rule] of Object.entries(opencodeConfig.permission.external_directory)) {
-        if (path === "*") continue; // Skip wildcard
-        const normalizedPath = path.replace("<home>", "~");
-        if (rule === "allow") {
-          allow.push(`Edit(${normalizedPath})`);
-          allow.push(`Read(${normalizedPath})`);
-        } else if (rule === "deny") {
-          deny.push(`Edit(${normalizedPath})`);
-          deny.push(`Read(${normalizedPath})`);
-        }
-      }
-    }
-
-    // Transform read permissions
-    if (opencodeConfig.permission.read) {
-      for (const [pattern, rule] of Object.entries(opencodeConfig.permission.read)) {
-        if (rule === "allow") {
-          allow.push(`Read(${pattern})`);
-        } else if (rule === "deny") {
-          deny.push(`Read(${pattern})`);
-        }
-      }
-    }
-
-    // Transform bash permissions
-    if (opencodeConfig.permission.bash) {
-      for (const [pattern, rule] of Object.entries(opencodeConfig.permission.bash)) {
-        if (rule === "allow") {
-          allow.push(`Bash(${pattern})`);
-        } else if (rule === "deny") {
-          deny.push(`Bash(${pattern})`);
-        }
-      }
-    }
-
-    if (allow.length > 0 || deny.length > 0) {
-      claudeSettings.permissions = {};
-      if (allow.length > 0) (claudeSettings.permissions as Record<string, unknown>).allow = allow;
-      if (deny.length > 0) (claudeSettings.permissions as Record<string, unknown>).deny = deny;
-    }
-  }
-
-  await writeFile(
-    join(CLAUDE_DIR, "settings.json"),
-    JSON.stringify(claudeSettings, null, 2) + "\n"
-  );
-  console.log("    Generated settings.json");
-}
-
-// =============================================================================
 // Codex Generators
 // =============================================================================
 
@@ -252,81 +164,8 @@ async function generateCodexMcpConfig(): Promise<number> {
   return serverNames.length;
 }
 
-// =============================================================================
-// Cursor Generators
-// =============================================================================
-
-async function generateCursorMcpConfig(): Promise<number> {
-  console.log("  [Cursor] Generating MCP config...");
-
-  const mcpServers: Record<string, { command?: string; args?: string[]; url?: string }> = {};
-
-  for (const [name, server] of Object.entries(MCP_SERVERS)) {
-    if (server.type === "local") {
-      const [command, ...args] = server.command;
-      mcpServers[name] = { command, args };
-    } else {
-      mcpServers[name] = { url: server.url };
-    }
-  }
-
-  const config = { mcpServers };
-  await ensureDir(CURSOR_DIR);
-  await writeFile(
-    join(CURSOR_DIR, "mcp.json"),
-    JSON.stringify(config, null, 2) + "\n"
-  );
-  const count = Object.keys(mcpServers).length;
-  console.log(`    Generated mcp.json (${count} servers)`);
-  return count;
-}
-
-// =============================================================================
-// Windsurf Generators
-// =============================================================================
-
-async function generateWindsurfRules(): Promise<void> {
-  console.log("  [Windsurf] Generating global rules...");
-
-  const sourceFile = join(CONTENT_DIR, "base-rules.md");
-  if (!existsSync(sourceFile)) {
-    console.log("    Base rules file not found, skipping");
-    return;
-  }
-
-  await ensureDir(WINDSURF_DIR);
-  const content = await readFile(sourceFile, "utf-8");
-  await writeFile(join(WINDSURF_DIR, "global_rules.md"), content);
-  console.log("    Generated global_rules.md");
-}
-
-async function generateWindsurfMcpConfig(): Promise<number> {
-  console.log("  [Windsurf] Generating MCP config...");
-
-  const mcpServers: Record<string, { command?: string; args?: string[]; serverUrl?: string; headers?: Record<string, string> }> = {};
-
-  for (const [name, server] of Object.entries(MCP_SERVERS)) {
-    if (server.type === "local") {
-      const [command, ...args] = server.command;
-      mcpServers[name] = { command, args };
-    } else {
-      mcpServers[name] = { serverUrl: server.url };
-    }
-  }
-
-  const config = { mcpServers };
-  await ensureDir(WINDSURF_DIR);
-  await writeFile(
-    join(WINDSURF_DIR, "mcp_config.json"),
-    JSON.stringify(config, null, 2) + "\n"
-  );
-  const count = Object.keys(mcpServers).length;
-  console.log(`    Generated mcp_config.json (${count} servers)`);
-  return count;
-}
-
 async function main() {
-  console.log("\nGenerating files for OpenCode, Claude Code, and Codex...\n");
+  console.log("\nGenerating files for OpenCode and Codex...\n");
 
   if (!existsSync(CONTENT_DIR)) {
     console.error(`ERROR: Content directory not found: ${CONTENT_DIR}`);
@@ -343,13 +182,10 @@ async function main() {
     await rm(OUTPUT_DIR, { recursive: true });
   }
 
-  // Create output structures for all tools
+  // Create output structures for supported tools
   await ensureDir(CODEX_DIR);
   await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
-  await ensureDir(join(CLAUDE_DIR, "skills"));
-  await ensureDir(CURSOR_DIR);
-  await ensureDir(WINDSURF_DIR);
 
   // Generate OpenCode
   console.log("OpenCode:");
@@ -359,45 +195,19 @@ async function main() {
 
   console.log();
 
-  // Generate Claude Code
-  console.log("Claude Code:");
-  const ccSkillCount = await generateClaudeSkills();
-  await generateClaudeSettings();
-
-  console.log();
-
   // Generate Codex
   console.log("Codex:");
   const codexMcpCount = await generateCodexMcpConfig();
-
-  console.log();
-
-  // Generate Cursor
-  console.log("Cursor:");
-  const cursorMcpCount = await generateCursorMcpConfig();
-
-  console.log();
-
-  // Generate Windsurf
-  console.log("Windsurf:");
-  await generateWindsurfRules();
-  const windsurfMcpCount = await generateWindsurfMcpConfig();
 
   console.log("\n" + "=".repeat(50));
   console.log("Generation complete!");
   console.log("=".repeat(50));
   console.log(`\nOutput directories:`);
   console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
-  console.log(`  Claude Code: ${CLAUDE_DIR}/`);
   console.log(`  Codex:       ${CODEX_DIR}/`);
-  console.log(`  Cursor:      ${CURSOR_DIR}/`);
-  console.log(`  Windsurf:    ${WINDSURF_DIR}/`);
   console.log(`\nSummary:`);
   console.log(`  OpenCode:    ${opcSkillCount} skills, ${opcPluginCount} plugins`);
-  console.log(`  Claude Code: ${ccSkillCount} skills`);
   console.log(`  Codex:       ${codexMcpCount} MCP servers`);
-  console.log(`  Cursor:      ${cursorMcpCount} MCP servers`);
-  console.log(`  Windsurf:    global rules, ${windsurfMcpCount} MCP servers`);
 }
 
 main().catch((err) => {
