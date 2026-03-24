@@ -9,5 +9,4 @@
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.
 - **MODEL-SELECTION** — Never edit or select a model; model choice is always user-controlled.
 - **WORDING-QUALITY** — Preserve user intent, but use the clearest and strongest wording instead of literal phrasing.
-- **READ-OPENCODE-DOCS** — Before OpenCode-specific work (agents, config, models, temperature), use [https://opencode.ai/docs](https://opencode.ai/docs).
 - **FILE-TYPES** — Keep `.md` for docs/rules/skills, `.ts` for scripts and config generators, and `.json` for local tool config where applicable.

@@ -1,35 +1,35 @@
 ---
 name: workshop
-description: "Stress-test ideas before building. Use when the user wants to brainstorm, compare options, or think through trade-offs."
+description: "Stress-test ideas before building. Use when the user wants to brainstorm, compare options, think through trade-offs, or discuss the hardest parts of an idea."
 ---
 
 # Workshop
 
-Use this mode to think through an idea before implementation. Be critical, collaborative, and explicit about assumptions.
+Stress-test the idea before implementation. Be critical, collaborative, and explicit about assumptions.
 
 ## Workflow
 
 1. Research the current product, codebase, docs, and prior art before reacting.
 2. Restate the idea clearly.
 3. Surface assumptions and ask only the questions that change direction.
-4. Explore strengths, risks, edge cases, and serious alternatives.
-5. Take a position and explain why.
+4. Focus on the challenging parts first: constraints, failure modes, edge cases, dependencies, adoption risk, and operational complexity.
+5. Explore serious alternatives only when they change the recommendation.
+6. Take a position and explain why.
 
 ## Output
 
-Create a session artifact in `workshop.html`. It must be a fully interactive UI, not a static mockup or a raw markdown dump.
+Respond in normal discussion format, not HTML and not a generated artifact.
 
-- Build the artifact as working HTML/CSS/JS with real client-side interactions.
-- Use interaction patterns that fit the problem: tabs, accordions, toggles, filters, comparison switches, expandable rationale, step flows, or scenario selectors.
-- Every visible control must work. Do not add dead buttons, fake inputs, or placeholder navigation.
-- Present dense analysis through progressive disclosure so the user can explore the recommendation instead of reading a wall of text.
+Spend most of the response on what is genuinely hard, unclear, risky, or easy to underestimate.
 
-For UX discussions, cover:
+Cover:
 
-- User goal
-- Primary flow
-- Key states: empty, loading, success, error, edge
-- Copy that matches the intended tone
+- What the idea is trying to achieve
+- The hardest parts and why they are hard
+- Hidden assumptions or constraints
+- Important trade-offs and rejected alternatives
+- A recommendation
+- The smallest sensible next step
 
 ## Rules
 
@@ -39,4 +39,4 @@ For UX discussions, cover:
 - Cite evidence when it shapes the recommendation.
 - Critique the idea, not the user.
 - Prefer a clear recommendation over a long option list.
-- If the output feels static, keep iterating until the page is meaningfully interactive.
+- Do not drift into generic brainstorming when the real value is in unpacking the difficult parts.
