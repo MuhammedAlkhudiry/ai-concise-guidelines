@@ -30,7 +30,6 @@ const LOCAL_MODE = process.argv.includes("--local") || process.argv.includes("-l
 
 const OPENCODE_PATHS = {
   rules: join(HOME, ".config/opencode/AGENTS.md"),
-  skills: join(HOME, ".agents/skills"),
   plugins: join(HOME, ".config/opencode/plugin"),
   config: join(HOME, ".config/opencode/opencode.json"),
 };
@@ -41,6 +40,7 @@ const CODEX_PATHS = {
 };
 
 const SHARED_PATHS = {
+  skills: join(HOME, ".agents/skills"),
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
   zshenv: join(HOME, ".zshenv"),
   binDir: join(HOME, "bin"),
@@ -105,7 +105,7 @@ function cloneRepository(): void {
 
   const folders = [
     "content/base-rules.md",
-    "output/opencode/skills",
+    "content/skills",
     "output/opencode/plugin",
     "output/opencode/opencode-config.json",
     "output/codex/mcp-servers.toml",
@@ -204,15 +204,15 @@ function cleanup(): void {
 
 async function installSharedSkills(): Promise<void> {
   const sourceDir = getSourceDir();
-  const src = join(sourceDir, "output", "opencode", "skills");
+  const src = join(sourceDir, "content", "skills");
   if (!existsSync(src)) {
     print.error("Skills folder not found");
     return;
   }
   await syncManagedSkillsAsync({
     src,
-    dest: OPENCODE_PATHS.skills,
-    label: "skills",
+    dest: SHARED_PATHS.skills,
+    label: "shared skills",
   });
 }
 
@@ -407,7 +407,6 @@ Installs to:
 
   ${colors.blue("OpenCode:")}
     Rules:    ${OPENCODE_PATHS.rules}
-    Skills:   ${OPENCODE_PATHS.skills}
     Plugins:  ${OPENCODE_PATHS.plugins}
     Config:   ${OPENCODE_PATHS.config}
 
@@ -416,6 +415,7 @@ Installs to:
     Config:   ${CODEX_PATHS.config}
 
   ${colors.yellow("Shared:")}
+    Skills:   ${SHARED_PATHS.skills}
     Zsh:      ${SHARED_PATHS.zsh}
     Zshenv:   ${SHARED_PATHS.zshenv}
     Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})
@@ -449,7 +449,6 @@ async function main() {
   console.log();
   console.log(colors.blue("  OpenCode:"));
   console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
-  console.log(`    Skills:   ${OPENCODE_PATHS.skills} (managed overwrite, preserve others)`);
   console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (clean)`);
   console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
   console.log();
@@ -458,6 +457,7 @@ async function main() {
   console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));
+  console.log(`    Skills:   ${SHARED_PATHS.skills} (managed overwrite, preserve others)`);
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
   console.log(`    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`);

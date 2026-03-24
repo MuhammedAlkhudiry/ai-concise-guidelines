@@ -7,7 +7,7 @@
  * Usage: bun src/generate.ts
  */
 
-import { readFile, writeFile, rm, readdir } from "fs/promises";
+import { readFile, writeFile, rm } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
 import { MODELS } from "../config/models";
@@ -20,7 +20,6 @@ import { ensureDir, copyDirAsync } from "./fs";
 
 const ROOT_DIR = join(import.meta.dir, "..");
 const CONTENT_DIR = join(ROOT_DIR, "content");
-const SKILLS_DIR = join(CONTENT_DIR, "skills");
 const PLUGINS_DIR = join(ROOT_DIR, "plugins");
 const OUTPUT_DIR = join(ROOT_DIR, "output");
 
@@ -32,54 +31,8 @@ const CODEX_DIR = join(OUTPUT_DIR, "codex");
 const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
 
 // =============================================================================
-// Skills Generator
-// =============================================================================
-
-async function getSkillNames(): Promise<string[]> {
-  if (!existsSync(SKILLS_DIR)) {
-    return [];
-  }
-
-  const entries = await readdir(SKILLS_DIR, { withFileTypes: true });
-  return entries
-    .filter((e) => e.isDirectory())
-    .filter((e) => existsSync(join(SKILLS_DIR, e.name, "SKILL.md")))
-    .map((e) => e.name)
-    .sort();
-}
-
-async function copySkills(destDir: string): Promise<number> {
-  const skillNames = await getSkillNames();
-  let count = 0;
-
-  for (const name of skillNames) {
-    const srcSkillDir = join(SKILLS_DIR, name);
-    const destSkillDir = join(destDir, name);
-
-    await copyDirAsync({
-      src: srcSkillDir,
-      dest: destSkillDir,
-    });
-    count++;
-  }
-
-  return count;
-}
-
-// =============================================================================
 // OpenCode Generators
 // =============================================================================
-
-async function generateOpencodeSkills(): Promise<number> {
-  console.log("  [OpenCode] Generating skills...");
-
-  const skillsDir = join(OPENCODE_DIR, "skills");
-  await ensureDir(skillsDir);
-
-  const count = await copySkills(skillsDir);
-  console.log(`    Copied ${count} skills`);
-  return count;
-}
 
 async function copyOpencodePlugins(): Promise<number> {
   console.log("  [OpenCode] Copying plugins...");
@@ -172,11 +125,6 @@ async function main() {
     process.exit(1);
   }
 
-  if (!existsSync(SKILLS_DIR)) {
-    console.error(`ERROR: Skills directory not found: ${SKILLS_DIR}`);
-    process.exit(1);
-  }
-
   // Always clean output directory
   if (existsSync(OUTPUT_DIR)) {
     await rm(OUTPUT_DIR, { recursive: true });
@@ -184,12 +132,10 @@ async function main() {
 
   // Create output structures for supported tools
   await ensureDir(CODEX_DIR);
-  await ensureDir(join(OPENCODE_DIR, "skills"));
   await ensureDir(join(OPENCODE_DIR, "plugin"));
 
   // Generate OpenCode
   console.log("OpenCode:");
-  const opcSkillCount = await generateOpencodeSkills();
   const opcPluginCount = await copyOpencodePlugins();
   await generateOpencodeConfig();
 
@@ -206,7 +152,7 @@ async function main() {
   console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
   console.log(`  Codex:       ${CODEX_DIR}/`);
   console.log(`\nSummary:`);
-  console.log(`  OpenCode:    ${opcSkillCount} skills, ${opcPluginCount} plugins`);
+  console.log(`  OpenCode:    ${opcPluginCount} plugins`);
   console.log(`  Codex:       ${codexMcpCount} MCP servers`);
 }
 

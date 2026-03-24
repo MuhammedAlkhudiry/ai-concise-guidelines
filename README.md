@@ -12,7 +12,7 @@ curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelin
 
 Use `--local` / `-l` to install from local output instead of cloning from GitHub.
 
-Managed skills are updated in place during install. Existing custom skills on the device are preserved.
+Managed skills are updated in `~/.agents/skills` during install. Existing custom skills on the device are preserved.
 
 ## Shared Shell Commands
 
