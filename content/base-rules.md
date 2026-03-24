@@ -40,6 +40,9 @@ Next Steps
 Suggestion
 [Only when there is a concrete, non-obvious, high-signal suggestion.]
 
+Dead Code / Logic Alert
+[Only when there is dead code, unreachable code, misleading structure, logic risk, or a likely hidden bug worth calling out.]
+
 Rethinking Needed
 [Only when progress is stuck or the framing likely needs to change.]
 
