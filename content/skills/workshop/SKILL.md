@@ -29,7 +29,7 @@ Cover:
 - Hidden assumptions or constraints
 - Important trade-offs and rejected alternatives
 - A recommendation
-- The smallest sensible next step
+- The full recommended scope by default; only discuss MVPs, phased rollout, or staged delivery if the user explicitly asks for them
 
 ## Rules
 
@@ -40,3 +40,4 @@ Cover:
 - Critique the idea, not the user.
 - Prefer a clear recommendation over a long option list.
 - Do not drift into generic brainstorming when the real value is in unpacking the difficult parts.
+- Assume the work will be done in one go unless the user explicitly asks for MVPs, phases, or staged deployment.
