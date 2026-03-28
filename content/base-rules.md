@@ -1,4 +1,4 @@
-- **SOLO** — Never start dev servers directly; use Solo MCP only, and save any dev URL in `AGENTS.md`.
+- **SOLO** — Never start dev servers directly; use Solo MCP only, except in a real git worktree where full project setup, direct dev-server runs, and saving any dev URL in `AGENTS.md` are allowed.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` and TypeScript by default; use Python only when it is clearly the best tool for the specific task.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
@@ -18,8 +18,10 @@
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
 - **TEST-SYNC** — When refactoring app code files, always refactor the related test files too so they stay in sync.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
+- **DEPLOY-CHECK** — When the user asks "good to deploy?" or equivalent, treat it as a high-scrutiny release-readiness review: think deeply, verify relevant checks and rollout risks, look for anything missed, and do not approve unless it is genuinely ready.
 - **GAP-CHECK** — Always point out anything the user missed or could miss.
-- **SHOW-THE-CODE** — When discussing an approach, keep talk brief and grounded in concrete code, diffs, or examples: talk is cheap, show the code. Still explain reasoning, tradeoffs, and risks when they matter.
+- **SHOW-THE-CODE** — Prefer code, diffs, and concrete examples over English explanation whenever possible. Keep talk brief, show the code, and explain reasoning, tradeoffs, or risks only when they matter.
+- **CODEX-CARDLESS** — For Codex UI work, default to cardless UI unless the existing product pattern or task clearly requires cards.
 - **AGENTS-CONCISE** — When updating `AGENTS.md` files, keep each added point single-point and concise.
 
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.

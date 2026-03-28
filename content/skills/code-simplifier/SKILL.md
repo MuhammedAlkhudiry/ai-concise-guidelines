@@ -18,6 +18,7 @@ Simplify code hard. Default to deleting, inlining, collapsing, and cutting until
    - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, and one-off abstractions.
    - Delete comments that narrate obvious code, describe removed logic, or justify complexity that no longer exists.
    - If a path, helper, flag, type, or test no longer has a real job, delete it in the same change.
+   - If cleanup includes stale, duplicate, or overspecific tests, use `test-suite-cleanup`.
    - If code looks optional, duplicated, defensive, or ceremonial, treat it as a removal target first.
 
 3. **Attack indirection**
