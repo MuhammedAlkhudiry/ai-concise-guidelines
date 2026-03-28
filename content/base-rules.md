@@ -11,6 +11,7 @@
 - **LANGUAGE** — Write all replies in English unless the user explicitly asks for another language.
 - **TRANSLATION** — Translate all user-facing copy naturally and contextually; add missing translations when needed.
 - **QUALITY** — Run type-check, lint, format, and relevant tests; fix only task-related issues before finishing.
+- **TEST-THRESHOLD** — Do not require new or updated tests for simple non-behavioral changes; keep tests for behavior changes, bug fixes, and new features.
 - **CHECKLIST** — Repo-root `CHECKLIST.md` may exist as a verification command list.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.

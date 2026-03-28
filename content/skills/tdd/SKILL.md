@@ -9,7 +9,8 @@ Use strict RED→GREEN→Refactor. Work only against verifiable behavior.
 
 ## Scope
 - Use for behavior changes, bug fixes, and new features with acceptance criteria.
-- Skip for docs-only work and exploratory experiments.
+- Skip for docs-only work, exploratory experiments, and simple non-behavioral changes.
+- If the change is simple and non-behavioral, make the change directly and run only the relevant verification.
 
 ## Workflow
 1. Define behavior (invariants, contracts, error cases).
@@ -28,7 +29,7 @@ Use strict RED→GREEN→Refactor. Work only against verifiable behavior.
 - If failure reason is unexpected, classify before code changes.
 
 ## Non-Negotiables
-- Never code before a failing test exists.
+- Never code before a failing test exists when the change is in scope for TDD.
 - One behavior = one test.
 - Minimal fixtures and local style.
 - No unrelated behavior changes.
