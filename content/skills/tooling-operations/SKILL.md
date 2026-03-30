@@ -22,6 +22,7 @@ Use the project tools that already exist instead of recreating their workflows m
 ## Project Helper Commands
 
 - Use `gbr` when the user wants to create a branch, commit, push, and open an MR or PR.
+- Use `remote`, `remote-tinker`, and `remote-info` only when the project explicitly uses Kubernetes or k8s namespaces. Otherwise use `ssh`.
 - Use `remote` to open a pod shell or run a command in `*-dev`, `*-stg`, `*-uat`, or `*-prod` namespaces.
 - Use `remote-tinker` for `php artisan tinker` code in remote pods, especially when the snippet contains `$`, `->`, quotes, closures, or spans multiple lines.
 - Use `remote-info` for concise namespace diagnostics and resource usage. Use `--full` only when the expanded snapshot is needed.
