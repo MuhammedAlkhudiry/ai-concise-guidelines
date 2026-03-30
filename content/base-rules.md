@@ -43,7 +43,7 @@ Next Steps
 [Only when finishing a plan or other significant work. Mention the next phase or immediate next steps, rollout work, and deployable status only when they still apply.]
 
 Suggestion
-[Only when there is a concrete, non-obvious, high-signal suggestion.]
+[Only when there is a high-signal UX/DX suggestion, tool suggestion, workflow improvement, or practical protip that is adjacent to the task but not part of the required work. Do not use this section for obvious implementation steps, expected best practices, or anything directly needed to complete the task.]
 
 Dead Code Alert
 [Only when there is dead code, unreachable code, or misleading structure worth calling out.]
