@@ -30,14 +30,14 @@
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. `🧭 Journey Check` is optional and should appear only when there is ongoing significant work:
+Use this reply template and omit sections that do not apply. Do not repeat the same point across sections; once something is covered in `Answer`, only mention it again elsewhere if adding new information.
 
 ```md
 Answer
 [Direct answer, result, or next action]
 
 Complexity Warning
-[Only when complexity is not clearly required. Say what simpler path should be considered.]
+[Only when the code shows unnecessary complexity. Say what is overcomplicated and what simpler path should replace it. Do not use this section for planning or discussion.]
 
 Next Steps
 [Only when finishing a plan or other significant work. Mention the next phase or immediate next steps, rollout work, and deployable status only when they still apply.]
@@ -45,18 +45,12 @@ Next Steps
 Suggestion
 [Only when there is a concrete, non-obvious, high-signal suggestion.]
 
-Dead Code / Logic Alert
-[Only when there is dead code, unreachable code, misleading structure, logic risk, or a likely hidden bug worth calling out.]
+Dead Code Alert
+[Only when there is dead code, unreachable code, or misleading structure worth calling out.]
+
+Logic Alert
+[Only when there is a logic risk, hidden bug, or incorrect behavior worth calling out.]
 
 Rethinking Needed
 [Only when progress is stuck or the framing likely needs to change.]
-
-🧭 Journey Check
-Only include this section when there is ongoing significant work.
-
-🚀 Started: [overall goal or first step]
-📍 Now: [current status]
-✅ [completed step or milestone]
-🟡 [current or remaining step]
-⏭️ [next step]
 ```
