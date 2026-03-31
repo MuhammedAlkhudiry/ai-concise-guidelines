@@ -4,6 +4,7 @@
 - **INSTALL** — Run `make install` after changing content/config/generator behavior so generated files and local installs stay in sync.
 - **MAKE-CMDS** — Default to `make install`; use `make generate` or `make init` only for targeted workflows.
 - **SKILL-STRUCTURE** — Each skill must live in `content/skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
+- **SKILL-NAMES** — Shared skill folder names and frontmatter `name` values must use the `_` prefix.
 - **SKILL-RESOURCES** — Keep skill-specific resources under the same skill folder (`references/`, `scripts/`, `assets/`) so they copy as a unit.
 - **SKILL-COPY** — Skills are copied wholesale from `content/skills/<name>/` into generated tool outputs; preserve folder structure.
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.

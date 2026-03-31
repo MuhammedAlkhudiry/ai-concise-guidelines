@@ -8,7 +8,7 @@
  */
 
 import { existsSync, copyFileSync } from "fs";
-import { readFile, writeFile, copyFile, chmod, readdir } from "fs/promises";
+import { readFile, writeFile, copyFile, chmod, readdir, rm } from "fs/promises";
 import { join } from "path";
 import { execSync } from "child_process";
 import { colors, print, printBox, printSeparator } from "./print";
@@ -375,6 +375,29 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
+  const manifestPath = join(dest, ".ai-concise-guidelines-managed-skills.json");
+  let previousSkillNames: string[] = [];
+
+  if (existsSync(manifestPath)) {
+    try {
+      const manifestContent = JSON.parse(await readFile(manifestPath, "utf-8")) as unknown;
+      previousSkillNames = Array.isArray(manifestContent)
+        ? manifestContent.filter((value): value is string => typeof value === "string")
+        : [];
+    } catch {
+      print.warning(`Failed to parse ${manifestPath}, rebuilding managed skill manifest`);
+    }
+  }
+
+  const deletedManagedSkills = previousSkillNames.filter((skillName) => !skillNames.includes(skillName));
+
+  for (const skillName of deletedManagedSkills) {
+    const installedSkillPath = join(dest, skillName);
+    if (!existsSync(installedSkillPath)) {
+      continue;
+    }
+    await rm(installedSkillPath, { recursive: true, force: true });
+  }
 
   for (const skillName of skillNames) {
     await copyDirAsync({
@@ -383,6 +406,7 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     });
   }
 
+  await writeFile(manifestPath, JSON.stringify(skillNames, null, 2) + "\n");
   print.success(`Synced ${skillNames.length} ${label}`);
 }
 
@@ -422,7 +446,7 @@ Installs to:
     Kitty:    ${SHARED_PATHS.kitty}
 
 Notes:
-  - Managed skills overwrite matching generated skills only.
+  - Managed skills overwrite matching generated skills and prune removed managed skills.
   - Existing custom skills in user skill folders are preserved.
 `);
   process.exit(0);
@@ -457,7 +481,7 @@ async function main() {
   console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));
-  console.log(`    Skills:   ${SHARED_PATHS.skills} (managed overwrite, preserve others)`);
+  console.log(`    Skills:   ${SHARED_PATHS.skills} (managed sync, prune removed, preserve others)`);
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
   console.log(`    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`);
