@@ -37,12 +37,7 @@ Branch types: `feature/`, `fix/`, `chore/`
 
 ### Stage Only Relevant Files
 
-DO NOT stage:
-- `.docs/ai/sessions/`
-- AI state files
-- IDE configs (`.idea/`, `.vscode/`)
-- Local environment changes (`phpunit.xml`, `.env`)
-- Unrelated changes
+DO NOT stage unrelated changes
 
 Stage only the files relevant to this change:
 ```bash

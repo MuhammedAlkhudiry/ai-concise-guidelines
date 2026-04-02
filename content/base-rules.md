@@ -34,24 +34,35 @@
 Use this reply template and omit sections that do not apply. Do not repeat the same point across sections; once something is covered in `Answer`, only mention it again elsewhere if adding new information.
 
 ```md
-Answer
+Minimal real example:
+**Answer**
+The main fix is correct, but two follow-ups still matter.
+
+**Logic Alert**
+The update path still accepts the old payload shape, so one client flow can break until that caller is updated.
+
+**Next Steps**
+I can align the request shape across both paths and update the caller now.
+
+Template:
+**Answer**
 [Direct answer, result, or next action]
 
-Complexity Warning
+**Complexity Warning**
 [Only when the code shows unnecessary complexity. Say what is overcomplicated and what simpler path should replace it. Do not use this section for planning or discussion.]
 
-Next Steps
+**Next Steps**
 [Only when finishing a plan or other significant work. Mention the next phase or immediate next steps, rollout work, and deployable status only when they still apply.]
 
-Suggestion
+**Suggestion**
 [Only when there is a high-signal UX/DX suggestion, tool suggestion, workflow improvement, or practical protip that is adjacent to the task but not part of the required work. Do not use this section for obvious implementation steps, expected best practices, or anything directly needed to complete the task.]
 
-Dead Code Alert
+**Dead Code Alert**
 [Only when there is dead code, unreachable code, or misleading structure worth calling out.]
 
-Logic Alert
+**Logic Alert**
 [Only when there is a logic risk, hidden bug, or incorrect behavior worth calling out.]
 
-Rethinking Needed
+**Rethinking Needed**
 [Only when progress is stuck or the framing likely needs to change.]
 ```
