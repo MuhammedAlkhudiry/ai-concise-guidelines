@@ -9,7 +9,7 @@ composer phpstan
 bun run typecheck
 bun run lint
 bun run format:check
-bun run test
+php artisan test --parallel
 # optional when browser flows change: bun run test:e2e
 
 # apps/web
@@ -27,6 +27,7 @@ Rules:
 
 - One runnable verification command per line.
 - Keep only commands the agent should actually run.
+- Prefer the built-in parallel form when the tool supports it, such as `php artisan test --parallel`.
 - Use `#` comments only for short notes or repo headers.
 - In monorepos, group commands under short repo headers.
 - Include non-linting verification commands too, such as `rector`, `phpstan`, type-checkers, framework health checks, schema checks, or other required validators.

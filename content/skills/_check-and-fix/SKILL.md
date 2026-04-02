@@ -21,6 +21,7 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 
 - Prefer repo-level commands such as `make check` when they already cover multiple categories.
 - Use exact runnable commands only. No guesses, placeholders, or "pick one" lists.
+- Prefer the built-in parallel form of a command when the tool supports it, such as `php artisan test --parallel`.
 - Keep `CHECKLIST.md` as plain command lines, one command per line.
 - Do not add markdown structure inside the target repo checklist.
 - Use `#` comments only when a short note is required.
@@ -38,7 +39,7 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 
 ## Rules
 
-- Run independent checklist commands in parallel when practical.
+- Prefer built-in parallel modes inside each checklist command when supported, then run independent checklist commands in parallel when practical.
 - Use the checklist for verification commands, then choose the matching safe fix command from repo scripts or make targets when needed.
 - Do not skip a checklist item without saying why.
 - If a failure is pre-existing and unrelated, report it clearly instead of widening scope.
