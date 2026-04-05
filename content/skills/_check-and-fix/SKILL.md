@@ -1,6 +1,6 @@
 ---
 name: _check-and-fix
-description: "Run project checks from repo-root `CHECKLIST.md`, fix task-related failures, and keep the checklist current. Use when the user asks to run checks, lint and fix, or verify code quality."
+description: "Run project checks from repo-root `CHECKLIST.md` and fix task-related failures. Use when the user asks to run checks, lint and fix, or verify code quality."
 ---
 
 # Check and Fix
@@ -14,8 +14,10 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 1. If `CHECKLIST.md` exists, read it first and use its commands.
 2. If it does not exist, create it before running checks.
 3. Build the first version from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
-4. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
-5. Update the checklist when a listed command is wrong, stale, or missing.
+4. Keep it limited to stable project-wide verification commands.
+5. Never add task-specific commands to `CHECKLIST.md`; if a task needs extra checks, run them separately without rewriting the checklist.
+6. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
+7. Update the checklist only when a project-wide command is genuinely wrong, stale, missing, or the file does not exist.
 
 ## Command Selection
 
@@ -23,6 +25,7 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 - Use exact runnable commands only. No guesses, placeholders, or "pick one" lists.
 - Prefer the built-in parallel form of a command when the tool supports it, such as `php artisan test --parallel`.
 - Keep `CHECKLIST.md` as plain command lines, one command per line.
+- Keep `CHECKLIST.md` limited to global project-wide checks, not task-specific checks.
 - Do not add markdown structure inside the target repo checklist.
 - Use `#` comments only when a short note is required.
 - In monorepos, use short `#` repo headers and list that repo's commands directly below the header.
@@ -41,6 +44,7 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 
 - Prefer built-in parallel modes inside each checklist command when supported, then run independent checklist commands in parallel when practical.
 - Use the checklist for verification commands, then choose the matching safe fix command from repo scripts or make targets when needed.
+- Do not rewrite `CHECKLIST.md` for routine task work; change it only for real project-wide checklist fixes.
 - Do not skip a checklist item without saying why.
 - If a failure is pre-existing and unrelated, report it clearly instead of widening scope.
 - Final report should list each checklist item as `PASS`, `FAIL`, or `BLOCKED`.
