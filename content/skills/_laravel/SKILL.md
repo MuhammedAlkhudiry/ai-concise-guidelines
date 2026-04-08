@@ -13,7 +13,8 @@ Critical rules for Laravel and PHP development.
 
 - Follow PSR-12 or project standard
 - Always use param + return types; avoid `mixed`/untyped
-- Typed properties; no `stdClass` or loose arrays
+- Typed properties; no `stdClass`
+- Prefer collections over arrays for in-memory data handling; use arrays only when a framework boundary, serialization format, or external contract requires them
 
 ## DTOs & Enums
 
