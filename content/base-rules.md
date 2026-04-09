@@ -43,7 +43,7 @@
 
 - **SUBAGENTS** — Prefer spawning subagents when work can be split into sizable independent tasks that run in parallel; do not use them for tightly coupled work or tiny tasks.
 - **SUBAGENT-MODELS** — Use smart models for review and `_code-simplifier` work, and use fast or mini models for independent execution tasks and QA.
-- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, spawn two smart-model subagents in parallel: one to apply `_code-simplifier` and one to review the work; if it involves browser or frontend work, spawn one more fast or mini subagent to QA it with `_playwriter`.
+- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, spawn two smart-model subagents in parallel: one to apply `_code-simplifier` and one to review the work; if it involves browser or frontend work, spawn one more fast or mini subagent to QA it with `_playwright`.
 
 ## Repo Context
 
