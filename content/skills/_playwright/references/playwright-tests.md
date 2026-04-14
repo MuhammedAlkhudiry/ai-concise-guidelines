@@ -19,3 +19,5 @@ playwright-cli attach tw-abcdef
 ```
 
 Every action you perform with `playwright-cli` generates corresponding Playwright TypeScript code. That output can be copied into the test.
+
+If the debug run created temporary `.playwright-cli` artifacts, traces, videos, or saved state files only for investigation, delete them before finishing.

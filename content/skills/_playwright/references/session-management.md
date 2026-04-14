@@ -24,3 +24,5 @@ playwright-cli kill-all
 playwright-cli delete-data
 playwright-cli -s=mysession delete-data
 ```
+
+Always close the session when finished. If the session used persistent data, also delete that data unless the user explicitly asked to keep it.

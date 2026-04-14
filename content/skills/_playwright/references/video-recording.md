@@ -18,3 +18,4 @@ playwright-cli video-stop
 - Use descriptive filenames.
 - Prefer a `run-code` script for polished recordings with pacing and overlays.
 - Use videos for demos and traces for debugging.
+- Delete temporary recordings after review unless the user asked to keep them.

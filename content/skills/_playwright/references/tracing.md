@@ -15,5 +15,5 @@ playwright-cli tracing-stop
 ## Best Practices
 
 - Start tracing before the problem occurs.
-- Clean up old traces if they accumulate.
+- Delete trace files after debugging unless the user asked to keep them.
 - Prefer traces for debugging and videos for demos.
