@@ -14,6 +14,8 @@ Use `--local` / `-l` to install from local output instead of cloning from GitHub
 
 Managed skills are synced in `~/.agents/skills` during install. Removed managed skills are pruned, while existing custom skills on the device are preserved. You can run quick non-interactive prompts with `opencode run` once a provider is configured.
 
+When you run `make install` from this repo, it also configures Git to use the tracked hooks in `.githooks/`. That makes local `git pull` run `make install` automatically after merge-based pulls and rebase-based pulls.
+
 ## Shared Shell Commands
 
 `make install` installs these commands into `~/bin`:

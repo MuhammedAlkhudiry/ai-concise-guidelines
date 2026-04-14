@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" != "rebase" ]; then
+  exit 0
+fi
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+
+printf '%s\n' "[ai-concise-guidelines] Running make install after pull rebase..."
+
+if ! command -v make >/dev/null 2>&1; then
+  printf '%s\n' "[ai-concise-guidelines] Skipped: 'make' is not available."
+  exit 0
+fi
+
+cd "$repo_root"
+make install

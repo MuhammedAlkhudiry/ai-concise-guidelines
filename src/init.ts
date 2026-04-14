@@ -358,6 +358,31 @@ async function installShared(): Promise<void> {
   }
 }
 
+function configureRepoGitHooks(): void {
+  if (!LOCAL_MODE) {
+    return;
+  }
+
+  const gitDir = join(ROOT_DIR, ".git");
+  const hooksDir = join(ROOT_DIR, ".githooks");
+
+  if (!existsSync(gitDir) || !existsSync(hooksDir)) {
+    return;
+  }
+
+  print.info(`Configuring repo git hooks from ${hooksDir}...`);
+
+  try {
+    execSync(`git config core.hooksPath ${JSON.stringify(hooksDir)}`, {
+      cwd: ROOT_DIR,
+      stdio: "pipe",
+    });
+    print.success("Repo git hooks configured");
+  } catch {
+    print.warning("Failed to configure repo git hooks");
+  }
+}
+
 interface ManagedSkillSyncOptions {
   src: string;
   dest: string;
@@ -491,6 +516,7 @@ async function main() {
 
   // Execute installation
   cloneRepository();
+  configureRepoGitHooks();
 
   // Parallel installation: shared skills + OpenCode + Codex + Shared
   console.log();
