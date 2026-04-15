@@ -16,6 +16,8 @@ Managed skills are synced in `~/.agents/skills` during install. Removed managed 
 
 When you run `make install` from this repo, it also configures Git to use the tracked hooks in `.githooks/`. That makes local `git pull` run `make install` automatically after merge-based pulls and rebase-based pulls.
 
+This repo assumes several system tools already exist on the machine. See [system-tools.md](./system-tools.md) for the full list, then run `doctor` after install to verify what is available on the current machine.
+
 ## Shared Shell Commands
 
 `make install` installs these commands into `~/bin`:
@@ -25,6 +27,7 @@ When you run `make install` from this repo, it also configures Git to use the tr
 - `remote-tinker`
 - `remote-info`
 - `hosts`
+- `doctor`
 
 ## License
 

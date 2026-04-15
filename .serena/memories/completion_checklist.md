@@ -1,0 +1,4 @@
+- After changing content, config, or generator behavior, run `make install`.
+- If user-facing behavior, CLI args, or config behavior changes, update `README.md` and `shell/zsh-custom.zsh` when relevant.
+- Keep tests/checks aligned with behavior changes; repo checklist currently points to `make install` as the stable verification command.
+- Do not edit generated outputs directly; regenerate from source instead.

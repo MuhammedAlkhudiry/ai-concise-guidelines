@@ -1,0 +1,7 @@
+- Follow repo rules from `AGENTS.md`.
+- Edit source files only; never edit `output/**` directly.
+- Prefer simple changes and reuse existing patterns.
+- Skill folders live under `content/skills/<name>/SKILL.md` and shared skill names use an `_` prefix in both folder name and frontmatter `name`.
+- Keep wording strong and clear while preserving intent.
+- Use `.md` for docs/rules/skills, `.ts` for generator scripts/config logic, and `.json` for local tool config where applicable.
+- Do not change model selection behavior; model choice remains user-controlled.

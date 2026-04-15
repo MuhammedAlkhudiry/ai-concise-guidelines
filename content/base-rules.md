@@ -8,6 +8,7 @@
 
 ## Code Principles
 
+- **SERENA** — Prefer Serena semantic tools for code search, symbol reads, and refactors when available; avoid full-file reads when targeted symbol access will do.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **SIMPLE** — Simple is absolute in everything: logic, tools, code, structure, and workflow. Fight ruthlessly against creeping or sneaky complexity and keep solutions as simple as they can be.
 - **NO-OVERPROTECTION** — Avoid defensive over-checking, redundant guards, and unnecessary cleanup like extra `trim()` or regex normalization unless they are intentional and needed for a real boundary, runtime uncertainty, input contract, or compatibility constraint.

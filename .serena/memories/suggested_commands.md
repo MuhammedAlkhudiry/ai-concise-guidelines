@@ -1,0 +1,7 @@
+- `make install`: default command; generate artifacts and install/sync them locally.
+- `make generate`: generate local output artifacts only.
+- `make init`: install/sync generated files only.
+- `bun src/generate.ts --local`: direct generator entrypoint.
+- `bun src/init.ts --local`: direct installer entrypoint.
+- `rg --files` / `rg <pattern>`: preferred fast file and text search on this Darwin host.
+- Standard local utilities available: `git`, `ls`, `cd`, `find`, `sed`.

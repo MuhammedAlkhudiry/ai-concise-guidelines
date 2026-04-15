@@ -44,7 +44,6 @@ const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
   zshenv: join(HOME, ".zshenv"),
   binDir: join(HOME, "bin"),
-  kitty: join(HOME, ".config/kitty/kitty.conf"),
 };
 
 const SHARED_BIN_COMMANDS = [
@@ -53,6 +52,7 @@ const SHARED_BIN_COMMANDS = [
   { name: "remote-tinker", source: "remote-tinker.zsh" },
   { name: "remote-info", source: "remote-info.zsh" },
   { name: "hosts", source: "hosts.zsh" },
+  { name: "doctor", source: "doctor.zsh" },
 ];
 
 // =============================================================================
@@ -115,7 +115,7 @@ function cloneRepository(): void {
     "shell/remote-tinker.zsh",
     "shell/remote-info.zsh",
     "shell/hosts.zsh",
-    "shell/kitty.conf",
+    "shell/doctor.zsh",
   ];
 
   try {
@@ -347,15 +347,6 @@ async function installShared(): Promise<void> {
     print.success("PATH entry already present in .zshenv");
   }
 
-  const kittySource = join(getSourceDir(), "shell", "kitty.conf");
-  if (existsSync(kittySource)) {
-    print.info(`Copying kitty config to ${SHARED_PATHS.kitty}...`);
-    await ensureParentDir(SHARED_PATHS.kitty);
-    await copyFile(kittySource, SHARED_PATHS.kitty);
-    print.success("Kitty config copied");
-  } else {
-    print.error("kitty.conf not found");
-  }
 }
 
 function configureRepoGitHooks(): void {
@@ -468,7 +459,6 @@ Installs to:
     Zsh:      ${SHARED_PATHS.zsh}
     Zshenv:   ${SHARED_PATHS.zshenv}
     Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})
-    Kitty:    ${SHARED_PATHS.kitty}
 
 Notes:
   - Managed skills overwrite matching generated skills and prune removed managed skills.
@@ -510,7 +500,6 @@ async function main() {
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
   console.log(`    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`);
-  console.log(`    Kitty:    ${SHARED_PATHS.kitty}`);
   printSeparator();
   console.log();
 

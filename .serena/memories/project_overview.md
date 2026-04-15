@@ -1,0 +1,6 @@
+- Purpose: shared AI guidelines, skills, shell helpers, and config generation for OpenCode and Codex.
+- Source of truth lives in `content/`, `config/`, `src/`, `plugins/`, and `shell/`.
+- Generated/install outputs should not be edited directly.
+- Main implementation is TypeScript scripts in `src/` with Markdown skill/rules content in `content/` and shell integrations in `shell/`.
+- Key entrypoints: `src/generate.ts` generates local output artifacts; `src/init.ts` installs/syncs generated config into user directories.
+- Shared shell commands installed from this repo: `gbr`, `remote`, `remote-tinker`, `remote-info`, `hosts`.
