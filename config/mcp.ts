@@ -20,6 +20,10 @@ export const MCP_SERVERS: Record<string, McpServer> = {
     type: "local",
     command: ["npx", "-y", "@hugeicons/mcp-server"],
   },
+  serena: {
+    type: "local",
+    command: ["serena", "start-mcp-server", "--context=codex", "--project-from-cwd"],
+  },
   solo: {
     type: "remote",
     url: "http://localhost:45678/",

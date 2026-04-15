@@ -5,5 +5,9 @@
 command = "npx"
 args = ["-y", "@hugeicons/mcp-server"]
 
+[mcp_servers.serena]
+command = "serena"
+args = ["start-mcp-server", "--context=codex", "--project-from-cwd"]
+
 [mcp_servers.solo]
 url = "http://localhost:45678/"
