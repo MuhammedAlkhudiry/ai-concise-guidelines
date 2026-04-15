@@ -29,7 +29,6 @@
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
 - **GAP-CHECK** — Always raise any bug, risk, inconsistency, dead code, or other issue worth flagging, even if it is unrelated to the task.
-- **SHOW-THE-CODE** — Default to code-first replies: show code, diffs, and concrete examples before explanation, always cite the relevant file or code reference, and keep prose brief unless reasoning, tradeoffs, or risks truly matter. When the user asks what you are going to do, lead with the concrete code changes and a short plan instead of only talking about the approach.
 
 ## Verification
 
