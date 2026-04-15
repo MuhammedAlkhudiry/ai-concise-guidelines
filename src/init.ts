@@ -48,6 +48,7 @@ const SHARED_PATHS = {
 
 const SHARED_BIN_COMMANDS = [
   { name: "gbr", source: "gbr.zsh" },
+  { name: "hugeicons", source: "hugeicons.zsh" },
   { name: "remote", source: "remote.zsh" },
   { name: "remote-tinker", source: "remote-tinker.zsh" },
   { name: "remote-info", source: "remote-info.zsh" },
@@ -111,6 +112,7 @@ function cloneRepository(): void {
     "output/codex/mcp-servers.toml",
     "shell/zsh-custom.zsh",
     "shell/gbr.zsh",
+    "shell/hugeicons.zsh",
     "shell/remote.zsh",
     "shell/remote-tinker.zsh",
     "shell/remote-info.zsh",
@@ -298,8 +300,12 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
   const escapedEnd = endMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const managedPattern = new RegExp(`${escapedStart}[\\s\\S]*?${escapedEnd}\\n?`, "g");
   const orphanMarkerPattern = new RegExp(`^(${escapedStart}|${escapedEnd})\\s*$\\n?`, "gm");
+  const previousManagedContent = Array.from(existing.matchAll(managedPattern), (match) => match[0]).join("\n");
+  const previousManagedServerNames = getManagedMcpServerNames(previousManagedContent);
+  const currentManagedServerNames = getManagedMcpServerNames(managedContent);
+  const managedServerNames = new Set([...previousManagedServerNames, ...currentManagedServerNames]);
   const withoutManagedBlock = existing.replace(managedPattern, "").replace(orphanMarkerPattern, "");
-  const cleaned = removeManagedMcpServers(withoutManagedBlock, getManagedMcpServerNames(managedContent)).trimEnd();
+  const cleaned = removeManagedMcpServers(withoutManagedBlock, managedServerNames).trimEnd();
   const merged = cleaned.length > 0 ? `${cleaned}\n\n${managedBlock}` : managedBlock;
   await writeFile(CODEX_PATHS.config, merged);
   print.success("Codex MCP config merged");

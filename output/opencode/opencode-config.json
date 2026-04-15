@@ -48,14 +48,6 @@
     }
   },
   "mcp": {
-    "hugeicons": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@hugeicons/mcp-server"
-      ]
-    },
     "serena": {
       "type": "local",
       "command": [

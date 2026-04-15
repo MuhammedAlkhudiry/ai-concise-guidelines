@@ -16,10 +16,6 @@ export interface RemoteMcpServer {
 export type McpServer = LocalMcpServer | RemoteMcpServer;
 
 export const MCP_SERVERS: Record<string, McpServer> = {
-  hugeicons: {
-    type: "local",
-    command: ["npx", "-y", "@hugeicons/mcp-server"],
-  },
   serena: {
     type: "local",
     command: ["serena", "start-mcp-server", "--context=codex", "--project-from-cwd"],

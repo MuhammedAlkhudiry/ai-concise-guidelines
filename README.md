@@ -23,6 +23,7 @@ This repo assumes several system tools already exist on the machine. See [system
 `make install` installs these commands into `~/bin`:
 
 - `gbr`
+- `hugeicons`
 - `remote`
 - `remote-tinker`
 - `remote-info`

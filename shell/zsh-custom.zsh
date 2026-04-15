@@ -114,6 +114,17 @@ gbr() {
     return 1
 }
 
+hugeicons() {
+    if [[ -x "$HOME/bin/hugeicons" ]]; then
+        "$HOME/bin/hugeicons" "$@"
+        return $?
+    fi
+
+    echo "hugeicons executable not found at $HOME/bin/hugeicons"
+    echo "Run the installer again: bun src/init.ts --local"
+    return 1
+}
+
 # --- Tool Initialization ---
 [ -x /opt/homebrew/bin/brew ] && eval $(/opt/homebrew/bin/brew shellenv)
 command -v fzf >/dev/null && eval "$(fzf --zsh)"

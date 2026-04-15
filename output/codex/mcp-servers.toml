@@ -1,10 +1,6 @@
 # Managed by ai-concise-guidelines. Do not edit by hand.
 # Source of truth: config/mcp.ts
 
-[mcp_servers.hugeicons]
-command = "npx"
-args = ["-y", "@hugeicons/mcp-server"]
-
 [mcp_servers.serena]
 command = "serena"
 args = ["start-mcp-server", "--context=codex", "--project-from-cwd"]
