@@ -28,7 +28,6 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `ddev` | Laravel aliases and local PHP workflows use it. |
 | `opencode` | `ai` launcher and OpenCode workflows use it. |
 | `fzf` | Used by project pickers and interactive hosts deletion. |
-| `serena` | Used for Serena CLI workflows when available. |
 
 ## Git And Remote Workflow Helpers
 

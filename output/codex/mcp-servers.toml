@@ -1,9 +1,5 @@
 # Managed by ai-concise-guidelines. Do not edit by hand.
 # Source of truth: config/mcp.ts
 
-[mcp_servers.serena]
-command = "serena"
-args = ["start-mcp-server", "--context=codex", "--project-from-cwd"]
-
 [mcp_servers.solo]
 url = "http://localhost:45678/"

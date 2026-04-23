@@ -27,6 +27,7 @@ Critical rules for Laravel and PHP development.
 - DI + container; reuse events/listeners/jobs if project uses them
 - Route model binding; resourceful routes when natural
 - Form Requests or `$request->validate()` consistently; policies for auth
+- Avoid Form Requests with an `authorize()` method that only returns `true`
 
 ## Eloquent
 

@@ -99,7 +99,6 @@ main() {
   check_tool ddev optional "Used by Laravel aliases in the synced zsh config."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool fzf optional "Used by project pickers and interactive hosts deletion."
-  check_tool serena optional "Used for Serena CLI workflows when available."
 
   print_header "Git and remote workflow helpers"
   check_tool gh optional "Used by gbr to open a GitHub pull request."

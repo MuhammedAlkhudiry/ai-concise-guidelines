@@ -8,10 +8,10 @@
 
 ## Code Principles
 
-- **SERENA** — Prefer Serena semantic tools for code search, symbol reads, and refactors when available; avoid full-file reads when targeted symbol access will do.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **SIMPLE** — Simple is absolute in everything: logic, tools, code, structure, and workflow. Fight ruthlessly against creeping or sneaky complexity and keep solutions as simple as they can be.
 - **NO-OVERPROTECTION** — Avoid defensive over-checking, redundant guards, and unnecessary cleanup like extra `trim()` or regex normalization unless they are intentional and needed for a real boundary, runtime uncertainty, input contract, or compatibility constraint.
+- **TRUTHY-FALSY** — Prefer simple truthy/falsy or presence checks over explicit `===` or `!==` comparisons to `true`, `false`, or `null`, and over unnecessary `instanceof` checks, unless exact value or type semantics are required.
 - **KILL-THE-WRAPPER** — Delete pass-through wrappers, aliases, and helpers unless they protect a real boundary, and do not add tiny helpers or functions that barely abstract anything.
 - **COMPATIBILITY** — Prefer the correct change over backward compatibility or artificially small fixes. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change. For bugs, prefer the smallest correct fix first.
 - **BC-ESCALATION** — If keeping backward compatibility adds complexity, explicitly call that out and ask whether a clean-cut change would be acceptable.

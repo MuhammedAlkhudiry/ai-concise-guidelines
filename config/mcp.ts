@@ -16,10 +16,6 @@ export interface RemoteMcpServer {
 export type McpServer = LocalMcpServer | RemoteMcpServer;
 
 export const MCP_SERVERS: Record<string, McpServer> = {
-  serena: {
-    type: "local",
-    command: ["serena", "start-mcp-server", "--context=codex", "--project-from-cwd"],
-  },
   solo: {
     type: "remote",
     url: "http://localhost:45678/",
