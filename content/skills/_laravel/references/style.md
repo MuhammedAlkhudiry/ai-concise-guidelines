@@ -29,7 +29,6 @@
 | `$request->input('name')` | `$request->name` |
 | `return Redirect::back()` | `return back()` |
 | `Carbon::now()` | `now()` |
-| `App::make('Class')` | `app('Class')` |
 | `->where('column', '=', 1)` | `->where('column', 1)` |
 | `->orderBy('created_at', 'desc')` | `->latest()` |
 | `->orderBy('created_at', 'asc')` | `->oldest()` |
@@ -90,8 +89,6 @@ $uri = Uri::of('https://example.com/search')
 ```
 
 Use `$request->string('name')` to get a fluent `Stringable` directly from request input for immediate chaining.
-
-Use `search-docs` for the full list of available methods — these helpers are extensive.
 
 ## No Inline JS/CSS in Blade
 

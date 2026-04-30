@@ -8,7 +8,7 @@ metadata:
 
 # Laravel Best Practices
 
-Best practices for Laravel, prioritized by impact. Each rule teaches what to do and why. For exact API syntax, verify with `search-docs`.
+Best practices for Laravel, prioritized by impact. Each rule teaches what to do and why. For exact API syntax.
 
 ## Consistency First
 
@@ -42,7 +42,7 @@ Check sibling files, related controllers, models, or tests for established patte
 
 ### 3. Security → `references/security.md`
 
-- Define `$fillable` or `$guarded` on every model, authorize every action via policies or gates
+- Authorize every action via policies or gates
 - No raw SQL with user input — use Eloquent or query builder
 - `{{ }}` for output escaping, `@csrf` on all POST/PUT/DELETE forms, `throttle` on auth and API routes
 - Validate MIME type, extension, and size for file uploads
@@ -179,7 +179,7 @@ Check sibling files, related controllers, models, or tests for established patte
 - Follow Laravel naming conventions for all entities
 - Prefer Laravel helpers (`Str`, `Arr`, `Number`, `Uri`, `Str::of()`, `$request->string()`) over raw PHP functions
 - No JS/CSS in Blade, no HTML in PHP classes
-- Code should be readable; comments only for config files
+- Code should be readable; comments are fine when they clarify non-obvious intent, constraints, or config
 
 ### 20. User preferences
 - Always use param + return types; avoid `mixed`/untyped
@@ -190,6 +190,5 @@ Check sibling files, related controllers, models, or tests for established patte
 
 - Avoid Form Requests with an `authorize()` method that only returns `true`
 - **No queries in looping contexts** — Never execute queries inside model accessors/mutators, Resource `toArray()`, `->map()`/`->each()` callbacks, or any code that runs per-item in a collection. These are hidden N+1 traps. Load all data upfront via eager loading or a single query before the loop.
-- **Prefer `create()`/`update()` with arrays** — Don't set attributes one-by-one then `->save()` without reason. Use mass assignment with validated data.
-- **Check before adding `$fillable`/`$guarded`** — Before adding mass assignment protection to a model, check if the project uses `Model::unguarded()` or `Model::unguard()` globally. If so, `$fillable` and `$guarded` are forbidden — they have no effect and add noise.
+- **Prefer `create()`/`update()` with arrays** — Don't set attributes one-by-one then `->save()` without reason. Use validated data arrays.
 - **Always use API Resources** for JSON responses. Never manually build arrays, `->map()` collections, or hand-craft JSON in controllers/services. Resources handle formatting, conditional fields, and nested relationships cleanly.

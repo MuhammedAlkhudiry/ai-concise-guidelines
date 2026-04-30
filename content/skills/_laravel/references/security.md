@@ -1,31 +1,5 @@
 # Security Best Practices
 
-## Mass Assignment Protection
-
-Every model must define `$fillable` (whitelist) or `$guarded` (blacklist).
-
-Incorrect:
-```php
-class User extends Model
-{
-    protected $guarded = []; // All fields are mass assignable
-}
-```
-
-Correct:
-```php
-class User extends Model
-{
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-}
-```
-
-Never use `$guarded = []` on models that accept user input.
-
 ## Authorize Every Action
 
 Use policies or gates in controllers. Never skip authorization.

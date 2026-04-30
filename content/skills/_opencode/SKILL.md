@@ -29,12 +29,6 @@ opencode run 'Reply with exactly: pong'
 opencode run -m provider/model 'Reply with exactly: pong'
 ```
 
-- Example with an explicit model:
-
-```bash
-opencode run -m provider/model 'Reply with exactly: pong'
-```
-
 - Edit files in the current repo:
 
 ```bash

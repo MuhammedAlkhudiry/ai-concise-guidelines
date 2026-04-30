@@ -44,7 +44,7 @@
 
 - **SUBAGENTS** — Prefer spawning subagents when work can be split into sizable independent tasks that run in parallel; do not use them for tightly coupled work or tiny tasks.
 - **SUBAGENT-MODELS** — Use smart models for review and `_code-simplifier` work, and use fast or mini models for independent execution tasks and QA.
-- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, spawn two smart-model subagents in parallel: one to apply `_code-simplifier` and one to review the work; if it involves browser or frontend work, spawn one more fast or mini subagent to QA it with `_playwright`.
+- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, this rule is mandatory and overrides any default reluctance to use subagents: first list the post-work review steps in `Plan`, then spawn two smart-model subagents in parallel, one for `_code-simplifier` and one for review, then spawn one fast or mini `_playwright` QA subagent when the work involves browser or frontend behavior, then resolve any findings before calling the work done.
 
 ## Repo Context
 
@@ -54,32 +54,25 @@
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. Never mention the same point twice across sections. If something is already covered in `Answer`, do not repeat it elsewhere.
+Use this reply template and omit sections that do not apply. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
 
 ```md
 Minimal real example:
 **Answer**
-The main fix is correct, but two follow-ups still matter.
+The main fix is correct.
 
 **Flag**
-The update path still accepts the old payload shape, so one client flow can break until that caller is updated.
-
-**Plan**
-- Request shape should be unified across both paths.
-- The caller must be updated to match the new shape.
-
-**Next Steps**
-The next step is to align the request shape across both paths and update the caller.
+The update path still accepts the old payload shape, so one client flow can break.
 
 Template:
 **Answer**
 [Direct answer, result, or next action]
 
 **Flag**
-[Only when there is any bug, logic risk, dead code, misleading structure, unnecessary complexity, inconsistency, or other issue worth flagging, even if it is unrelated to the task. Keep all such issues here instead of splitting them across multiple sections.]
+[Only when there is any bug, logic risk, dead code, misleading structure, unnecessary complexity, inconsistency, or other issue worth flagging, even if it is unrelated to the task. Do not repeat anything already covered in `Answer`. Keep all such issues here instead of splitting them across multiple sections.]
 
 **Plan**
-[Only when the user is walking through a plan or grouping tasks or action items. Use this section to track the decisions, conclusions, and agreed action items reached in the discussion. Do not include `Next Steps` when `Plan` is used.]
+[Only when the user is walking through a plan or grouping tasks or action items. Use this section to track the decisions, conclusions, agreed action items, and required post-work review steps. Do not include `Next Steps` when `Plan` is used.]
 
 **Devil's Advocate**
 [Only when a strong counterpoint, failure mode, or opposing case is worth pressure-testing.]
