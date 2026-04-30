@@ -29,4 +29,10 @@ export const REMOTE_SKILLS: RemoteSkill[] = [
     ref: "main",
     sourcePath: "skills/find-skills",
   },
+  {
+    name: "grill-with-docs",
+    repository: "https://github.com/mattpocock/skills.git",
+    ref: "main",
+    sourcePath: "skills/engineering/grill-with-docs",
+  },
 ];
