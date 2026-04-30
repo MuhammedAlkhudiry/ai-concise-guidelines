@@ -14,7 +14,7 @@ import { execSync } from "child_process";
 import { tmpdir } from "os";
 import { colors, print, printBox, printSeparator } from "./print";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "./fs";
-import { REMOTE_SKILLS, type RemoteSkill } from "../config/skills";
+import { REMOTE_SKILL_SOURCES, type RemoteSkill, type RemoteSkillSource } from "../config/skills";
 
 // =============================================================================
 // Constants
@@ -218,7 +218,7 @@ async function installSharedSkills(): Promise<void> {
     src,
     dest: SHARED_PATHS.skills,
     label: "shared skills",
-    remoteSkills: REMOTE_SKILLS,
+    remoteSkillSources: REMOTE_SKILL_SOURCES,
   });
 }
 
@@ -388,11 +388,11 @@ interface ManagedSkillSyncOptions {
   src: string;
   dest: string;
   label: string;
-  remoteSkills?: RemoteSkill[];
+  remoteSkillSources?: RemoteSkillSource[];
 }
 
 async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
-  const { src, dest, label, remoteSkills = [] } = options;
+  const { src, dest, label, remoteSkillSources = [] } = options;
   print.info(`Syncing ${label} to ${dest} (preserving existing custom skills)...`);
 
   await ensureDir(dest);
@@ -402,7 +402,9 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
-  const remoteSkillNames = remoteSkills.map((skill) => skill.name).sort();
+  const remoteSkillNames = remoteSkillSources
+    .flatMap((source) => source.skills.map((skill) => skill.name))
+    .sort();
   const managedSkillNames = [...new Set([...skillNames, ...remoteSkillNames])].sort();
   const manifestPath = join(dest, ".ai-concise-guidelines-managed-skills.json");
   let previousSkillNames: string[] = [];
@@ -435,46 +437,54 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     });
   }
 
-  await Promise.all(remoteSkills.map((skill) => installRemoteSkill(skill, dest)));
+  await Promise.all(remoteSkillSources.map((source) => installRemoteSkillSource(source, dest)));
 
   await writeFile(manifestPath, JSON.stringify(managedSkillNames, null, 2) + "\n");
   print.success(`Synced ${managedSkillNames.length} ${label}`);
 }
 
-async function installRemoteSkill(skill: RemoteSkill, dest: string): Promise<void> {
-  print.info(`Fetching remote skill ${skill.name} from ${skill.repository}...`);
+async function installRemoteSkillSource(source: RemoteSkillSource, dest: string): Promise<void> {
+  const skillNames = source.skills.map((skill) => skill.name).join(", ");
+  print.info(`Fetching remote skill source ${skillNames} from ${source.repository}...`);
 
-  const tempDir = await mkdtemp(join(tmpdir(), `ai-concise-${skill.name}-`));
+  const tempDir = await mkdtemp(join(tmpdir(), "ai-concise-skills-"));
   const repoDir = join(tempDir, "repo");
+  const sparsePaths = source.skills.map((skill) => JSON.stringify(skill.sourcePath)).join(" ");
 
   try {
     execSync(
       [
         "git clone --depth=1 --filter=blob:none --sparse",
-        `--branch ${JSON.stringify(skill.ref)}`,
-        JSON.stringify(skill.repository),
+        `--branch ${JSON.stringify(source.ref)}`,
+        JSON.stringify(source.repository),
         JSON.stringify(repoDir),
       ].join(" "),
       { stdio: "pipe" }
     );
-    execSync(`git sparse-checkout set --no-cone ${JSON.stringify(skill.sourcePath)}`, {
+    execSync(`git sparse-checkout set --no-cone ${sparsePaths}`, {
       cwd: repoDir,
       stdio: "pipe",
     });
 
-    const skillSrc = join(repoDir, skill.sourcePath);
-    if (!existsSync(join(skillSrc, "SKILL.md"))) {
-      throw new Error(`Remote skill ${skill.name} is missing SKILL.md at ${skill.sourcePath}`);
+    for (const skill of source.skills) {
+      await installRemoteSkill(skill, repoDir, dest);
     }
-
-    await copyDirAsync({
-      src: skillSrc,
-      dest: join(dest, skill.name),
-    });
-    await normalizeRemoteSkillName(join(dest, skill.name, "SKILL.md"), skill.name);
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
+}
+
+async function installRemoteSkill(skill: RemoteSkill, repoDir: string, dest: string): Promise<void> {
+  const skillSrc = join(repoDir, skill.sourcePath);
+  if (!existsSync(join(skillSrc, "SKILL.md"))) {
+    throw new Error(`Remote skill ${skill.name} is missing SKILL.md at ${skill.sourcePath}`);
+  }
+
+  await copyDirAsync({
+    src: skillSrc,
+    dest: join(dest, skill.name),
+  });
+  await normalizeRemoteSkillName(join(dest, skill.name, "SKILL.md"), skill.name);
 }
 
 async function normalizeRemoteSkillName(skillPath: string, skillName: string): Promise<void> {

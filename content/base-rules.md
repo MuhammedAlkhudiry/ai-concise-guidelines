@@ -26,6 +26,7 @@
 - **LANGUAGE** — Write all replies in English unless the user explicitly asks for another language.
 - **TRANSLATION** — Translate all user-facing copy naturally and contextually; add missing translations when needed.
 - **ASK-WHEN-UNSURE** — If the user's intent, constraints, or the right change are unclear, ask before proceeding instead of guessing.
+- **QUESTION-FIRST** — When the user asks a question, reason through it and answer the question without editing files unless they clearly ask for an implementation or change.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
 - **GAP-CHECK** — Always raise any bug, risk, inconsistency, dead code, or other issue worth flagging, even if it is unrelated to the task.

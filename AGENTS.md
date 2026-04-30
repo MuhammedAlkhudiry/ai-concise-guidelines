@@ -8,6 +8,7 @@
 - **SKILL-NAMES** — Shared skill folder names and frontmatter `name` values must use the `_` prefix.
 - **SKILL-RESOURCES** — Keep skill-specific resources under the same skill folder (`references/`, `scripts/`, `assets/`) so they copy as a unit.
 - **SKILL-COPY** — Skills are copied wholesale from `content/skills/<name>/` into generated tool outputs; preserve folder structure.
+- **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/_*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.
 - **MODEL-SELECTION** — Never edit or select a model; model choice is always user-controlled.
 - **WORDING-QUALITY** — Preserve user intent, but use the clearest and strongest wording instead of literal phrasing.
