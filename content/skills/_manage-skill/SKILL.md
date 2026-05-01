@@ -1,9 +1,9 @@
 ---
-name: _create-skill
-description: "Create or update an AI agent skill. Use when the user wants a new skill, wants to improve an existing one, or asks how to structure a reusable skill."
+name: _manage-skill
+description: "Create, update, rename, or remove an AI agent skill. Use when the user wants a new skill, wants to improve an existing one, or asks how to structure or maintain reusable skills."
 ---
 
-# Create Skill
+# Manage Skill
 
 Write skills as lean triggerable instructions, not tutorials.
 
