@@ -9,7 +9,7 @@ Build the requested number of genuinely different UI options and make them easy 
 
 ## Workflow
 
-1. Use the exact number of options the user requested. If no number is provided, the default is 5.
+1. Use the exact number of options the user requested. If no number is provided, the default is 5 (don't count current ui as an option).
 2. Trace the current UI, data, actions, constraints, and design system before creating options.
 3. Use `impeccable` when frontend design judgment is needed.
 4. Build a simple in-app switcher, tabs, segmented control, or equivalent preview control so the user can inspect each option directly.
