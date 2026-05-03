@@ -8,187 +8,83 @@ metadata:
 
 # Laravel Best Practices
 
-Best practices for Laravel, prioritized by impact. Each rule teaches what to do and why. For exact API syntax.
+Use these defaults when writing, reviewing, or refactoring Laravel code.
 
 ## Consistency First
 
-Before applying any rule, check what the application already does. Laravel offers multiple valid approaches — the best choice is the one the codebase already uses, even if another pattern would be theoretically better. Inconsistency is worse than a suboptimal pattern.
+Before applying any rule, check what the application already does. Laravel offers multiple valid approaches, and the best choice is usually the one the codebase already uses.
 
-Check sibling files, related controllers, models, or tests for established patterns. If one exists, follow it — don't introduce a second way. These rules are defaults for when no pattern exists yet, not overrides.
+Check sibling files, related controllers, models, and tests for established patterns. If one exists, follow it. These rules are defaults for when no clear local pattern exists.
 
-## Quick Reference
+## Types And Data
 
-### 1. Database Performance → `references/db-performance.md`
+- Use parameter and return types; avoid `mixed` and untyped values.
+- Use typed properties instead of `stdClass`.
+- Prefer collections for in-memory data handling. Use arrays only for framework boundaries, serialization, or external contracts.
+- Use typed, immutable, logic-free DTOs for data crossing boundaries.
+- Use PHP backed enums for constrained values instead of magic strings or integers.
+- Prefer Carbon objects over date strings.
+- Use Laravel helpers such as `Str`, `Arr`, `Number`, `Uri`, and collections instead of custom parsing or manual manipulation.
 
-- Eager load with `with()` to prevent N+1 queries
-- Enable `Model::preventLazyLoading()` in development
-- Select only needed columns, avoid `SELECT *`
-- `chunk()` / `chunkById()` for large datasets
-- Index columns used in `WHERE`, `ORDER BY`, `JOIN`
-- `withCount()` instead of loading relations to count
-- `cursor()` for memory-efficient read-only iteration
-- Never query in Blade templates
+## Architecture
 
-### 2. Advanced Query Patterns → `references/advanced-queries.md`
+- Follow Laravel conventions and do not override defaults without a clear reason.
+- Use constructor injection. Avoid `app()` and `resolve()` inside classes.
+- Extract discrete business operations into invokable action classes.
+- Prefer procedural application flow over Laravel events unless eventing is the real boundary.
+- Avoid tiny scopes for one-off views or simple queries like `where('status', 1)`.
+- Avoid Form Requests with an `authorize()` method that only returns `true`.
 
-- `addSelect()` subqueries over eager-loading entire has-many for a single value
-- Dynamic relationships via subquery FK + `belongsTo`
-- Conditional aggregates (`CASE WHEN` in `selectRaw`) over multiple count queries
-- `setRelation()` to prevent circular N+1 queries
-- `whereIn` + `pluck()` over `whereHas` for better index usage
-- Two simple queries can beat one complex query
-- Compound indexes matching `orderBy` column order
-- Correlated subqueries in `orderBy` for has-many sorting (avoid joins)
+## Queries And Models
 
-### 3. Security → `references/security.md`
+- Do not run queries in looping contexts: model accessors or mutators, resource `toArray()`, `->map()` or `->each()` callbacks, or any per-item code. Load data upfront with eager loading or a single query before the loop.
+- Prefer `create()` and `update()` with validated arrays instead of setting attributes one by one before `save()`.
+- When no explicit order is specified, sort by `id` or `created_at` descending.
+- Avoid hardcoded table names in queries. Exception: migrations can use hardcoded table names because migrations are frozen snapshots and models can change later.
 
-- Authorize every action via policies or gates
-- No raw SQL with user input — use Eloquent or query builder
-- `{{ }}` for output escaping, `@csrf` on all POST/PUT/DELETE forms, `throttle` on auth and API routes
-- Validate MIME type, extension, and size for file uploads
-- Never commit `.env`, use `config()` for secrets, `encrypted` cast for sensitive DB fields
+## Responses
 
-### 4. Caching → `references/caching.md`
+- Use API Resources for JSON responses. Do not hand-craft response arrays in controllers or services when a resource should own formatting, conditional fields, and nested relationships.
 
-- `Cache::remember()` over manual get/put
-- `Cache::flexible()` for stale-while-revalidate on high-traffic data
-- `Cache::memo()` to avoid redundant cache hits within a request
-- Cache tags to invalidate related groups
-- `Cache::add()` for atomic conditional writes
-- `once()` to memoize per-request or per-object lifetime
-- `Cache::lock()` / `lockForUpdate()` for race conditions
-- Failover cache stores in production
+## Cache
 
-### 5. Eloquent Patterns → `references/eloquent.md`
+- Use `Cache::remember()` instead of manual get/put logic.
+- Use `once()` for per-request memoization.
 
-- Correct relationship types with return type hints
-- Local scopes for reusable query constraints
-- Global scopes sparingly — document their existence
-- Attribute casts in the `casts()` method
-- Cast date columns, use Carbon instances in templates
-- `whereBelongsTo($model)` for cleaner queries
-- Never hardcode table names — use `(new Model)->getTable()` or Eloquent queries
+## Migrations
 
-### 6. Validation & Forms → `references/validation.md`
+- Always use `php artisan make:migration` for consistent naming and timestamps.
+- Use `constrained()` for foreign keys.
+- Avoid cascade defaults unless the app intentionally delegates that behavior to the database.
+- Never modify deployed migrations.
+- If a migration is not deployed, not committed, or not merged to main, update that migration and adjust the local schema if it already ran locally.
+- Do not add `down()` methods.
+- Keep one concern per migration. Do not mix DDL schema changes and DML data changes.
 
-- Form Request classes, not inline validation
-- Array notation `['required', 'email']` for new code; follow existing convention
-- `$request->validated()` only — never `$request->all()`
-- `Rule::when()` for conditional validation
-- `after()` instead of `withValidator()`
+## Prefer Shorter Readable Syntax
 
-### 7. Configuration → `references/config.md`
+| Verbose | Shorter |
+|---------|---------|
+| `Session::get('cart')` | `session('cart')` |
+| `$request->session()->get('cart')` | `session('cart')` |
+| `return Redirect::back()` | `return back()` |
+| `Carbon::now()` | `now()` |
+| `->where('column', '=', 1)` | `->where('column', 1)` |
+| `->orderBy('created_at', 'desc')` | `->latest()` |
+| `->orderBy('created_at', 'asc')` | `->oldest()` |
+| `->first()->name` | `->value('name')` |
 
-- `env()` only inside config files
-- `App::environment()` or `app()->isProduction()`
-- Config, lang files, and constants over hardcoded text
+For request data, use `$request->input('name')`, `$request->string('name')`, or another typed request accessor instead of `$request->name`.
 
-### 8. Testing Patterns → `references/testing.md`
+## Validation
 
-- `LazilyRefreshDatabase` over `RefreshDatabase` for speed
-- `assertModelExists()` over raw `assertDatabaseHas()`
-- Factory states and sequences over manual overrides
-- Use fakes (`Event::fake()`, `Exceptions::fake()`, etc.) — but always after factory setup, not before
-- `recycle()` to share relationship instances across factories
+- Extract validation from controllers into dedicated Form Request classes.
+- In Form Requests, prefer array validation syntax.
+- Use `Rule::when()` for conditional validation.
+- Use the `after()` method for custom validation.
 
-### 9. Queue & Job Patterns → `references/queue-jobs.md`
+## Tests
 
-- `retry_after` must exceed job `timeout`; use exponential backoff `[1, 5, 10]`
-- `ShouldBeUnique` to prevent duplicates; `ShouldBeUniqueUntilProcessing` for early lock release
-- Always implement `failed()`; with `retryUntil()`, set `$tries = 0`
-- `RateLimited` middleware for external API calls; `Bus::batch()` for related jobs
-- Horizon for complex multi-queue scenarios
-
-### 10. Routing & Controllers → `references/routing.md`
-
-- Implicit route model binding
-- Scoped bindings for nested resources
-- `Route::resource()` or `apiResource()`
-- Methods under 10 lines — extract to actions/services
-- Type-hint Form Requests for auto-validation
-
-### 11. HTTP Client → `references/http-client.md`
-
-- Explicit `timeout` and `connectTimeout` on every request
-- `retry()` with exponential backoff for external APIs
-- Check response status or use `throw()`
-- `Http::pool()` for concurrent independent requests
-- `Http::fake()` and `preventStrayRequests()` in tests
-
-### 12. Events, Notifications & Mail → `references/events-notifications.md`, `references/mail.md`
-
-- Event discovery over manual registration; `event:cache` in production
-- `ShouldDispatchAfterCommit` / `afterCommit()` inside transactions
-- Queue notifications and mailables with `ShouldQueue`
-- On-demand notifications for non-user recipients
-- `HasLocalePreference` on notifiable models
-- `assertQueued()` not `assertSent()` for queued mailables
-- Markdown mailables for transactional emails
-
-### 13. Error Handling → `references/error-handling.md`
-
-- `report()`/`render()` on exception classes or in `bootstrap/app.php` — follow existing pattern
-- `ShouldntReport` for exceptions that should never log
-- Throttle high-volume exceptions to protect log sinks
-- `dontReportDuplicates()` for multi-catch scenarios
-- Force JSON rendering for API routes
-- Structured context via `context()` on exception classes
-
-### 14. Task Scheduling → `references/scheduling.md`
-
-- `withoutOverlapping()` on variable-duration tasks
-- `onOneServer()` on multi-server deployments
-- `runInBackground()` for concurrent long tasks
-- `environments()` to restrict to appropriate environments
-- `takeUntilTimeout()` for time-bounded processing
-- Schedule groups for shared configuration
-
-### 15. Architecture → `references/architecture.md`
-
-- Single-purpose Action classes; dependency injection over `app()` helper
-- Prefer official Laravel packages and follow conventions, don't override defaults
-- Default to `ORDER BY id DESC` or `created_at DESC`; `mb_*` for UTF-8 safety
-- `defer()` for post-response work; `Context` for request-scoped data; `Concurrency::run()` for parallel execution
-
-### 16. Migrations → `references/migrations.md`
-
-- Generate migrations with `php artisan make:migration`
-- `constrained()` for foreign keys
-- Never modify migrations that have run in production
-- Add indexes in the migration, not as an afterthought
-- Mirror column defaults in model `$attributes`
-- Reversible `down()` by default; forward-fix migrations for intentionally irreversible changes
-- One concern per migration — never mix DDL and DML
-
-### 17. Collections → `references/collections.md`
-
-- Higher-order messages for simple collection operations
-- `cursor()` vs. `lazy()` — choose based on relationship needs
-- `lazyById()` when updating records while iterating
-- `toQuery()` for bulk operations on collections
-
-### 18. Blade & Views → `references/blade-views.md`
-
-- `$attributes->merge()` in component templates
-- Blade components over `@include`; `@pushOnce` for per-component scripts
-- View Composers for shared view data
-- `@aware` for deeply nested component props
-
-### 19. Conventions & Style → `references/style.md`
-
-- Follow Laravel naming conventions for all entities
-- Prefer Laravel helpers (`Str`, `Arr`, `Number`, `Uri`, `Str::of()`, `$request->string()`) over raw PHP functions
-- No JS/CSS in Blade, no HTML in PHP classes
-- Code should be readable; comments are fine when they clarify non-obvious intent, constraints, or config
-
-### 20. User preferences
-- Always use param + return types; avoid `mixed`/untyped
-- Typed properties; no `stdClass`
-- Prefer collections to arrays for in-memory data handling; use arrays only when a framework boundary, serialization format, or external contract requires them
-- Use DTOs for data crossing boundaries; typed, immutable, no logic
-- PHP backed enums for constrained values; no magic strings/ints
-
-- Avoid Form Requests with an `authorize()` method that only returns `true`
-- **No queries in looping contexts** — Never execute queries inside model accessors/mutators, Resource `toArray()`, `->map()`/`->each()` callbacks, or any code that runs per-item in a collection. These are hidden N+1 traps. Load all data upfront via eager loading or a single query before the loop.
-- **Prefer `create()`/`update()` with arrays** — Don't set attributes one-by-one then `->save()` without reason. Use validated data arrays.
-- **Always use API Resources** for JSON responses. Never manually build arrays, `->map()` collections, or hand-craft JSON in controllers/services. Resources handle formatting, conditional fields, and nested relationships cleanly.
+- Prefer model assertions over raw database assertions.
+- Use factory states and sequences.
+- Use `recycle()` to share relationship instances across factories.

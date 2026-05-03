@@ -2,20 +2,20 @@
 
 This repo assumes a small set of non-default tools on top of a normal macOS shell environment.
 
-`doctor` checks command presence only. It does not verify login state, credentials, Kubernetes access, DDEV project state, or editor/terminal preferences.
+`doctor` checks command presence plus the `ai-assistant` LaunchAgent. It does not verify login state, credentials, Kubernetes access, DDEV project state, editor/terminal preferences, or full runtime access.
 
 Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and similar are intentionally not listed here.
 
 ## Core Repo Tools
 
-These are the commands the repo itself relies on for install, generation, and day-to-day local use.
+These are the commands the repo itself relies on for install and day-to-day local use.
 
 | Tool | Why this repo assumes it |
 | --- | --- |
-| `bun` | Runs `src/generate.ts` and `src/init.ts`. |
-| `git` | Used for clone, sparse checkout, hook setup, and shared git helpers. |
-| `make` | Powers the default `make install` workflow. |
-| `curl` | Used by the README one-line installer. |
+| `bun` | Runtime used internally by `make install`. |
+| `git` | Used for remote skill checkout, hook setup, and shared git helpers. |
+| `make` | Powers the only supported local install workflow. |
+| `mise` | Manages global runtimes instead of NVM. |
 | `zsh` | All shared shell commands are shipped as Zsh scripts. |
 
 ## Shell And Helper Integrations
@@ -26,6 +26,8 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | --- | --- |
 | `phpstorm` | Default editor command in `shell/zsh-custom.zsh`. |
 | `ddev` | Laravel aliases and local PHP workflows use it. |
+| `obsidian` | `ai-assistant` uses it to read and update the personal vault. |
+| `codex` | `ai-assistant` uses it to run inbox digestion. |
 | `opencode` | `ai` launcher and OpenCode workflows use it. |
 | `fzf` | Used by project pickers and interactive hosts deletion. |
 

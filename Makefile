@@ -1,12 +1,6 @@
-.PHONY: generate init install
+.PHONY: install
 
-# Generate output files from content + config
-generate:
-	bun src/generate.ts --local
-
-# Install generated files to user config
-init:
-	bun src/init.ts --local
-
-# Generate and install (shortcut)
-install: generate init
+# Generate output files and install them to the local user config
+install:
+	bun src/generate.ts
+	bun src/init.ts

@@ -52,6 +52,7 @@
 - **IGNORE-UNRELATED-DIFFS** — Ignore unrelated git diffs or changes completely; do not touch them in any way.
 - **AGENTS.md** — In a monorepo, if the work is limited to one repo or package, read its nested `AGENTS.md`; when updating `AGENTS.md`, keep each added point single-point and concise.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
+- **README-MINIMAL** — Keep `README.md` minimal in personal infrastructure repos; do not update or expand it as user-facing documentation unless the user explicitly asks for a README change.
 - **GRILL-WITH-DOCS** — `CONTEXT.md`, `CONTEXT-MAP.md`, and ADR docs are useful repo context; read them when present, and suggest `grill-with-docs` when they are missing or would help clarify domain language and decisions.
 
 ## Reply Template

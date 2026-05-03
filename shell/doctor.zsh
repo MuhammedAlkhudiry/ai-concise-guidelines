@@ -51,12 +51,12 @@ print_summary() {
     "$GUM_BIN" style --bold --foreground 81 "Summary"
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "required:")" "$required_ok" "$required_missing"
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "optional:")" "$optional_ok" "$optional_missing"
-    printf '  %s\n' "$("$GUM_BIN" style --foreground 244 "note: this checks command presence only, not auth, config, or runtime access.")"
+    printf '  %s\n' "$("$GUM_BIN" style --foreground 244 "note: this checks command presence plus the ai-assistant LaunchAgent, not auth, credentials, or full runtime access.")"
   else
     printf 'Summary\n'
     printf '  required: ok=%d missing=%d\n' "$required_ok" "$required_missing"
     printf '  optional: ok=%d missing=%d\n' "$optional_ok" "$optional_missing"
-    printf '  note: this checks command presence only, not auth, config, or runtime access.\n'
+    printf '  note: this checks command presence plus the ai-assistant LaunchAgent, not auth, credentials, or full runtime access.\n'
   fi
 }
 
@@ -86,19 +86,46 @@ check_tool() {
   fi
 }
 
+check_ai_assistant_launch_agent() {
+  local label="com.malkhudhari.ai-assistant.digest"
+  local plist_file="$HOME/Library/LaunchAgents/${label}.plist"
+  local launch_target="gui/$(id -u)/${label}"
+  local note
+
+  if [[ -f "$plist_file" ]] && launchctl print "$launch_target" >/dev/null 2>&1; then
+    print_ok "ai-assistant" "LaunchAgent loaded"
+    (( required_ok++ ))
+    return 0
+  fi
+
+  if [[ -f "$plist_file" ]]; then
+    note="LaunchAgent plist exists but is not loaded. Run make install."
+  else
+    note="LaunchAgent plist is missing. Run make install."
+  fi
+
+  print_missing required "ai-assistant" "$note"
+  (( required_missing++ ))
+}
+
 main() {
   print_header "Core repo tools"
-  check_tool bun required "Needed for generate/init scripts and local install."
-  check_tool git required "Needed for clone, sparse checkout, hooks, and shared git helpers."
-  check_tool make required "Needed for the repo's default install workflow."
-  check_tool curl required "Needed for the one-line remote install flow in README."
+  check_tool bun required "Runtime used internally by make install."
+  check_tool git required "Needed for remote skill checkout, hooks, and shared git helpers."
+  check_tool make required "Needed for the only supported local install workflow."
+  check_tool mise required "Needed for global runtime management instead of NVM."
   check_tool zsh required "Needed by all installed shared shell commands."
 
   print_header "Shell and helper integrations"
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
   check_tool ddev optional "Used by Laravel aliases in the synced zsh config."
+  check_tool obsidian optional "Used by ai-assistant to read and update the personal vault."
+  check_tool codex optional "Used by ai-assistant to run inbox digestion."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool fzf optional "Used by project pickers and interactive hosts deletion."
+
+  print_header "Background jobs"
+  check_ai_assistant_launch_agent
 
   print_header "Git and remote workflow helpers"
   check_tool gh optional "Used by gbr to open a GitHub pull request."

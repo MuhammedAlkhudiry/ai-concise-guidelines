@@ -1,10 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * Installer Script
- * Installs generated files for OpenCode and Codex
- *
- * Usage: bun src/init.ts [OPTIONS]
+ * Internal local installer used by `make install`.
  */
 
 import { existsSync, copyFileSync } from "fs";
@@ -20,11 +17,8 @@ import { REMOTE_SKILL_SOURCES, type RemoteSkill, type RemoteSkillSource } from "
 // Constants
 // =============================================================================
 
-const REPO_URL = "https://github.com/MuhammedAlkhudiry/ai-concise-guidelines.git";
-const TMP_DIR = `tmp_guidelines_${process.pid}`;
 const HOME = process.env.HOME || "";
 const ROOT_DIR = join(import.meta.dir, "..");
-const LOCAL_MODE = process.argv.includes("--local") || process.argv.includes("-l");
 
 // =============================================================================
 // Destination Paths
@@ -44,11 +38,16 @@ const CODEX_PATHS = {
 const SHARED_PATHS = {
   skills: join(HOME, ".agents/skills"),
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
+  zshrc: join(HOME, ".zshrc"),
   zshenv: join(HOME, ".zshenv"),
   binDir: join(HOME, "bin"),
 };
 
+const USER_ZSHRC_HEADER = "# Managed shell config lives in ai-concise-guidelines.";
+const USER_ZSHRC_IMPORT = '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
+
 const SHARED_BIN_COMMANDS = [
+  { name: "ai-assistant", source: "ai-assistant.zsh" },
   { name: "gbr", source: "gbr.zsh" },
   { name: "hugeicons", source: "hugeicons.zsh" },
   { name: "remote", source: "remote.zsh" },
@@ -59,84 +58,13 @@ const SHARED_BIN_COMMANDS = [
 ];
 
 // =============================================================================
-// Copy Task System
-// =============================================================================
-
-interface CopyTask {
-  name: string;
-  src: string;
-  dest: string;
-  extensions?: string[];
-}
-
-function getSourceDir(): string {
-  return LOCAL_MODE ? ROOT_DIR : TMP_DIR;
-}
-
-function buildOpencodeTasks(): CopyTask[] {
-  const sourceDir = getSourceDir();
-  const opencodeDir = join(sourceDir, "output", "opencode");
-
-  return [
-    {
-      name: "plugins",
-      src: join(opencodeDir, "plugin"),
-      dest: OPENCODE_PATHS.plugins,
-      extensions: [".ts", ".js"],
-    },
-  ];
-}
-
-// =============================================================================
 // Individual Operations
 // =============================================================================
-
-function cloneRepository(): void {
-  if (LOCAL_MODE) {
-    print.info("Using local output directory...");
-    const opencodeOutputDir = join(ROOT_DIR, "output", "opencode");
-    const codexOutputDir = join(ROOT_DIR, "output", "codex");
-    if (!existsSync(opencodeOutputDir) || !existsSync(codexOutputDir)) {
-      print.error("Local output not found. Run 'bun src/generate.ts' first.");
-      process.exit(1);
-    }
-    print.success("Local output directories found");
-    return;
-  }
-
-  print.info("Cloning repository...");
-
-  const folders = [
-    "content/base-rules.md",
-    "content/skills",
-    "config/skills.ts",
-    "output/opencode/plugin",
-    "output/opencode/opencode-config.json",
-    "output/codex/mcp-servers.toml",
-    "shell/zsh-custom.zsh",
-    "shell/gbr.zsh",
-    "shell/hugeicons.zsh",
-    "shell/remote.zsh",
-    "shell/remote-tinker.zsh",
-    "shell/remote-info.zsh",
-    "shell/hosts.zsh",
-    "shell/doctor.zsh",
-  ];
-
-  try {
-    execSync(`git clone --depth=1 --filter=blob:none --sparse "${REPO_URL}" "${TMP_DIR}"`, { stdio: "pipe" });
-    execSync(`git sparse-checkout set --no-cone ${folders.join(" ")}`, { cwd: TMP_DIR, stdio: "pipe" });
-    print.success("Repository cloned successfully");
-  } catch {
-    print.error("Failed to clone repository");
-    process.exit(1);
-  }
-}
 
 function copyOpencodeRules(): void {
   print.info(`Copying OpenCode rules to ${OPENCODE_PATHS.rules}...`);
 
-  const sourceFile = join(getSourceDir(), "content", "base-rules.md");
+  const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
   if (!existsSync(sourceFile)) {
     print.error("Base rules file not found");
     return;
@@ -150,7 +78,7 @@ function copyOpencodeRules(): void {
 function copyCodexRules(): void {
   print.info(`Copying Codex rules to ${CODEX_PATHS.rules}...`);
 
-  const sourceFile = join(getSourceDir(), "content", "base-rules.md");
+  const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
   if (!existsSync(sourceFile)) {
     print.error("Base rules file not found");
     return;
@@ -196,11 +124,30 @@ function removeManagedMcpServers(configToml: string, managedServerNames: Set<str
   return cleanedLines.join("\n");
 }
 
-function cleanup(): void {
-  if (!LOCAL_MODE && existsSync(TMP_DIR)) {
-    const { rmSync } = require("fs");
-    rmSync(TMP_DIR, { recursive: true, force: true });
+async function assertThinUserZshrc(): Promise<void> {
+  print.info(`Checking ${SHARED_PATHS.zshrc} stays thin...`);
+
+  if (!existsSync(SHARED_PATHS.zshrc)) {
+    print.error(`${SHARED_PATHS.zshrc} is missing.`);
+    print.error(`Create it with only:\n${USER_ZSHRC_HEADER}\n${USER_ZSHRC_IMPORT}`);
+    process.exit(1);
   }
+
+  const content = await readFile(SHARED_PATHS.zshrc, "utf-8");
+  const codeLines = content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+
+  if (codeLines.length === 1 && codeLines[0] === USER_ZSHRC_IMPORT) {
+    print.success("User .zshrc is thin");
+    return;
+  }
+
+  print.error(`${SHARED_PATHS.zshrc} must only import ${SHARED_PATHS.zsh}.`);
+  print.error("Move custom shell code into shell/zsh-custom.zsh, then run make install again.");
+  print.error(`Expected ${SHARED_PATHS.zshrc}:\n${USER_ZSHRC_HEADER}\n${USER_ZSHRC_IMPORT}`);
+  process.exit(1);
 }
 
 // =============================================================================
@@ -208,8 +155,7 @@ function cleanup(): void {
 // =============================================================================
 
 async function installSharedSkills(): Promise<void> {
-  const sourceDir = getSourceDir();
-  const src = join(sourceDir, "content", "skills");
+  const src = join(ROOT_DIR, "content", "skills");
   if (!existsSync(src)) {
     print.error("Skills folder not found");
     return;
@@ -224,28 +170,26 @@ async function installSharedSkills(): Promise<void> {
 
 async function installOpencode(): Promise<void> {
   copyOpencodeRules();
-  const tasks = buildOpencodeTasks();
-  for (const task of tasks) {
-    print.info(`Copying ${task.name} to ${task.dest}...`);
-    if (!existsSync(task.src)) {
-      print.error(`${task.name} folder not found`);
-      continue;
-    }
+  const pluginsSource = join(ROOT_DIR, "output", "opencode", "plugin");
+  print.info(`Copying plugins to ${OPENCODE_PATHS.plugins}...`);
+  if (!existsSync(pluginsSource)) {
+    print.error("plugins folder not found");
+  } else {
     const count = await copyDirAsync({
-      src: task.src,
-      dest: task.dest,
-      extensions: task.extensions,
+      src: pluginsSource,
+      dest: OPENCODE_PATHS.plugins,
+      extensions: [".ts", ".js"],
     });
-    print.success(`Copied ${count} ${task.name}`);
+    print.success(`Copied ${count} plugins`);
   }
   await mergeOpencodeConfigAsync();
 }
 
 async function mergeOpencodeConfigAsync(): Promise<void> {
   print.info(`Merging OpenCode config into ${OPENCODE_PATHS.config}...`);
-  const sourceFile = join(getSourceDir(), "output", "opencode", "opencode-config.json");
+  const sourceFile = join(ROOT_DIR, "output", "opencode", "opencode-config.json");
   if (!existsSync(sourceFile)) {
-    print.error("opencode-config.json not found (run 'bun src/generate.ts' first)");
+    print.error("opencode-config.json not found. Run make install.");
     return;
   }
   const configContent = (await readFile(sourceFile, "utf-8")).replace(/<home>/g, HOME);
@@ -289,9 +233,9 @@ async function installCodex(): Promise<void> {
 
 async function mergeCodexMcpConfigAsync(): Promise<void> {
   print.info(`Merging Codex MCP config into ${CODEX_PATHS.config}...`);
-  const sourceFile = join(getSourceDir(), "output", "codex", "mcp-servers.toml");
+  const sourceFile = join(ROOT_DIR, "output", "codex", "mcp-servers.toml");
   if (!existsSync(sourceFile)) {
-    print.error("mcp-servers.toml not found (run 'bun src/generate.ts' first)");
+    print.error("mcp-servers.toml not found. Run make install.");
     return;
   }
   const managedContent = (await readFile(sourceFile, "utf-8")).trimEnd();
@@ -316,7 +260,7 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
 }
 
 async function installShared(): Promise<void> {
-  const zshSource = join(getSourceDir(), "shell", "zsh-custom.zsh");
+  const zshSource = join(ROOT_DIR, "shell", "zsh-custom.zsh");
   if (existsSync(zshSource)) {
     print.info(`Copying zsh config to ${SHARED_PATHS.zsh}...`);
     await ensureParentDir(SHARED_PATHS.zsh);
@@ -327,7 +271,7 @@ async function installShared(): Promise<void> {
   }
 
   for (const command of SHARED_BIN_COMMANDS) {
-    const sourcePath = join(getSourceDir(), "shell", command.source);
+    const sourcePath = join(ROOT_DIR, "shell", command.source);
     const destinationPath = join(SHARED_PATHS.binDir, command.name);
 
     if (!existsSync(sourcePath)) {
@@ -359,11 +303,28 @@ async function installShared(): Promise<void> {
 
 }
 
-function configureRepoGitHooks(): void {
-  if (!LOCAL_MODE) {
-    return;
+function installAiAssistantLaunchAgent(): void {
+  const commandPath = join(SHARED_PATHS.binDir, "ai-assistant");
+  if (!existsSync(commandPath)) {
+    print.error("ai-assistant command not found after install");
+    process.exit(1);
   }
 
+  print.info("Ensuring ai-assistant LaunchAgent is installed...");
+
+  try {
+    execSync(`${JSON.stringify(commandPath)} install`, {
+      stdio: "inherit",
+      env: process.env,
+    });
+    print.success("ai-assistant LaunchAgent ready");
+  } catch {
+    print.error("Failed to install ai-assistant LaunchAgent");
+    process.exit(1);
+  }
+}
+
+function configureRepoGitHooks(): void {
   const gitDir = join(ROOT_DIR, ".git");
   const hooksDir = join(ROOT_DIR, ".githooks");
 
@@ -496,61 +457,12 @@ async function normalizeRemoteSkillName(skillPath: string, skillName: string): P
 // Main
 // =============================================================================
 
-function showUsage(): never {
-  console.log(`
-${colors.blue("+=============================================================+")}
-${colors.blue("|   AI Concise Guidelines - Installer                         |")}
-${colors.blue("|   Supports: OpenCode + Codex                                |")}
-${colors.blue("+=============================================================+")}
-
-Usage: bun src/init.ts [OPTIONS]
-
-Options:
-  --help, -h     Show this help message
-  --local, -l    Use local output directory instead of cloning from GitHub
-
-Installs to:
-
-  ${colors.blue("OpenCode:")}
-    Rules:    ${OPENCODE_PATHS.rules}
-    Plugins:  ${OPENCODE_PATHS.plugins}
-    Config:   ${OPENCODE_PATHS.config}
-
-  ${colors.blue("Codex:")}
-    Rules:    ${CODEX_PATHS.rules}
-    Config:   ${CODEX_PATHS.config}
-
-  ${colors.yellow("Shared:")}
-    Skills:   ${SHARED_PATHS.skills}
-    Zsh:      ${SHARED_PATHS.zsh}
-    Zshenv:   ${SHARED_PATHS.zshenv}
-    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})
-
-Notes:
-  - Managed skills overwrite matching generated skills and prune removed managed skills.
-  - Existing custom skills in user skill folders are preserved.
-`);
-  process.exit(0);
-}
-
 async function main() {
-  // Check for help flag
-  if (process.argv.includes("--help") || process.argv.includes("-h")) {
-    showUsage();
-  }
-
-  // Register cleanup
-  process.on("exit", cleanup);
-  process.on("SIGINT", () => { cleanup(); process.exit(1); });
-  process.on("SIGTERM", () => { cleanup(); process.exit(1); });
-
-  // Show header
-  const modeLabel = LOCAL_MODE ? colors.yellow("(local)") : colors.green("(remote)");
   console.log();
   printBox("AI Concise Guidelines - Installer");
   console.log();
   printSeparator();
-  console.log(colors.blue(`Installing from: ${modeLabel}`));
+  console.log(colors.blue("Installing from local repo"));
   console.log();
   console.log(colors.blue("  OpenCode:"));
   console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
@@ -569,11 +481,9 @@ async function main() {
   printSeparator();
   console.log();
 
-  // Execute installation
-  cloneRepository();
+  await assertThinUserZshrc();
   configureRepoGitHooks();
 
-  // Parallel installation: shared skills + OpenCode + Codex + Shared
   console.log();
   console.log(colors.blue("Installing in parallel..."));
   await Promise.all([
@@ -582,6 +492,8 @@ async function main() {
     installCodex(),
     installShared(),
   ]);
+
+  installAiAssistantLaunchAgent();
 
   console.log();
   printBox("Installation completed successfully!", "green");

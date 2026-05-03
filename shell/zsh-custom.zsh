@@ -3,6 +3,19 @@
 # Synced via: https://github.com/MuhammedAlkhudiry/ai-concise-guidelines
 # =============================================================================
 
+# --- Oh My Zsh ---
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+
+plugins=(
+git
+zsh-autosuggestions
+)
+
+[[ -t 0 && -t 1 ]] && plugins+=(fzf)
+
+source "$ZSH/oh-my-zsh.sh"
+
 # --- Editor ---
 alias zsh="phpstorm ~/.zshrc"
 export EDITOR=phpstorm
@@ -110,7 +123,7 @@ gbr() {
     fi
 
     echo "gbr executable not found at $HOME/bin/gbr"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -121,18 +134,15 @@ hugeicons() {
     fi
 
     echo "hugeicons executable not found at $HOME/bin/hugeicons"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
 # --- Tool Initialization ---
-[ -x /opt/homebrew/bin/brew ] && eval $(/opt/homebrew/bin/brew shellenv)
-command -v fzf >/dev/null && eval "$(fzf --zsh)"
+[ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# --- NVM ---
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# --- Runtime Manager ---
+command -v mise >/dev/null && eval "$(mise activate zsh)"
 
 # --- Kubernetes ---
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
@@ -144,7 +154,7 @@ function remote() {
     fi
 
     echo "remote executable not found at $HOME/bin/remote"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -155,7 +165,7 @@ function remote-tinker() {
     fi
 
     echo "remote-tinker executable not found at $HOME/bin/remote-tinker"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -166,7 +176,7 @@ function remote-info() {
     fi
 
     echo "remote-info executable not found at $HOME/bin/remote-info"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -216,7 +226,7 @@ hosts() {
     fi
 
     echo "hosts executable not found at $HOME/bin/hosts"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -227,7 +237,7 @@ doctor() {
     fi
 
     echo "doctor executable not found at $HOME/bin/doctor"
-    echo "Run the installer again: bun src/init.ts --local"
+    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -272,3 +282,5 @@ export PATH="$HOME/.opencode/bin:$PATH"
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+typeset -U path PATH

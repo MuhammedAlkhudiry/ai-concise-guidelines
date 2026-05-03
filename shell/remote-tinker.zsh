@@ -31,7 +31,7 @@ resolve_remote_bin() {
     return 0
   fi
 
-  echo "remote executable not found. Run the installer again: bun src/init.ts --local" >&2
+  echo "remote executable not found. Run make install from ~/PhpstormProjects/ai-concise-guidelines" >&2
   return 1
 }
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * Generator Script
- * Generates files for OpenCode and Codex from content
- *
- * Usage: bun src/generate.ts
+ * Internal generator used by `make install`.
  */
 
 import { readFile, writeFile, rm } from "fs/promises";

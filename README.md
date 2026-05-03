@@ -1,34 +1,37 @@
-# Opinionated AI Guidelines
+# AI Concise Guidelines
 
-Opinionated AI guidelines and skills for **OpenCode** and **Codex**.
-
-> **For Contributors**: See [AGENTS.md](./AGENTS.md) for details on modifying content and regenerating output files.
+Personal source of truth for my Codex and OpenCode rules, skills, shell helpers, and local assistant setup.
 
 ## Install
 
 ```bash
-curl -sO https://raw.githubusercontent.com/MuhammedAlkhudiry/ai-concise-guidelines/main/init.ts && bun init.ts && rm init.ts
+make install
 ```
 
-Use `--local` / `-l` to install from local output instead of cloning from GitHub.
+Global runtimes are managed with `mise`; repo install still runs through `make install`.
 
-Managed skills are synced in `~/.agents/skills` during install. Local skills come from `content/skills`, while remote skill sources are declared in `config/skills.ts` and fetched fresh from GitHub during install. A single remote source can provide one or more skills. Removed managed skills are pruned, while existing custom skills on the device are preserved. You can run quick non-interactive prompts with `opencode run` once a provider is configured.
+`~/.zshrc` must stay as a thin loader that only imports `~/.config/zsh-sync/custom.zsh`. Put shell changes in `shell/zsh-custom.zsh`; `make install` fails if extra shell code is added directly to `~/.zshrc`.
 
-When you run `make install` from this repo, it also configures Git to use the tracked hooks in `.githooks/`. That makes local `git pull` run `make install` automatically after merge-based pulls and rebase-based pulls.
+## AI Assistant
 
-This repo assumes several system tools already exist on the machine. See [system-tools.md](./system-tools.md) for the full list, then run `doctor` after install to verify what is available on the current machine.
+`make install` installs `ai-assistant` and keeps its background digest job loaded.
 
-## Shared Shell Commands
+```bash
+ai-assistant status
+ai-assistant digest
+ai-assistant logs -f
+```
 
-`make install` installs these commands into `~/bin`:
+Digest feedback is written to `ai-feedback.md` in the synced note vault, so it is visible from Mac, Android, and iOS. Local command status and logs stay under `~/.config/ai-assistant/`.
 
-- `gbr`
-- `hugeicons`
-- `remote`
-- `remote-tinker`
-- `remote-info`
-- `hosts`
-- `doctor`
+## Map
+
+- `content/base-rules.md` - shared agent rules.
+- `content/skills/` - managed local skills.
+- `config/` and `src/` - install and generator logic.
+- `shell/` - synced shell commands.
+- `system-tools.md` - local command requirements.
+- `AGENTS.md` - repo editing rules.
 
 ## License
 
