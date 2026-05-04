@@ -18,6 +18,10 @@ interface AssistantState {
   lastDigestedHash?: string;
   lastDigestedAt?: string;
   lastFeedbackAt?: string;
+  lastNotifiedAt?: string;
+  consecutiveDigestFailures?: number;
+  digestStoppedAt?: string;
+  lastFailureReason?: string;
 }
 
 interface CommandResult {
@@ -40,8 +44,14 @@ const LOG_DIR = join(STATE_DIR, "logs");
 const LAUNCH_AGENT_LABEL = "com.malkhudhari.ai-assistant.digest";
 const LAUNCH_AGENT_PLIST = join(HOME, "Library", "LaunchAgents", `${LAUNCH_AGENT_LABEL}.plist`);
 const STABLE_SECONDS = 300;
+const MAX_CONSECUTIVE_FAILURES = 3;
 const LAST_DIGEST_MESSAGE = join(STATE_DIR, "last-digest-message.md");
 const FEEDBACK_FILE = "ai-feedback.md";
+const CODEX_REASONING_EFFORT = "medium";
+const NTFY_HOST = "ntfy.sh";
+const NTFY_TOPIC = "ai-assistant-993ea5c4212b4562837fb9f12e955b69";
+const NTFY_TIMEOUT_MS = 10_000;
+const NOTIFICATION_MAX_LENGTH = 160;
 const OBSIDIAN_TIMEOUT_MS = 30_000;
 const CODEX_TIMEOUT_MS = 30 * 60_000;
 
@@ -99,10 +109,11 @@ function usage(): void {
   console.log(`Usage: ai-assistant <command>
 
 Commands:
-  digest      Check the inbox and run AI digestion after it is stable for 5 minutes.
+  digest      Check the inbox and run AI digestion after it is stable for 5 minutes. Pass --force to skip waiting.
   install     Install and load the LaunchAgent that runs digest every minute.
   uninstall   Unload and remove the LaunchAgent.
   status      Show vault, state, lock, and LaunchAgent status.
+  notify-test Send a test Mac and ntfy notification to the fixed topic.
   logs        Print recent digest logs. Pass -f to follow.`);
 }
 
@@ -233,6 +244,10 @@ async function patchState(updates: Partial<AssistantState>, deleteKeys: Array<ke
   await writeState({ ...state, ...updates });
 }
 
+async function resetDigestFailures(): Promise<void> {
+  await patchState({ consecutiveDigestFailures: 0 }, ["failedAt", "digestStoppedAt", "lastFailureReason"]);
+}
+
 async function computeInboxHash(): Promise<string> {
   const inbox = await run("obsidian", ["read", "path=inbox/inbox.md"], { timeoutMs: OBSIDIAN_TIMEOUT_MS });
   const files = await run("obsidian", ["files", "folder=inbox"], { timeoutMs: OBSIDIAN_TIMEOUT_MS });
@@ -292,6 +307,85 @@ async function publishFeedback(status: string, body: string[]): Promise<void> {
   } catch (error) {
     console.error(`warning: could not update ${FEEDBACK_FILE}: ${(error as Error).message}`);
   }
+}
+
+function ntfySubscribeUrl(topic: string): string {
+  return `https://${NTFY_HOST}/${topic}`;
+}
+
+function ntfyDeepLink(topic: string): string {
+  return `ntfy://${NTFY_HOST}/${topic}?display=AI+Assistant`;
+}
+
+async function notifyMac(title: string, message: string): Promise<void> {
+  const result = await run(
+    "osascript",
+    [
+      "-e",
+      "on run argv",
+      "-e",
+      "display notification (item 2 of argv) with title (item 1 of argv)",
+      "-e",
+      "end run",
+      title,
+      message,
+    ],
+    { timeoutMs: NTFY_TIMEOUT_MS }
+  );
+
+  if (result.status) {
+    throw new Error(result.stderr.trim() || "macOS notification failed");
+  }
+}
+
+async function notifyNtfy(title: string, message: string): Promise<string> {
+  const response = await fetch(ntfySubscribeUrl(NTFY_TOPIC), {
+    method: "POST",
+    body: message,
+    headers: {
+      Title: title,
+      Priority: "default",
+    },
+    signal: AbortSignal.timeout(NTFY_TIMEOUT_MS),
+  });
+
+  if (!response.ok) {
+    throw new Error(`ntfy returned HTTP ${response.status}`);
+  }
+
+  return NTFY_TOPIC;
+}
+
+async function notify(title: string, message: string): Promise<void> {
+  let sent = false;
+
+  try {
+    await notifyMac(title, message);
+    sent = true;
+  } catch (error) {
+    console.error(`warning: macOS notification failed: ${(error as Error).message}`);
+  }
+
+  try {
+    await notifyNtfy(title, message);
+    sent = true;
+  } catch (error) {
+    console.error(`warning: ntfy notification failed: ${(error as Error).message}`);
+  }
+
+  if (sent) {
+    await patchState({ lastNotifiedAt: nowIso() });
+  }
+}
+
+async function notifyTest(): Promise<void> {
+  await ensureStateDirs();
+  await notify("AI Assistant", "Notification test from ai-assistant.");
+
+  log("notification test sent");
+  log(`ntfy topic: ${NTFY_TOPIC}`);
+  log(`subscribe: ${ntfySubscribeUrl(NTFY_TOPIC)}`);
+  log(`phone link: ${ntfyDeepLink(NTFY_TOPIC)}`);
 }
 
 function pidIsAlive(pid: string): boolean {
@@ -357,19 +451,32 @@ function digestPrompt(): string {
   return `Use the _ai-assistant skill.
 
 Background digest mode:
+- Personality: be friendly, playful, personal, and allowed to have fun, while staying useful and respectful of private content.
 - Use the \`obsidian\` CLI for vault reads/writes.
 - Do not read or write vault files directly; use \`obsidian read path=...\`, \`obsidian append path=...\`, \`obsidian create path=...\`, and related CLI commands.
 - Confirm the active vault, then read \`ai-prompt.md\`.
 - Read \`inbox/inbox.md\` and inspect inbox media.
 - Process only clear entries.
+- When a clear entry is related to a project whose repo exists under \`~/PhpstormProjects\`, inspect relevant repo context read-only before writing the distilled task. Example: for "add Google auth to Awraq", read auth-related files in the Awraq repo before writing the task/spec.
 - Append distilled content to the existing destination file.
 - Clean only the digested source entries from \`inbox/inbox.md\`.
 - If an entry is unclear, leave it in the inbox and do not guess.
 - Do not write \`ai-feedback.md\`; the \`ai-assistant\` CLI publishes digest receipts after you finish.
+- You control successful digest notifications yourself. If a notification is useful, send it yourself during the digest using macOS Notification Center and/or \`curl\` to \`https://${NTFY_HOST}/${NTFY_TOPIC}\`.
+- Keep notification text under ${NOTIFICATION_MAX_LENGTH} characters, plain text, useful on Mac/Android, and do not include credential values, sensitive content, long links, or raw inbox text.
+- Do not ask the wrapper to send success notifications and do not emit notification-marker lines.
 - Do not print credential values.`;
 }
 
-async function runCodexDigest(): Promise<void> {
+async function readLastDigestMessage(): Promise<string> {
+  if (!existsSync(LAST_DIGEST_MESSAGE)) {
+    return "";
+  }
+
+  return readFile(LAST_DIGEST_MESSAGE, "utf8");
+}
+
+async function runCodexDigest(): Promise<string> {
   requireTool("codex", "Install/configure the Codex CLI, then retry.");
   await rm(LAST_DIGEST_MESSAGE, { force: true });
 
@@ -382,6 +489,8 @@ async function runCodexDigest(): Promise<void> {
       "--skip-git-repo-check",
       "--sandbox",
       "danger-full-access",
+      "-c",
+      `model_reasoning_effort="${CODEX_REASONING_EFFORT}"`,
       "--output-last-message",
       LAST_DIGEST_MESSAGE,
       digestPrompt(),
@@ -393,27 +502,34 @@ async function runCodexDigest(): Promise<void> {
     throw new Error(result.stderr.trim() || "Codex digest failed.");
   }
 
-  if (existsSync(LAST_DIGEST_MESSAGE)) {
-    const message = await readFile(LAST_DIGEST_MESSAGE, "utf8");
-    if (/unable to find Obsidian|cannot proceed|can't proceed|please open Obsidian/i.test(message)) {
-      process.stderr.write(message);
-      throw new Error("Codex digest could not access Obsidian.");
-    }
+  const message = await readLastDigestMessage();
+  if (/unable to find Obsidian|cannot proceed|can't proceed|please open Obsidian/i.test(message)) {
+    process.stderr.write(message);
+    throw new Error("Codex digest could not access Obsidian.");
   }
+
+  return message;
 }
 
-async function digest(): Promise<void> {
+async function digest(args: string[] = []): Promise<void> {
   const release = await acquireLock();
 
   try {
     requireTool("bun", `Bun is needed to run ${APP_NAME}.`);
+    const existingState = await readState();
+    if (existingState.digestStoppedAt) {
+      log(`digest stopped after ${existingState.consecutiveDigestFailures || MAX_CONSECUTIVE_FAILURES} consecutive failures`);
+      return;
+    }
+
     await vaultPath();
 
     const currentHash = await computeInboxHash();
     const state = await readState();
     const nowEpoch = Math.floor(Date.now() / 1000);
+    const force = args.includes("--force");
 
-    if (currentHash !== state.inboxHash) {
+    if (currentHash !== state.inboxHash && !force) {
       await patchState({
         inboxHash: currentHash,
         changedAt: nowIso(),
@@ -428,8 +544,17 @@ async function digest(): Promise<void> {
       return;
     }
 
+    if (currentHash !== state.inboxHash) {
+      await patchState({
+        inboxHash: currentHash,
+        changedAt: nowIso(),
+        changedAtEpoch: String(nowEpoch),
+      });
+      log("force digest requested; skipping stability wait");
+    }
+
     if (currentHash === state.lastDigestedHash) {
-      await patchState({ lastStatus: "idle", checkedAt: nowIso() }, ["failedAt"]);
+      await patchState({ lastStatus: "idle", checkedAt: nowIso(), consecutiveDigestFailures: 0 }, ["failedAt", "lastFailureReason"]);
       log("inbox already digested");
       return;
     }
@@ -437,22 +562,54 @@ async function digest(): Promise<void> {
     const changedAtEpoch = Number(state.changedAtEpoch || 0);
     const ageSeconds = nowEpoch - changedAtEpoch;
 
-    if (ageSeconds < STABLE_SECONDS) {
+    if (ageSeconds < STABLE_SECONDS && !force) {
       await patchState({ lastStatus: "waiting-for-stability", checkedAt: nowIso() });
       log(`inbox stable for ${ageSeconds}s; waiting until ${STABLE_SECONDS}s`);
       return;
     }
 
     await patchState({ lastStatus: "running", startedAt: nowIso() });
+    await publishFeedback("Running", [
+      "Inbox stayed unchanged for 5 minutes. Digest started.",
+      "The AI will decide whether the finish notification is useful and what it should say.",
+    ]);
 
     try {
       await runCodexDigest();
     } catch (error) {
-      await patchState({ lastStatus: "failed", failedAt: nowIso() });
-      await publishFeedback("Failed", [
-        "Digest started but did not complete.",
-        "The inbox was left in place so nothing is silently lost.",
-      ]);
+      const failureReason = (error as Error).message;
+      const latestState = await readState();
+      const failureCount = (latestState.consecutiveDigestFailures || 0) + 1;
+      const updates: Partial<AssistantState> = {
+        lastStatus: "failed",
+        failedAt: nowIso(),
+        consecutiveDigestFailures: failureCount,
+        lastFailureReason: failureReason,
+      };
+
+      if (failureCount >= MAX_CONSECUTIVE_FAILURES) {
+        updates.lastStatus = "stopped-after-failures";
+        updates.digestStoppedAt = nowIso();
+      }
+
+      await patchState(updates);
+
+      if (failureCount >= MAX_CONSECUTIVE_FAILURES) {
+        await publishFeedback("Stopped", [
+          `Digest failed ${failureCount} times in a row and has stopped.`,
+          "The inbox was left in place so nothing is silently lost.",
+          "Fix the failure, then run `make install` or `ai-assistant install` to start it again.",
+        ]);
+        await notify("AI Assistant", "Digest stopped after 3 consecutive failures.");
+        stopLaunchAgentSoon();
+      } else {
+        await publishFeedback("Failed", [
+          `Digest failed ${failureCount}/${MAX_CONSECUTIVE_FAILURES} times in a row.`,
+          "The inbox was left in place so nothing is silently lost.",
+        ]);
+        await notify("AI Assistant", `Digest failed ${failureCount}/${MAX_CONSECUTIVE_FAILURES}. Inbox was left in place.`);
+      }
+
       throw error;
     }
 
@@ -463,12 +620,12 @@ async function digest(): Promise<void> {
         lastDigestedHash: postHash,
         lastDigestedAt: nowIso(),
         lastStatus: "done",
+        consecutiveDigestFailures: 0,
       },
-      ["failedAt"]
+      ["failedAt", "digestStoppedAt", "lastFailureReason"]
     );
     await publishFeedback("Done", [
-      "Digest completed after the inbox stayed unchanged for 5 minutes.",
-      "Clear entries, if any, were moved to their destination files. Unclear entries stayed in `inbox/inbox.md`.",
+      "Digest completed.",
     ]);
     log("digest completed");
   } finally {
@@ -496,6 +653,16 @@ function launchAgentDomain(): string {
 
 function launchAgentTarget(): string {
   return `${launchAgentDomain()}/${LAUNCH_AGENT_LABEL}`;
+}
+
+function stopLaunchAgentSoon(): void {
+  const script = `sleep 2; launchctl bootout ${JSON.stringify(launchAgentDomain())} ${JSON.stringify(LAUNCH_AGENT_PLIST)} >/dev/null 2>&1`;
+  const child = spawn("sh", ["-c", script], {
+    detached: true,
+    stdio: "ignore",
+  });
+
+  child.unref();
 }
 
 function launchAgentPlistContent(commandFile: string): string {
@@ -537,6 +704,8 @@ async function installLaunchAgent(): Promise<void> {
   }
 
   const plistContent = launchAgentPlistContent(commandFile);
+  await resetDigestFailures();
+
   if (existsSync(LAUNCH_AGENT_PLIST) && readFileSync(LAUNCH_AGENT_PLIST, "utf8") === plistContent && await launchAgentLoaded()) {
     log(`${LAUNCH_AGENT_LABEL} already installed`);
     return;
@@ -590,10 +759,17 @@ async function status(): Promise<void> {
     log(`changedAt: ${state.changedAt || "none"}`);
     log(`lastDigestedAt: ${state.lastDigestedAt || "none"}`);
     log(`lastFeedbackAt: ${state.lastFeedbackAt || "none"}`);
+    log(`lastNotifiedAt: ${state.lastNotifiedAt || "none"}`);
+    log(`consecutiveDigestFailures: ${state.consecutiveDigestFailures || 0}`);
+    log(`digestStoppedAt: ${state.digestStoppedAt || "none"}`);
+    log(`lastFailureReason: ${state.lastFailureReason || "none"}`);
   } else {
     log("state file: missing");
   }
 
+  log(`ntfyTopic: ${NTFY_TOPIC}`);
+  log(`ntfySubscribe: ${ntfySubscribeUrl(NTFY_TOPIC)}`);
+  log(`ntfyPhoneLink: ${ntfyDeepLink(NTFY_TOPIC)}`);
   log(`feedback: ${FEEDBACK_FILE}`);
 
   if (existsSync(LOCK_DIR)) {
@@ -641,7 +817,7 @@ async function main(): Promise<void> {
 
   switch (command) {
     case "digest":
-      await digest();
+      await digest(args);
       break;
     case "install":
       await installLaunchAgent();
@@ -651,6 +827,9 @@ async function main(): Promise<void> {
       break;
     case "status":
       await status();
+      break;
+    case "notify-test":
+      await notifyTest();
       break;
     case "logs":
       await logs(args);
