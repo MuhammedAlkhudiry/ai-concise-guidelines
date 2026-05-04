@@ -4,10 +4,10 @@
  * Internal generator used by `mise run install`.
  */
 
-import { readFile, writeFile, rm } from "fs/promises";
+import { writeFile, rm } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
-import { MODELS } from "../../config/models";
+import { createOpencodeConfig } from "../../config/opencode";
 import { MCP_SERVERS } from "../../config/mcp";
 import { ensureDir, copyDirAsync } from "../lib/fs";
 
@@ -23,9 +23,6 @@ const OUTPUT_DIR = join(ROOT_DIR, "output");
 // Tool-specific output directories
 const OPENCODE_DIR = join(OUTPUT_DIR, "opencode");
 const CODEX_DIR = join(OUTPUT_DIR, "codex");
-
-// Config files
-const CUSTOM_CONFIG = join(ROOT_DIR, "custom-opencode.json");
 
 // =============================================================================
 // OpenCode Generators
@@ -52,24 +49,9 @@ async function copyOpencodePlugins(): Promise<number> {
 async function generateOpencodeConfig(): Promise<void> {
   console.log("  [OpenCode] Generating config...");
 
-  if (!existsSync(CUSTOM_CONFIG)) {
-    console.log("    No custom-opencode.json found, skipping");
-    return;
-  }
-
-  const content = await readFile(CUSTOM_CONFIG, "utf-8");
-
-  // Replace model placeholders with actual model names
-  const processed = content
-    .replace(/<smart-model>/g, MODELS.smart)
-    .replace(/<fast-model>/g, MODELS.fast);
-
-  const config = JSON.parse(processed) as Record<string, unknown>;
-  config.mcp = MCP_SERVERS;
-
   await writeFile(
     join(OPENCODE_DIR, "opencode-config.json"),
-    JSON.stringify(config, null, 2) + "\n",
+    JSON.stringify(createOpencodeConfig("<home>"), null, 2) + "\n",
   );
   console.log("    Generated opencode-config.json");
 }

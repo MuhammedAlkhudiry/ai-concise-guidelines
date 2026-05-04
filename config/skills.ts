@@ -46,6 +46,16 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
+    repository: "https://github.com/callstackincubator/agent-device.git",
+    ref: "main",
+    skills: [
+      {
+        name: "agent-device",
+        sourcePath: "skills/agent-device",
+      },
+    ],
+  },
+  {
     repository: "https://github.com/mattpocock/skills.git",
     ref: "main",
     skills: [

@@ -14,6 +14,7 @@ import {
   type RemoteSkill,
   type RemoteSkillSource,
 } from "../../config/skills";
+import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { colors, print, printBox, printSeparator } from "../lib/print";
 import { validateRemoteSkillSources } from "../lib/validation";
@@ -194,13 +195,7 @@ async function installOpencode(): Promise<void> {
 
 async function mergeOpencodeConfigAsync(): Promise<void> {
   print.info(`Merging OpenCode config into ${OPENCODE_PATHS.config}...`);
-  const sourceFile = join(ROOT_DIR, "output", "opencode", "opencode-config.json");
-  if (!existsSync(sourceFile)) {
-    print.error("opencode-config.json not found. Run mise run install.");
-    return;
-  }
-  const configContent = (await readFile(sourceFile, "utf-8")).replace(/<home>/g, HOME);
-  const settings = JSON.parse(configContent) as Record<string, unknown>;
+  const settings = createOpencodeConfig(HOME);
   await ensureParentDir(OPENCODE_PATHS.config);
   let existingConfig: Record<string, unknown> = {};
   if (existsSync(OPENCODE_PATHS.config)) {
