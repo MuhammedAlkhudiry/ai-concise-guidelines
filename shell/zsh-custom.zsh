@@ -20,6 +20,17 @@ source "$ZSH/oh-my-zsh.sh"
 alias zsh="phpstorm ~/.zshrc"
 export EDITOR=phpstorm
 
+# --- Android/Java ---
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_HOME/emulator"
+export PATH="$PATH:$ANDROID_HOME/platform-tools"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"
+
+# --- Local Tools ---
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.composer/vendor/bin"
+fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
 # --- Laravel/DDEV ---
 alias a="ddev artisan"
 alias dl="ddev launch"
