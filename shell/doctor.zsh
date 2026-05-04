@@ -119,7 +119,7 @@ main() {
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
   check_tool ddev optional "Used by Laravel aliases in the synced zsh config."
   check_tool obsidian optional "Used by ai-assistant to read and update the personal vault."
-  check_tool codex optional "Used by ai-assistant to run inbox digestion."
+  check_tool codex optional "Used by ai-assistant to run the main agent."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool fzf optional "Used by project pickers and interactive hosts deletion."
 

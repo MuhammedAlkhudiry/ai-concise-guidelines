@@ -167,12 +167,12 @@ function usage(): void {
   log(`Usage: ${color.bold("ai-assistant <command>")}
 
 Commands:
-  ${color.green("digest".padEnd(12))}Check the inbox and digest after it is stable for 5 minutes. Pass --force to skip waiting.
-  ${color.green("install".padEnd(12))}Install and load the LaunchAgent that runs digest every minute.
+  ${color.green("digest".padEnd(12))}Run the main agent after the inbox is stable for 5 minutes. Pass --force to skip waiting.
+  ${color.green("install".padEnd(12))}Install and load the LaunchAgent that checks the inbox every minute.
   ${color.green("uninstall".padEnd(12))}Unload and remove the LaunchAgent.
   ${color.green("status".padEnd(12))}Show vault, state, lock, and LaunchAgent status.
   ${color.green("notify-test".padEnd(12))}Send a test Mac and ntfy notification to the fixed topic.
-  ${color.green("logs".padEnd(12))}Print recent digest logs. Pass -f to follow.`);
+  ${color.green("logs".padEnd(12))}Print recent main-agent logs. Pass -f to follow.`);
 }
 
 function commandPath(command: string): string | null {
@@ -488,7 +488,7 @@ async function acquireLock(): Promise<() => Promise<void>> {
     const existingPid = existsSync(pidFile) ? readFileSync(pidFile, "utf8").trim() : "";
 
     if (pidIsAlive(existingPid)) {
-      info(`digest already running with pid ${existingPid}`);
+      info(`main agent already running with pid ${existingPid}`);
       process.exit(0);
     }
 
@@ -561,13 +561,13 @@ async function runCodexDigest(): Promise<string> {
   );
 
   if (result.status) {
-    throw new Error(result.stderr.trim() || "Codex digest failed.");
+    throw new Error(result.stderr.trim() || "Codex main-agent run failed.");
   }
 
   const message = await readLastDigestMessage();
   if (/unable to find Obsidian|cannot proceed|can't proceed|please open Obsidian/i.test(message)) {
     process.stderr.write(message);
-    throw new Error("Codex digest could not access Obsidian.");
+    throw new Error("Codex main-agent run could not access Obsidian.");
   }
 
   return message;
@@ -581,7 +581,7 @@ async function digest(args: string[] = []): Promise<void> {
     const existingState = await readState();
     if (existingState.digestStoppedAt) {
       warning(
-        `digest stopped after ${existingState.consecutiveDigestFailures || MAX_CONSECUTIVE_FAILURES} consecutive failures`,
+        `main agent stopped after ${existingState.consecutiveDigestFailures || MAX_CONSECUTIVE_FAILURES} consecutive failures`,
       );
       return;
     }
@@ -601,10 +601,10 @@ async function digest(args: string[] = []): Promise<void> {
         lastStatus: "waiting-for-stability",
       });
       await publishFeedback("Waiting", [
-        "Inbox changed. I will digest it after it stays unchanged for 5 minutes.",
+        "Inbox changed. I will run the main agent after it stays unchanged for 5 minutes.",
         "You can keep editing from Mac, Android, or iOS; the timer resets when the synced inbox changes.",
       ]);
-      info(`inbox changed; waiting ${STABLE_SECONDS}s before digest`);
+      info(`inbox changed; waiting ${STABLE_SECONDS}s before main-agent run`);
       return;
     }
 
@@ -614,7 +614,7 @@ async function digest(args: string[] = []): Promise<void> {
         changedAt: nowIso(),
         changedAtEpoch: String(nowEpoch),
       });
-      info("force digest requested; skipping stability wait");
+      info("force requested; skipping stability wait");
     }
 
     if (currentHash === state.lastDigestedHash && !force) {
@@ -622,12 +622,12 @@ async function digest(args: string[] = []): Promise<void> {
         "failedAt",
         "lastFailureReason",
       ]);
-      success("inbox already digested");
+      success("inbox already handled");
       return;
     }
 
     if (currentHash === state.lastDigestedHash) {
-      info("force digest requested; digesting already-digested inbox");
+      info("force requested; running main agent on already-handled inbox");
     }
 
     const changedAtEpoch = Number(state.changedAtEpoch || 0);
@@ -641,7 +641,7 @@ async function digest(args: string[] = []): Promise<void> {
 
     await patchState({ lastStatus: "running", startedAt: nowIso() });
     await publishFeedback("Running", [
-      "Inbox stayed unchanged for 5 minutes. Digest started.",
+      "Inbox stayed unchanged for 5 minutes. Main agent started.",
       "The AI will decide whether the finish notification is useful and what it should say.",
     ]);
 
@@ -667,20 +667,20 @@ async function digest(args: string[] = []): Promise<void> {
 
       if (failureCount >= MAX_CONSECUTIVE_FAILURES) {
         await publishFeedback("Stopped", [
-          `Digest failed ${failureCount} times in a row and has stopped.`,
+          `Main agent failed ${failureCount} times in a row and has stopped.`,
           "The inbox was left in place so nothing is silently lost.",
           "Fix the failure, then run `mise run install` or `ai-assistant install` to start it again.",
         ]);
-        await notify("AI Assistant", "Digest stopped after 3 consecutive failures.");
+        await notify("AI Assistant", "Main agent stopped after 3 consecutive failures.");
         stopLaunchAgentSoon();
       } else {
         await publishFeedback("Failed", [
-          `Digest failed ${failureCount}/${MAX_CONSECUTIVE_FAILURES} times in a row.`,
+          `Main agent failed ${failureCount}/${MAX_CONSECUTIVE_FAILURES} times in a row.`,
           "The inbox was left in place so nothing is silently lost.",
         ]);
         await notify(
           "AI Assistant",
-          `Digest failed ${failureCount}/${MAX_CONSECUTIVE_FAILURES}. Inbox was left in place.`,
+          `Main agent failed ${failureCount}/${MAX_CONSECUTIVE_FAILURES}. Inbox was left in place.`,
         );
       }
 
@@ -698,8 +698,8 @@ async function digest(args: string[] = []): Promise<void> {
       },
       ["failedAt", "digestStoppedAt", "lastFailureReason"],
     );
-    await publishFeedback("Done", ["Digest completed."]);
-    success("digest completed");
+    await publishFeedback("Done", ["Main agent completed."]);
+    success("main agent completed");
   } finally {
     await release();
   }
@@ -834,7 +834,7 @@ async function status(): Promise<void> {
   const codexPath = commandPath("codex");
   printRow("codex", codexPath ? `${color.green("ok")} ${codexPath}` : statusValue("missing"));
 
-  printSection("Digest");
+  printSection("Main Agent");
   if (existsSync(STATE_FILE)) {
     const state = await readState();
     printRow("last status", statusValue(state.lastStatus || "unknown"));
