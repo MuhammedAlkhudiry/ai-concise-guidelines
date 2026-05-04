@@ -17,7 +17,7 @@ readonly CLI_PATH="${AI_ASSISTANT_CLI:-$HOME/PhpstormProjects/ai-concise-guideli
 
 if [[ ! -f "$CLI_PATH" ]]; then
   printf 'error: ai-assistant CLI not found at %s\n' "$CLI_PATH" >&2
-  printf 'Run make install from ~/PhpstormProjects/ai-concise-guidelines after updating the repo.\n' >&2
+  printf 'Run mise run install from ~/PhpstormProjects/ai-concise-guidelines after updating the repo.\n' >&2
   exit 1
 fi
 

@@ -3,6 +3,7 @@
 Personal source of truth for my Codex and OpenCode rules, skills, shell helpers, and local assistant setup.
 
 ```bash
-make install
+mise run install
+mise run check
 doctor
 ```

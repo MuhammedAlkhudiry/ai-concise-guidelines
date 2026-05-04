@@ -9,3 +9,6 @@
 *.iml
 out
 gen
+
+# JavaScript dependencies
+node_modules

@@ -21,7 +21,7 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 
 ## Command Selection
 
-- Prefer repo-level commands such as `make check` when they already cover multiple categories.
+- Prefer repo-level commands such as `mise run check` or `make check` when they already cover multiple categories.
 - Use exact runnable commands only. No guesses, placeholders, or "pick one" lists.
 - Prefer the built-in parallel form of a command when the tool supports it, such as `php artisan test --parallel`.
 - Keep `CHECKLIST.md` as plain command lines, one command per line.

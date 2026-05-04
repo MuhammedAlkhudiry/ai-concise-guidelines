@@ -4,7 +4,6 @@
  */
 
 export const MODELS = {
-    smart: "anthropic/claude-opus-4-6",
-    fast: "anthropic/claude-haiku-4-5",
+  smart: "opencode/kimi-k2.6",
+  fast: "opencode/kimi-k2.6",
 } as const;
-

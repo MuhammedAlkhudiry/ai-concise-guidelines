@@ -1,24 +1,29 @@
 #!/usr/bin/env bun
 
 /**
- * Internal local installer used by `make install`.
+ * Internal local installer used by `mise run install`.
  */
 
 import { existsSync, copyFileSync } from "fs";
 import { readFile, writeFile, copyFile, chmod, readdir, rm, mkdtemp } from "fs/promises";
 import { join } from "path";
-import { execSync } from "child_process";
 import { tmpdir } from "os";
-import { colors, print, printBox, printSeparator } from "./print";
-import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "./fs";
-import { REMOTE_SKILL_SOURCES, type RemoteSkill, type RemoteSkillSource } from "../config/skills";
+import { execa } from "execa";
+import {
+  REMOTE_SKILL_SOURCES,
+  type RemoteSkill,
+  type RemoteSkillSource,
+} from "../../config/skills";
+import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
+import { colors, print, printBox, printSeparator } from "../lib/print";
+import { validateRemoteSkillSources } from "../lib/validation";
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 const HOME = process.env.HOME || "";
-const ROOT_DIR = join(import.meta.dir, "..");
+const ROOT_DIR = join(import.meta.dir, "..", "..");
 
 // =============================================================================
 // Destination Paths
@@ -44,7 +49,8 @@ const SHARED_PATHS = {
 };
 
 const USER_ZSHRC_HEADER = "# Managed shell config lives in ai-concise-guidelines.";
-const USER_ZSHRC_IMPORT = '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
+const USER_ZSHRC_IMPORT =
+  '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
 
 const SHARED_BIN_COMMANDS = [
   { name: "ai-assistant", source: "ai-assistant.zsh" },
@@ -91,7 +97,7 @@ function copyCodexRules(): void {
 
 function getManagedMcpServerNames(managedContent: string): Set<string> {
   return new Set(
-    Array.from(managedContent.matchAll(/^\[mcp_servers\.([^\]]+)\]\s*$/gm), ([, name]) => name)
+    Array.from(managedContent.matchAll(/^\[mcp_servers\.([^\]]+)\]\s*$/gm), ([, name]) => name),
   );
 }
 
@@ -145,7 +151,7 @@ async function assertThinUserZshrc(): Promise<void> {
   }
 
   print.error(`${SHARED_PATHS.zshrc} must only import ${SHARED_PATHS.zsh}.`);
-  print.error("Move custom shell code into shell/zsh-custom.zsh, then run make install again.");
+  print.error("Move custom shell code into shell/zsh-custom.zsh, then run mise run install again.");
   print.error(`Expected ${SHARED_PATHS.zshrc}:\n${USER_ZSHRC_HEADER}\n${USER_ZSHRC_IMPORT}`);
   process.exit(1);
 }
@@ -155,6 +161,7 @@ async function assertThinUserZshrc(): Promise<void> {
 // =============================================================================
 
 async function installSharedSkills(): Promise<void> {
+  const remoteSkillSources = validateRemoteSkillSources(REMOTE_SKILL_SOURCES);
   const src = join(ROOT_DIR, "content", "skills");
   if (!existsSync(src)) {
     print.error("Skills folder not found");
@@ -164,7 +171,7 @@ async function installSharedSkills(): Promise<void> {
     src,
     dest: SHARED_PATHS.skills,
     label: "shared skills",
-    remoteSkillSources: REMOTE_SKILL_SOURCES,
+    remoteSkillSources,
   });
 }
 
@@ -189,7 +196,7 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
   print.info(`Merging OpenCode config into ${OPENCODE_PATHS.config}...`);
   const sourceFile = join(ROOT_DIR, "output", "opencode", "opencode-config.json");
   if (!existsSync(sourceFile)) {
-    print.error("opencode-config.json not found. Run make install.");
+    print.error("opencode-config.json not found. Run mise run install.");
     return;
   }
   const configContent = (await readFile(sourceFile, "utf-8")).replace(/<home>/g, HOME);
@@ -208,16 +215,16 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
     model: settings.model,
     small_model: settings.small_model,
     keybinds: {
-      ...((existingConfig.keybinds as Record<string, unknown>) || {}),
-      ...((settings.keybinds as Record<string, unknown>) || {}),
+      ...(existingConfig.keybinds as Record<string, unknown>),
+      ...(settings.keybinds as Record<string, unknown>),
     },
     permission: {
-      ...((existingConfig.permission as Record<string, unknown>) || {}),
-      ...((settings.permission as Record<string, unknown>) || {}),
+      ...(existingConfig.permission as Record<string, unknown>),
+      ...(settings.permission as Record<string, unknown>),
     },
     agent: {
-      ...((existingConfig.agent as Record<string, unknown>) || {}),
-      ...((settings.agent as Record<string, unknown>) || {}),
+      ...(existingConfig.agent as Record<string, unknown>),
+      ...(settings.agent as Record<string, unknown>),
     },
     plugin: settings.plugin,
     mcp: settings.mcp,
@@ -235,7 +242,7 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
   print.info(`Merging Codex MCP config into ${CODEX_PATHS.config}...`);
   const sourceFile = join(ROOT_DIR, "output", "codex", "mcp-servers.toml");
   if (!existsSync(sourceFile)) {
-    print.error("mcp-servers.toml not found. Run make install.");
+    print.error("mcp-servers.toml not found. Run mise run install.");
     return;
   }
   const managedContent = (await readFile(sourceFile, "utf-8")).trimEnd();
@@ -243,12 +250,17 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
   const endMarker = "# <<< ai-concise-guidelines mcp <<<";
   const managedBlock = `${startMarker}\n${managedContent}\n${endMarker}\n`;
   await ensureParentDir(CODEX_PATHS.config);
-  const existing = existsSync(CODEX_PATHS.config) ? await readFile(CODEX_PATHS.config, "utf-8") : "";
+  const existing = existsSync(CODEX_PATHS.config)
+    ? await readFile(CODEX_PATHS.config, "utf-8")
+    : "";
   const escapedStart = startMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const escapedEnd = endMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const managedPattern = new RegExp(`${escapedStart}[\\s\\S]*?${escapedEnd}\\n?`, "g");
   const orphanMarkerPattern = new RegExp(`^(${escapedStart}|${escapedEnd})\\s*$\\n?`, "gm");
-  const previousManagedContent = Array.from(existing.matchAll(managedPattern), (match) => match[0]).join("\n");
+  const previousManagedContent = Array.from(
+    existing.matchAll(managedPattern),
+    (match) => match[0],
+  ).join("\n");
   const previousManagedServerNames = getManagedMcpServerNames(previousManagedContent);
   const currentManagedServerNames = getManagedMcpServerNames(managedContent);
   const managedServerNames = new Set([...previousManagedServerNames, ...currentManagedServerNames]);
@@ -300,10 +312,9 @@ async function installShared(): Promise<void> {
   } else {
     print.success("PATH entry already present in .zshenv");
   }
-
 }
 
-function installAiAssistantLaunchAgent(): void {
+async function installAiAssistantLaunchAgent(): Promise<void> {
   const commandPath = join(SHARED_PATHS.binDir, "ai-assistant");
   if (!existsSync(commandPath)) {
     print.error("ai-assistant command not found after install");
@@ -313,7 +324,7 @@ function installAiAssistantLaunchAgent(): void {
   print.info("Ensuring ai-assistant LaunchAgent is installed...");
 
   try {
-    execSync(`${JSON.stringify(commandPath)} install`, {
+    await execa(commandPath, ["install"], {
       stdio: "inherit",
       env: process.env,
     });
@@ -324,7 +335,7 @@ function installAiAssistantLaunchAgent(): void {
   }
 }
 
-function configureRepoGitHooks(): void {
+async function configureRepoGitHooks(): Promise<void> {
   const gitDir = join(ROOT_DIR, ".git");
   const hooksDir = join(ROOT_DIR, ".githooks");
 
@@ -335,9 +346,8 @@ function configureRepoGitHooks(): void {
   print.info(`Configuring repo git hooks from ${hooksDir}...`);
 
   try {
-    execSync(`git config core.hooksPath ${JSON.stringify(hooksDir)}`, {
+    await execa("git", ["config", "core.hooksPath", hooksDir], {
       cwd: ROOT_DIR,
-      stdio: "pipe",
     });
     print.success("Repo git hooks configured");
   } catch {
@@ -381,7 +391,9 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     }
   }
 
-  const deletedManagedSkills = previousSkillNames.filter((skillName) => !managedSkillNames.includes(skillName));
+  const deletedManagedSkills = previousSkillNames.filter(
+    (skillName) => !managedSkillNames.includes(skillName),
+  );
 
   for (const skillName of deletedManagedSkills) {
     const installedSkillPath = join(dest, skillName);
@@ -410,22 +422,30 @@ async function installRemoteSkillSource(source: RemoteSkillSource, dest: string)
 
   const tempDir = await mkdtemp(join(tmpdir(), "ai-concise-skills-"));
   const repoDir = join(tempDir, "repo");
-  const sparsePaths = source.skills.map((skill) => JSON.stringify(skill.sourcePath)).join(" ");
 
   try {
-    execSync(
+    await execa(
+      "git",
       [
-        "git clone --depth=1 --filter=blob:none --sparse",
-        `--branch ${JSON.stringify(source.ref)}`,
-        JSON.stringify(source.repository),
-        JSON.stringify(repoDir),
-      ].join(" "),
-      { stdio: "pipe" }
+        "clone",
+        "--depth=1",
+        "--filter=blob:none",
+        "--sparse",
+        "--branch",
+        source.ref,
+        source.repository,
+        repoDir,
+      ],
+      { stdio: "pipe" },
     );
-    execSync(`git sparse-checkout set --no-cone ${sparsePaths}`, {
-      cwd: repoDir,
-      stdio: "pipe",
-    });
+    await execa(
+      "git",
+      ["sparse-checkout", "set", "--no-cone", ...source.skills.map((skill) => skill.sourcePath)],
+      {
+        cwd: repoDir,
+        stdio: "pipe",
+      },
+    );
 
     for (const skill of source.skills) {
       await installRemoteSkill(skill, repoDir, dest);
@@ -435,7 +455,11 @@ async function installRemoteSkillSource(source: RemoteSkillSource, dest: string)
   }
 }
 
-async function installRemoteSkill(skill: RemoteSkill, repoDir: string, dest: string): Promise<void> {
+async function installRemoteSkill(
+  skill: RemoteSkill,
+  repoDir: string,
+  dest: string,
+): Promise<void> {
   const skillSrc = join(repoDir, skill.sourcePath);
   if (!existsSync(join(skillSrc, "SKILL.md"))) {
     throw new Error(`Remote skill ${skill.name} is missing SKILL.md at ${skill.sourcePath}`);
@@ -457,7 +481,7 @@ async function normalizeRemoteSkillName(skillPath: string, skillName: string): P
 // Main
 // =============================================================================
 
-async function main() {
+export async function install(): Promise<void> {
   console.log();
   printBox("AI Concise Guidelines - Installer");
   console.log();
@@ -474,33 +498,34 @@ async function main() {
   console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));
-  console.log(`    Skills:   ${SHARED_PATHS.skills} (managed sync, prune removed, preserve others)`);
+  console.log(
+    `    Skills:   ${SHARED_PATHS.skills} (managed sync, prune removed, preserve others)`,
+  );
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
-  console.log(`    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`);
+  console.log(
+    `    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`,
+  );
   printSeparator();
   console.log();
 
   await assertThinUserZshrc();
-  configureRepoGitHooks();
+  await configureRepoGitHooks();
 
   console.log();
   console.log(colors.blue("Installing in parallel..."));
-  await Promise.all([
-    installSharedSkills(),
-    installOpencode(),
-    installCodex(),
-    installShared(),
-  ]);
+  await Promise.all([installSharedSkills(), installOpencode(), installCodex(), installShared()]);
 
-  installAiAssistantLaunchAgent();
+  await installAiAssistantLaunchAgent();
 
   console.log();
   printBox("Installation completed successfully!", "green");
   console.log();
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (import.meta.main) {
+  install().catch((err: Error) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

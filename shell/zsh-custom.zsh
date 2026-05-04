@@ -123,7 +123,7 @@ gbr() {
     fi
 
     echo "gbr executable not found at $HOME/bin/gbr"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -134,7 +134,7 @@ hugeicons() {
     fi
 
     echo "hugeicons executable not found at $HOME/bin/hugeicons"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -154,7 +154,7 @@ function remote() {
     fi
 
     echo "remote executable not found at $HOME/bin/remote"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -165,7 +165,7 @@ function remote-tinker() {
     fi
 
     echo "remote-tinker executable not found at $HOME/bin/remote-tinker"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -176,7 +176,7 @@ function remote-info() {
     fi
 
     echo "remote-info executable not found at $HOME/bin/remote-info"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -226,7 +226,7 @@ hosts() {
     fi
 
     echo "hosts executable not found at $HOME/bin/hosts"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 
@@ -237,7 +237,7 @@ doctor() {
     fi
 
     echo "doctor executable not found at $HOME/bin/doctor"
-    echo "Run make install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
     return 1
 }
 

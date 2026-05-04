@@ -12,10 +12,9 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 | Tool | Why this repo assumes it |
 | --- | --- |
-| `bun` | Runtime used internally by `make install`. |
+| `bun` | Runtime used internally by `mise run install`. |
 | `git` | Used for remote skill checkout, hook setup, and shared git helpers. |
-| `make` | Powers the only supported local install workflow. |
-| `mise` | Manages global runtimes instead of NVM. |
+| `mise` | Powers the supported local task workflow and manages global runtimes instead of NVM. |
 | `zsh` | All shared shell commands are shipped as Zsh scripts. |
 
 ## Shell And Helper Integrations

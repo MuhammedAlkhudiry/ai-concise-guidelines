@@ -1,21 +1,21 @@
 #!/usr/bin/env bun
 
 /**
- * Internal generator used by `make install`.
+ * Internal generator used by `mise run install`.
  */
 
 import { readFile, writeFile, rm } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
-import { MODELS } from "../config/models";
-import { MCP_SERVERS } from "../config/mcp";
-import { ensureDir, copyDirAsync } from "./fs";
+import { MODELS } from "../../config/models";
+import { MCP_SERVERS } from "../../config/mcp";
+import { ensureDir, copyDirAsync } from "../lib/fs";
 
 // =============================================================================
 // Paths
 // =============================================================================
 
-const ROOT_DIR = join(import.meta.dir, "..");
+const ROOT_DIR = join(import.meta.dir, "..", "..");
 const CONTENT_DIR = join(ROOT_DIR, "content");
 const PLUGINS_DIR = join(ROOT_DIR, "plugins");
 const OUTPUT_DIR = join(ROOT_DIR, "output");
@@ -69,7 +69,7 @@ async function generateOpencodeConfig(): Promise<void> {
 
   await writeFile(
     join(OPENCODE_DIR, "opencode-config.json"),
-    JSON.stringify(config, null, 2) + "\n"
+    JSON.stringify(config, null, 2) + "\n",
   );
   console.log("    Generated opencode-config.json");
 }
@@ -114,7 +114,7 @@ async function generateCodexMcpConfig(): Promise<number> {
   return serverNames.length;
 }
 
-async function main() {
+export async function generate(): Promise<void> {
   console.log("\nGenerating files for OpenCode and Codex...\n");
 
   if (!existsSync(CONTENT_DIR)) {
@@ -153,7 +153,9 @@ async function main() {
   console.log(`  Codex:       ${codexMcpCount} MCP servers`);
 }
 
-main().catch((err) => {
-  console.error("ERROR:", err.message);
-  process.exit(1);
-});
+if (import.meta.main) {
+  generate().catch((err: Error) => {
+    console.error("ERROR:", err.message);
+    process.exit(1);
+  });
+}

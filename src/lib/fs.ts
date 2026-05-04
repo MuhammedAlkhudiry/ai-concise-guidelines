@@ -2,14 +2,7 @@
  * Shared filesystem utilities
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  copyFileSync,
-  rmSync,
-  statSync,
-} from "fs";
+import { existsSync, mkdirSync, readdirSync, copyFileSync, rmSync, statSync } from "fs";
 import { mkdir, rm, readdir, copyFile } from "fs/promises";
 import { dirname, join } from "path";
 
@@ -141,7 +134,7 @@ export async function copyDirAsync(options: CopyDirOptions): Promise<number> {
  */
 export function countInDir(
   dir: string,
-  options: { type: "file" | "dir"; extensions?: string[] }
+  options: { type: "file" | "dir"; extensions?: string[] },
 ): number {
   if (!existsSync(dir)) return 0;
 

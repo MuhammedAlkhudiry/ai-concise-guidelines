@@ -1,0 +1,30 @@
+{
+  "name": "ai-concise-guidelines",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "bun src/cli.ts generate",
+    "install:local": "bun src/cli.ts install",
+    "doctor": "bun src/cli.ts doctor",
+    "ai": "bun src/cli.ts ai",
+    "format": "bun node_modules/oxfmt/dist/cli.js src/cli.ts src/commands src/lib src/ai-assistant config package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
+    "format:check": "bun node_modules/oxfmt/dist/cli.js --check src/cli.ts src/commands src/lib src/ai-assistant config package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
+    "lint": "bun node_modules/oxlint/dist/cli.js .",
+    "lint:fix": "bun node_modules/oxlint/dist/cli.js --fix .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun test"
+  },
+  "dependencies": {
+    "cac": "^7.0.0",
+    "execa": "^9.6.1",
+    "picocolors": "^1.1.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.13",
+    "oxfmt": "^0.47.0",
+    "oxlint": "^1.62.0",
+    "typescript": "^6.0.3"
+  }
+}

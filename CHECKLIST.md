@@ -1,1 +1,2 @@
-make install
+mise run install
+mise run check

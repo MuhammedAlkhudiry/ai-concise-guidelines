@@ -99,9 +99,9 @@ check_ai_assistant_launch_agent() {
   fi
 
   if [[ -f "$plist_file" ]]; then
-    note="LaunchAgent plist exists but is not loaded. Run make install."
+    note="LaunchAgent plist exists but is not loaded. Run mise run install."
   else
-    note="LaunchAgent plist is missing. Run make install."
+    note="LaunchAgent plist is missing. Run mise run install."
   fi
 
   print_missing required "ai-assistant" "$note"
@@ -110,10 +110,9 @@ check_ai_assistant_launch_agent() {
 
 main() {
   print_header "Core repo tools"
-  check_tool bun required "Runtime used internally by make install."
+  check_tool bun required "Runtime used internally by mise run install."
   check_tool git required "Needed for remote skill checkout, hooks, and shared git helpers."
-  check_tool make required "Needed for the only supported local install workflow."
-  check_tool mise required "Needed for global runtime management instead of NVM."
+  check_tool mise required "Needed for the supported local task workflow and global runtime management."
   check_tool zsh required "Needed by all installed shared shell commands."
 
   print_header "Shell and helper integrations"

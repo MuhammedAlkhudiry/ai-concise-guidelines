@@ -2,18 +2,17 @@
  * Colored console output utilities
  */
 
-const colors = {
-  red: (s: string) => `\x1b[31m${s}\x1b[0m`,
-  green: (s: string) => `\x1b[32m${s}\x1b[0m`,
-  yellow: (s: string) => `\x1b[33m${s}\x1b[0m`,
-  blue: (s: string) => `\x1b[34m${s}\x1b[0m`,
-  magenta: (s: string) => `\x1b[35m${s}\x1b[0m`,
-  cyan: (s: string) => `\x1b[36m${s}\x1b[0m`,
-  dim: (s: string) => `\x1b[2m${s}\x1b[0m`,
-  reset: (s: string) => `\x1b[0m${s}\x1b[0m`,
-};
+import pc from "picocolors";
 
-export { colors };
+export const colors = {
+  red: pc.red,
+  green: pc.green,
+  yellow: pc.yellow,
+  blue: pc.blue,
+  magenta: pc.magenta,
+  cyan: pc.cyan,
+  dim: pc.dim,
+};
 
 export const print = {
   error: (msg: string) => console.error(colors.red(`ERROR: ${msg}`)),

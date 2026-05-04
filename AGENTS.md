@@ -2,7 +2,7 @@
 - **PERSONAL-ONLY** — Treat this repo as personal infrastructure for its owner only; do not design for sharing, multi-user setup, or user-configurable distribution.
 - **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.
 - **NO-OUTPUT-EDITS** — Never edit `output/**` directly; regenerate from source.
-- **INSTALL** — Use `make install` as the only supported local sync/install command after changing content/config/generator behavior.
+- **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
 - **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep `doctor` in sync with that list.
 - **SKILL-STRUCTURE** — Each skill must live in `content/skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
 - **SKILL-NAMES** — Shared skill folder names and frontmatter `name` values must use the `_` prefix.

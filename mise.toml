@@ -1,0 +1,35 @@
+[tasks.install]
+description = "Generate outputs and install synced local config"
+run = "bun run install:local"
+
+[tasks.check]
+description = "Run all project checks"
+depends = ["format:check", "lint", "typecheck", "test"]
+
+[tasks.format]
+description = "Format TypeScript and project config files"
+run = "bun run format"
+
+[tasks."format:check"]
+description = "Check formatting for TypeScript and project config files"
+run = "bun run format:check"
+
+[tasks.lint]
+description = "Lint TypeScript files"
+run = "bun run lint"
+
+[tasks."lint:fix"]
+description = "Auto-fix lint issues"
+run = "bun run lint:fix"
+
+[tasks.typecheck]
+description = "Type-check TypeScript without emitting files"
+run = "bun run typecheck"
+
+[tasks.test]
+description = "Run Bun tests"
+run = "bun test"
+
+[tasks.doctor]
+description = "Check local required and optional tools"
+run = "bun run doctor"
