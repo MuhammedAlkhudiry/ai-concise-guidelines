@@ -83,4 +83,54 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
       },
     ],
   },
+  {
+    repository: "https://github.com/PostHog/ai-plugin.git",
+    ref: "main",
+    skills: [
+      {
+        name: "querying-posthog-data",
+        sourcePath: "skills/querying-posthog-data",
+      },
+      {
+        name: "investigate-metric",
+        sourcePath: "skills/investigate-metric",
+      },
+      {
+        name: "diagnosing-sdk-health",
+        sourcePath: "skills/diagnosing-sdk-health",
+      },
+    ],
+  },
+  {
+    repository: "https://github.com/getsentry/cli.git",
+    ref: "main",
+    skills: [
+      {
+        name: "sentry-cli",
+        sourcePath: "plugins/sentry-cli/skills/sentry-cli",
+      },
+    ],
+  },
+  {
+    repository: "https://github.com/getsentry/sentry-for-ai.git",
+    ref: "main",
+    skills: [
+      {
+        name: "sentry-php-sdk",
+        sourcePath: "skills/sentry-php-sdk",
+      },
+      {
+        name: "sentry-react-sdk",
+        sourcePath: "skills/sentry-react-sdk",
+      },
+      {
+        name: "sentry-react-native-sdk",
+        sourcePath: "skills/sentry-react-native-sdk",
+      },
+      {
+        name: "sentry-sdk-upgrade",
+        sourcePath: "skills/sentry-sdk-upgrade",
+      },
+    ],
+  },
 ];

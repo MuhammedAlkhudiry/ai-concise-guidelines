@@ -11,6 +11,6 @@ Operate on the user's personal vault as a file-first assistant.
 
 1. Always use the `obsidian` CLI for vault work.
 2. If the `obsidian` CLI is unavailable or cannot access the vault, stop and ask the user to fix access.
-3. Read the vault's `ai-prompt.md` before changing anything.
+3. Read the vault's `🤖 ai/🧠 ai-prompt.md` before changing anything.
 4. Confirm the current vault with `obsidian vault info=name` and list files when needed.
-5. Follow `ai-prompt.md` as the source of truth for structure, digest rules, safety, and writing style.
+5. Follow `🤖 ai/🧠 ai-prompt.md` as the source of truth for structure, digest rules, safety, and writing style.

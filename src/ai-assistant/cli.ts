@@ -48,13 +48,15 @@ const LAUNCH_AGENT_PLIST = join(HOME, "Library", "LaunchAgents", `${LAUNCH_AGENT
 const STABLE_SECONDS = 300;
 const MAX_CONSECUTIVE_FAILURES = 3;
 const LAST_DIGEST_MESSAGE = join(STATE_DIR, "last-digest-message.md");
-const FEEDBACK_FILE = "ai-feedback.md";
+const AI_PROMPT_FILE = "🤖 ai/🧠 ai-prompt.md";
+const FEEDBACK_FILE = "🤖 ai/📡 ai-feedback.md";
+const INBOX_FILE = "📥 inbox/📥 inbox.md";
+const INBOX_FOLDER = "📥 inbox";
 const VAULT_NAME = "muhammed";
 const CODEX_REASONING_EFFORT = "medium";
 const NTFY_HOST = "ntfy.sh";
 const NTFY_TOPIC = "ai-assistant-993ea5c4212b4562837fb9f12e955b69";
 const NTFY_TIMEOUT_MS = 10_000;
-const NOTIFICATION_MAX_LENGTH = 160;
 const OBSIDIAN_TIMEOUT_MS = 30_000;
 const CODEX_TIMEOUT_MS = 30 * 60_000;
 const color = pc.createColors(
@@ -319,26 +321,26 @@ async function resetDigestFailures(): Promise<void> {
 }
 
 async function computeInboxHash(): Promise<string> {
-  const inbox = await run("obsidian", ["read", "path=inbox/inbox.md"], {
+  const inbox = await run("obsidian", ["read", `path=${INBOX_FILE}`], {
     timeoutMs: OBSIDIAN_TIMEOUT_MS,
   });
-  const files = await run("obsidian", ["files", "folder=inbox"], {
+  const files = await run("obsidian", ["files", `folder=${INBOX_FOLDER}`], {
     timeoutMs: OBSIDIAN_TIMEOUT_MS,
   });
 
   if (inbox.status) {
-    throw new Error(inbox.stderr.trim() || "Failed to read inbox/inbox.md");
+    throw new Error(inbox.stderr.trim() || `Failed to read ${INBOX_FILE}`);
   }
   if (files.status) {
-    throw new Error(files.stderr.trim() || "Failed to list inbox files");
+    throw new Error(files.stderr.trim() || `Failed to list ${INBOX_FOLDER} files`);
   }
 
   const sortedFiles = files.stdout.split(/\r?\n/).filter(Boolean).sort().join("\n");
 
   const hash = createHash("sha256");
-  hash.update("FILE inbox/inbox.md\n");
+  hash.update(`FILE ${INBOX_FILE}\n`);
   hash.update(inbox.stdout);
-  hash.update("\nFILES inbox\n");
+  hash.update(`\nFILES ${INBOX_FOLDER}\n`);
   hash.update(sortedFiles);
   hash.update("\n");
 
@@ -525,7 +527,7 @@ async function acquireLock(): Promise<() => Promise<void>> {
 function digestPrompt(): string {
   return `Use the \`obsidian\` CLI.
 Vault: \`${VAULT_NAME}\`.
-Read and follow \`ai-prompt.md\`.`;
+Read and follow \`${AI_PROMPT_FILE}\`.`;
 }
 
 async function readLastDigestMessage(): Promise<string> {
