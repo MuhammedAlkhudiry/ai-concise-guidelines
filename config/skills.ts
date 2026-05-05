@@ -30,7 +30,7 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ref: "main",
     skills: [
       {
-        name: "_playwright",
+        name: "playwright",
         sourcePath: "skills/playwright-cli",
       },
     ],

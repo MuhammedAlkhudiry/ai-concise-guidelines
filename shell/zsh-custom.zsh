@@ -33,20 +33,10 @@ fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
 # --- Laravel/DDEV ---
 alias a="ddev artisan"
-alias dl="ddev launch"
-alias retry="a migrate:rollback && a migrate"
-alias as="a db:seed"
-alias am="a migrate"
-alias ci="ddev composer install"
-alias cr="ddev composer require"
-alias cu="ddev composer update"
 alias ds="ddev start"
-alias sync="ddev mutagen sync"
 
 # --- Testing ---
-alias test="a test --parallel --stop-on-failure"
 alias t="a test --parallel --stop-on-failure"
-alias test-no-parallel="a test --stop-on-failure"
 alias coverage="a test --parallel --coverage --stop-on-failure"
 
 # --- Dev Server ---

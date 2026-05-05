@@ -27,6 +27,7 @@
 - **TRANSLATION** — Translate all user-facing copy naturally and contextually; add missing translations when needed.
 - **ASK-WHEN-UNSURE** — If the user's intent, constraints, or the right change are unclear, ask before proceeding instead of guessing.
 - **QUESTION-FIRST** — When the user asks a question, reason through it and answer the question without editing files unless they clearly ask for an implementation or change.
+- **OPTIONS-FIRST** — When the user is asking, discussing, workshopping, asking how, or exploring possibilities, avoid presenting one answer as the only correct answer; give practical options and trade-offs, and search the web when current facts, tools, or best practices may matter.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
 - **GAP-CHECK** — Always raise any bug, risk, inconsistency, dead code, or other issue worth flagging, even if it is unrelated to the task.
@@ -44,8 +45,8 @@
 ## Subagents
 
 - **SUBAGENTS** — Prefer spawning subagents when work can be split into sizable independent tasks that run in parallel; do not use them for tightly coupled work or tiny tasks.
-- **SUBAGENT-MODELS** — Use smart models for review and `_code-simplifier` work, and use fast or mini models for independent execution tasks and QA.
-- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, this rule is mandatory and overrides any default reluctance to use subagents: first list the post-work review steps in `Plan`, then spawn two smart-model subagents in parallel, one for `_code-simplifier` and one for review, then spawn one fast or mini `_playwright` QA subagent when the work involves browser or frontend behavior, then resolve any findings before calling the work done.
+- **SUBAGENT-MODELS** — Use smart models for review and `code-simplifier` work, and use fast or mini models for independent execution tasks and QA.
+- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, this rule is mandatory and overrides any default reluctance to use subagents: first list the post-work review steps in `Plan`, then spawn two smart-model subagents in parallel, one for `code-simplifier` and one for review, then spawn one fast or mini `playwright` QA subagent when the work involves browser or frontend behavior, then resolve any findings before calling the work done.
 
 ## Repo Context
 
@@ -53,6 +54,7 @@
 - **AGENTS.md** — In a monorepo, if the work is limited to one repo or package, read its nested `AGENTS.md`; when updating `AGENTS.md`, keep each added point single-point and concise.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
 - **README-MINIMAL** — Keep `README.md` minimal in personal infrastructure repos; do not update or expand it as user-facing documentation unless the user explicitly asks for a README change.
+- **SOLO-SCOPE** — Assume the user is usually working on one-person projects; when planning, specing, or writing docs, avoid enterprise process, heavy formality, and oversized documents unless explicitly needed. Simple and casual is usually better.
 - **GRILL-WITH-DOCS** — `CONTEXT.md`, `CONTEXT-MAP.md`, and ADR docs are useful repo context; read them when present, and suggest `grill-with-docs` when they are missing or would help clarify domain language and decisions.
 
 ## Reply Template

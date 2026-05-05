@@ -10,14 +10,14 @@ describe("validateRemoteSkillSources", () => {
         ref: "main",
         skills: [
           {
-            name: "_example",
+            name: "example",
             sourcePath: "skills/example",
           },
         ],
       },
     ]);
 
-    expect(sources[0]?.skills[0]?.name).toBe("_example");
+    expect(sources[0]?.skills[0]?.name).toBe("example");
   });
 
   test("rejects invalid repository URLs", () => {
@@ -28,7 +28,7 @@ describe("validateRemoteSkillSources", () => {
           ref: "main",
           skills: [
             {
-              name: "_example",
+              name: "example",
               sourcePath: "skills/example",
             },
           ],
