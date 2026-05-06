@@ -54,7 +54,6 @@ const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
 
 const SHARED_BIN_COMMANDS = [
-  { name: "ai-assistant", source: "ai-assistant.zsh" },
   { name: "gbr", source: "gbr.zsh" },
   { name: "hugeicons", source: "hugeicons.zsh" },
   { name: "remote", source: "remote.zsh" },
@@ -309,27 +308,6 @@ async function installShared(): Promise<void> {
   }
 }
 
-async function installAiAssistantLaunchAgent(): Promise<void> {
-  const commandPath = join(SHARED_PATHS.binDir, "ai-assistant");
-  if (!existsSync(commandPath)) {
-    print.error("ai-assistant command not found after install");
-    process.exit(1);
-  }
-
-  print.info("Ensuring ai-assistant LaunchAgent is installed...");
-
-  try {
-    await execa(commandPath, ["install"], {
-      stdio: "inherit",
-      env: process.env,
-    });
-    print.success("ai-assistant LaunchAgent ready");
-  } catch {
-    print.error("Failed to install ai-assistant LaunchAgent");
-    process.exit(1);
-  }
-}
-
 async function configureRepoGitHooks(): Promise<void> {
   const gitDir = join(ROOT_DIR, ".git");
   const hooksDir = join(ROOT_DIR, ".githooks");
@@ -510,8 +488,6 @@ export async function install(): Promise<void> {
   console.log();
   console.log(colors.blue("Installing in parallel..."));
   await Promise.all([installSharedSkills(), installOpencode(), installCodex(), installShared()]);
-
-  await installAiAssistantLaunchAgent();
 
   console.log();
   printBox("Installation completed successfully!", "green");

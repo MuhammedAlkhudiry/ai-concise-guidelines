@@ -30,7 +30,7 @@
 - **OPTIONS-FIRST** — When the user is asking, discussing, workshopping, asking how, or exploring possibilities, avoid presenting one answer as the only correct answer; give practical options and trade-offs, and search the web when current facts, tools, or best practices may matter.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
-- **GAP-CHECK** — Always raise any bug, risk, inconsistency, dead code, or other issue worth flagging, even if it is unrelated to the task.
+- **GAP-CHECK** — Raise concrete bugs, logic risks, misleading structure, dead code, or inconsistencies when they matter. Do not use `Flag` for general observations, preferences, routine caveats, suggestions, or unrelated local git changes unless they create a real task risk.
 
 ## Verification
 
@@ -74,20 +74,11 @@ Template:
 [Direct answer, result, or next action]
 
 **Flag**
-[Only when there is any bug, logic risk, dead code, misleading structure, unnecessary complexity, inconsistency, or other issue worth flagging, even if it is unrelated to the task. Do not repeat anything already covered in `Answer`. Keep all such issues here instead of splitting them across multiple sections.]
+[Only for concrete bugs, logic risks, misleading structure, dead code, inconsistencies, or unnecessary complexity that creates real task risk. Do not use for general observations, nice-to-have improvements, routine caveats, suggestions, or anything already covered in `Answer`.]
 
 **Plan**
 [Only when the user is walking through a plan or grouping tasks or action items. Use this section to track the decisions, conclusions, agreed action items, and required post-work review steps. Do not include `Next Steps` when `Plan` is used.]
 
-**Devil's Advocate**
-[Only when a strong counterpoint, failure mode, or opposing case is worth pressure-testing.]
-
 **Next Steps**
 [Only when finishing a plan or other significant work and `Plan` is not being used. Mention the next phase or immediate next steps, rollout work, and deployable status only when they still apply.]
-
-**Suggestion**
-[Only when there is a high-signal UX/DX suggestion, tool suggestion, workflow improvement, or practical protip that is adjacent to the task but not part of the required work. Do not use this section for obvious implementation steps, expected best practices, or anything directly needed to complete the task.]
-
-**Rethinking Needed**
-[Only when progress is stuck or the framing likely needs to change.]
 ```

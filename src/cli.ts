@@ -38,12 +38,5 @@ cli
     await runScript("zsh", [join(ROOT_DIR, "shell", "doctor.zsh"), ...args]);
   });
 
-cli
-  .command("ai [...args]", "Run the ai-assistant CLI")
-  .allowUnknownOptions()
-  .action(async (args: string[]) => {
-    await runScript("bun", [join(ROOT_DIR, "src", "ai-assistant", "cli.ts"), ...args]);
-  });
-
 cli.help();
 cli.parse();
