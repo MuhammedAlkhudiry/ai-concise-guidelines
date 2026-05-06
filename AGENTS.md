@@ -3,6 +3,7 @@
 - **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.
 - **NO-OUTPUT-EDITS** — Never edit `output/**` directly; regenerate from source.
 - **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
+- **THIN-ZSHRC** — If anything is added directly to user `~/.zshrc`, tell the user it should be migrated into `shell/zsh-custom.zsh`.
 - **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep `doctor` in sync with that list.
 - **SKILL-STRUCTURE** — Each skill must live in `content/skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
 - **SKILL-NAMES** — Shared skill folder names and frontmatter `name` values must match exactly without a `_` prefix.
