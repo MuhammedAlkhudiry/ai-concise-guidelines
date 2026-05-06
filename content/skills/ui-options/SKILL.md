@@ -12,10 +12,11 @@ Build the requested number of genuinely different UI options and make them easy 
 1. Use the exact number of options the user requested. If no number is provided, the default is 5 (don't count current ui as an option).
 2. Trace the current UI, data, actions, constraints, and design system before creating options.
 3. Use `impeccable` when frontend design judgment is needed.
-4. Build a simple in-app switcher, tabs, segmented control, or equivalent preview control so the user can inspect each option directly.
-5. Keep all options wired to the same real data, actions, validation, loading states, permissions, and error states unless the user explicitly asks for static mockups.
-6. Make each option meaningfully different in structure, layout, interaction model, information density, or visual hierarchy.
-7. After the user chooses a direction, collapse the implementation to the selected option and remove unused variants unless the user wants to keep them.
+4. When running as Codex/GPT, use the image generation tool to create visual option previews instead of writing UI code first, unless the user explicitly asks for coded implementations.
+5. For coded previews, build a simple in-app switcher, tabs, segmented control, or equivalent preview control so the user can inspect each option directly.
+6. Keep all coded options wired to the same real data, actions, validation, loading states, permissions, and error states unless the user explicitly asks for static mockups.
+7. Make each option meaningfully different in structure, layout, interaction model, information density, or visual hierarchy.
+8. After the user chooses a direction, collapse the implementation to the selected option and remove unused variants unless the user wants to keep them.
 
 ## Rules
 
