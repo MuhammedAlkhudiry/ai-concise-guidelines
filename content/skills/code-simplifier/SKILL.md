@@ -89,12 +89,13 @@ Do not delete without stronger proof when a test covers:
 
 ## Process
 
-1. Trace the real behavior, callers, and constraints before editing.
-2. Run a strict dead-code check on touched areas and remove anything unreferenced, unreachable, superseded, or obsolete.
-3. Delete noise and collapse indirection aggressively.
-4. Challenge every abstraction, guard, fallback, and compatibility layer.
-5. Rebuild the smallest clear version that still satisfies the real contract.
-6. Run relevant checks and fix task-related fallout.
-7. Report the meaningful simplifications, dead code removed, what behavior remains protected after test cleanup, anything under `Not safe to delete yet`, and any complexity intentionally kept.
+1. If no target files or scope are specified, use the current `git diff` as the default simplification target.
+2. Trace the real behavior, callers, and constraints before editing.
+3. Run a strict dead-code check on touched areas and remove anything unreferenced, unreachable, superseded, or obsolete.
+4. Delete noise and collapse indirection aggressively.
+5. Challenge every abstraction, guard, fallback, and compatibility layer.
+6. Rebuild the smallest clear version that still satisfies the real contract.
+7. Run relevant checks and fix task-related fallout.
+8. Report the meaningful simplifications, dead code removed, what behavior remains protected after test cleanup, anything under `Not safe to delete yet`, and any complexity intentionally kept.
 
 Goal: fewer lines, fewer branches, fewer moving parts, same behavior.
