@@ -14,6 +14,7 @@ Simplify code hard. Default to deleting, inlining, collapsing, and cutting until
    - Do not preserve incidental structure, historical layering, or speculative flexibility.
 
 2. **Cut first**
+   - For every line of code, ask: do we need it? Why?
    - Run a strict dead-code pass on touched files and their immediate callers, consumers, tests, imports, exports, and config.
    - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, and one-off abstractions.
    - Delete comments that narrate obvious code, describe removed logic, or justify complexity that no longer exists.
