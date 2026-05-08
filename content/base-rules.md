@@ -25,6 +25,7 @@
 
 - **LANGUAGE** — Write all replies in English unless the user explicitly asks for another language.
 - **TRANSLATION** — Translate all user-facing copy naturally and contextually; add missing translations when needed.
+- **ARABIC-COPY** — When writing or translating Arabic copy, use natural, clear, eloquent fusha that fits the project's voice; avoid modern media phrasing and machine-like wording.
 - **ASK-WHEN-UNSURE** — If the user's intent, constraints, or the right change are unclear, ask before proceeding instead of guessing.
 - **QUESTION-FIRST** — When the user asks a question, reason through it and answer the question without editing files unless they clearly ask for an implementation or change.
 - **OPTIONS-FIRST** — When the user is asking, discussing, workshopping, asking how, or exploring possibilities, avoid presenting one answer as the only correct answer; give practical options and trade-offs, and search the web when current facts, tools, or best practices may matter.
@@ -39,14 +40,8 @@
 - **CHECKLIST** — Repo-root `CHECKLIST.md` is for stable project-wide verification commands only; never add task-specific checks to it, and update it rarely.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
-- **DEPLOY-CHECK** — When the user asks "good to deploy?" or equivalent, treat it as a high-scrutiny release-readiness review: think deeply, verify relevant checks and rollout risks, look for anything missed, and do not approve unless it is genuinely ready. Assume routine deploy-script steps like migrations, cache refreshes, and queue restarts are already handled; focus on change-specific risks, checks, and rollout needs.
+- **QA-HANDOFF** — After doing QA, always give the user the URL, login or fixture data, and exact test data needed so they can repeat the QA themselves.
 - **FLAKY-TESTS** — When test errors seem random, first suspect a dirty test database or a parallelism issue before deeper debugging.
-
-## Subagents
-
-- **SUBAGENTS** — Prefer spawning subagents when work can be split into sizable independent tasks that run in parallel; do not use them for tightly coupled work or tiny tasks.
-- **SUBAGENT-MODELS** — Use smart models for review and `code-simplifier` work, and use fast or mini models for independent execution tasks and QA.
-- **POST-WORK-REVIEW** — After sizable implementation work or finishing a plan, this rule is mandatory and overrides any default reluctance to use subagents: first list the post-work review steps in `Plan`, then spawn two smart-model subagents in parallel, one for `code-simplifier` and one for review, then spawn one fast or mini `playwright` QA subagent when the work involves browser or frontend behavior, then resolve any findings before calling the work done.
 
 ## Repo Context
 
