@@ -69,7 +69,7 @@ async function generateCodexMcpConfig(): Promise<number> {
 
   const serverNames = Object.keys(MCP_SERVERS).sort();
   const lines: string[] = [
-    "# Managed by ai-concise-guidelines. Do not edit by hand.",
+    "# Managed by my-setup. Do not edit by hand.",
     "# Source of truth: config/mcp.ts",
     "",
   ];

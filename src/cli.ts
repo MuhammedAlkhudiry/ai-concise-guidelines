@@ -18,7 +18,7 @@ async function runScript(command: string, args: string[]): Promise<void> {
   });
 }
 
-const cli = cac("ai-concise");
+const cli = cac("my-setup");
 
 cli.command("generate", "Generate OpenCode and Codex output files").action(async () => {
   await generate();

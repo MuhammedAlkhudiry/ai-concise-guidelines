@@ -49,7 +49,7 @@ const SHARED_PATHS = {
   binDir: join(HOME, "bin"),
 };
 
-const USER_ZSHRC_HEADER = "# Managed shell config lives in ai-concise-guidelines.";
+const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
 
@@ -240,8 +240,8 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
     return;
   }
   const managedContent = (await readFile(sourceFile, "utf-8")).trimEnd();
-  const startMarker = "# >>> ai-concise-guidelines mcp >>>";
-  const endMarker = "# <<< ai-concise-guidelines mcp <<<";
+  const startMarker = "# >>> my-setup mcp >>>";
+  const endMarker = "# <<< my-setup mcp <<<";
   const managedBlock = `${startMarker}\n${managedContent}\n${endMarker}\n`;
   await ensureParentDir(CODEX_PATHS.config);
   const existing = existsSync(CODEX_PATHS.config)
@@ -350,7 +350,7 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     .flatMap((source) => source.skills.map((skill) => skill.name))
     .sort();
   const managedSkillNames = [...new Set([...skillNames, ...remoteSkillNames])].sort();
-  const manifestPath = join(dest, ".ai-concise-guidelines-managed-skills.json");
+  const manifestPath = join(dest, ".my-setup-managed-skills.json");
   let previousSkillNames: string[] = [];
 
   if (existsSync(manifestPath)) {
@@ -393,7 +393,7 @@ async function installRemoteSkillSource(source: RemoteSkillSource, dest: string)
   const skillNames = source.skills.map((skill) => skill.name).join(", ");
   print.info(`Fetching remote skill source ${skillNames} from ${source.repository}...`);
 
-  const tempDir = await mkdtemp(join(tmpdir(), "ai-concise-skills-"));
+  const tempDir = await mkdtemp(join(tmpdir(), "my-setup-skills-"));
   const repoDir = join(tempDir, "repo");
 
   try {
@@ -456,7 +456,7 @@ async function normalizeRemoteSkillName(skillPath: string, skillName: string): P
 
 export async function install(): Promise<void> {
   console.log();
-  printBox("AI Concise Guidelines - Installer");
+  printBox("My Setup - Installer");
   console.log();
   printSeparator();
   console.log(colors.blue("Installing from local repo"));

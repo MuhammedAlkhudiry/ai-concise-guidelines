@@ -1,4 +1,4 @@
-# AI Concise Guidelines
+# My Setup
 
 Personal source of truth for my Codex and OpenCode rules, skills, and shell helpers.
 

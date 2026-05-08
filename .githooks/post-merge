@@ -4,10 +4,10 @@ set -eu
 
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
-printf '%s\n' "[ai-concise-guidelines] Running mise run install after pull merge..."
+printf '%s\n' "[my-setup] Running mise run install after pull merge..."
 
 if ! command -v mise >/dev/null 2>&1; then
-  printf '%s\n' "[ai-concise-guidelines] Skipped: 'mise' is not available."
+  printf '%s\n' "[my-setup] Skipped: 'mise' is not available."
   exit 0
 fi
 

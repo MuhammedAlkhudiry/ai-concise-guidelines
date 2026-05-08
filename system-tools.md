@@ -15,6 +15,7 @@ These are the commands the repo itself relies on for install and day-to-day loca
 | `bun` | Runtime used internally by `mise run install`. |
 | `git` | Used for remote skill checkout, hook setup, and shared git helpers. |
 | `mise` | Powers the supported local task workflow and manages global runtimes instead of NVM. |
+| `node` | Runs the Oxfmt CLI used by repo format checks. |
 | `zsh` | All shared shell commands are shipped as Zsh scripts. |
 
 ## Shell And Helper Integrations

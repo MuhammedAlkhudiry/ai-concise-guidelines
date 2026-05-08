@@ -4,6 +4,7 @@
 - **NO-BUILD** — Never run `build` or build frontend assets. For QA testing, assume dev servers should already be running; if they are not, start them using the allowed project flow or ask the user.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **DDEV-PHP** — Always run Laravel and PHP commands inside `ddev` unless explicitly told not to.
+- **DB-DUMPS** — Local production database dumps are kept in `~/db-dumps`; use the `prod-db-to-ddev` skill for production-to-DDEV imports.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` and TypeScript by default; use Python only when it is clearly the best tool for the specific task.
 
 ## Code Principles
@@ -41,13 +42,14 @@
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
 - **QA-HANDOFF** — After doing QA, always give the user the URL, login or fixture data, and exact test data needed so they can repeat the QA themselves.
+- **AGENT-DEVICE-MOBILE** — For agent-device mobile QA after JS-only edits, prefer a warm session with `agent-device metro reload` and snapshot/diff; use `open --relaunch` only for startup, auth/bootstrap, native-state, or broken-navigation checks.
 - **FLAKY-TESTS** — When test errors seem random, first suspect a dirty test database or a parallelism issue before deeper debugging.
 
 ## Repo Context
 
 - **IGNORE-UNRELATED-DIFFS** — Ignore unrelated git diffs or changes completely; do not touch them in any way.
 - **AGENTS.md** — In a monorepo, if the work is limited to one repo or package, read its nested `AGENTS.md`; when updating `AGENTS.md`, keep each added point single-point and concise.
-- **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `ai-concise-guidelines` is always at `~/PhpstormProjects/ai-concise-guidelines`; from other projects, reference and edit it there.
+- **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
 - **README-MINIMAL** — Keep `README.md` minimal in personal infrastructure repos; do not update or expand it as user-facing documentation unless the user explicitly asks for a README change.
 - **SOLO-SCOPE** — Assume the user is usually working on one-person projects; when planning, specing, or writing docs, avoid enterprise process, heavy formality, and oversized documents unless explicitly needed. Simple and casual is usually better.
 - **GRILL-WITH-DOCS** — `CONTEXT.md`, `CONTEXT-MAP.md`, and ADR docs are useful repo context; read them when present, and suggest `grill-with-docs` when they are missing or would help clarify domain language and decisions.

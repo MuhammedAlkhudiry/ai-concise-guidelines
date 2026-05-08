@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "ai-concise-guidelines",
+      "name": "my-setup",
       "dependencies": {
         "cac": "^7.0.0",
         "execa": "^9.6.1",

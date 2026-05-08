@@ -1,6 +1,6 @@
 # =============================================================================
 # Custom ZSH Configuration
-# Synced via: https://github.com/MuhammedAlkhudiry/ai-concise-guidelines
+# Synced via: https://github.com/MuhammedAlkhudiry/my-setup
 # =============================================================================
 
 # --- Oh My Zsh ---
@@ -124,7 +124,7 @@ gbr() {
     fi
 
     echo "gbr executable not found at $HOME/bin/gbr"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
@@ -135,7 +135,7 @@ hugeicons() {
     fi
 
     echo "hugeicons executable not found at $HOME/bin/hugeicons"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
@@ -155,7 +155,7 @@ function remote() {
     fi
 
     echo "remote executable not found at $HOME/bin/remote"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
@@ -166,7 +166,7 @@ function remote-tinker() {
     fi
 
     echo "remote-tinker executable not found at $HOME/bin/remote-tinker"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
@@ -177,7 +177,7 @@ function remote-info() {
     fi
 
     echo "remote-info executable not found at $HOME/bin/remote-info"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
@@ -227,7 +227,7 @@ hosts() {
     fi
 
     echo "hosts executable not found at $HOME/bin/hosts"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
@@ -238,7 +238,7 @@ doctor() {
     fi
 
     echo "doctor executable not found at $HOME/bin/doctor"
-    echo "Run mise run install from ~/PhpstormProjects/ai-concise-guidelines"
+    echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
 }
 
