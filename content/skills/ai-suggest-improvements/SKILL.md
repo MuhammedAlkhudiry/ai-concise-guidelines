@@ -26,7 +26,6 @@ Reflect on the completed session and suggest practical workflow improvements tha
 - Be specific about operational friction and possible workflow fixes.
 - Mention missing durable context, stale repo instructions, undocumented constraints, tool friction, stale docs, weak tests, slow feedback loops, or repo conventions when they affected the work.
 - If a durable rule, skill, script, checklist, or `AGENTS.md` change would help, draft the exact wording or describe the smallest useful change.
-- Stay read-only by default. Do not edit files unless the user explicitly asks for implementation.
 - Do not invent problems just to fill the answer. If there are no meaningful improvements, say that briefly instead of adding praise.
 
 ## Examples

@@ -13,6 +13,7 @@ Write skills as lean triggerable instructions, not tutorials.
 - Put trigger guidance in the description, not the body.
 - Keep `SKILL.md` short. Move detail to `references/`, `scripts/`, or `assets/`.
 - Keep each fact in one place. Duplication makes skills rot.
+- Do not copy global rules from `content/base-rules.md` into skills. Reference the global rule only when the skill needs to explain how it applies to this specific task.
 
 ## Structure
 
@@ -62,4 +63,5 @@ description: What the skill does and when to trigger it.
 - Kitchen-sink skills
 - Explaining basics the model already knows
 - Copying the same guidance into multiple sections
+- Copying `content/base-rules.md` instructions into a skill
 - Putting "when to use" only in the body

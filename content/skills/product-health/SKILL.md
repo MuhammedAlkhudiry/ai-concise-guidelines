@@ -5,14 +5,14 @@ description: "Create or refresh repo-root PRODUCT_HEALTH.md by detecting a proje
 
 # Product Health
 
-Create or refresh repo-root `PRODUCT_HEALTH.md` for the target project. Keep the run read-only unless the user explicitly asks for a fix.
+Create or refresh repo-root `PRODUCT_HEALTH.md` for the target project.
 
 ## Workflow
 
 1. Read the target repo context first: root and nested `AGENTS.md`, `PRODUCT.md`, README, deployment docs, `composer.json`, `package.json`, app config, env examples, and existing `PRODUCT_HEALTH.md`.
 2. Detect health sources from code and docs, then record evidence paths in `PRODUCT_HEALTH.md`.
 3. If a detected source is not configured or access is missing, write a setup gap with exact user steps and continue with the remaining sources.
-4. Query each configured source using the adapter below. Prefer direct read-only CLI/API calls over dashboards when structured output is available.
+4. Query each configured source using the adapter below. Prefer structured CLI/API output over dashboards.
 5. Update `PRODUCT_HEALTH.md` using `references/PRODUCT_HEALTH.md` as the structure. Preserve useful historical notes, but refresh current status, findings, timestamps, commands, and setup gaps.
 6. End with a short summary of critical findings, degraded sources, blocked checks, and what should be investigated next.
 
@@ -32,4 +32,4 @@ Create or refresh repo-root `PRODUCT_HEALTH.md` for the target project. Keep the
 - Redact sensitive values in commands and reports.
 - Prefer JSON output and structured APIs where available.
 - Use absolute times and include the timezone for external data windows.
-- Ask before production mutation, long-running exports, destructive queries, or ambiguous production target selection.
+- Keep source adapters observational. Production changes, long-running exports, destructive queries, and ambiguous production targets are blockers to report, not health checks to perform.

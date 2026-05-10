@@ -66,24 +66,6 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
-    repository: "https://github.com/kepano/obsidian-skills.git",
-    ref: "main",
-    skills: [
-      {
-        name: "obsidian-cli",
-        sourcePath: "skills/obsidian-cli",
-      },
-      {
-        name: "obsidian-markdown",
-        sourcePath: "skills/obsidian-markdown",
-      },
-      {
-        name: "obsidian-bases",
-        sourcePath: "skills/obsidian-bases",
-      },
-    ],
-  },
-  {
     repository: "https://github.com/PostHog/ai-plugin.git",
     ref: "main",
     skills: [

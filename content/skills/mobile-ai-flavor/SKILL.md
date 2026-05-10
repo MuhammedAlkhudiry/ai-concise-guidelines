@@ -20,11 +20,10 @@ Make the mobile app support a second installable AI/dev version without replacin
 5. Check conflict surfaces: URL schemes, deep links, Firebase configs, push notifications, keychain/shared preferences, storage namespaces, and backend URL/env.
 6. Add or update install/run commands when the repo convention has a natural place for them.
 7. Verify the normal app and AI app can both be installed on the target simulator/device.
-8. Update `~/installation-guides/<project>.md` after the repo change if a guide exists.
 
 ## Rules
 
 - This is code-changing work. Do not use it during documentation-only guide writing.
 - Prefer project-native flavor mechanisms over ad hoc scripts.
 - Do not remove or rename the normal app identity.
-- If Firebase, push notifications, signing, or deep links are not clear, stop and ask instead of guessing.
+- Treat unclear Firebase, push notification, signing, or deep-link setup as a blocker to resolve before editing those surfaces.
