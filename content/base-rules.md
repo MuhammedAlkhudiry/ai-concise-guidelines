@@ -13,6 +13,7 @@
 - **SIMPLE** — Simple is absolute in everything: logic, tools, code, structure, and workflow. Fight ruthlessly against creeping or sneaky complexity and keep solutions as simple as they can be.
 - **NO-OVERPROTECTION** — Avoid defensive over-checking, redundant guards, and unnecessary cleanup like extra `trim()` or regex normalization unless they are intentional and needed for a real boundary, runtime uncertainty, input contract, or compatibility constraint.
 - **TRUTHY-FALSY** — Prefer simple truthy/falsy or presence checks over explicit `===` or `!==` comparisons to `true`, `false`, or `null`, and over unnecessary `instanceof` checks, unless exact value or type semantics are required.
+- **HELPER-REUSE** — When a helper seems needed, search for an existing helper, function, or local pattern first; reuse it if it fits, and add a new helper only when it creates a real boundary or removes real duplication.
 - **KILL-THE-WRAPPER** — Delete pass-through wrappers, aliases, and helpers unless they protect a real boundary, and do not add tiny helpers or functions that barely abstract anything.
 - **COMPATIBILITY** — Prefer the correct change over backward compatibility or artificially small fixes. Keep backward compatibility only for deployed, production, inter-system contracts. If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change. For bugs, prefer the smallest correct fix first.
 - **BC-ESCALATION** — If keeping backward compatibility adds complexity, explicitly call that out and ask whether a clean-cut change would be acceptable.
@@ -56,11 +57,11 @@
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. In `Answer [emoji mode]`, replace `emoji mode` with an emoji plus whichever collaboration mode is active. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
+Use this reply template and omit sections that do not apply. In `Answer [emoji mode]`, replace `emoji mode` with an emoji plus the active mode. Possible mode values are `discuss`, `plan`, `teach`, `workshop`, and `execute`. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
 
 ```md
 Minimal real example:
-**Answer [emoji mode]**
+**Answer [🔧 execute]**
 The main fix is correct.
 
 **Flag**

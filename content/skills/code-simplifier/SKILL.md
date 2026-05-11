@@ -36,6 +36,7 @@ Simplify code hard. Default to deleting, inlining, collapsing, and cutting until
    - Never use nested ternaries.
 
 5. **Keep abstractions on trial**
+   - Treat new helpers as suspicious: reuse an existing helper or inline the logic unless extraction clearly makes the code simpler.
    - Reuse existing abstractions that clearly protect a real boundary, improve readability, or materially help testing.
    - Remove abstractions that mainly exist to look reusable, extensible, or architectural.
    - Prefer one obvious implementation over configurable machinery.
