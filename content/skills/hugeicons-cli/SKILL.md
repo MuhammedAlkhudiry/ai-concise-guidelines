@@ -5,7 +5,7 @@ description: Use when the task needs Hugeicons icon search, free icon lookup, SV
 
 # Hugeicons CLI
 
-Use the local `hugeicons` command for Hugeicons work.
+Use the local `hugeicons` command for icon search, SVG export, and usage snippets.
 
 ## Rules
 
@@ -32,10 +32,4 @@ hugeicons usage html ai-search
 
 ## Platforms
 
-- `react`
-- `react-native`
-- `vue`
-- `svelte`
-- `angular`
-- `flutter`
-- `html`
+Supported platforms: `react`, `react-native`, `vue`, `svelte`, `angular`, `flutter`, `html`.

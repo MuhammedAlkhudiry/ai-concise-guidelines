@@ -5,15 +5,13 @@ description: "React coding standards. Use when working on React components to en
 
 # React
 
-Critical rules for React development.
-
----
+Critical defaults for React development.
 
 ## Hooks
 
-- Hooks first, top-level only (no loops/conditions/nested fns)
-- Order: hooks → derived values → handlers → JSX return
-- Group by concern: state/store → data/query → memo → effects
+- Hooks first, top-level only.
+- Order: hooks, derived values, handlers, JSX return.
+- Group by concern: state/store, data/query, memo, effects.
 - Never select entire store (e.g. Zustand); always use selectors + shallow
 
 ## State & Data
@@ -21,7 +19,7 @@ Critical rules for React development.
 - State minimal, normalized; derive instead of duplicate
 - Prefer local state; global only for truly cross-cutting data
 - Use query libraries (React Query/SWR) for server data; never raw fetch in components
-- Query cache = source of truth; don't mirror to local state
+- Query cache is source of truth; do not mirror it to local state.
 
 ## Props & Composition
 
@@ -36,7 +34,7 @@ Critical rules for React development.
 - Cleanup always (timers, subscriptions)
 - Render pure: no side-effects, no mutation
 - Stable keys in lists (real IDs, not array index)
-- Final conditional render (`if (!data) return null;`) just before JSX, never between hooks
+- Put final conditional renders just before JSX, never between hooks.
 
 ## Performance
 

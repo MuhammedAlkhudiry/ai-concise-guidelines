@@ -5,11 +5,11 @@ description: "Review translations for quality, naturalness, and localization cor
 
 # Translation Review
 
-Review translations for meaning, tone, context, and technical correctness. Do not stop at literal accuracy.
+Review translations for meaning, tone, context, and technical correctness.
 
 ## State File
 
-For large reviews, keep state in `.docs/ai/<feature-or-file>/translation-review.md` with:
+For large reviews, keep state in `.docs/ai/<feature-or-file>/translation-review.md`:
 
 - Files and languages
 - Progress
@@ -40,6 +40,5 @@ Batch approved groups instead of listing every key one by one.
 ## Rules
 
 - Provide the improved translation, not just the complaint.
-- Preserve intent and brevity.
 - Call out repeated patterns once, then reference them.
 - For Arabic, rewrite for natural meaning and tone, not word-for-word phrasing.

@@ -5,32 +5,26 @@ description: "Run project checks from repo-root `CHECKLIST.md` and fix task-rela
 
 # Check and Fix
 
-Run the repo verification checklist, fix relevant failures, and finish with clean results.
+Run the repo verification checklist, fix task-related failures, and report clean results or blockers.
 
 ## Checklist First
 
-Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
+Repo-root `CHECKLIST.md` is the source of truth for verification commands.
 
 1. If `CHECKLIST.md` exists, read it first and use its commands.
-2. If it does not exist, create it before running checks.
-3. Build the first version from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
-4. Keep it limited to stable project-wide verification commands.
-5. Never add task-specific commands to `CHECKLIST.md`; if a task needs extra checks, run them separately without rewriting the checklist.
-6. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
-7. Update the checklist only when a project-wide command is genuinely wrong, stale, missing, or the file does not exist.
+2. If it is missing, create it from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
+3. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
+4. Update it only when a stable project-wide command is missing, wrong, or stale.
+5. Run task-specific checks separately without adding them to `CHECKLIST.md`.
 
 ## Command Selection
 
-- Prefer repo-level commands such as `mise run check` or `make check` when they already cover multiple categories.
-- Use exact runnable commands only. No guesses, placeholders, or "pick one" lists.
-- Prefer the built-in parallel form of a command when the tool supports it, such as `php artisan test --parallel`.
-- Keep `CHECKLIST.md` as plain command lines, one command per line.
-- Keep `CHECKLIST.md` limited to global project-wide checks, not task-specific checks.
-- Do not add markdown structure inside the target repo checklist.
-- Use `#` comments only when a short note is required.
-- In monorepos, use short `#` repo headers and list that repo's commands directly below the header.
-- Include every real verification tool the repo expects, not just linting and tests. Examples: `phpstan`, `rector`, `tsc`, `biome`, `eslint`, framework checks, and repo-specific validators.
-- Do not include `build` commands unless the repo explicitly treats build as a required verification gate.
+- Prefer repo-level commands such as `mise run check` or `make check` when they cover the needed categories.
+- Use exact runnable commands, not guesses or alternatives.
+- Prefer built-in parallel forms such as `php artisan test --parallel`.
+- Keep `CHECKLIST.md` as plain commands, one per line, with short `#` comments only when useful.
+- Include real verification tools beyond lint/tests when the repo uses them.
+- Do not include build commands unless the repo explicitly treats build as verification.
 
 ## Fix Loop
 
@@ -42,10 +36,7 @@ Treat repo-root `CHECKLIST.md` as the source of truth for verification commands.
 
 ## Rules
 
-- Prefer built-in parallel modes inside each checklist command when supported, then run independent checklist commands in parallel when practical.
-- Use the checklist for verification commands, then choose the matching safe fix command from repo scripts or make targets when needed.
-- Do not rewrite `CHECKLIST.md` for routine task work; change it only for real project-wide checklist fixes.
+- Use safe auto-fix commands from repo scripts when available.
 - Do not skip a checklist item without saying why.
-- If a failure is pre-existing and unrelated, report it clearly instead of widening scope.
-- Final report should list each checklist item as `PASS`, `FAIL`, or `BLOCKED`.
-- In monorepos, keep checklist entries grouped per repo so the scope of each command is explicit.
+- Report pre-existing unrelated failures instead of widening scope.
+- Final report lists each checklist item as `PASS`, `FAIL`, or `BLOCKED`.

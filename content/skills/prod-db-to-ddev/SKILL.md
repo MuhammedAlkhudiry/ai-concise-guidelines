@@ -5,18 +5,18 @@ description: Use when importing a production Laravel MySQL database over SSH int
 
 # Production DB To DDEV
 
-Import a production Laravel MySQL database into local DDEV without mutating production.
+Import a production Laravel MySQL database into local DDEV with production read-only.
 
 ## Safety Rules
 
-- Production side must be read-only: `php` config reads, optional `mysql SELECT`, and `mysqldump` only.
+- Production may only run `php` config reads, optional `mysql SELECT`, and `mysqldump`.
 - Never run migrations, seeders, imports, deletes, updates, or artisan write commands on production.
 - Treat local import as destructive: it replaces the local DDEV database.
 - Use `--single-transaction --quick` for InnoDB-friendly dumps.
 - Disable GTID purging when the available `mysqldump` supports it.
-- Run local migrations after import only when the local code is ahead of production.
+- Run local migrations after import only when local code is ahead of production.
 
-## Bash Function
+## Function
 
 ```bash
 import_prod_db_to_ddev() {
@@ -118,7 +118,7 @@ REMOTE
 import_prod_db_to_ddev forge@example.com /home/forge/app/current /path/to/local/project
 ```
 
-For Awraq:
+Awraq example:
 
 ```bash
 import_prod_db_to_ddev forge@138.68.158.43 /home/forge/awraq.app/family-tree /Users/muhammed/PhpstormProjects/awraq-project

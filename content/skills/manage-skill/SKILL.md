@@ -5,14 +5,14 @@ description: "Create, update, rename, or remove an AI agent skill. Use when the 
 
 # Manage Skill
 
-Write skills as lean triggerable instructions, not tutorials.
+Write skills as lean triggerable instructions, not tutorials or copied global rules.
 
 ## Core Principles
 
 - Assume the agent is already capable. Keep only task-specific knowledge.
 - Put trigger guidance in the description, not the body.
 - Keep `SKILL.md` short. Move detail to `references/`, `scripts/`, or `assets/`.
-- Keep each fact in one place. Duplication makes skills rot.
+- Keep each fact in one place.
 - Do not copy global rules from `content/base-rules.md` into skills. Reference the global rule only when the skill needs to explain how it applies to this specific task.
 
 ## Structure
@@ -34,12 +34,12 @@ description: What the skill does and when to trigger it.
 ---
 ```
 
-## Writing Rules
+## Writing
 
 - `name`: lowercase, hyphenated, and matches the folder name exactly.
 - `description`: say what it does, when to use it, and the phrases or contexts that should trigger it.
-- Body: imperative instructions, fast workflow first, links to references only when needed.
-- Prefer examples over explanation, but keep examples short.
+- Body: imperative instructions, fast workflow first, references only when needed.
+- Prefer short examples over explanation.
 
 ## Workflow
 
@@ -50,18 +50,11 @@ description: What the skill does and when to trigger it.
 5. Write the body as a practical workflow.
 6. Test the skill on real prompts. Tighten anything it misses or over-explains.
 
-## Use Resources Deliberately
-
-- Put stable, detailed material in `references/`.
-- Put repeatable code in `scripts/`.
-- Put templates or boilerplate in `assets/`.
-- Keep the body as navigation plus decision rules.
-
 ## Anti-Patterns
 
 - Vague descriptions
 - Kitchen-sink skills
 - Explaining basics the model already knows
-- Copying the same guidance into multiple sections
-- Copying `content/base-rules.md` instructions into a skill
+- Duplicating guidance across sections
+- Copying global rules into a skill
 - Putting "when to use" only in the body

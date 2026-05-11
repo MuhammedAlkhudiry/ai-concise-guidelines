@@ -5,22 +5,23 @@ description: Use when the user asks for multiple UI or UX options, variants, dir
 
 # UI Options
 
-Build the requested number of genuinely different UI options and make them easy to compare in the actual interface.
+Use `opencode run` with both `--model=opencode/kimi-k2.6` and `--model=opencode/gemini-3.1-pro` to generate two UI opinions, then implement their direction in a comparable interface.
 
 ## Workflow
 
-1. Use the exact number of options the user requested. If no number is provided, the default is 5 (don't count current ui as an option).
+1. Use the requested option count. If none is provided, default to 5 and do not count the current UI.
 2. Trace the current UI, data, actions, constraints, and design system before creating options.
-3. Use `impeccable` when frontend design judgment is needed.
-4. When running as Codex/GPT, use the image generation tool to create visual option previews instead of writing UI code first, unless the user explicitly asks for coded implementations.
-5. For coded previews, build a simple in-app switcher, tabs, segmented control, or equivalent preview control so the user can inspect each option directly.
-6. Keep all coded options wired to the same real data, actions, validation, loading states, permissions, and error states unless the user explicitly asks for static mockups.
-7. Make each option meaningfully different in structure, layout, interaction model, information density, or visual hierarchy.
+3. Run `opencode run` twice with the traced context: once with `--model=opencode/kimi-k2.6` and once with `--model=opencode/gemini-3.1-pro`.
+4. Ask both models to describe each option in exact implementation detail.
+5. If either output is vague, ask that model again with the missing context instead of filling in the UI direction yourself.
+6. For coded previews, put the model-backed options behind a simple in-app switcher, tabs, or segmented control.
+7. Keep all coded options wired to the same real data, actions, validation, loading states, permissions, and error states unless the user explicitly asks for static mockups.
 8. After the user chooses a direction, collapse the implementation to the selected option and remove unused variants unless the user wants to keep them.
 
 ## Rules
 
-- Do not count color swaps, spacing tweaks, border-radius changes, icon swaps, or minor copy changes as separate options.
+- Do not design UI yourself; Kimi and Gemini own option structure, layout, interaction model, information density, and visual hierarchy.
+- Do not count color swaps, spacing tweaks, border-radius changes, icon swaps, or minor copy changes as separate options unless one of the two models explicitly frames them as a complete direction.
 - Avoid fake placeholder content when real app data or existing fixtures are available.
 - Prefer the repo's existing components, tokens, and interaction patterns.
 - Keep the preview switcher temporary and easy to delete unless the product genuinely needs it.

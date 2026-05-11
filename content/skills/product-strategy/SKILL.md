@@ -5,18 +5,18 @@ description: "Find high-leverage product opportunities. Use when the user wants 
 
 # Product Strategy
 
-Look for moves that materially change product value, not just incremental feature count.
+Find product moves that materially change value, not just feature count.
 
 ## Workflow
 
 1. Understand the product’s current value, users, and main workflows.
-2. Inspect the codebase or product context so recommendations reflect reality.
+2. Inspect product context so recommendations reflect reality.
 3. Generate opportunities at three levels:
    - Massive: transformative bets
    - Medium: strong leverage on the core workflow
    - Small: low-effort changes with outsized value
-4. Score ideas by impact, reach, frequency, differentiation, defensibility, and feasibility.
-5. Stack-rank them into `Do now`, `Do next`, `Explore`, and `Backlog`.
+4. Score by impact, reach, frequency, differentiation, defensibility, and feasibility.
+5. Stack-rank into `Do now`, `Do next`, `Explore`, and `Backlog`.
 
 ## Output
 

@@ -5,7 +5,7 @@ description: Fix Android emulator access to DDEV-hosted backends in React Native
 
 # Android DDEV Emulator
 
-Use this when a mobile app works against DDEV on web or iOS but fails on the Android emulator.
+Fix the Android emulator localhost mismatch for apps that talk to DDEV.
 
 ## Default diagnosis
 
@@ -13,35 +13,17 @@ Use this when a mobile app works against DDEV on web or iOS but fails on the And
 - On Android emulator, `127.0.0.1` points to the emulator itself, not the host.
 - `usesCleartextTraffic` only permits `http`; it does not fix wrong host routing.
 
-## Clean fix
+## Fix
 
-### 1. Pin a DDEV host HTTP port
+1. Pin a DDEV host HTTP port in `.ddev/config.yaml`:
 
-Set a fixed port in project `.ddev/config.yaml`:
+   ```yaml
+   host_webserver_port: "38080"
+   ```
 
-```yaml
-host_webserver_port: "38080"
-```
-
-Restart DDEV after changing it.
-
-### 2. Use Android emulator host alias
-
-For Android emulator, point the app to:
-
-```text
-http://10.0.2.2:38080
-```
-
-`10.0.2.2` is the emulator alias for the host machine.
-
-### 3. Keep iOS/web config separate
-
-Do not replace the shared dev URL if iOS already works with `family-tree.ddev.site` or another local hostname.
-
-Prefer:
-- shared dev URL for iOS/web
-- Android-only override for emulator
+2. Restart DDEV.
+3. Point Android emulator config to `http://10.0.2.2:38080`.
+4. Keep the working iOS/web URL separate, usually as `appUrl` plus Android-only `androidAppUrl`.
 
 Example:
 
@@ -53,8 +35,6 @@ Example:
   }
 }
 ```
-
-Then resolve the Android override in app config at runtime.
 
 ## Verification
 
@@ -68,7 +48,4 @@ Then resolve the Android override in app config at runtime.
 - Physical Android device on Wi‑Fi: use the host LAN IP or a public tunnel instead.
 - Need HTTPS from real devices: use a stable tunnel or install the local CA if staying local.
 
-## Notes
-
-- `ddev share` or Cloudflare tunnels solve device reachability, but are separate from the emulator-localhost issue.
-- If Expo config changes are not picked up, rebuild Android to remove ambiguity.
+- `ddev share` or public tunnels solve physical-device reachability, not the emulator-localhost issue.

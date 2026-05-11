@@ -5,7 +5,7 @@ description: "Stress-test ideas before building. Use when the user wants to thin
 
 # Workshop
 
-Stress-test the idea before implementation. Be critical, collaborative, and explicit about assumptions.
+Stress-test an idea before implementation.
 
 ## Workflow
 
@@ -14,21 +14,20 @@ Stress-test the idea before implementation. Be critical, collaborative, and expl
 3. Choose one primary branch: Code Architecture, UX/UI, or Product.
 4. Surface assumptions and ask only the questions that change direction.
 5. Focus on the challenging parts first.
-6. Explore serious alternatives only when they change the recommendation.
+6. Explore alternatives only when they change the recommendation.
 7. Take a position and explain why.
 
 ## Branches
 
 ### Code Architecture
 
-Use when the idea is about implementation shape, architecture, refactors, APIs, data flow, system boundaries, reliability, performance, or maintainability.
+Use when the idea is about architecture, refactors, APIs, data flow, system boundaries, reliability, performance, or maintainability.
 
 Focus on:
 
 - Existing code, contracts, and constraints
-- Ownership boundaries and data flow
-- Failure modes, edge cases, and operational complexity
-- Implementation trade-offs and rejected alternatives
+- Boundaries, data flow, failure modes, edge cases, and operational complexity
+- Trade-offs and rejected alternatives
 - Recommended technical shape
 
 ### UX/UI
@@ -39,8 +38,7 @@ Focus on:
 
 - User intent and workflow friction
 - Information hierarchy and interaction model
-- Loading, empty, error, and permission states
-- Accessibility and responsive risks
+- Loading, empty, error, permission, accessibility, and responsive states
 - Recommended experience direction
 
 ### Product
@@ -66,9 +64,9 @@ Cover:
 - What the idea is trying to achieve
 - The hardest parts and why they are hard
 - Hidden assumptions or constraints
-- Important trade-offs and rejected alternatives
+- Important trade-offs
 - A recommendation
-- The full recommended scope by default; only discuss MVPs, phased rollout, or staged delivery if the user explicitly asks for them
+- The full recommended scope by default. Discuss MVPs or staged rollout only if the user asks.
 
 ## Rules
 
@@ -83,5 +81,5 @@ Cover:
 - Treat every user statement as a claim to examine, not a premise to endorse; stay impartial and keep it open to debate.
 - Critique the idea, not the user.
 - Prefer a clear recommendation over a long option list.
-- Do not drift into generic brainstorming when the real value is in unpacking the difficult parts.
+- Do not drift into generic brainstorming.
 - Assume the work will be done in one go unless the user explicitly asks for MVPs, phases, or staged deployment.

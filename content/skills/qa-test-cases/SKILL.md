@@ -5,14 +5,14 @@ description: "Generate executable QA test cases for user flows and end-to-end sc
 
 # QA Test Cases
 
-Write test cases that humans can run or automation can translate directly.
+Write observable QA cases that humans can run or automation can translate directly.
 
 ## Workflow
 
 1. Read the relevant code, tests, user story, and integrations.
-2. Map the user flow, branches, permissions, limits, and failure paths.
-3. Group cases by category and priority.
-4. Cover happy path, edge cases, error handling, boundaries, and security where relevant.
+2. Map flows, branches, permissions, limits, and failure paths.
+3. Group by category and priority.
+4. Cover happy path, negative cases, boundaries, and security where relevant.
 
 ## Status Markers
 
@@ -24,7 +24,7 @@ Use:
 - `[B]` blocked
 - `[S]` skipped
 
-## Test Case Template
+## Template
 
 ```markdown
 ### TC-<ID>: <Title> [status]
@@ -48,16 +48,11 @@ Use:
 
 Structure the document as:
 
-- Feature summary
-- Test scope
-- Test cases by category
-- Test data requirements
-- Risks and notes
+Feature summary, test scope, cases by category, test data, risks, and notes.
 
 ## Rules
 
 - Make steps observable and specific.
-- Include negative tests.
 - State exact expected results.
 - Do not include implementation code.
 - Reflect business impact in priority, not test complexity.

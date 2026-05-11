@@ -5,32 +5,30 @@ description: "TypeScript/JavaScript coding standards. Use when working on TS/JS 
 
 # TypeScript / JavaScript
 
-Critical rules for TypeScript and JavaScript development.
-
----
+Critical defaults for TypeScript and JavaScript development.
 
 ## Types & Safety
 
-- Use strict TypeScript (`strict: true`); avoid `any`, `unknown` only when truly unknown
-- Prefer `interface` for object shapes; `type` for unions/intersections/utilities
-- No implicit `any`; explicit return types on exported functions
-- Use `as const` for literals; avoid type assertions (`as`) unless unavoidable
-- Nullish: prefer `??` over `||`; use optional chaining `?.` over manual checks
+- Use strict TypeScript.
+- Avoid `any`; use `unknown` only when the value is truly unknown.
+- Prefer `interface` for object shapes and `type` for unions/intersections/utilities.
+- Add explicit return types on exported functions.
+- Use `as const` for literals; avoid type assertions unless unavoidable.
 
 ## Code Style
 
-- `const` by default; `let` only when mutation needed; never `var`
-- Destructure props/objects at function entry
-- Arrow functions for callbacks; named functions for top-level/exported
+- `const` by default; `let` only for mutation; never `var`.
+- Destructure props/objects at function entry.
+- Use arrow functions for callbacks and named functions for top-level/exported functions.
 
 ## Async & Error Handling
 
-- Always `await` promises or explicitly handle them; no floating promises
-- Use try/catch for async; propagate errors with context
-- Avoid `.then()/.catch()` chains; prefer async/await
+- Await promises or explicitly handle them.
+- Use `try`/`catch` when adding useful context.
+- Prefer async/await over `.then()` chains.
 
 ## Modules & Imports
 
-- Imports at file top, grouped: external → internal → types
-- Prefer named exports; default exports only for pages/components where framework requires
-- No circular imports
+- Keep imports at the file top, grouped external, internal, then types.
+- Prefer named exports; use default exports only where the framework expects them.
+- Avoid circular imports.

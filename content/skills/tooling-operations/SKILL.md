@@ -5,13 +5,13 @@ description: Use when a task depends on tool-specific operational guidance, espe
 
 # Tooling Operations
 
-Use the project tools that already exist instead of recreating their workflows manually.
+Use existing project tools instead of recreating their workflows manually.
 
 ## Workflow
 
 1. Identify whether the task is PDF work or a helper-command workflow.
 2. Use the matching tool directly.
-3. Stop and ask only when the required tool is missing or the task needs a capability the tool does not provide.
+3. Stop only when the required tool is missing or lacks the needed capability.
 
 ## PDF Processing
 
@@ -30,6 +30,6 @@ Use the project tools that already exist instead of recreating their workflows m
 
 ## Rules
 
-- Prefer the purpose-built helper command over rebuilding the same behavior with lower-level commands.
-- Keep command usage aligned with the tool's supported workflow instead of layering custom wrappers on top.
+- Prefer the purpose-built helper over lower-level commands.
+- Keep usage aligned with the tool's supported workflow.
 - When relevant, suggest tool choices or workflow improvements that would make the task faster, safer, or more repeatable.

@@ -1,15 +1,15 @@
 # Product Health Setup Guide
 
-Repo-root `PRODUCT_HEALTH_SETUP.md` is durable monitoring context for product-health runs. Create it the first time this skill is used in a project, and update it when new durable findings change what should be monitored or how checks should run.
+Repo-root `PRODUCT_HEALTH_SETUP.md` is durable monitoring context for product-health runs.
 
 ## Rules
 
 - Store setup and context, not run output.
-- Include the product surfaces, environments, health sources, evidence paths, adapters, access gaps, and check playbook.
-- Update it when monitoring context changes: new source detected, source removed, access changes, setup gap discovered, recurring risk confirmed, or the reliable check command/API changes.
+- Include product surfaces, environments, health sources, evidence paths, adapters, access gaps, and check playbook.
+- Update it only when monitoring context changes: source added/removed, access changes, setup gap discovered, recurring risk confirmed, or reliable check command/API changes.
 - Do not write current incidents, issue lists, raw command output, full check results, timestamps from a run, one-off metrics, or run logs.
 - Redact secrets, DSNs, API tokens, database passwords, private keys, and full connection URIs.
-- Keep commands/API calls high level enough to reproduce, without tokens or private values.
+- Keep commands/API calls reproducible without tokens or private values.
 - Preserve historical notes only when they explain a recurring risk or future check behavior.
 
 ## Setup Shape

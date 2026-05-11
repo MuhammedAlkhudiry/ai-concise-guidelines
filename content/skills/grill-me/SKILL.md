@@ -5,7 +5,7 @@ description: Stress-test a plan or design by interrogating assumptions one branc
 
 # Grill Me
 
-Interrogate the plan until the meaningful branches of the decision tree are resolved.
+Interrogate a plan until the decision-changing uncertainties are resolved.
 
 ## Workflow
 

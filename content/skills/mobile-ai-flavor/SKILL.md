@@ -5,20 +5,20 @@ description: Add or adjust a mobile app flavor so the normal app and an AI/dev a
 
 # Mobile AI Flavor
 
-Make the mobile app support a second installable AI/dev version without replacing the normal app.
+Add a second installable AI/dev app identity without replacing the normal app.
 
 ## Workflow
 
 1. Detect the mobile stack: Expo, React Native bare, iOS native, Android native, or mixed.
-2. Read the repo's `AGENTS.md`, mobile docs, app config, native project files, env handling, and install commands.
-3. Add or adjust the smallest project-native flavor/config that lets both apps coexist.
-4. Keep identities distinct:
+2. Read mobile docs, app config, native project files, env handling, and install commands.
+3. Use the smallest project-native flavor/config that lets both apps coexist.
+4. Keep identities distinct where the stack needs them:
    - iOS bundle identifier suffix, usually `.ai`.
    - Android `applicationId` suffix, usually `.ai`.
    - Display name suffix, usually `AI`.
-   - Scheme, flavor, variant, or app config name where the stack needs one.
-5. Check conflict surfaces: URL schemes, deep links, Firebase configs, push notifications, keychain/shared preferences, storage namespaces, and backend URL/env.
-6. Add or update install/run commands when the repo convention has a natural place for them.
+   - Scheme, flavor, variant, or app config name.
+5. Check conflicts: URL schemes, deep links, Firebase, push notifications, keychain/shared preferences, storage namespaces, and backend env.
+6. Add install/run commands when the repo has a natural place for them.
 7. Verify the normal app and AI app can both be installed on the target simulator/device.
 
 ## Rules

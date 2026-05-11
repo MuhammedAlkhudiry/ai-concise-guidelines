@@ -5,7 +5,7 @@ description: "Assess whether changes are ready to deploy. Use when the user asks
 
 # Deploy Readiness
 
-Treat deploy-readiness requests as high-scrutiny reviews, not reassurance.
+Review whether the current diff is genuinely deployable.
 
 ## Workflow
 
@@ -17,7 +17,7 @@ Treat deploy-readiness requests as high-scrutiny reviews, not reassurance.
 
 ## Response
 
-- Lead with the deploy verdict: ready, not ready, or ready with named caveats.
+- Lead with the verdict: ready, not ready, or ready with named caveats.
 - Mention only change-specific risks and checks.
 - Do not pad the answer with generic deployment checklists.
 - If QA was done, include the URL, login or fixture data, and exact test data needed for the user to repeat it.
