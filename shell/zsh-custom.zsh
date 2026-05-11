@@ -3,7 +3,10 @@
 # Synced via: https://github.com/MuhammedAlkhudiry/my-setup
 # =============================================================================
 
-# --- Oh My Zsh ---
+# --- Oh My Zsh ---------------------------------------------------------------
+# Loads the interactive shell framework and the small plugin set shared across
+# local terminals. `fzf` is added only for real TTY sessions so non-interactive
+# shell loads do not pay for prompt-oriented behavior.
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
@@ -16,274 +19,185 @@ zsh-autosuggestions
 
 source "$ZSH/oh-my-zsh.sh"
 
-# --- Editor ---
+# --- Editor ------------------------------------------------------------------
+# Keeps the default editor and the quick `zsh` alias pointed at PhpStorm, which
+# is the personal editor contract documented in system-tools.md.
 alias zsh="phpstorm ~/.zshrc"
 export EDITOR=phpstorm
 
-# --- Android/Java ---
+# --- Android/Java ------------------------------------------------------------
+# Exposes the local Android SDK and the Java runtime expected by mobile tooling.
+# These are host-level paths, not project-specific or DDEV-managed values.
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export PATH="$PATH:$ANDROID_HOME/emulator"
 export PATH="$PATH:$ANDROID_HOME/platform-tools"
 export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"
 
-# --- Local Tools ---
+# --- Local Tools -------------------------------------------------------------
+# Adds personal/user-level command locations before project helpers are loaded.
+# `fpath` includes local completions shipped by installed command-line tools.
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
-# --- Laravel/DDEV ---
+# --- Laravel/DDEV ------------------------------------------------------------
+# Short aliases for the expected Laravel workflow: PHP and Artisan run inside
+# DDEV, while host package-manager commands stay outside Docker.
 alias a="ddev artisan"
 alias ds="ddev start"
 
-# --- Testing ---
+# --- Testing -----------------------------------------------------------------
+# Fast Laravel test shortcuts. They intentionally use the `a` alias so the DDEV
+# boundary remains visible in one place.
 alias t="a test --parallel --stop-on-failure"
 alias coverage="a test --parallel --coverage --stop-on-failure"
 
-# --- Dev Server ---
-# Smart dev server launcher with project navigation and package manager detection
-# Fuzzy-finds across projects AND their subdirectories (for monorepos)
-# Usage: dev              - runs dev in current directory
-#        dev front        - fuzzy match "front" in projects + subdirs (e.g., myapp/frontend)
-dev() {
-    local query="$*"
-    local target_dir
-    
-    if [[ -n "$query" ]]; then
-        # Build list: projects + first-level subdirs (for monorepos like myapp/frontend)
-        local selected
-        selected=$({
-            # List projects
-            ls -1 "$PROJECTS_DIR"
-            # List project/subdir for dirs containing package.json in subdir
-            for proj in "$PROJECTS_DIR"/*/; do
-                proj_name=$(basename "$proj")
-                for subdir in "$proj"*/; do
-                    [[ -d "$subdir" ]] || continue
-                    subdir_name=$(basename "$subdir")
-                    # Skip hidden dirs and node_modules
-                    [[ "$subdir_name" == .* ]] && continue
-                    [[ "$subdir_name" == "node_modules" ]] && continue
-                    # Only include if it has package.json (it's a JS project)
-                    [[ -f "$subdir/package.json" ]] && echo "$proj_name/$subdir_name"
-                done
-            done
-        } | fzf \
-            --height=40% \
-            --reverse \
-            --border=rounded \
-            --prompt="Dev > " \
-            --header="Select project or subproject" \
-            --query="$query" \
-            --select-1 \
-            --exit-0)
-        
-        if [[ -z "$selected" ]]; then
-            return 1
-        fi
-        
-        target_dir="$PROJECTS_DIR/$selected"
-        
-        if [[ ! -d "$target_dir" ]]; then
-            echo "Directory not found: $target_dir"
-            return 1
-        fi
-        
-        cd "$target_dir"
-    fi
-    
-    # Detect package manager and run dev
-    if [[ -f "bun.lockb" ]] || [[ -f "bun.lock" ]]; then
-        echo "Using bun..."
-        bun run dev
-    elif [[ -f "pnpm-lock.yaml" ]]; then
-        echo "Using pnpm..."
-        pnpm run dev
-    elif [[ -f "yarn.lock" ]]; then
-        echo "Using yarn..."
-        yarn dev
-    elif [[ -f "package-lock.json" ]] || [[ -f "package.json" ]]; then
-        echo "Using npm..."
-        npm run dev
-    else
-        echo "No package.json found in $(pwd)"
-        return 1
-    fi
-}
+# --- Installed Commands ------------------------------------------------------
+# This repo installs shell helpers into `~/bin` during `mise run install`.
+# The interactive functions below preserve stable command names while giving a
+# clear recovery message if the local install has not been run yet.
+_run_installed_command() {
+    local name="$1"
+    local command_path="$HOME/bin/$name"
+    shift
 
-# --- Git Branch & MR Workflow ---
-# Usage: gbr <type> <description> [base-branch] [files...]
-#        gbr feature add-user-auth main app/Models/User.php
-#        gbr fix login-redirect --current  # uses current branch as base
-#
-# Environment: MR_TITLE (optional) - custom MR title, defaults to commit message
-unalias gbr 2>/dev/null
-gbr() {
-    if [[ -x "$HOME/bin/gbr" ]]; then
-        "$HOME/bin/gbr" "$@"
-        return $?
+    if [[ -x "$command_path" ]]; then
+        "$command_path" "$@"
+        return
     fi
 
-    echo "gbr executable not found at $HOME/bin/gbr"
+    echo "$name executable not found at $command_path"
     echo "Run mise run install from ~/PhpstormProjects/my-setup"
     return 1
+}
+
+unalias gbr 2>/dev/null
+gbr() {
+    _run_installed_command gbr "$@"
 }
 
 hugeicons() {
-    if [[ -x "$HOME/bin/hugeicons" ]]; then
-        "$HOME/bin/hugeicons" "$@"
-        return $?
-    fi
-
-    echo "hugeicons executable not found at $HOME/bin/hugeicons"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
-    return 1
+    _run_installed_command hugeicons "$@"
 }
 
-# --- Tool Initialization ---
+# --- Tool Initialization -----------------------------------------------------
+# Homebrew may be installed outside the default shell PATH. Loading shellenv here
+# makes Homebrew-managed tools available before runtime managers and helpers run.
 [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# --- Runtime Manager ---
+# --- Runtime Manager ---------------------------------------------------------
+# mise owns global runtime activation for this setup. Keep this lightweight so a
+# missing mise binary does not break shell startup on a partially prepared host.
 command -v mise >/dev/null && eval "$(mise activate zsh)"
 
-# --- Kubernetes ---
+# --- Kubernetes --------------------------------------------------------------
+# Adds krew plugins to PATH for kubectl-based helper scripts such as `remote`
+# and `remote-info`.
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-function remote() {
-    if [[ -x "$HOME/bin/remote" ]]; then
-        "$HOME/bin/remote" "$@"
-        return $?
-    fi
-
-    echo "remote executable not found at $HOME/bin/remote"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
-    return 1
+remote() {
+    _run_installed_command remote "$@"
 }
 
-function remote-tinker() {
-    if [[ -x "$HOME/bin/remote-tinker" ]]; then
-        "$HOME/bin/remote-tinker" "$@"
-        return $?
-    fi
-
-    echo "remote-tinker executable not found at $HOME/bin/remote-tinker"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
-    return 1
+remote-tinker() {
+    _run_installed_command remote-tinker "$@"
 }
 
-function remote-info() {
-    if [[ -x "$HOME/bin/remote-info" ]]; then
-        "$HOME/bin/remote-info" "$@"
-        return $?
-    fi
-
-    echo "remote-info executable not found at $HOME/bin/remote-info"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
-    return 1
+remote-info() {
+    _run_installed_command remote-info "$@"
 }
 
-# --- PHP ---
+# --- PHP ---------------------------------------------------------------------
+# Makes the Homebrew PHP 8.2 binaries available for host-side tooling. Laravel
+# project commands still go through DDEV aliases unless explicitly run by hand.
 export PATH="/opt/homebrew/opt/php@8.2/bin:$PATH"
 export PATH="/opt/homebrew/opt/php@8.2/sbin:$PATH"
 
-# --- ZSH Settings ---
+# --- ZSH Settings ------------------------------------------------------------
+# Keeps autosuggestions visible but quiet in dark terminal themes.
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=8"
 
-# --- Project Navigation ---
-# Smart cd into PhpstormProjects with fuzzy matching via fzf
-# Usage: p [query]  - no query opens fzf browser, query filters results
+# --- Project Navigation ------------------------------------------------------
+# Shared fuzzy project picker for personal projects under ~/PhpstormProjects.
+# `p` changes directory, while `ai` reuses the same picker before launching
+# OpenCode. It intentionally lists only top-level project directories.
 PROJECTS_DIR="$HOME/PhpstormProjects"
 
-p() {
-    local query="$1"
+_select_project() {
+    local prompt="$1"
+    local query="$2"
     local selected
-    
-    # Use fzf for selection with optional initial query
+
     selected=$(ls -1 "$PROJECTS_DIR" | fzf \
         --height=40% \
         --reverse \
         --border=rounded \
-        --prompt="Project > " \
-        --header="Select a project (↑↓ navigate, enter select, esc cancel)" \
+        --prompt="$prompt" \
+        --header="Select a project" \
         --query="$query" \
         --select-1 \
         --exit-0)
-    
-    if [[ -n "$selected" ]]; then
-        cd "$PROJECTS_DIR/$selected"
+
+    if [[ -z "$selected" ]]; then
+        return 1
     fi
+
+    if [[ ! -d "$PROJECTS_DIR/$selected" ]]; then
+        echo "Directory not found: $PROJECTS_DIR/$selected"
+        return 1
+    fi
+
+    printf '%s\n' "$PROJECTS_DIR/$selected"
 }
 
-# --- Hosts ---
-# Manage /etc/hosts entries with list, add, and interactive delete
-# Usage: hosts list
-#        hosts add <domain> [ip]
-#        hosts delete
-#        hosts backups
-#        hosts cleanup [keep]
-hosts() {
-    if [[ -x "$HOME/bin/hosts" ]]; then
-        "$HOME/bin/hosts" "$@"
-        return $?
-    fi
+p() {
+    local target_dir
 
-    echo "hosts executable not found at $HOME/bin/hosts"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
-    return 1
+    target_dir=$(_select_project "Project > " "${1:-}") || return 1
+    cd "$target_dir"
+}
+
+# --- Hosts -------------------------------------------------------------------
+# Delegates host-file management to the installed script, keeping the interactive
+# shell config as a thin command surface rather than duplicating script logic.
+hosts() {
+    _run_installed_command hosts "$@"
 }
 
 doctor() {
-    if [[ -x "$HOME/bin/doctor" ]]; then
-        "$HOME/bin/doctor" "$@"
-        return $?
-    fi
-
-    echo "doctor executable not found at $HOME/bin/doctor"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
-    return 1
+    _run_installed_command doctor "$@"
 }
 
-# --- OpenCode ---
-# Smart project launcher for opencode with fuzzy matching via fzf
-# Usage: ai              - runs opencode in current directory
-#        ai my-project   - fuzzy match "my-project" then run opencode
-ai() {
-    local query="$*"
-    
-    if [[ -n "$query" ]]; then
-        local selected
-        selected=$(ls -1 "$PROJECTS_DIR" | fzf \
-            --height=40% \
-            --reverse \
-            --border=rounded \
-            --prompt="AI > " \
-            --header="Select a project" \
-            --query="$query" \
-            --select-1 \
-            --exit-0)
-        
-        if [[ -z "$selected" ]]; then
-            return 1
-        fi
-        
-        if [[ ! -d "$PROJECTS_DIR/$selected" ]]; then
-            echo "Directory not found: $PROJECTS_DIR/$selected"
-            return 1
-        fi
-        
-        cd "$PROJECTS_DIR/$selected"
-    fi
-    
-    opencode
-}
-
+# --- OpenCode ----------------------------------------------------------------
+# Adds OpenCode's own install location and launcher environment, then exposes an
+# `ai` helper that can jump to a selected project before starting OpenCode.
 export PATH="$HOME/.opencode/bin:$PATH"
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 
-# --- Bun ---
+ai() {
+    local query="$*"
+    local target_dir
+
+    if [[ -n "$query" ]]; then
+        target_dir=$(_select_project "AI > " "$query") || return 1
+        cd "$target_dir"
+    fi
+
+    opencode
+}
+
+# --- Bun ---------------------------------------------------------------------
+# Loads Bun's completions and binary path for host-side scripts in this repo and
+# other JavaScript projects.
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# --- Local Secrets -----------------------------------------------------------
+# Sources machine-local secrets created from config/secrets.default.zsh by the
+# installer. The secrets file is intentionally outside the repo.
 [ -f "$HOME/.config/my-setup/secrets.zsh" ] && source "$HOME/.config/my-setup/secrets.zsh"
 
+# --- PATH Cleanup ------------------------------------------------------------
+# Deduplicates PATH after all sections have contributed their entries.
 typeset -U path PATH
