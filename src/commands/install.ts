@@ -46,12 +46,14 @@ const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
   zshrc: join(HOME, ".zshrc"),
   zshenv: join(HOME, ".zshenv"),
+  secrets: join(HOME, ".config/my-setup/secrets.zsh"),
   binDir: join(HOME, "bin"),
 };
 
 const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
+const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY"] as const;
 
 const SHARED_BIN_COMMANDS = [
   { name: "gbr", source: "gbr.zsh" },
@@ -266,6 +268,8 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
 }
 
 async function installShared(): Promise<void> {
+  await installLocalSecrets();
+
   const zshSource = join(ROOT_DIR, "shell", "zsh-custom.zsh");
   if (existsSync(zshSource)) {
     print.info(`Copying zsh config to ${SHARED_PATHS.zsh}...`);
@@ -305,6 +309,74 @@ async function installShared(): Promise<void> {
     print.success("Added ~/bin PATH entry to .zshenv");
   } else {
     print.success("PATH entry already present in .zshenv");
+  }
+}
+
+async function installLocalSecrets(): Promise<void> {
+  const sourceFile = join(ROOT_DIR, "config", "secrets.default.zsh");
+
+  if (!existsSync(sourceFile)) {
+    print.error("secrets.default.zsh not found");
+    process.exit(1);
+  }
+
+  await ensureParentDir(SHARED_PATHS.secrets);
+
+  if (!existsSync(SHARED_PATHS.secrets)) {
+    print.info(`Creating local secrets file at ${SHARED_PATHS.secrets}...`);
+    await copyFile(sourceFile, SHARED_PATHS.secrets);
+    print.success("Local secrets file created");
+  } else {
+    print.success("Local secrets file already present");
+  }
+
+  await chmod(SHARED_PATHS.secrets, 0o600);
+  await assertRequiredSecrets();
+}
+
+async function assertRequiredSecrets(): Promise<void> {
+  try {
+    const result = await execa(
+      "zsh",
+      [
+        "-c",
+        [
+          'source "$MY_SETUP_SECRETS"',
+          "missing=()",
+          'for key in "$@"; do',
+          '  [[ -n "${(P)key}" ]] || missing+=("$key")',
+          "done",
+          "printf '%s\\n' \"${missing[@]}\"",
+        ].join("\n"),
+        "my-setup-secrets",
+        ...REQUIRED_SECRETS,
+      ],
+      {
+        env: {
+          MY_SETUP_SECRETS: SHARED_PATHS.secrets,
+        },
+      },
+    );
+
+    const missingSecrets = result.stdout.split(/\r?\n/).filter(Boolean);
+
+    if (missingSecrets.length === 0) {
+      print.success("Required local secrets are present");
+      return;
+    }
+
+    for (const secret of missingSecrets) {
+      print.error(`Missing required secret: ${secret}`);
+    }
+    print.error(`Edit ${SHARED_PATHS.secrets}, then run mise run install again.`);
+    process.exit(1);
+  } catch (error) {
+    if (error instanceof Error) {
+      print.error(`Failed to validate local secrets: ${error.message}`);
+    } else {
+      print.error("Failed to validate local secrets");
+    }
+    process.exit(1);
   }
 }
 
@@ -476,6 +548,7 @@ export async function install(): Promise<void> {
   );
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
+  console.log(`    Secrets:  ${SHARED_PATHS.secrets}`);
   console.log(
     `    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`,
   );

@@ -53,22 +53,21 @@
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
 - **README-MINIMAL** — Keep `README.md` minimal in personal infrastructure repos; do not update or expand it as user-facing documentation unless the user explicitly asks for a README change.
 - **SOLO-SCOPE** — Assume the user is usually working on one-person projects; when planning, specing, or writing docs, avoid enterprise process, heavy formality, and oversized documents unless explicitly needed. Simple and casual is usually better.
-- **GRILL-WITH-DOCS** — `CONTEXT.md`, `CONTEXT-MAP.md`, and ADR docs are useful repo context; read them when present, and suggest `grill-with-docs` when they are missing or would help clarify domain language and decisions.
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
+Use this reply template and omit sections that do not apply. In `Answer [emoji mode]`, replace `emoji mode` with an emoji plus whichever collaboration mode is active. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
 
 ```md
 Minimal real example:
-**Answer**
+**Answer [emoji mode]**
 The main fix is correct.
 
 **Flag**
 The update path still accepts the old payload shape, so one client flow can break.
 
 Template:
-**Answer**
+**Answer [emoji mode]**
 [Direct answer, result, or next action]
 
 **Flag**

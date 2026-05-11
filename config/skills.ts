@@ -56,16 +56,6 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
-    repository: "https://github.com/mattpocock/skills.git",
-    ref: "main",
-    skills: [
-      {
-        name: "grill-with-docs",
-        sourcePath: "skills/engineering/grill-with-docs",
-      },
-    ],
-  },
-  {
     repository: "https://github.com/PostHog/ai-plugin.git",
     ref: "main",
     skills: [

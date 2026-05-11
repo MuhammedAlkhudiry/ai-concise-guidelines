@@ -284,4 +284,6 @@ export PATH="$HOME/.opencode/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+[ -f "$HOME/.config/my-setup/secrets.zsh" ] && source "$HOME/.config/my-setup/secrets.zsh"
+
 typeset -U path PATH
