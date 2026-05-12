@@ -18,10 +18,10 @@ bun content/skills/setup-worktree/scripts/collect-worktree-context.ts /path/to/r
 
 If the skill has been installed outside this source repo, run the copied script from the installed skill directory.
 
-3. Identify the setup path: worktree command, app dirs, package manager, DDEV root/docroot, reusable dependency/env/data/service state, URLs, QA fixture, and first useful check.
+3. Identify the setup path: worktree command, app dirs, package manager, DDEV root/docroot, reusable dependency/env/data/service state, URLs, QA fixture, seeder command, and first useful check.
 4. Read root `AGENTS.md` and `QA.md` first when they exist, then nested `AGENTS.md`, manifests, DDEV config, `.env.example`, and `CHECKLIST.md`.
 5. Create or update `scripts/setup-worktree.ts`. The script should accept a fresh worktree path and support `--dry-run`.
-6. Make the script fix clear soft blockers: dependency reuse, env reuse, per-worktree DDEV lane, MinIO/local S3, DDEV/service checks, reusable DB fixture checks, and first web/backend checks.
+6. Make the script fix clear soft blockers: dependency reuse, env reuse, per-worktree DDEV lane, MinIO/local S3, migrations, local seeders, DDEV/service checks, reusable DB fixture checks, and first web/backend checks.
 7. Do not leave a soft blocker as documentation only. Either automate it in the script or explain why it is a hard blocker.
 8. Re-run the collector after setup-helper edits.
 9. In the assistant reply, summarize setup script changes. Flag only hard blockers that cannot be safely repaired automatically.
@@ -39,15 +39,17 @@ If the skill has been installed outside this source repo, run the copied script 
 - A 1-minute web start means another agent can create a fresh worktree, run the script, and begin useful web/backend code or checks within 1 minute when the canonical checkout has warm reusable state.
 - The setup script must print `READY` when the web worktree is ready and `BLOCKED` with exact blockers when it is not.
 - The setup script should be idempotent and safe to rerun.
-- A DDEV project-name collision is usually a soft blocker, not a hard blocker. When the repo uses DDEV and a canonical lane is already owned by another checkout, the script should create a unique per-worktree DDEV local config in the fresh worktree when safe, then start/check that lane.
+- The setup script should run project-local migrations and the smallest useful local/QA seeder after required services are ready. Verify the seeded QA fixture exists before printing `READY`.
+- A DDEV project-name or host-port collision is usually a soft blocker, not a hard blocker. When the repo uses DDEV and a canonical lane is already owned by another checkout, the script should create a unique per-worktree DDEV local config in the fresh worktree when safe, then start/check that lane.
 - Per-worktree DDEV names should be deterministic and short, based on the worktree folder slug. The script must not mutate the canonical checkout's DDEV config.
+- Per-worktree DDEV config should assign a deterministic free `host_webserver_port` when local lanes can collide, and retry `ddev start` with a new free port if DDEV reports a bind/port conflict.
 - If changing the DDEV name changes app URLs, the script must update only fresh-worktree local env/config files needed for local web readiness, never tracked production config or canonical env files.
 - If a Laravel web app is configured for S3 and no local S3 service exists, add DDEV MinIO support and have the setup script set fresh-worktree env values to local MinIO credentials, endpoint, path-style mode, and a local bucket. Create/check the bucket from the script after DDEV starts.
-- For ignored dependency directories such as `vendor` and `node_modules`, reuse the canonical checkout when lockfiles match. Use symlinks when safe; otherwise report the install command as a hard blocker for the 1-minute target.
+- For ignored dependency directories such as `vendor` and `node_modules`, reuse the canonical checkout when lockfiles match. Use symlinks only when the runtime can follow them. For container-visible dependencies such as Laravel `vendor` inside DDEV, copy or mount them so `ddev artisan` works inside the fresh lane; otherwise report the install command as a hard blocker for the 1-minute target.
 - When dependency reuse comes from a canonical checkout, the fresh worktree should usually be created from the canonical checkout's `HEAD` or another ref with matching lockfiles. Do not default to `origin/main` if that makes lockfiles diverge from the warm dependency source.
 - For local env files such as `.env`, prefer symlinking or copying from the canonical checkout only when the repo already treats that env as local machine state. Never invent secrets or production credentials.
 - If you add an uncommitted setup helper, document the command with an absolute path to the canonical checkout helper so a fresh worktree created from `origin/main` can use it before the helper is committed.
-- If realistic local data is needed, mention `~/db-dumps` and `prod-db-to-ddev`; never import production data without explicit approval.
+- Use seeders/fixtures as the default data path. If realistic production-like data is needed, mention `~/db-dumps` and `prod-db-to-ddev`; never import production data without explicit approval.
 - Keep mobile out of the default web setup path unless the user explicitly asks for mobile readiness.
 
 ## DDEV Updates
@@ -56,7 +58,7 @@ When a DDEV gap is concrete, update DDEV instead of only reporting it.
 
 - Add or adjust project-native DDEV service files for clear Redis, search, or MinIO/S3 needs.
 - Add small DDEV commands when they remove repeated setup friction, such as database import, service health checks, or coverage helpers.
-- Add per-worktree DDEV lane support when the project has a fixed canonical DDEV name and web worktrees need to run without taking over that lane.
+- Add per-worktree DDEV lane and host-port support when the project has a fixed canonical DDEV name and web worktrees need to run without taking over that lane.
 - Keep DDEV edits minimal and consistent with existing `.ddev` patterns.
 - Do not invent service credentials or production secrets.
 - Treat database imports and production data pulls as external setup steps, not automatic worktree repair.

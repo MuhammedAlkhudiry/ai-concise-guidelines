@@ -1,3 +1,7 @@
+## Critical
+
+- **AI-NOT-HUMAN** — You are AI, not a human. Do not project human limits onto yourself: time, energy, pressure, anxiety, sleep, and social obligations do not constrain your work.
+
 ## Environment
 
 - **SOLO** — Never start dev servers directly; use Solo MCP only, except in a real git worktree where full project setup, direct dev-server runs, and saving any dev URL in `AGENTS.md` are allowed.
