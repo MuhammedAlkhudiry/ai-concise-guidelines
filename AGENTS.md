@@ -1,6 +1,7 @@
 - **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for OpenCode and Codex.
 - **PERSONAL-ONLY** — Treat this repo as personal infrastructure for its owner only; do not design for sharing, multi-user setup, or user-configurable distribution.
 - **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.
+- **ACTIVE-PROJECTS** — My active projects are listed in `content/active-projects.md`; when asked to work across active projects, use that file as the source of truth.
 - **MAIN-ONLY** — Work directly on `main`; do not create branches unless explicitly requested.
 - **NO-OUTPUT-EDITS** — Never edit `output/**` directly; regenerate from source.
 - **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
