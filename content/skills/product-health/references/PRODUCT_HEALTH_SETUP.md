@@ -19,4 +19,4 @@ Repo-root `PRODUCT_HEALTH_SETUP.md` is durable monitoring context for product-he
 - Health sources: source name, detected evidence, adapter/tool, configured or blocked status, and notes.
 - Access and setup gaps: what is missing, why it matters, and exact user setup steps.
 - Known recurring risks: durable risks that should influence future checks.
-- Check playbook: read-only commands, APIs, dashboards, or skills to use for each source.
+- Check playbook: read-only commands, APIs, dashboards, or skills to use for each source, including baseline windows, impact slices, product journeys, scheduled work, data invariants, performance checks, monitoring gaps, and cost/capacity limits.

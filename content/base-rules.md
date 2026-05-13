@@ -4,7 +4,7 @@
 
 ## Environment
 
-- **SOLO** — Never start dev servers directly; use Solo MCP only, except in a real git worktree where full project setup, direct dev-server runs, and saving any dev URL in `AGENTS.md` are allowed.
+- **SOLO** — Never start dev servers directly; use Solo MCP for dev servers and their process logs, except in a real git worktree where full project setup, direct dev-server runs, and saving any dev URL in `AGENTS.md` are allowed.
 - **NO-BUILD** — Never run `build` or build frontend assets. For QA testing, assume dev servers should already be running; if they are not, start them using the allowed project flow or ask the user.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **DDEV-PHP** — Always run Laravel and PHP commands inside `ddev` unless explicitly told not to.
@@ -39,6 +39,7 @@
 - **DISCUSS-FIRST** — When discussing or planning, avoid switching into execution or editing files unless the user says "ok go", "do it", or gives a similar explicit go-ahead.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a short bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
+- **EXPLICIT-PLANS** — Plans must be explicit and committed; do not include conditional or uncertain wording like `if`, `when`, `decide`, or `maybe`.
 - **GAP-CHECK** — Raise concrete bugs, logic risks, misleading structure, dead code, or inconsistencies when they matter. Do not use `Flag` for general observations, preferences, routine caveats, suggestions, or unrelated local git changes unless they create a real task risk.
 
 ## Verification
@@ -48,7 +49,7 @@
 - **CHECKLIST** — Repo-root `CHECKLIST.md` is for stable project-wide verification commands only; never add task-specific checks to it, and update it rarely.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
-- **QA-HANDOFF** — After doing QA, always give the user the URL, login or fixture data, and exact test data needed so they can repeat the QA themselves.
+- **QA-HANDOFF** — After doing QA, always give the user the verified working URL, login or fixture data, and exact test data needed so they can repeat the QA themselves; before sharing a QA URL, ensure the dev server is running and the URL responds.
 - **AGENT-DEVICE-MOBILE** — For agent-device mobile QA after JS-only edits, prefer a warm session with `agent-device metro reload` and snapshot/diff; use `open --relaunch` only for startup, auth/bootstrap, native-state, or broken-navigation checks.
 - **FLAKY-TESTS** — When test errors seem random, first suspect a dirty test database or a parallelism issue before deeper debugging.
 
@@ -57,6 +58,7 @@
 - **IGNORE-UNRELATED-DIFFS** — Ignore unrelated git diffs or changes completely; do not touch them in any way.
 - **AGENTS.md** — In a monorepo, if the work is limited to one repo or package, read its nested `AGENTS.md`; when updating `AGENTS.md`, keep each added point single-point and concise.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
+- **GLOBAL-PLANS** — Store plan files in `~/plans/<project-name>/`, not project repos; create or update them only when the user explicitly asks for a plan file, using the `persistent-plans` skill.
 - **README-MINIMAL** — Keep `README.md` minimal in personal infrastructure repos; do not update or expand it as user-facing documentation unless the user explicitly asks for a README change.
 - **SOLO-SCOPE** — Assume the user is usually working on one-person projects; when planning, specing, or writing docs, avoid enterprise process, heavy formality, and oversized documents unless explicitly needed. Simple and casual is usually better.
 

@@ -13,5 +13,5 @@
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.
 - **MODEL-SELECTION** — Never edit or select a model; model choice is always user-controlled.
-- **WORDING-QUALITY** — Preserve user intent, but use the clearest and strongest wording instead of literal phrasing.
+- **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.
 - **FILE-TYPES** — Keep `.md` for docs/rules/skills, `.ts` for scripts and config generators, and `.json` for local tool config where applicable.
