@@ -13,10 +13,11 @@ Check sibling files, related controllers, models, and tests first. Follow establ
 
 ## Types And Data
 
-- Use parameter, return, and property types.
+- Use parameter, return, and property types. Avoid `mixed` and untyped values.
+- Avoid `stdClass`.
 - Prefer collections for in-memory data; use arrays for framework boundaries, serialization, or external contracts.
-- Use logic-free DTOs for data crossing real boundaries.
-- Use backed enums for constrained values.
+- Use typed, immutable, logic-free DTOs for data crossing real boundaries.
+- Use PHP backed enums for constrained values instead of magic strings or integers.
 - Prefer Carbon objects over date strings.
 - Use Laravel helpers such as `Str`, `Arr`, `Number`, `Uri`, and collections instead of custom parsing or manual manipulation.
 
@@ -31,14 +32,15 @@ Check sibling files, related controllers, models, and tests first. Follow establ
 
 ## Queries And Models
 
-- Do not run queries in per-item code: accessors, resources, maps, loops, or callbacks. Load data upfront.
+- Do not run queries in per-item code: model accessors, mutators, resources, maps, loops, callbacks, or collection item handlers. Load data upfront with eager loading or a single query.
 - Prefer `create()` and `update()` with validated arrays instead of setting attributes one by one before `save()`.
+- Before adding `$fillable` or `$guarded`, check whether the project uses `Model::unguarded()` or `Model::unguard()` globally. If it does, do not add mass-assignment properties.
 - When no explicit order is specified, sort by `id` or `created_at` descending.
 - Avoid hardcoded table names in queries. Exception: migrations can use hardcoded table names because migrations are frozen snapshots and models can change later.
 
 ## Responses
 
-- Use API Resources when JSON formatting, conditional fields, or nested relationships need an owner.
+- Use API Resources for JSON responses. Do not hand-craft response arrays in controllers or services when a resource should own formatting, conditional fields, and nested relationships.
 
 ## Cache
 

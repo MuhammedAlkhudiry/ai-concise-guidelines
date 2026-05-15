@@ -34,10 +34,10 @@
 - **TRANSLATION** — Translate all user-facing copy naturally and contextually; add missing translations when needed.
 - **ARABIC-COPY** — When writing or translating Arabic copy, use natural, clear, eloquent fusha that fits the project's voice; avoid modern media phrasing and machine-like wording.
 - **ASK-WHEN-UNSURE** — If the user's intent, constraints, or the right change are unclear, ask before proceeding instead of guessing.
-- **QUESTION-FIRST** — When the user asks a question, reason through it and answer the question without editing files unless they clearly ask for an implementation or change.
+- **QUESTION-FIRST** — When the user asks a question, reason through it and answer the question without editing code files unless they clearly ask for an implementation or change.
 - **OPTIONS-FIRST** — When the user is asking, discussing, workshopping, asking how, or exploring possibilities, keep replies short while weighing practical options, solutions, and trade-offs. Avoid presenting or mentioning only one solution unless there is clearly no other reasonable way; search the web when current facts, tools, or best practices may matter.
-- **DISCUSS-FIRST** — When discussing or planning, avoid switching into execution or editing files unless the user says "ok go", "do it", or gives a similar explicit go-ahead.
-- **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no edits, answer the question directly, and do research first if needed.
+- **DISCUSS-FIRST** — When discussing or planning, avoid switching into execution or editing code files unless the user says "ok go", "do it", or gives a similar explicit go-ahead. Non-code files may be updated when the discussion is explicitly about capturing notes, terms, decisions, documentation, or other non-code content.
+- **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no code edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a short bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
 - **EXPLICIT-PLANS** — Plans must be explicit and committed; do not include conditional or uncertain wording like `if`, `when`, `decide`, or `maybe`.
 - **GAP-CHECK** — Raise concrete bugs, logic risks, misleading structure, dead code, or inconsistencies when they matter. Do not use `Flag` for general observations, preferences, routine caveats, suggestions, or unrelated local git changes unless they create a real task risk.
