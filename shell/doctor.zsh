@@ -6,7 +6,10 @@ typeset -i required_ok=0
 typeset -i required_missing=0
 typeset -i optional_ok=0
 typeset -i optional_missing=0
+typeset -i link_ok=0
+typeset -i link_missing=0
 GUM_BIN="$(command -v gum 2>/dev/null || true)"
+MY_SETUP_ROOT="${MY_SETUP_ROOT:-$HOME/PhpstormProjects/my-setup}"
 
 has_gum() {
   [[ -n "$GUM_BIN" ]]
@@ -51,11 +54,13 @@ print_summary() {
     "$GUM_BIN" style --bold --foreground 81 "Summary"
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "required:")" "$required_ok" "$required_missing"
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "optional:")" "$optional_ok" "$optional_missing"
+    printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "links:")" "$link_ok" "$link_missing"
     printf '  %s\n' "$("$GUM_BIN" style --foreground 244 "note: this checks command presence, not auth, credentials, or full runtime access.")"
   else
     printf 'Summary\n'
     printf '  required: ok=%d missing=%d\n' "$required_ok" "$required_missing"
     printf '  optional: ok=%d missing=%d\n' "$optional_ok" "$optional_missing"
+    printf '  links: ok=%d missing=%d\n' "$link_ok" "$link_missing"
     printf '  note: this checks command presence, not auth, credentials, or full runtime access.\n'
   fi
 }
@@ -86,6 +91,35 @@ check_tool() {
   fi
 }
 
+check_link() {
+  local name="$1"
+  local destination="$2"
+  local expected_target="$3"
+  local actual_target
+
+  if [[ ! -L "$destination" ]]; then
+    print_missing "required" "$name" "$destination is not a symlink"
+    (( link_missing++ ))
+    return 1
+  fi
+
+  actual_target="$(readlink "$destination" 2>/dev/null || true)"
+  if [[ "$actual_target" != "$expected_target" ]]; then
+    print_missing "required" "$name" "points to $actual_target"
+    (( link_missing++ ))
+    return 1
+  fi
+
+  if [[ ! -e "$expected_target" ]]; then
+    print_missing "required" "$name" "target missing: $expected_target"
+    (( link_missing++ ))
+    return 1
+  fi
+
+  print_ok "$name" "$destination -> $expected_target"
+  (( link_ok++ ))
+}
+
 main() {
   print_header "Core repo tools"
   check_tool bun required "Runtime used internally by mise run install."
@@ -98,6 +132,7 @@ main() {
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
   check_tool ddev optional "Used by Laravel aliases in the synced zsh config."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
+  check_tool rtk optional "Used to reduce noisy command output before it reaches AI agent context."
   check_tool fzf optional "Used by project pickers and interactive hosts deletion."
 
   print_header "Git and remote workflow helpers"
@@ -107,9 +142,19 @@ main() {
   check_tool gum optional "Optional styling for remote-info output."
   check_tool php optional "Required inside remote-tinker payload execution."
 
+  print_header "My Setup links"
+  check_link zsh "$HOME/.config/zsh-sync/custom.zsh" "$MY_SETUP_ROOT/shell/zsh-custom.zsh"
+  check_link gbr "$HOME/bin/gbr" "$MY_SETUP_ROOT/shell/gbr.zsh"
+  check_link hugeicons "$HOME/bin/hugeicons" "$MY_SETUP_ROOT/shell/hugeicons.zsh"
+  check_link remote "$HOME/bin/remote" "$MY_SETUP_ROOT/shell/remote.zsh"
+  check_link remote-tinker "$HOME/bin/remote-tinker" "$MY_SETUP_ROOT/shell/remote-tinker.zsh"
+  check_link remote-info "$HOME/bin/remote-info" "$MY_SETUP_ROOT/shell/remote-info.zsh"
+  check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
+  check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
+
   print_summary
 
-  if (( required_missing > 0 )); then
+  if (( required_missing > 0 || link_missing > 0 )); then
     return 1
   fi
 

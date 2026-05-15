@@ -9,7 +9,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { createOpencodeConfig } from "../../config/opencode";
 import { MCP_SERVERS } from "../../config/mcp";
-import { ensureDir, copyDirAsync } from "../lib/fs";
+import { ensureDir } from "../lib/fs";
 
 // =============================================================================
 // Paths
@@ -17,7 +17,6 @@ import { ensureDir, copyDirAsync } from "../lib/fs";
 
 const ROOT_DIR = join(import.meta.dir, "..", "..");
 const CONTENT_DIR = join(ROOT_DIR, "content");
-const PLUGINS_DIR = join(ROOT_DIR, "plugins");
 const OUTPUT_DIR = join(ROOT_DIR, "output");
 
 // Tool-specific output directories
@@ -27,24 +26,6 @@ const CODEX_DIR = join(OUTPUT_DIR, "codex");
 // =============================================================================
 // OpenCode Generators
 // =============================================================================
-
-async function copyOpencodePlugins(): Promise<number> {
-  console.log("  [OpenCode] Copying plugins...");
-
-  if (!existsSync(PLUGINS_DIR)) {
-    console.log("    No plugins directory found, skipping");
-    return 0;
-  }
-
-  const count = await copyDirAsync({
-    src: PLUGINS_DIR,
-    dest: join(OPENCODE_DIR, "plugin"),
-    extensions: [".ts", ".js"],
-  });
-
-  console.log(`    Copied ${count} plugins`);
-  return count;
-}
 
 async function generateOpencodeConfig(): Promise<void> {
   console.log("  [OpenCode] Generating config...");
@@ -111,11 +92,10 @@ export async function generate(): Promise<void> {
 
   // Create output structures for supported tools
   await ensureDir(CODEX_DIR);
-  await ensureDir(join(OPENCODE_DIR, "plugin"));
+  await ensureDir(OPENCODE_DIR);
 
   // Generate OpenCode
   console.log("OpenCode:");
-  const opcPluginCount = await copyOpencodePlugins();
   await generateOpencodeConfig();
 
   console.log();
@@ -131,7 +111,7 @@ export async function generate(): Promise<void> {
   console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
   console.log(`  Codex:       ${CODEX_DIR}/`);
   console.log(`\nSummary:`);
-  console.log(`  OpenCode:    ${opcPluginCount} plugins`);
+  console.log(`  OpenCode:    config`);
   console.log(`  Codex:       ${codexMcpCount} MCP servers`);
 }
 

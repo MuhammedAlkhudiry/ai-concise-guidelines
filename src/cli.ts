@@ -29,6 +29,7 @@ cli
   .action(async () => {
     await generate();
     await install();
+    await runScript("zsh", [join(ROOT_DIR, "shell", "doctor.zsh")]);
   });
 
 cli

@@ -7,11 +7,10 @@ description: Use when the user explicitly wants OpenCode CLI to handle a task, e
 
 Use the local `opencode` CLI only when the user explicitly asks for OpenCode.
 
-Use only these model forms:
+Use this model form:
 
 ```bash
 opencode run 'Reply with exactly: pong' --model=opencode/kimi-k2.6
-opencode run 'Reply with exactly: pong' --model=opencode/gemini-3.1-pro
 ```
 
 For another repo, add `--dir`:

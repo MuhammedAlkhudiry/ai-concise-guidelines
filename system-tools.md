@@ -27,6 +27,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `phpstorm` | Default editor command in `shell/zsh-custom.zsh`. |
 | `ddev` | Laravel aliases and local PHP workflows use it. |
 | `opencode` | `ai` launcher and OpenCode workflows use it. |
+| `rtk` | Reduces noisy command output before it reaches AI agent context. |
 | `fzf` | Used by project pickers and interactive hosts deletion. |
 
 ## Git And Remote Workflow Helpers

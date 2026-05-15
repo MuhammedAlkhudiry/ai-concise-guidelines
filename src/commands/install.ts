@@ -4,8 +4,8 @@
  * Internal local installer used by `mise run install`.
  */
 
-import { existsSync, copyFileSync } from "fs";
-import { readFile, writeFile, copyFile, chmod, readdir, rm, mkdtemp } from "fs/promises";
+import { existsSync, copyFileSync, readFileSync, writeFileSync } from "fs";
+import { readFile, writeFile, copyFile, chmod, readdir, rm, mkdtemp, symlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { execa } from "execa";
@@ -32,7 +32,6 @@ const ROOT_DIR = join(import.meta.dir, "..", "..");
 
 const OPENCODE_PATHS = {
   rules: join(HOME, ".config/opencode/AGENTS.md"),
-  plugins: join(HOME, ".config/opencode/plugin"),
   config: join(HOME, ".config/opencode/opencode.json"),
 };
 
@@ -87,13 +86,21 @@ function copyCodexRules(): void {
   print.info(`Copying Codex rules to ${CODEX_PATHS.rules}...`);
 
   const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
+  const rtkRulesFile = join(ROOT_DIR, "content", "rtk-rules.md");
   if (!existsSync(sourceFile)) {
     print.error("Base rules file not found");
     return;
   }
+  if (!existsSync(rtkRulesFile)) {
+    print.error("RTK rules file not found");
+    return;
+  }
 
   ensureParentDirSync(CODEX_PATHS.rules);
-  copyFileSync(sourceFile, CODEX_PATHS.rules);
+  writeFileSync(
+    CODEX_PATHS.rules,
+    `${readFileSync(sourceFile, "utf-8")}\n\n${readFileSync(rtkRulesFile, "utf-8")}`,
+  );
   print.success(`Codex rules copied`);
 }
 
@@ -179,18 +186,6 @@ async function installSharedSkills(): Promise<void> {
 
 async function installOpencode(): Promise<void> {
   copyOpencodeRules();
-  const pluginsSource = join(ROOT_DIR, "output", "opencode", "plugin");
-  print.info(`Copying plugins to ${OPENCODE_PATHS.plugins}...`);
-  if (!existsSync(pluginsSource)) {
-    print.error("plugins folder not found");
-  } else {
-    const count = await copyDirAsync({
-      src: pluginsSource,
-      dest: OPENCODE_PATHS.plugins,
-      extensions: [".ts", ".js"],
-    });
-    print.success(`Copied ${count} plugins`);
-  }
   await mergeOpencodeConfigAsync();
 }
 
@@ -272,10 +267,7 @@ async function installShared(): Promise<void> {
 
   const zshSource = join(ROOT_DIR, "shell", "zsh-custom.zsh");
   if (existsSync(zshSource)) {
-    print.info(`Copying zsh config to ${SHARED_PATHS.zsh}...`);
-    await ensureParentDir(SHARED_PATHS.zsh);
-    await copyFile(zshSource, SHARED_PATHS.zsh);
-    print.success("Zsh config copied");
+    await installManagedSymlink(zshSource, SHARED_PATHS.zsh, "zsh config");
   } else {
     print.error("zsh-custom.zsh not found");
   }
@@ -289,11 +281,8 @@ async function installShared(): Promise<void> {
       continue;
     }
 
-    print.info(`Installing ${command.name} command to ${destinationPath}...`);
-    await ensureParentDir(destinationPath);
-    await copyFile(sourcePath, destinationPath);
-    await chmod(destinationPath, 0o755);
-    print.success(`${command.name} command installed`);
+    await installManagedSymlink(sourcePath, destinationPath, `${command.name} command`);
+    await chmod(sourcePath, 0o755);
   }
 
   print.info(`Ensuring ~/bin is in PATH via ${SHARED_PATHS.zshenv}...`);
@@ -310,6 +299,14 @@ async function installShared(): Promise<void> {
   } else {
     print.success("PATH entry already present in .zshenv");
   }
+}
+
+async function installManagedSymlink(src: string, dest: string, label: string): Promise<void> {
+  print.info(`Linking ${label} to ${dest}...`);
+  await ensureParentDir(dest);
+  await rm(dest, { recursive: true, force: true });
+  await symlink(src, dest);
+  print.success(`${label} linked`);
 }
 
 async function installLocalSecrets(): Promise<void> {
@@ -535,7 +532,6 @@ export async function install(): Promise<void> {
   console.log();
   console.log(colors.blue("  OpenCode:"));
   console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
-  console.log(`    Plugins:  ${OPENCODE_PATHS.plugins} (clean)`);
   console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
   console.log();
   console.log(colors.blue("  Codex:"));
