@@ -28,4 +28,4 @@ Use strict RED-GREEN-Refactor against verifiable behavior.
 - Minimal fixtures and local style.
 - No unrelated behavior changes.
 - Cover happy path, changed behavior, relevant boundaries/errors, and integration points.
-- Finish with passing local-friendly tests and a diff limited to tested behavior.
+- Finish each TDD loop with passing local-friendly tests and a diff limited to tested behavior.

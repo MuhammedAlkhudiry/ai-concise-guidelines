@@ -21,7 +21,7 @@ If the skill has been installed outside this source repo, run the copied script 
 3. Identify the setup path: worktree command, app dirs, package manager, DDEV root/docroot, reusable dependency/env/data/service state, URLs, QA fixture, seeder command, and first useful check.
 4. Read root `AGENTS.md` and `QA.md` first when they exist, then nested `AGENTS.md`, manifests, DDEV config, `.env.example`, and `CHECKLIST.md`.
 5. Create or update `scripts/setup-worktree.ts`. The script should accept a fresh worktree path and support `--dry-run`.
-6. Make the script fix clear soft blockers: dependency reuse, env reuse, per-worktree DDEV lane, MinIO/local S3, migrations, local seeders, DDEV/service checks, reusable DB fixture checks, mobile host dependency reuse when a mobile app exists, deterministic Vite startup, and first web/backend checks.
+6. Make the script fix clear soft blockers. Use `references/worktree-repair-playbook.md` for DDEV lanes, dependency reuse, local services, env/data reuse, Vite startup, and mobile boundaries.
 7. Do not leave a soft blocker as documentation only. Either automate it in the script or explain why it is a hard blocker.
 8. Re-run the collector after setup-helper edits.
 9. In the assistant reply, summarize setup script changes. Flag only hard blockers that cannot be safely repaired automatically.
@@ -32,26 +32,15 @@ If the skill has been installed outside this source repo, run the copied script 
 - Do not invent setup commands.
 - During guide authoring, describe setup execution instead of performing it.
 - Do not include build commands as the normal worktree setup path.
-- For Laravel/PHP projects, prefer DDEV commands when DDEV exists or repo rules require it.
+- For Laravel/PHP projects, run Laravel and PHP commands inside DDEV unless explicitly told otherwise.
 - For host JavaScript commands, prefer the package manager already used by the repo.
 - Separate root, backend, web, and mobile app commands.
 - Prefer explicit commands from root `CHECKLIST.md`, `QA.md`, and `AGENTS.md` over collector-guessed checks.
 - A 1-minute web start means another agent can create a fresh worktree, run the script, and begin useful web/backend code or checks within 1 minute when the canonical checkout has warm reusable state.
 - The setup script must print `READY` when the web worktree is ready and `BLOCKED` with exact blockers when it is not.
 - The setup script should be idempotent and safe to rerun.
-- The setup script should run project-local migrations and the smallest useful local/QA seeder after required services are ready. Verify the seeded QA fixture exists before printing `READY`.
-- A DDEV project-name or host-port collision is usually a soft blocker, not a hard blocker. When the repo uses DDEV and a canonical lane is already owned by another checkout, the script should create a unique per-worktree DDEV local config in the fresh worktree when safe, then start/check that lane.
-- Per-worktree DDEV names should be deterministic and short, based on the worktree folder slug. The script must not mutate the canonical checkout's DDEV config.
-- Per-worktree DDEV config should assign a deterministic free `host_webserver_port` when local lanes can collide, and retry `ddev start` with a new free port if DDEV reports a bind/port conflict.
-- If changing the DDEV name changes app URLs, the script must update only fresh-worktree local env/config files needed for local web readiness, never tracked production config or canonical env files.
-- If a Laravel web app is configured for S3 and no local S3 service exists, add DDEV MinIO support and have the setup script set fresh-worktree env values to local MinIO credentials, endpoint, path-style mode, and a local bucket. Create/check the bucket from the script after DDEV starts.
-- For ignored dependency directories such as `vendor` and `node_modules`, reuse the canonical checkout when lockfiles match. Use symlinks only when the runtime can follow them. For container-visible dependencies such as Laravel `vendor` inside DDEV, copy or mount them so `ddev artisan` works inside the fresh lane; otherwise report the install command as a hard blocker for the 1-minute target.
-- If the monorepo has a mobile app with warm host-side dependencies, include its `node_modules` reuse when lockfiles match so mobile typecheck/lint can start without a fresh install.
-- For Laravel/Vite apps, make normal dev-server startup deterministic instead of adding a browser-QA-only wrapper. The setup script should remove stale ignored `public/hot` files as hygiene, and the repo should expose a simple command or script that starts Vite on `127.0.0.1` with a free strict port so browser QA and regular agents use the same clean path.
-- When dependency reuse comes from a canonical checkout, the fresh worktree should usually be created from the canonical checkout's `HEAD` or another ref with matching lockfiles. Do not default to `origin/main` if that makes lockfiles diverge from the warm dependency source.
 - For local env files such as `.env`, prefer symlinking or copying from the canonical checkout only when the repo already treats that env as local machine state. Never invent secrets or production credentials.
 - If you add an uncommitted setup helper, document the command with an absolute path to the canonical checkout helper so a fresh worktree created from `origin/main` can use it before the helper is committed.
-- Use seeders/fixtures as the default data path. If realistic production-like data is needed, mention `~/db-dumps` and `prod-db-to-ddev`; never import production data without explicit approval.
 - Keep mobile out of the default web setup path unless the user explicitly asks for mobile readiness.
 
 ## DDEV Updates
