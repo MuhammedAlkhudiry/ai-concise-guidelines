@@ -35,4 +35,4 @@ Include:
 - Include negative or edge paths only when the change can realistically fail there.
 - Do not repeat full implementation details, test logs, or generic QA theory.
 - Use `qa-test-cases` instead when the user asks for a full test suite or executable case document.
-- Use `deploy-readiness` instead when the user asks whether the change is ready to ship.
+- Use `post-implementation-review` instead when the user asks whether the change is ready to ship.
