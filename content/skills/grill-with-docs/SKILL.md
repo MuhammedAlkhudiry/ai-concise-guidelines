@@ -45,6 +45,7 @@ Interrogate a plan until the decision-changing uncertainty is resolved and the l
 - Stay standalone. Do not depend on other skills to run the session.
 - Prefer sharp alignment over broad brainstorming.
 - Do not batch questions unless the user asks for a fast pass.
+- Do not force a `Plan` section during grilling. Reply with the answer, the next question, or the useful challenge in whatever compact shape fits the moment.
 - Do not turn glossary notes into a spec, scratchpad, or implementation plan.
 - Offer an ADR only when the decision is hard to reverse, surprising without context, and the result of a real trade-off.
 - Finish with settled decisions, unresolved risks, and the recommended path.

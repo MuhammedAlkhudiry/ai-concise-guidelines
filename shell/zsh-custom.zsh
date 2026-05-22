@@ -168,6 +168,10 @@ doctor() {
     _run_installed_command doctor "$@"
 }
 
+plan() {
+    _run_installed_command plan "$@"
+}
+
 # --- OpenCode ----------------------------------------------------------------
 # Adds OpenCode's own install location and launcher environment, then exposes an
 # `ai` helper that can jump to a selected project before starting OpenCode.

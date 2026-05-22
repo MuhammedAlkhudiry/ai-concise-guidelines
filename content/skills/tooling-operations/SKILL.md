@@ -10,7 +10,12 @@ Use existing project tools instead of recreating their workflows manually.
 ## Workflow
 
 1. Identify whether the task is PDF work or a helper-command workflow.
-2. Use the matching tool directly.
+2. Use the matching tool directly. To check common local helper tools, run:
+
+```bash
+bun content/skills/tooling-operations/scripts/tool-doctor.ts
+```
+
 3. Stop only when the required tool is missing or lacks the needed capability.
 
 ## PDF Processing

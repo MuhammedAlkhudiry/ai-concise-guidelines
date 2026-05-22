@@ -151,6 +151,7 @@ main() {
   check_link remote-info "$HOME/bin/remote-info" "$MY_SETUP_ROOT/shell/remote-info.zsh"
   check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
+  check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"
 
   print_summary
 

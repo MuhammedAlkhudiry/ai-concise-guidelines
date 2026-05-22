@@ -26,7 +26,6 @@
 - **QUERY** — Build query strings only with framework/library helpers; never concatenate manually.
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
 - **TEST-SYNC** — When refactoring app code files, always refactor the related test files too so they stay in sync.
-- **DUAL-UI** — For any UI-related task, run `opencode run` with the same relevant context using `--model=opencode/kimi-k2.6`. Ask Kimi to describe in detail what UI to implement, then use that opinion before building. Codex must not design, choose, or influence any UI direction without that opinion.
 
 ## Communication
 

@@ -1,21 +1,26 @@
 ---
 name: product-health
-description: "Create or update PRODUCT_HEALTH_SETUP.md as durable monitoring context, then report actual product-health run results in chat. Use when the user asks for product health, latest bugs, slow APIs or queries, server status, database status, Redis status, Horizon/jobs health, Sentry health, PostHog analytics health, or an operational health report."
+description: "Create or update PRODUCT_SETUP.md as durable product context, then report actual product-health run results in chat. Use when the user asks for product health, latest bugs, slow APIs or queries, server status, database status, Redis status, Horizon/jobs health, Sentry health, PostHog analytics health, or an operational health report."
 ---
 
 # Product Health
 
-Maintain `PRODUCT_HEALTH_SETUP.md` as durable monitoring context, then report the current health run in chat.
+Maintain `PRODUCT_SETUP.md` as durable product context, then report the current health run in chat.
 
 ## Workflow
 
-1. Read target repo context: root and nested `AGENTS.md`, `PRODUCT.md`, README, deployment docs, manifests, app config, env examples, and existing `PRODUCT_HEALTH_SETUP.md`.
-2. Create or refresh repo-root `PRODUCT_HEALTH_SETUP.md` before the health run when it is missing or stale. Use `references/PRODUCT_HEALTH_SETUP.md` as the guide.
-3. Detect health sources from code and docs, then record sources, evidence paths, adapters, access gaps, recurring risks, and the check playbook for product journeys, scheduled work, data integrity, performance, and capacity.
+1. Read target repo context: root and nested `AGENTS.md`, `PRODUCT.md`, README, deployment docs, manifests, app config, env examples, and existing `PRODUCT_SETUP.md`.
+2. Create or refresh repo-root `PRODUCT_SETUP.md` before the health run when it is missing or stale. Use `references/PRODUCT_SETUP.md` as the guide.
+3. Detect health sources from code and docs, then record sources, evidence paths, adapters, access gaps, recurring risks, and the check playbook for product journeys, scheduled work, data integrity, performance, and capacity. Use the helper for the first pass:
+
+```bash
+bun content/skills/product-health/scripts/discover-health-sources.ts /path/to/repo
+```
+
 4. Query each configured source using the adapter below. Prefer structured CLI/API output over dashboards.
 5. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, and cost/capacity wherever the repo provides reliable signals.
 6. Report actual run results in chat using the result style below.
-7. After the run, update `PRODUCT_HEALTH_SETUP.md` only for durable changes to what is monitored or how to check it.
+7. After the run, update `PRODUCT_SETUP.md` only for durable changes to what is monitored or how to check it.
 
 ## Result Style
 

@@ -19,6 +19,12 @@ Repo-root `CHECKLIST.md` is the source of truth for verification commands.
 
 ## Command Selection
 
+- To discover stable candidates quickly, run:
+
+```bash
+bun content/skills/check-and-fix/scripts/discover-checks.ts /path/to/repo
+```
+
 - Prefer repo-level commands such as `mise run check` or `make check` when they cover the needed categories.
 - Use exact runnable commands, not guesses or alternatives.
 - Prefer built-in parallel forms such as `php artisan test --parallel`.

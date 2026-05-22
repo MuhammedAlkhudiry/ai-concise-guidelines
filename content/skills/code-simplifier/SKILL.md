@@ -13,6 +13,7 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 - For every line, ask whether it still has a job.
 - Trace touched files, callers, consumers, tests, imports, exports, and config.
 - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, comments about removed logic, and one-off abstractions.
+- It is ok to do mid-refactor work when the simple end state needs it: create, move, split, or merge files instead of preserving awkward placement.
 - Inline wrappers, aliases, pass-through helpers, one-use values, and variables that only rename an expression.
 - In JSX/TSX, reduce prop plumbing and pass-through props; let children compute or read clean local data when that is simpler.
 - Replace mode and boolean props with simpler component shape, composition, or local conditional render when possible.

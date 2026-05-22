@@ -62,6 +62,7 @@ const SHARED_BIN_COMMANDS = [
   { name: "remote-info", source: "remote-info.zsh" },
   { name: "hosts", source: "hosts.zsh" },
   { name: "doctor", source: "doctor.zsh" },
+  { name: "plan", source: "plan.zsh" },
 ];
 
 // =============================================================================
