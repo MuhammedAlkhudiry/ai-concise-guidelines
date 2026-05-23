@@ -6,7 +6,9 @@ Use this when a fresh worktree setup helper can safely repair local setup fricti
 
 - Treat DDEV project-name or host-port collisions as soft blockers when a per-worktree lane is safe.
 - Use deterministic, short DDEV names based on the worktree folder slug.
+- Put the DDEV lane override in the worktree's `.ddev/config.worktree.yaml`.
 - Never mutate the canonical checkout's DDEV config.
+- Keep the canonical checkout's DDEV project name and stable URL reserved for the original checkout.
 - Assign a deterministic free `host_webserver_port` when local lanes can collide.
 - Retry `ddev start` with a new free port if DDEV reports a bind or port conflict.
 - If changed DDEV names affect app URLs, update only fresh-worktree local env/config needed for local web readiness.

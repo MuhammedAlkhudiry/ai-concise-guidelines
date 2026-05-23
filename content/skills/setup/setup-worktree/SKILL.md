@@ -49,7 +49,8 @@ When a DDEV gap is concrete, update DDEV instead of only reporting it.
 
 - Add or adjust project-native DDEV service files for clear Redis, search, or MinIO/S3 needs.
 - Add small DDEV commands when they remove repeated setup friction, such as database import, service health checks, or coverage helpers.
-- Add per-worktree DDEV lane and host-port support when the project has a fixed canonical DDEV name and web worktrees need to run without taking over that lane.
+- Add per-worktree DDEV lane and host-port support before `ddev start` when the project has a fixed canonical DDEV name and web worktrees need to run without taking over that lane.
+- Write worktree-specific DDEV overrides to `.ddev/config.worktree.yaml`; keep the canonical checkout's `.ddev/config.yaml`, project name, and stable URL untouched.
 - Keep DDEV edits minimal and consistent with existing `.ddev` patterns.
 - Do not invent service credentials or production secrets.
 - Treat database imports and production data pulls as external setup steps, not automatic worktree repair.

@@ -69,10 +69,16 @@ const envText = [".env.example", ".env", "config/services.php", "config/queue.ph
   .map(read)
   .join("\n");
 const docs = files.filter((file) => /(?:README|PRODUCT|DEPLOY|OPS|RUNBOOK|AGENTS|QA).*\.md$/i.test(file));
+const searchableText = [
+  envText,
+  ...docs.map(read),
+  ...findFiles(/agent|assistant|conversation|ai[_-]|llm|openai|anthropic/i, files).map(read),
+].join("\n");
 
 const sources: Array<[string, boolean, string]> = [
   ["Sentry", dependencies.some((dep) => dep.includes("sentry")) || /SENTRY_/i.test(envText), "Use sentry-cli for issues, events, traces, spans, slow APIs, and job exceptions."],
   ["PostHog", dependencies.some((dep) => dep.includes("posthog")) || /POSTHOG_/i.test(envText), "Use PostHog API/skills for product analytics, metric investigations, and SDK health."],
+  ["AI/agentic features", dependencies.some((dep) => /openai|anthropic|ai-sdk|laravel-ai/.test(dep)) || /agent|assistant|conversation|tool call|ai_usage|ai_agent|llm|OPENAI_|ANTHROPIC_/i.test(searchableText), "Audit adoption, repeated intents, run success/failure, latency, tool/action distribution, unresolved sessions, proposal follow-through, and credit/cost pressure."],
   ["Laravel queues", dependencies.includes("laravel/framework") && /QUEUE_CONNECTION|queue/i.test(envText), "Check failed jobs, queue depth, oldest job age, retry loops, and worker/Horizon status."],
   ["Horizon", dependencies.includes("laravel/horizon") || files.some((file) => file.includes("Horizon")), "Check Horizon supervisors, recent failures, queue wait, and retry loops."],
   ["Scheduler", files.some((file) => /routes\/console\.php|app\/Console\/Kernel\.php/.test(file)), "Check scheduled commands, last successful run evidence, and missed recurring work."],
@@ -93,12 +99,13 @@ for (const [name, found, check] of sources) {
 console.log("\n## Evidence files");
 for (const file of [
   ...docs.slice(0, 12),
+  ...findFiles(/agent|assistant|conversation|ai[_-]|llm|openai|anthropic/i, files),
   ...findFiles(/composer\.json|package\.json|config\/(?:queue|cache|services|database)\.php|routes\/console\.php|app\/Console\/Kernel\.php/, files),
 ]) {
   console.log(`- ${file}`);
 }
 
 console.log("\n## Access gaps to confirm");
-for (const item of ["Sentry org/project", "PostHog project", "SSH or Forge target", "database provider", "Redis access path"]) {
+for (const item of ["Sentry org/project", "PostHog project", "AI usage/conversation data source", "SSH or Forge target", "database provider", "Redis access path"]) {
   console.log(`- ${item}`);
 }

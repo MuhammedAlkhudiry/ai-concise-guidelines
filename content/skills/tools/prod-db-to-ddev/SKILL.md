@@ -28,9 +28,3 @@ bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" --d
 ```bash
 bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" forge@example.com /home/forge/app/current /path/to/local/project
 ```
-
-Awraq example:
-
-```bash
-bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" forge@138.68.158.43 /home/forge/awraq.app/family-tree /Users/muhammed/PhpstormProjects/awraq-project
-```

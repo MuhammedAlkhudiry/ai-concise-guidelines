@@ -120,6 +120,33 @@ check_link() {
   (( link_ok++ ))
 }
 
+check_installed_skills() {
+  local output
+  local script="$MY_SETUP_ROOT/src/commands/check-installed-skills.ts"
+
+  if ! command -v bun >/dev/null 2>&1; then
+    print_missing "required" "skills" "bun is required to check installed skill drift"
+    (( required_missing++ ))
+    return 1
+  fi
+
+  if [[ ! -f "$script" ]]; then
+    print_missing "required" "skills" "$script is missing"
+    (( required_missing++ ))
+    return 1
+  fi
+
+  if output="$(bun "$script" 2>&1)"; then
+    print_ok "skills" "$output"
+    return 0
+  fi
+
+  print_missing "required" "skills" "installed skills drifted; run mise run install"
+  printf '%s\n' "$output" | sed 's/^/    - /'
+  (( required_missing++ ))
+  return 1
+}
+
 main() {
   print_header "Core repo tools"
   check_tool bun required "Runtime used internally by mise run install."
@@ -134,6 +161,7 @@ main() {
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool rtk optional "Used to reduce noisy command output before it reaches AI agent context."
   check_tool fzf optional "Used by project pickers and interactive hosts deletion."
+  check_tool sg optional "Install ast-grep for AST-shaped code search."
 
   print_header "Git and remote workflow helpers"
   check_tool gh optional "Used by gbr to open a GitHub pull request."
@@ -152,6 +180,9 @@ main() {
   check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
   check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"
+
+  print_header "Managed skills"
+  check_installed_skills
 
   print_summary
 

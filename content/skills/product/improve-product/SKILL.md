@@ -36,6 +36,7 @@ Audit the real product and return practical improvements across product value, U
 ## Rules
 
 - Do not turn the result into a generic feature brainstorm.
+- Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context. Use current repo, runtime, docs, analytics, support material, and `PRODUCT_SETUP.md` evidence only.
 - Do not create separate product-improvement, UX-audit, or code-audit setup files. Extend `PRODUCT_SETUP.md` only for durable context.
 - Do not write run output, recommendations, rankings, current metrics, screenshots, or one-off notes to `PRODUCT_SETUP.md`.
 - Use `product-health` for current incidents, infrastructure risk, queue health, server health, database health, Redis health, Sentry health, or operational status checks.

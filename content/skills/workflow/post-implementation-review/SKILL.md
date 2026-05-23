@@ -17,7 +17,7 @@ Run this after the agent believes implementation is done, before the final answe
 4. Run the relevant project checks and fix task-related failures.
 5. Verify the changed runtime surface is usable enough for the next human step.
 6. Assess deploy readiness from the real change surface.
-7. Call `qa-handoff` separately when the user wants a repeatable manual QA path.
+7. Call `qa-handoff` separately when the user wants a repeatable manual QA handoff with test cases.
 
 ## Simplification
 
@@ -104,4 +104,4 @@ Include only sections that apply:
 - `Surface Readiness`: runtime surface checked and any remaining setup gaps.
 - `Deploy Readiness`: final verdict and named caveats.
 - `Not safe to delete yet`: uncertain cleanup that needs more proof.
-- `QA Handoff`: say `Use qa-handoff` when the user wants a manual QA path.
+- `QA Handoff`: say `Use qa-handoff` when the user wants manual QA cases.

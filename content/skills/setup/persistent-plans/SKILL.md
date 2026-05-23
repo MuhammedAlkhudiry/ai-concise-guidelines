@@ -18,7 +18,7 @@ Use `~/plans/<project-name>/` for persistent plan files.
 
 ```text
 ~/plans/
-  awraq-project/
+  project-name/
     INDEX.md
     2026-05-12-mobile-tree-readonly.md
     2026-05-12-poster-editor-rebuild/

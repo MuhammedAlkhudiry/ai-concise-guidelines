@@ -1,20 +1,21 @@
 ---
 name: qa-handoff
-description: Prepare a repeatable manual QA path after implementation. Use when the user asks "how do I QA this?", "prepare QA path", "give me manual QA", "I want to test it", or asks for QA handoff after a feature or fix is done.
+description: Prepare a repeatable manual QA handoff with coverage-focused test cases after implementation. Use when the user asks "how do I QA this?", "prepare QA path", "give me manual QA", "I want to test it", "give me test cases", or asks for QA handoff after a feature or fix is done.
 ---
 
 # QA Handoff
 
-Prepare the path a human should follow to QA a completed change, existing feature, or named product flow.
+Prepare the test cases a human should run to QA a completed change, existing feature, or named product flow.
 
 ## Workflow
 
 1. Identify the QA target from the user request, feature notes, code, routes/screens/endpoints, related tests, project QA docs, and diff when one exists.
-2. Confirm the local app is usable through the repo's allowed project flow.
-3. Verify the QA URL responds before sharing it.
-4. Create, reset, or confirm realistic test data with existing seeders, fixtures, factories, helper commands, or UI flows.
-5. Reuse the implementation verification already done; run only a quick smoke check when the URL, login, fixture, or starting state is uncertain.
-6. Write the smallest complete manual handoff the user can follow without guessing.
+2. Map the coverage the user needs next: happy path, changed behavior, persistence, permissions, validation, boundaries, integrations, and regressions when relevant.
+3. Confirm the local app is usable through the repo's allowed project flow.
+4. Verify the QA URL responds before sharing it.
+5. Create, reset, or confirm realistic test data with existing seeders, fixtures, factories, helper commands, or UI flows.
+6. Reuse the implementation verification already done; run only a quick smoke check when the URL, login, fixture, or starting state is uncertain.
+7. Write the smallest useful set of manual test cases the user can follow without guessing.
 
 ## Handoff
 
@@ -22,17 +23,40 @@ Include:
 
 - `URL`: verified working URL and exact starting page.
 - `Login / Test Data`: account, tenant, fixture, ids, and reset command or reset steps.
-- `QA Paths`: 3-7 realistic paths ordered by risk and user value.
-- `Expected Results`: visible outcomes, saved state, events, emails, jobs, or API responses that prove the path worked.
+- `Test Cases`: 3-8 realistic cases ordered by risk and user value.
 - `Already Verified`: implementation checks, URL checks, fixture setup, and any quick smoke checks already run.
 - `Blocked / Skipped`: only checks blocked by missing services, missing credentials, unavailable devices, or deliberate scope limits.
+
+## Test Case Format
+
+Use a compact format:
+
+- `TC-01 - <title>`: priority, purpose, steps, and expected result.
+
+Each expected result should name the visible outcome, saved state, event, email, job, or API response that proves the case worked.
+
+## Coverage
+
+Cover only relevant case types:
+
+- Happy path.
+- Changed behavior.
+- Negative or validation path.
+- Permission or role path.
+- Boundary or empty-state path.
+- Persistence, refresh, or reload path.
+- Integration path for emails, jobs, payments, webhooks, storage, analytics, or APIs.
+- Regression path for nearby behavior that the change could break.
 
 ## Rules
 
 - Keep this practical, not exhaustive.
+- Cover the change, not every possible regression.
 - Prefer real project fixtures over invented data.
 - Give exact paths, labels, records, and commands.
-- Include negative or edge paths only when the change can realistically fail there.
+- Include negative, edge, permission, and integration cases only when the change can realistically fail there.
+- Do not hand over route lists or vague QA paths; make every case runnable and observable.
+- Do not duplicate implementation verification as user-run cases; list completed checks under `Already Verified`.
 - Do not repeat full implementation details, test logs, or generic QA theory.
-- Use `qa-test-cases` instead when the user asks for a full test suite or executable case document.
+- Use `qa-test-cases` instead when the user asks for a full test suite, automation-ready matrix, or executable case document.
 - Use `post-implementation-review` instead when the user asks whether the change is ready to ship.
