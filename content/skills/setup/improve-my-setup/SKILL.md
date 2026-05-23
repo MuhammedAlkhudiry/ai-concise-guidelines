@@ -22,5 +22,5 @@ Audit `my-setup` as the source of truth for AI agent behavior, then suggest conc
 - Codex session context waste:
 
 ```bash
-bun content/skills/improve-my-setup/scripts/analyze-codex-sessions.ts
+bun "$HOME/.agents/skills/improve-my-setup/scripts/analyze-codex-sessions.ts"
 ```

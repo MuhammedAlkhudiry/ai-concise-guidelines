@@ -18,7 +18,7 @@ Use for missing skills, overlapping skills, stale skills, over-broad skills, scr
 
 Primary checks:
 
-- Inspect `content/skills/*/SKILL.md`.
+- Inspect local skill source folders from the current setup repository.
 - Check descriptions, boundaries, references, scripts, and duplicated guidance.
 - Recommend new skills only when the job is reusable across nearby tasks.
 

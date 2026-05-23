@@ -44,6 +44,7 @@
 ## Verification
 
 - **QUALITY** — Run type-check, lint, format, and relevant tests; fix only task-related issues before finishing.
+- **POST-IMPLEMENTATION** — After implementation, bug fixes, refactors, branch syncs, or conflict resolution, run the `post-implementation-review` skill before the final answer unless the user explicitly limited the work to a narrower step.
 - **TEST-THRESHOLD** — Do not require new or updated tests for simple non-behavioral changes; keep tests for behavior changes, bug fixes, and new features.
 - **CHECKLIST** — Repo-root `CHECKLIST.md` is for stable project-wide verification commands only; never add task-specific checks to it, and update it rarely.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.

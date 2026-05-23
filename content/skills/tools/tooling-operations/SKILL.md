@@ -13,7 +13,7 @@ Use existing project tools instead of recreating their workflows manually.
 2. Use the matching tool directly. To check common local helper tools, run:
 
 ```bash
-bun content/skills/tooling-operations/scripts/tool-doctor.ts
+bun "$HOME/.agents/skills/tooling-operations/scripts/tool-doctor.ts"
 ```
 
 3. Stop only when the required tool is missing or lacks the needed capability.

@@ -1,13 +1,13 @@
 ---
 name: post-implementation-review
-description: Run the full after-implementation finish loop. Use after code changes, feature work, bug fixes, refactors, or when the user asks for cleanup, simplification, refactor opportunities, verification, deploy readiness, or a final review after implementation.
+description: Automatically run the full finish-work loop after implementation, bug fixes, refactors, branch syncs, or conflict resolution. Also use when the user asks for cleanup, simplification, refactor opportunities, verification, deploy readiness, or a final review after implementation.
 ---
 
 # Post Implementation Review
 
 Review completed work until it is simple, checked, and honestly ready.
 
-Run every section by default unless the user asks for specific sections only.
+Run this after the agent believes implementation is done, before the final answer. Run every section by default unless the user asks for specific sections only.
 
 ## Workflow
 
@@ -15,8 +15,9 @@ Run every section by default unless the user asks for specific sections only.
 2. Simplify the implementation while preserving real behavior and contracts.
 3. Capture refactor opportunities exposed by the work.
 4. Run the relevant project checks and fix task-related failures.
-5. Assess deploy readiness from the real change surface.
-6. Call `qa-handoff` separately when the user wants a repeatable manual QA path.
+5. Verify the changed runtime surface is usable enough for the next human step.
+6. Assess deploy readiness from the real change surface.
+7. Call `qa-handoff` separately when the user wants a repeatable manual QA path.
 
 ## Simplification
 
@@ -69,6 +70,18 @@ Use repo-root `CHECKLIST.md` when it exists. Run the relevant checklist commands
 - Report unrelated or pre-existing failures without widening scope.
 - Keep task-specific checks out of `CHECKLIST.md`.
 
+## Surface-Specific Readiness
+
+Check the actual surface touched by the change so the final answer does not claim readiness from code checks alone.
+
+- For browser work, verify the relevant URL responds before sharing it.
+- For mobile work, verify the simulator/device, installed app, Metro or native runtime, and the changed screen or starting state.
+- For API/client work, verify both payload shape and the consumer path that uses it.
+- For jobs, queues, storage, mail, webhooks, cache, search, or realtime work, verify the local service state needed for the change.
+- For branch syncs and conflict resolution, compare the branch to the target base and verify the merged surfaces still work.
+
+Keep this scoped to the touched surface. Do not turn it into a generic environment audit.
+
 ## Deploy Readiness
 
 Review whether the current diff is genuinely deployable.
@@ -88,6 +101,7 @@ Include only sections that apply:
 - `Summary`: what changed and what was simplified.
 - `Refactor Opportunities`: `Do now`, `Do later`, and `Not worth doing` items.
 - `Verification`: checks run, pass/fail/blocker status, and unresolved failures.
+- `Surface Readiness`: runtime surface checked and any remaining setup gaps.
 - `Deploy Readiness`: final verdict and named caveats.
 - `Not safe to delete yet`: uncertain cleanup that needs more proof.
 - `QA Handoff`: say `Use qa-handoff` when the user wants a manual QA path.

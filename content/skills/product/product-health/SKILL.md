@@ -14,7 +14,7 @@ Maintain `PRODUCT_SETUP.md` as durable product context, then report the current 
 3. Detect health sources from code and docs, then record sources, evidence paths, adapters, access gaps, recurring risks, and the check playbook for product journeys, scheduled work, data integrity, performance, and capacity. Use the helper for the first pass:
 
 ```bash
-bun content/skills/product-health/scripts/discover-health-sources.ts /path/to/repo
+bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /path/to/repo
 ```
 
 4. Query each configured source using the adapter below. Prefer structured CLI/API output over dashboards.

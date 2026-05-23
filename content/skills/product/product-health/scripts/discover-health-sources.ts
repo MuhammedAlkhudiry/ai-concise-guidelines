@@ -8,7 +8,6 @@ type Json = Record<string, unknown>;
 const root = resolve(Bun.argv[2] ?? ".");
 const maxDepth = 5;
 const ignored = new Set([".git", "node_modules", "vendor", "output", "dist", "build", ".next", ".expo"]);
-const ignoredPaths = ["content/skills/"];
 
 function read(path: string): string {
   try {
@@ -42,7 +41,7 @@ function walk(dir = root, depth = 0): string[] {
     }
     if (entry.isFile()) {
       const rel = relative(root, path);
-      if (!ignoredPaths.some((ignoredPath) => rel.startsWith(ignoredPath))) files.push(rel);
+      files.push(rel);
     }
   }
   return files;

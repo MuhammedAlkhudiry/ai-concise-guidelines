@@ -13,7 +13,7 @@ Create `scripts/setup-worktree.ts` so a fresh worktree becomes ready for useful 
 2. Run the collector from this skill:
 
 ```bash
-bun content/skills/setup-worktree/scripts/collect-worktree-context.ts /path/to/repo
+bun "$HOME/.agents/skills/setup-worktree/scripts/collect-worktree-context.ts" /path/to/repo
 ```
 
 If the skill has been installed outside this source repo, run the copied script from the installed skill directory.

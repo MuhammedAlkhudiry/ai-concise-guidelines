@@ -7,11 +7,12 @@
 - **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
 - **THIN-ZSHRC** — If anything is added directly to user `~/.zshrc`, tell the user it should be migrated into `shell/zsh-custom.zsh`.
 - **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep `doctor` in sync with that list.
-- **SKILL-STRUCTURE** — Each skill must live in `content/skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
+- **SKILL-STRUCTURE** — Each skill must live in `content/skills/<category>/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
 - **SKILL-NAMES** — Shared skill folder names and frontmatter `name` values must match exactly without a `_` prefix.
 - **SKILL-RESOURCES** — Keep skill-specific resources under the same skill folder (`references/`, `scripts/`, `assets/`) so they copy as a unit.
-- **SKILL-COPY** — Skills are copied wholesale from `content/skills/<name>/` into generated tool outputs; preserve folder structure.
-- **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
+- **SKILL-COPY** — Skills are copied wholesale from `content/skills/<category>/<name>/` into flat generated tool outputs; preserve each skill's internal folder structure.
+- **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
+- **MY-SETUP-CLI** — Supported local commands are `my-setup generate`, `my-setup install`, `my-setup doctor`, `my-setup skills overview`, and `my-setup skills dump`.
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.
 - **MODEL-SELECTION** — Never edit or select a model; model choice is always user-controlled.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.

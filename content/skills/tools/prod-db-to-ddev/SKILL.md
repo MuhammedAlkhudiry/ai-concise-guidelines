@@ -19,18 +19,18 @@ Import a production Laravel MySQL database into local DDEV with production read-
 ## Script
 
 ```bash
-bun content/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts <ssh-target> <remote-laravel-dir> [local-ddev-dir]
-bun content/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts --dump=/path/local.sql.gz [local-ddev-dir]
+bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" <ssh-target> <remote-laravel-dir> [local-ddev-dir]
+bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" --dump=/path/local.sql.gz [local-ddev-dir]
 ```
 
 ## Example
 
 ```bash
-bun content/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts forge@example.com /home/forge/app/current /path/to/local/project
+bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" forge@example.com /home/forge/app/current /path/to/local/project
 ```
 
 Awraq example:
 
 ```bash
-bun content/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts forge@138.68.158.43 /home/forge/awraq.app/family-tree /Users/muhammed/PhpstormProjects/awraq-project
+bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" forge@138.68.158.43 /home/forge/awraq.app/family-tree /Users/muhammed/PhpstormProjects/awraq-project
 ```

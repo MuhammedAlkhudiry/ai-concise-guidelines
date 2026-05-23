@@ -12,19 +12,19 @@ Use scripts when a git task needs more than one command for information or actio
 1. For current state, run:
 
 ```bash
-rtk bun content/skills/git-operations/scripts/git-snapshot.ts
+rtk bun "$HOME/.agents/skills/git-operations/scripts/git-snapshot.ts"
 ```
 
 2. For diff review, run:
 
 ```bash
-rtk bun content/skills/git-operations/scripts/git-review.ts -- path/or/folder
+rtk bun "$HOME/.agents/skills/git-operations/scripts/git-review.ts" -- path/or/folder
 ```
 
 3. For branch sync checks, run:
 
 ```bash
-rtk bun content/skills/git-operations/scripts/git-branch-sync.ts --base=origin/main
+rtk bun "$HOME/.agents/skills/git-operations/scripts/git-branch-sync.ts" --base=origin/main
 ```
 
 Use `--merge` only when the user asked to sync/merge.
@@ -32,7 +32,7 @@ Use `--merge` only when the user asked to sync/merge.
 4. For worktree cleanup, run:
 
 ```bash
-rtk bun content/skills/git-operations/scripts/git-worktree-clean.ts
+rtk bun "$HOME/.agents/skills/git-operations/scripts/git-worktree-clean.ts"
 ```
 
 Use `--remove-clean` to remove clean secondary worktrees. Use `--force-dirty` only after explicit approval.
@@ -40,7 +40,7 @@ Use `--remove-clean` to remove clean secondary worktrees. Use `--force-dirty` on
 5. For targeted restore from a base branch, preview first:
 
 ```bash
-rtk bun content/skills/git-operations/scripts/git-restore-preview.ts --base=main -- path/or/file
+rtk bun "$HOME/.agents/skills/git-operations/scripts/git-restore-preview.ts" --base=main -- path/or/file
 ```
 
 Use `--apply` only after the restore target is clear.
@@ -48,7 +48,7 @@ Use `--apply` only after the restore target is clear.
 6. For old file/history recovery, run:
 
 ```bash
-rtk bun content/skills/git-operations/scripts/git-history-find.ts query-or-path
+rtk bun "$HOME/.agents/skills/git-operations/scripts/git-history-find.ts" query-or-path
 ```
 
 ## Rules

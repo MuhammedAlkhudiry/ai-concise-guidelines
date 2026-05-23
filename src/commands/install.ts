@@ -5,7 +5,7 @@
  */
 
 import { existsSync, copyFileSync, readFileSync, writeFileSync } from "fs";
-import { readFile, writeFile, copyFile, chmod, readdir, rm, mkdtemp, symlink } from "fs/promises";
+import { readFile, writeFile, copyFile, chmod, rm, mkdtemp, symlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { execa } from "execa";
@@ -17,6 +17,7 @@ import {
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { colors, print, printBox, printSeparator } from "../lib/print";
+import { assertInstalledFacingSkillFilesArePortable, discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
 
 // =============================================================================
@@ -411,11 +412,10 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
 
   await ensureDir(dest);
 
-  const entries = await readdir(src, { withFileTypes: true });
-  const skillNames = entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
+  assertInstalledFacingSkillFilesArePortable(src);
+
+  const skills = discoverLocalSkills(src);
+  const skillNames = skills.map((skill) => skill.name).sort();
   const remoteSkillNames = remoteSkillSources
     .flatMap((source) => source.skills.map((skill) => skill.name))
     .sort();
@@ -446,10 +446,10 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
     await rm(installedSkillPath, { recursive: true, force: true });
   }
 
-  for (const skillName of skillNames) {
+  for (const skill of skills) {
     await copyDirAsync({
-      src: join(src, skillName),
-      dest: join(dest, skillName),
+      src: skill.dir,
+      dest: join(dest, skill.name),
     });
   }
 

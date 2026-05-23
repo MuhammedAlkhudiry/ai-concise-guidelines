@@ -7,6 +7,7 @@ import { execa } from "execa";
 
 import { generate } from "./commands/generate";
 import { install } from "./commands/install";
+import { skillsDump, skillsOverview } from "./commands/skills";
 
 const ROOT_DIR = join(import.meta.dir, "..");
 
@@ -37,6 +38,23 @@ cli
   .allowUnknownOptions()
   .action(async (_options: unknown, ...args: string[]) => {
     await runScript("zsh", [join(ROOT_DIR, "shell", "doctor.zsh"), ...args]);
+  });
+
+cli
+  .command("skills <action>", "Inspect local skills: overview or dump")
+  .option("--category <category>", "Only include skills in one category")
+  .option("--skill <skill>", "Only include one skill")
+  .option("--format <format>", "Use markdown or json output")
+  .action(async (action: string, options) => {
+    if (action === "overview") {
+      skillsOverview(options);
+      return;
+    }
+    if (action === "dump") {
+      await skillsDump(options);
+      return;
+    }
+    throw new Error(`Unknown skills action: ${action}`);
   });
 
 cli.help();
