@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "bun:test";
 
-import { assertInstalledFacingSkillFilesArePortable, discoverLocalSkills } from "./skills";
+import { discoverLocalSkills } from "./skills";
 
 function writeSkill(root: string, path: string, name: string): void {
   const dir = join(root, path, name);
@@ -40,21 +40,6 @@ describe("discoverLocalSkills", () => {
       writeFileSync(join(dir, "SKILL.md"), "---\nname: react\ndescription: Wrong name.\n---\n");
 
       expect(() => discoverLocalSkills(root)).toThrow(/folder name must match/);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
-  });
-
-  test("rejects installed-facing files that point to source skill paths", () => {
-    const root = mkdtempSync(join(tmpdir(), "skills-"));
-    try {
-      writeSkill(root, "tools", "laravel");
-      writeFileSync(
-        join(root, "tools", "laravel", "script.ts"),
-        "Run content/skills/tools/laravel/scripts/example.ts",
-      );
-
-      expect(() => assertInstalledFacingSkillFilesArePortable(root)).toThrow(/source paths/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

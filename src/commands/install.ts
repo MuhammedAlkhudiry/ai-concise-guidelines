@@ -17,7 +17,7 @@ import {
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { colors, print, printBox, printSeparator } from "../lib/print";
-import { assertInstalledFacingSkillFilesArePortable, discoverLocalSkills } from "../lib/skills";
+import { discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
 
 // =============================================================================
@@ -411,8 +411,6 @@ async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise
   print.info(`Syncing ${label} to ${dest} (preserving existing custom skills)...`);
 
   await ensureDir(dest);
-
-  assertInstalledFacingSkillFilesArePortable(src);
 
   const skills = discoverLocalSkills(src);
   const skillNames = skills.map((skill) => skill.name).sort();

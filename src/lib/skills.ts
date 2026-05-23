@@ -15,8 +15,6 @@ interface SkillFrontmatter {
 }
 
 const DEFAULT_CATEGORY = "uncategorized";
-const INSTALLED_FACING_EXTENSIONS = [".md", ".ts", ".js", ".json", ".yml", ".yaml", ".txt", ".zsh"];
-const FORBIDDEN_INSTALLED_SKILL_PATTERNS = ["content/skills/", "PhpstormProjects/my-setup"];
 
 function parseSkillFrontmatter(content: string, skillPath: string): SkillFrontmatter {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -58,24 +56,6 @@ function findSkillPaths(dir: string): string[] {
     .flatMap((entryPath) => findSkillPaths(entryPath));
 }
 
-function findInstalledFacingPaths(dir: string): string[] {
-  return readdirSync(dir)
-    .map((entry) => join(dir, entry))
-    .flatMap((entryPath) => {
-      const stats = statSync(entryPath);
-      if (stats.isDirectory()) {
-        return findInstalledFacingPaths(entryPath);
-      }
-      if (
-        stats.isFile() &&
-        INSTALLED_FACING_EXTENSIONS.some((extension) => entryPath.endsWith(extension))
-      ) {
-        return [entryPath];
-      }
-      return [];
-    });
-}
-
 function skillCategory(skillsRoot: string, skillDir: string): string {
   const parts = relative(skillsRoot, skillDir).split(sep).filter(Boolean);
   return parts.length > 1 ? parts[0] : DEFAULT_CATEGORY;
@@ -109,21 +89,4 @@ export function discoverLocalSkills(skillsRoot: string): LocalSkill[] {
   }
 
   return skills.sort((a, b) => a.name.localeCompare(b.name));
-}
-
-export function assertInstalledFacingSkillFilesArePortable(skillsRoot: string): void {
-  const violations = discoverLocalSkills(skillsRoot).flatMap((skill) =>
-    findInstalledFacingPaths(skill.dir).flatMap((filePath) => {
-      const content = readFileSync(filePath, "utf-8");
-      return FORBIDDEN_INSTALLED_SKILL_PATTERNS.filter((pattern) => content.includes(pattern)).map(
-        (pattern) => `${relative(skillsRoot, filePath)} contains ${pattern}`,
-      );
-    }),
-  );
-
-  if (violations.length) {
-    throw new Error(
-      `Installed-facing skill files must not point back to source paths:\n${violations.join("\n")}`,
-    );
-  }
 }

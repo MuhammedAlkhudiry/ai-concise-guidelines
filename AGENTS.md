@@ -11,6 +11,7 @@
 - **SKILL-NAMES** — Shared skill folder names and frontmatter `name` values must match exactly without a `_` prefix.
 - **SKILL-RESOURCES** — Keep skill-specific resources under the same skill folder (`references/`, `scripts/`, `assets/`) so they copy as a unit.
 - **SKILL-COPY** — Skills are copied wholesale from `content/skills/<category>/<name>/` into flat generated tool outputs; preserve each skill's internal folder structure.
+- **SKILL-PORTABLE** — Installed-facing skill files must not point back to source-only repo paths such as `content/skills/...` or local `my-setup` paths; use skill-relative references.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **MY-SETUP-CLI** — Supported local commands are `my-setup generate`, `my-setup install`, `my-setup doctor`, `my-setup skills overview`, and `my-setup skills dump`.
 - **UPDATE-DOCS** — When changing CLI args, config behavior, or user-facing behavior, update `README.md` and `shell/zsh-custom.zsh` if affected.
