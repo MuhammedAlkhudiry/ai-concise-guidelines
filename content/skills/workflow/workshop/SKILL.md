@@ -16,42 +16,7 @@ Stress-test an idea before implementation.
 5. Focus on the challenging parts first.
 6. Explore alternatives only when they change the recommendation.
 7. Take a position and explain why.
-
-## Branches
-
-### Code Architecture
-
-Use when the idea is about architecture, refactors, APIs, data flow, system boundaries, reliability, performance, or maintainability.
-
-Focus on:
-
-- Existing code, contracts, and constraints
-- Boundaries, data flow, failure modes, edge cases, and operational complexity
-- Trade-offs and rejected alternatives
-- Recommended technical shape
-
-### UX/UI
-
-Use when the idea is about user flows, screens, interaction models, layout direction, visual hierarchy, usability, states, accessibility, or design alternatives.
-
-Focus on:
-
-- User intent and workflow friction
-- Information hierarchy and interaction model
-- Loading, empty, error, permission, accessibility, and responsive states
-- Recommended experience direction
-
-### Product
-
-Use when the idea is about user value, adoption, positioning, prioritization, opportunity size, retention, monetization, or what to build next.
-
-Focus on:
-
-- User problem and job-to-be-done
-- Why this, why now, and why not something else
-- Differentiation and competing alternatives
-- Adoption, retention, and business risks
-- Recommended product decision
+8. Load `references/branches.md` when you need branch-specific lenses.
 
 ## Output
 

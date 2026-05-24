@@ -9,45 +9,14 @@ Use scripts when a git task needs more than one command for information or actio
 
 ## Workflow
 
-1. For current state, run:
+Run the matching helper instead of repeating multi-command git sequences:
 
 ```bash
 rtk bun "$HOME/.agents/skills/git-operations/scripts/git-snapshot.ts"
-```
-
-2. For diff review, run:
-
-```bash
 rtk bun "$HOME/.agents/skills/git-operations/scripts/git-review.ts" -- path/or/folder
-```
-
-3. For branch sync checks, run:
-
-```bash
 rtk bun "$HOME/.agents/skills/git-operations/scripts/git-branch-sync.ts" --base=origin/main
-```
-
-Use `--merge` only when the user asked to sync/merge.
-
-4. For worktree cleanup, run:
-
-```bash
 rtk bun "$HOME/.agents/skills/git-operations/scripts/git-worktree-clean.ts"
-```
-
-Use `--remove-clean` to remove clean secondary worktrees. Use `--force-dirty` only after explicit approval.
-
-5. For targeted restore from a base branch, preview first:
-
-```bash
 rtk bun "$HOME/.agents/skills/git-operations/scripts/git-restore-preview.ts" --base=main -- path/or/file
-```
-
-Use `--apply` only after the restore target is clear.
-
-6. For old file/history recovery, run:
-
-```bash
 rtk bun "$HOME/.agents/skills/git-operations/scripts/git-history-find.ts" query-or-path
 ```
 
@@ -55,6 +24,10 @@ rtk bun "$HOME/.agents/skills/git-operations/scripts/git-history-find.ts" query-
 
 - Use raw `rtk git` directly for a single simple read like `rtk git status --short`.
 - Use these scripts for repeated status, diff, branch, worktree, restore, or history flows.
+- Use `git-branch-sync.ts --merge` only when the user asked to sync or merge.
+- Use `git-worktree-clean.ts --remove-clean` only for clean secondary worktrees.
+- Use `git-worktree-clean.ts --force-dirty` only after explicit approval.
+- Use `git-restore-preview.ts --apply` only after the restore target is clear.
 - Keep destructive actions opt-in. Preview before restore, merge, or worktree removal.
 - Do not force-remove dirty worktrees without explicit user approval.
 - Use `git-branch-mr` / `gbr` for final branch, commit, push, and PR packaging.

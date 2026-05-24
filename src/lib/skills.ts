@@ -7,6 +7,7 @@ export interface LocalSkill {
   category: string;
   dir: string;
   skillPath: string;
+  lineCount: number;
 }
 
 interface SkillFrontmatter {
@@ -14,7 +15,13 @@ interface SkillFrontmatter {
   description: string;
 }
 
+interface SkillDiscoveryOptions {
+  reportWarning?: (message: string) => void;
+}
+
 const DEFAULT_CATEGORY = "uncategorized";
+const SKILL_LINE_WARNING_LIMIT = 45;
+const SKILL_LINE_ERROR_LIMIT = 50;
 
 function parseSkillFrontmatter(content: string, skillPath: string): SkillFrontmatter {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -40,6 +47,16 @@ function parseSkillFrontmatter(content: string, skillPath: string): SkillFrontma
   return { name, description };
 }
 
+function countLines(content: string): number {
+  if (!content) {
+    return 0;
+  }
+
+  const normalizedContent = content.replace(/\r\n/g, "\n");
+  const lineCount = normalizedContent.split("\n").length;
+  return normalizedContent.endsWith("\n") ? lineCount - 1 : lineCount;
+}
+
 function findSkillPaths(dir: string): string[] {
   if (!existsSync(dir)) {
     return [];
@@ -61,10 +78,38 @@ function skillCategory(skillsRoot: string, skillDir: string): string {
   return parts.length > 1 ? parts[0] : DEFAULT_CATEGORY;
 }
 
-export function discoverLocalSkills(skillsRoot: string): LocalSkill[] {
+function validateSkillLineCount(
+  skillsRoot: string,
+  skillPath: string,
+  lineCount: number,
+  options: SkillDiscoveryOptions,
+): void {
+  if (lineCount < SKILL_LINE_WARNING_LIMIT) {
+    return;
+  }
+
+  const relativePath = relative(skillsRoot, skillPath);
+
+  if (lineCount > SKILL_LINE_ERROR_LIMIT) {
+    throw new Error(
+      `Skill exceeds ${SKILL_LINE_ERROR_LIMIT} line limit: ${relativePath} has ${lineCount} lines`,
+    );
+  }
+
+  options.reportWarning?.(
+    `Skill is near ${SKILL_LINE_ERROR_LIMIT} line limit: ${relativePath} has ${lineCount} lines`,
+  );
+}
+
+export function discoverLocalSkills(
+  skillsRoot: string,
+  options: SkillDiscoveryOptions = { reportWarning: console.warn },
+): LocalSkill[] {
   const skills = findSkillPaths(skillsRoot).map((skillPath) => {
     const dir = dirname(skillPath);
-    const frontmatter = parseSkillFrontmatter(readFileSync(skillPath, "utf-8"), skillPath);
+    const content = readFileSync(skillPath, "utf-8");
+    const frontmatter = parseSkillFrontmatter(content, skillPath);
+    const lineCount = countLines(content);
 
     if (basename(dir) !== frontmatter.name) {
       throw new Error(
@@ -77,8 +122,13 @@ export function discoverLocalSkills(skillsRoot: string): LocalSkill[] {
       category: skillCategory(skillsRoot, dir),
       dir,
       skillPath,
+      lineCount,
     };
   });
+
+  for (const skill of skills) {
+    validateSkillLineCount(skillsRoot, skill.skillPath, skill.lineCount, options);
+  }
 
   const seen = new Set<string>();
   for (const skill of skills) {

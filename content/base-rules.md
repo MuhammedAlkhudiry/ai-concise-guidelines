@@ -4,7 +4,7 @@
 
 ## Environment
 
-- **SOLO** — Never start dev servers directly; use Solo MCP for dev servers and their process logs, except in a real git worktree where full project setup, direct dev-server runs, and saving any dev URL in `AGENTS.md` are allowed.
+- **SOLO** — Never start dev servers directly; use Solo MCP for dev servers and their process logs, except in a real git worktree where full project setup and direct dev-server runs are allowed.
 - **NO-BUILD** — Never run `build` or build frontend assets. For QA testing, assume dev servers should already be running; if they are not, start them using the allowed project flow or ask the user.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **DDEV-PHP** — Always run Laravel and PHP commands inside `ddev` unless explicitly told not to.
@@ -57,7 +57,6 @@
 ## Repo Context
 
 - **IGNORE-UNRELATED-DIFFS** — Ignore unrelated git diffs or changes completely; do not touch them in any way.
-- **AGENTS.md** — In a monorepo, if the work is limited to one repo or package, read its nested `AGENTS.md`; when updating `AGENTS.md`, keep each added point single-point and concise.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
 - **GLOBAL-PLANS** — Store plan files in `~/plans/<project-name>/`, not project repos; create or update them only when the user explicitly asks for a plan file, using the `persistent-plans` skill.
 - **README-MINIMAL** — Keep `README.md` minimal in personal infrastructure repos; do not update or expand it as user-facing documentation unless the user explicitly asks for a README change.

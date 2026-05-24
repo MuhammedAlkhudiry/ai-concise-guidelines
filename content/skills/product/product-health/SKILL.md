@@ -9,7 +9,7 @@ Maintain `PRODUCT_SETUP.md` as durable product context, then report the current 
 
 ## Workflow
 
-1. Read target repo context: root and nested `AGENTS.md`, `PRODUCT.md`, README, deployment docs, manifests, app config, env examples, and existing `PRODUCT_SETUP.md`.
+1. Read target repo context: `PRODUCT.md`, README, deployment docs, manifests, app config, env examples, and existing `PRODUCT_SETUP.md`.
 2. Create or refresh repo-root `PRODUCT_SETUP.md` before the health run when it is missing or stale. Use `references/PRODUCT_SETUP.md` as the guide.
 3. Detect health sources from code and docs, then record sources, evidence paths, adapters, access gaps, recurring risks, and the check playbook for product journeys, scheduled work, data integrity, performance, and capacity. Use the helper for the first pass:
 
@@ -17,7 +17,7 @@ Maintain `PRODUCT_SETUP.md` as durable product context, then report the current 
 bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /path/to/repo
 ```
 
-4. Query each configured source using the adapter below. Prefer structured CLI/API output over dashboards.
+4. Query each configured source using `references/source-adapters.md`. Prefer structured CLI/API output over dashboards.
 5. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI or agentic feature usage, and cost/capacity wherever the repo provides reliable signals.
 6. Report actual run results in chat using the result style below.
 7. After the run, update `PRODUCT_SETUP.md` only for durable changes to what is monitored or how to check it.
@@ -33,17 +33,6 @@ bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /pa
 - Report blocked or missing observability as a finding instead of inferring health.
 - Use numbers as evidence for findings. Do not make raw counts, percentages, p95s, rates, or trend stats the main result.
 - Put pure numeric stats in a compact table at the end of the reply.
-
-## Source Adapters
-
-- Sentry: use `sentry-cli` for issues, events, spans, traces, aggregate Explore data, slow APIs/queries, and job exceptions. Use Sentry setup/upgrade skills for setup gaps. Do not mutate releases or issues.
-- Laravel/Horizon/jobs: detect Horizon, queues, scheduler, workers, and failed jobs. Check scheduled work, queue depth, oldest queued job age, retry loops, and last successful run. Use Sentry first, then read-only Artisan over SSH or Forge when available.
-- Server: use Forge CLI or SSH from project docs for uptime, disk, memory, PHP-FPM, Nginx, Supervisor, Horizon, Redis, and logs. Include safe capacity clues. Do not mutate services.
-- Database: use `doctl` for DigitalOcean managed databases. Check status, version, nodes, region, storage, backups, maintenance/events, slow queries, connection-pool clues, and durable read-only integrity checks. Do not report credentials.
-- Redis: detect cache/session/queue/Horizon usage. Check Sentry first, then read-only `PING`, `INFO`, memory, clients, evictions, `SLOWLOG GET`, and `LATENCY LATEST`.
-- PostHog: use PostHog API plus configured PostHog skills for analytics, metric investigations, and SDK health. Stay on product analytics unless the repo or user expands scope.
-- AI/agentic features: detect assistant, chat, agent, conversation, run, step, usage, tool-call, credit, and proposal models/events. Audit adoption, repeat use, run success/failure, latency, tool/action distribution, unresolved sessions, write/proposal follow-through, safety blocks, credit/cost pressure, and friction from real user transcripts or structured events. Useful read-only evidence often includes conversation, message, run, run-step, usage-event, and write-proposal tables or event streams.
-- Typesense/search: detect Scout/Typesense packages and env. Check Sentry first, then read-only `/health`, `/metrics.json`, `/stats.json`, collection status, and indexing drift when credentials exist.
 
 ## Safety
 

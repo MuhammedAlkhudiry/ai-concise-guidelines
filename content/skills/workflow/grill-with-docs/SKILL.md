@@ -10,13 +10,7 @@ Interrogate a plan until the decision-changing uncertainty is resolved and the l
 ## Workflow
 
 1. Restate the plan in plain language.
-2. Build the smallest useful context packet:
-   - Goal
-   - Known facts
-   - Constraints
-   - Loaded code or docs
-   - Terms under pressure
-   - Current decision
+2. Build the smallest useful context packet: goal, facts, constraints, loaded code/docs, terms under pressure, and current decision.
 3. Walk the design tree one branch at a time. Resolve dependency decisions before downstream details.
 4. Ask one consequential question at a time and wait for the user before continuing.
 5. For each question, explain why it matters and provide the recommended answer.

@@ -5,27 +5,22 @@ description: "Create, update, rename, or remove an AI agent skill. Use when the 
 
 # Manage Skill
 
-Write skills as lean triggerable instructions, not tutorials or copied global rules.
-
 ## Core Principles
 
 - Assume the agent is already capable. Keep only task-specific knowledge.
 - Put trigger guidance in the description, not the body.
 - Keep `SKILL.md` short. Move detail to `references/`, `scripts/`, or `assets/`.
 - Keep each fact in one place.
-- Do not copy global rules from `content/base-rules.md` into skills. Reference the global rule only when the skill needs to explain how it applies to this specific task.
+- Do not copy global rules into skills unless the skill needs a task-specific interpretation.
 
 ## Structure
 
 ```text
-skill-name/
-├── SKILL.md
-├── references/   # docs loaded on demand
-├── scripts/      # deterministic helpers
-└── assets/       # templates or files used in output
+skill-name/SKILL.md
+skill-name/references/
+skill-name/scripts/
+skill-name/assets/
 ```
-
-`SKILL.md` needs:
 
 ```yaml
 ---
@@ -43,18 +38,12 @@ description: What the skill does and when to trigger it.
 
 ## Workflow
 
-1. Collect concrete examples of what the skill must handle.
-2. Decide the boundary. One skill should cover one cohesive job.
-3. Decide what belongs in `SKILL.md` versus `references/`, `scripts/`, or `assets/`.
-4. Write the trigger description.
-5. Write the body as a practical workflow.
-6. Test the skill on real prompts. Tighten anything it misses or over-explains.
+1. Collect concrete examples.
+2. Choose one cohesive boundary.
+3. Split body, references, scripts, and assets deliberately.
+4. Write the trigger description and workflow.
+5. Test on real prompts and tighten misses or over-explanation.
 
 ## Anti-Patterns
 
-- Vague descriptions
-- Kitchen-sink skills
-- Explaining basics the model already knows
-- Duplicating guidance across sections
-- Copying global rules into a skill
-- Putting "when to use" only in the body
+- Vague descriptions, kitchen-sink boundaries, tutorials, duplicated guidance, copied global rules, or body-only trigger guidance.

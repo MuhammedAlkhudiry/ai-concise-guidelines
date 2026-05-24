@@ -14,16 +14,6 @@ Write observable QA cases that humans can run or automation can translate direct
 3. Group by category and priority.
 4. Cover happy path, negative cases, boundaries, and security where relevant.
 
-## Status Markers
-
-Use:
-
-- `[ ]` not run
-- `[P]` pass
-- `[F]` fail
-- `[B]` blocked
-- `[S]` skipped
-
 ## Template
 
 ```markdown
@@ -46,9 +36,9 @@ Use:
 
 ## Output
 
-Structure the document as:
-
-Feature summary, test scope, cases by category, test data, risks, and notes.
+- Use status markers: `[ ]` not run, `[P]` pass, `[F]` fail, `[B]` blocked, `[S]` skipped.
+- Structure the document as feature summary, test scope, cases by category, test data, risks, and notes.
+- Keep cases executable by a human or directly translatable into automation.
 
 ## Rules
 

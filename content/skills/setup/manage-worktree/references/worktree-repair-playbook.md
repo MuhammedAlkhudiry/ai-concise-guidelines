@@ -42,3 +42,15 @@ Use this when a fresh worktree setup helper can safely repair local setup fricti
 
 - Keep mobile out of the default web setup path unless the user explicitly asks for mobile readiness.
 - If the monorepo has a mobile app with warm host-side dependencies, include its `node_modules` reuse when lockfiles match so mobile typecheck/lint can start without a fresh install.
+
+## Deletion Cleanup
+
+- Treat deletion as two jobs: unregister the Git worktree and remove resources owned by that worktree.
+- Start from `git worktree list --porcelain` so paths and detached HEAD states are parsed safely.
+- Remove clean worktrees first, then run `git worktree prune`.
+- Do not force-remove dirty worktrees without explicit approval.
+- After Git removal, check whether the filesystem path still exists; remove only leftovers that belong to the deleted worktree.
+- Stop worktree-specific DDEV projects before deleting their local config or volumes.
+- Remove DDEV resources only when their project name or labels clearly match the deleted worktree lane.
+- Preserve shared dependency caches, global package-manager caches, production dumps, canonical checkout resources, and unrelated Docker or DDEV projects.
+- Verify deletion with both `git worktree list --porcelain` and filesystem/resource checks.

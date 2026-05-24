@@ -27,26 +27,11 @@ Include:
 - `Already Verified`: implementation checks, URL checks, fixture setup, and any quick smoke checks already run.
 - `Blocked / Skipped`: only checks blocked by missing services, missing credentials, unavailable devices, or deliberate scope limits.
 
-## Test Case Format
-
-Use a compact format:
-
-- `TC-01 - <title>`: priority, purpose, steps, and expected result.
-
-Each expected result should name the visible outcome, saved state, event, email, job, or API response that proves the case worked.
-
 ## Coverage
 
-Cover only relevant case types:
-
-- Happy path.
-- Changed behavior.
-- Negative or validation path.
-- Permission or role path.
-- Boundary or empty-state path.
-- Persistence, refresh, or reload path.
-- Integration path for emails, jobs, payments, webhooks, storage, analytics, or APIs.
-- Regression path for nearby behavior that the change could break.
+- Use compact cases: `TC-01 - <title>` with priority, purpose, steps, and expected result.
+- Name the visible outcome, saved state, event, email, job, or API response that proves the case worked.
+- Cover only relevant happy path, changed behavior, validation, permission, boundary, persistence, integration, and nearby regression cases.
 
 ## Rules
 

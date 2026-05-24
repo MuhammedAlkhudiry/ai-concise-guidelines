@@ -9,7 +9,7 @@ Audit the real product and return practical improvements across product value, U
 
 ## Workflow
 
-1. Read target repo context: root and nested `AGENTS.md`, `PRODUCT.md`, README, user docs, routes, UI surfaces, tests, app config, env examples, analytics setup, and existing `PRODUCT_SETUP.md`.
+1. Read target repo context: `PRODUCT.md`, README, user docs, routes, UI surfaces, tests, app config, env examples, analytics setup, and existing `PRODUCT_SETUP.md`.
 2. Create or refresh repo-root `PRODUCT_SETUP.md` when it is missing or stale. Store only durable context: product surfaces, core journeys, UX surfaces, code surfaces, signal sources, access gaps, recurring risks, and check playbooks.
 3. Inspect the actual product before recommending changes. Trace the relevant screens, flows, code paths, tests, docs, analytics, support surfaces, and error/performance signals.
 4. Apply the lenses below, then rank improvements by user impact, business impact, confidence, and effort.

@@ -28,7 +28,7 @@ Use for global/base rules, repo-specific rules, communication rules, verificatio
 
 Primary checks:
 
-- Inspect `content/base-rules.md`, repo `AGENTS.md`, and generated/installed agent rules.
+- Inspect always-loaded source rules and generated or installed agent rules.
 - Move repo-specific guidance out of global rules.
 - Move workflow-specific guidance into skills.
 
@@ -49,7 +49,7 @@ Use for active project inventory, cross-project setup, worktree setup, and stale
 Primary checks:
 
 - Inspect `content/active-projects.md`.
-- Check setup-worktree skill/script behavior.
+- Check manage-worktree skill/script behavior.
 - Verify project paths and contracts before recommending broad changes.
 
 ## External Tools Lens
@@ -62,4 +62,4 @@ Primary checks:
 - Cover the user's real stack by default: Laravel/PHP, React, React Native, DDEV/local environments, testing/QA, Sentry/PostHog/observability, databases/search, and AI-agent context/search workflows.
 - Prefer tools that cut work, reduce context, improve feedback loops, or remove repeated manual steps over dashboards that only report usage.
 - Rank tools by fit, maturity, local integration cost, and whether they reduce complexity.
-- Translate good tools into concrete setup actions: new skill, doctor check, shell helper, setup-worktree improvement, project convention, install/evaluation note, or no-op.
+- Translate good tools into concrete setup actions: new skill, doctor check, shell helper, manage-worktree improvement, project convention, install/evaluation note, or no-op.
