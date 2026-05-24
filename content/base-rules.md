@@ -5,7 +5,7 @@
 ## Environment
 
 - **SOLO** — Never start dev servers directly; use Solo MCP for dev servers and their process logs, except in a real git worktree where full project setup and direct dev-server runs are allowed.
-- **NO-BUILD** — Never run `build` or build frontend assets. For QA testing, assume dev servers should already be running; if they are not, start them using the allowed project flow or ask the user.
+- **BUILD-CLEANUP** — Run builds only when they are the right verification step, and clean up any generated or compiled files they leave behind before finishing unless those files are intentional tracked outputs.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **DDEV-PHP** — Always run Laravel and PHP commands inside `ddev` unless explicitly told not to.
 - **DB-DUMPS** — Local production database dumps are kept in `~/db-dumps`; use the `prod-db-to-ddev` skill for production-to-DDEV imports.

@@ -36,6 +36,16 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
+    repository: "https://github.com/expo/skills.git",
+    ref: "main",
+    skills: [
+      {
+        name: "upgrading-expo",
+        sourcePath: "plugins/expo/skills/upgrading-expo",
+      },
+    ],
+  },
+  {
     repository: "https://github.com/vercel-labs/skills.git",
     ref: "main",
     skills: [

@@ -36,7 +36,7 @@ export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"
 # --- Local Tools -------------------------------------------------------------
 # Adds personal/user-level command locations before project helpers are loaded.
 # `fpath` includes local completions shipped by installed command-line tools.
-export PATH="$PATH:$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
