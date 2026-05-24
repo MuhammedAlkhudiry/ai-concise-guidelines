@@ -82,7 +82,13 @@ Template:
 [Only for concrete bugs, logic risks, misleading structure, dead code, inconsistencies, or unnecessary complexity that creates real task risk. Do not use for general observations, nice-to-have improvements, routine caveats, suggestions, or anything already covered in `Answer`.]
 
 **Plan**
-[Only when the user is walking through a plan or grouping tasks or action items. Use this section to track the decisions, conclusions, agreed action items, and required post-work review steps. Do not include `Next Steps` when `Plan` is used.]
+[Only when the user is walking through a plan or grouping tasks or action items. Use exactly two subsections: `Implementation Steps` for decisions, conclusions, and agreed action items, and `Verification Steps` for required checks and post-work review. Do not include `Next Steps` when `Plan` is used.]
+
+Implementation Steps:
+[Committed implementation actions.]
+
+Verification Steps:
+[Required checks and post-work review.]
 
 **Next Steps**
 [Only when finishing a plan or other significant work and `Plan` is not being used. Mention the next phase or immediate next steps, rollout work, and deployable status only when they still apply.]
