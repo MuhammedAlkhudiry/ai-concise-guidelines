@@ -45,12 +45,12 @@
 ## Verification
 
 - **QUALITY** — Run type-check, lint, format, and relevant tests; fix only task-related issues before finishing.
-- **POST-IMPLEMENTATION** — After implementation, bug fixes, refactors, branch syncs, or conflict resolution, run the `post-implementation-review` skill before the final answer unless the user explicitly limited the work to a narrower step.
+- **POST-IMPLEMENTATION** — After implementation, bug fixes, refactors, branch syncs, or conflict resolution, use the split finish loop before the final answer unless the user explicitly limited the work to a narrower step: `code-simplifier` for cleanup, relevant checks for verification, and `deploy-readiness` for ship status.
 - **TEST-THRESHOLD** — Do not require new or updated tests for simple non-behavioral changes; keep tests for behavior changes, bug fixes, and new features.
 - **CHECKLIST** — Repo-root `CHECKLIST.md` is for stable project-wide verification commands only; never add task-specific checks to it, and update it rarely.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
 - **FIX** — Prefer safe auto-fix commands over read-only checks.
-- **QA-HANDOFF** — After doing QA, always give the user the verified working URL, login or fixture data, and exact test data needed so they can repeat the QA themselves; before sharing a QA URL, ensure the dev server is running and the URL responds.
+- **QA-HANDOFF** — After doing QA, always give the user the verified working URL, login or fixture data, and exact test data needed so they can repeat the QA themselves; web handoffs must use a responding DDEV URL, not localhost, and mobile handoffs must confirm a working simulator or emulator.
 - **AGENT-DEVICE-MOBILE** — For agent-device mobile QA after JS-only edits, prefer a warm session with `agent-device metro reload` and snapshot/diff; use `open --relaunch` only for startup, auth/bootstrap, native-state, or broken-navigation checks.
 - **FLAKY-TESTS** — When test errors seem random, first suspect a dirty test database or a parallelism issue before deeper debugging.
 
