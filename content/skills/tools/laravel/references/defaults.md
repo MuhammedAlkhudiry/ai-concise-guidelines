@@ -16,6 +16,7 @@ Use these only when the app has no stronger local pattern.
 - Follow Laravel conventions and do not override defaults without a clear reason.
 - Use constructor injection.
 - Extract real business operations into invokable action classes.
+- Do not add private methods to controllers. Inline the logic when it stays readable, or move it to the right Laravel boundary: an action, service, model method, Form Request, API Resource, policy, or another focused class.
 - Prefer procedural application flow over Laravel events unless eventing is the real boundary.
 - Avoid tiny scopes for one-off simple queries.
 - Avoid Form Requests with an `authorize()` method that only returns `true`.

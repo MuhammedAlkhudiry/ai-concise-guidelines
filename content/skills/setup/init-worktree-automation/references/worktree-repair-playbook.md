@@ -2,6 +2,38 @@
 
 Use this when a fresh worktree setup helper can safely repair local setup friction instead of reporting it as documentation.
 
+## Setup Boundary
+
+- Normal product agents receive an existing worktree path.
+- The setup script is the only setup authority in normal product work.
+- Normal product agents run `scripts/setup-worktree.ts "$PWD"` once and wait for `READY`.
+- Normal product agents do not create worktrees, edit env files, start DDEV by hand, install dependencies, run migrations or seeders, start Vite, repair storage, repair search, or recreate setup steps from logs.
+- If readiness is missing before product work, the setup command must return `WORKTREE_NOT_READY` with blockers.
+- If readiness disappears after `READY`, product work stops with `WORKTREE_NOT_READY`; the agent does not repair setup manually.
+
+## Ready Contract
+
+- `READY` means the product can be worked on, not merely that the setup script finished.
+- Verify required services, env, dependencies, database state, seed or fixture data, storage, search, background asset servers, and app URLs before printing `READY`.
+- Include product-specific working URLs such as login, dashboard, API health, or fixture pages when they are needed for normal QA.
+- Treat optional helper or admin services as non-blocking unless product work depends on them.
+- Start background dev servers from setup when they are required for normal browser or app work.
+- Verify background dev servers with an HTTP or health check, not only by process existence.
+- Record enough process or service ownership for cleanup.
+
+## Agent Audit Loop
+
+- Create a fresh disposable worktree only for automation audits.
+- Run setup inside that fresh worktree and require `READY`.
+- If setup fails, patch the setup script or skill wording, delete the disposable worktree, and repeat from a fresh worktree.
+- After `READY`, give a normal agent a tiny product task and the worktree path only.
+- Do not explain the setup contract, worktree internals, or forbidden commands to the audited agent.
+- Pass only when the agent runs setup first, waits for `READY`, completes product work, and performs no setup operation after `READY`.
+- Use command logs as evidence; final summaries are not enough.
+- If the audited agent skips setup, strengthen the trigger wording or repo setup gate.
+- If the audited agent touches setup after `READY`, strengthen the boundary in the skill, repo instructions, or setup script output.
+- Clean up the audit worktree, branch, background processes, DDEV lane, containers, volumes, and other resources owned by the audit.
+
 ## DDEV Lanes
 
 - Treat DDEV project-name or host-port collisions as soft blockers when a per-worktree lane is safe.
