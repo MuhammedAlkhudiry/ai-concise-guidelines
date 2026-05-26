@@ -9,24 +9,27 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 
 ## Workflow
 
-1. Inspect the relevant code, callers, tests, data model, runtime paths, dependencies, docs, and existing `PRODUCT_SETUP.md`.
-2. Trace behavior before changing it: inputs, outputs, side effects, consumers, tests, migrations, jobs, API contracts, UI contracts, and deployment boundaries.
-3. Search the web when current library docs, framework behavior, migration guidance, security guidance, performance recommendations, or package choices matter.
-4. Identify improvements across correctness, simplicity, duplication, architecture, data assumptions, performance, dependency health, test coverage, observability, and developer workflow.
-5. Match the scope to the request. It is valid to recommend or implement anything from a tiny cleanup to a major refactor or new dependency.
-6. When implementing, keep changes consistent with the codebase, update related tests, and run the relevant checks.
+1. For open-ended requests, do not ask what to improve. Inspect first, choose the highest-impact code target, and explain the choice.
+2. Inspect the relevant code, callers, tests, data model, runtime paths, dependencies, docs, and existing `PRODUCT_SETUP.md`.
+3. Trace behavior before changing it: inputs, outputs, side effects, consumers, tests, migrations, jobs, API contracts, UI contracts, and deployment boundaries.
+4. Search the web when current library docs, framework behavior, migration guidance, security guidance, performance recommendations, or package choices matter.
+5. Identify improvements across correctness, simplicity, duplication, architecture, data assumptions, performance, dependency health, test coverage, observability, and developer workflow.
+6. Match the scope to the request. It is valid to recommend anything from a tiny cleanup to a major refactor or new dependency.
+7. Suggest the change only. Include enough detail for a later execution pass.
 
 ## Result Style
 
 - Lead with the highest-impact code improvements, not a raw file audit.
 - Tie recommendations to concrete code paths, tests, runtime behavior, dependency evidence, or current external documentation.
-- Explain the smallest correct implementation path for each important improvement.
+- Explain the smallest correct execution path for each important suggestion.
 - Include larger refactors, package installs, or framework changes when they are the correct answer.
 - Call out weak evidence, missing access, risky contracts, or blocked verification directly.
 
 ## Rules
 
 - Prefer the simplest correct change, but do not avoid larger refactors when the codebase needs them.
+- Never edit files, install packages, run migrations, or implement the suggestion from this skill.
+- Ask for clarification only when the target codebase is unknown or multiple unrelated targets make inspection impossible.
 - Do not add a library only because it is popular; justify the boundary it improves and verify current package guidance first.
 - Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context unless the user explicitly asks for prior context.
 - Do not create separate code-audit setup files. Extend `PRODUCT_SETUP.md` only for durable code surfaces, risks, evidence sources, or check behavior.
