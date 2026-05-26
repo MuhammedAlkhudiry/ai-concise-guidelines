@@ -1,6 +1,6 @@
 # Product Setup Guide
 
-Repo-root `PRODUCT_SETUP.md` is durable product context for product-health and improve-product runs.
+Repo-root `PRODUCT_SETUP.md` is durable product context for product-health, improve-ux, and improve-code runs.
 
 ## Rules
 

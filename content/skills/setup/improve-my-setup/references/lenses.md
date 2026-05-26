@@ -49,7 +49,7 @@ Use for active project inventory, cross-project setup, worktree setup, and stale
 Primary checks:
 
 - Inspect `content/active-projects.md`.
-- Check manage-worktree skill/script behavior.
+- Check worktree automation skills and repo script behavior.
 - Verify project paths and contracts before recommending broad changes.
 
 ## External Tools Lens
@@ -62,4 +62,4 @@ Primary checks:
 - Cover the user's real stack by default: Laravel/PHP, React, React Native, DDEV/local environments, testing/QA, Sentry/PostHog/observability, databases/search, and AI-agent context/search workflows.
 - Prefer tools that cut work, reduce context, improve feedback loops, or remove repeated manual steps over dashboards that only report usage.
 - Rank tools by fit, maturity, local integration cost, and whether they reduce complexity.
-- Translate good tools into concrete setup actions: new skill, doctor check, shell helper, manage-worktree improvement, project convention, install/evaluation note, or no-op.
+- Translate good tools into concrete setup actions: new skill, doctor check, shell helper, worktree automation improvement, project convention, install/evaluation note, or no-op.
