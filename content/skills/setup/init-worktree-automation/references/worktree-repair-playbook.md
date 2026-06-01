@@ -2,6 +2,27 @@
 
 Use this when a fresh worktree setup helper can safely repair local setup friction instead of reporting it as documentation.
 
+## Codex Local Environment
+
+- Add `.codex/environments/environment.toml` so Codex-created worktrees run setup automatically.
+- Keep the Codex setup script tiny; it should call the repo setup script instead of duplicating setup logic.
+- Use this default shape:
+
+```toml
+name = "Project"
+
+[setup]
+script = '''
+bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
+'''
+```
+
+- If the repo does not use Bun, use the repo's existing package manager or executable style.
+- In `scripts/setup-worktree.ts`, treat `CODEX_WORKTREE_PATH` as the target worktree when present.
+- Treat `CODEX_SOURCE_TREE_PATH` as the canonical source checkout when present.
+- Fall back to `$PWD` and Git worktree discovery for manual runs outside Codex.
+- Do not put secrets, machine-specific absolute paths, or duplicated readiness logic in `environment.toml`.
+
 ## Setup Boundary
 
 - Normal product agents receive an existing worktree path.
@@ -20,6 +41,14 @@ Use this when a fresh worktree setup helper can safely repair local setup fricti
 - Start background dev servers from setup when they are required for normal browser or app work.
 - Verify background dev servers with an HTTP or health check, not only by process existence.
 - Record enough process or service ownership for cleanup.
+
+## Progress Output
+
+- Print concise live progress before long setup steps so Codex setup UI does not look stuck.
+- Use stable stage labels such as `[setup] run ddev start` or `[setup] link node_modules`.
+- Print before DDEV start, dependency install or reuse, env writes, migrations, seeders, storage/search repair, Vite startup, and URL checks.
+- Keep final summaries and `READY`, but do not rely on final output as the only feedback.
+- Avoid dumping noisy command output unless a command fails.
 
 ## Agent Audit Loop
 

@@ -5,7 +5,7 @@
 ## Environment
 
 - **SOLO** — Never start dev servers directly; use Solo MCP for dev servers and their process logs, except inside a real git worktree during its explicit setup phase.
-- **WORKTREE-SETUP-GATE** — Before coding, checking, QA, or product work in a git worktree, run repo-local setup automation once when `scripts/setup-worktree.ts` exists. Continue only after `READY`. After `READY`, do not touch DDEV setup, `.env`, installs, migrations, seeders, Vite startup, storage/search setup, or setup scripts again; stop with `WORKTREE_NOT_READY` if readiness is missing.
+- **WORKTREE-SETUP-GATE** — Before coding, checking, QA, or product work in a git worktree, treat `.codex/worktree-ready.json` with `READY` as already prepared. Running setup when that marker exists is failure. When no ready marker exists and `scripts/setup-worktree.ts` exists, run repo-local setup automation once. Continue only after `READY`. After `READY`, do not touch DDEV setup, `.env`, installs, migrations, seeders, Vite startup, storage/search setup, or setup scripts again; stop with `WORKTREE_NOT_READY` if readiness is missing.
 - **BUILD-CLEANUP** — Run builds only when they are the right verification step, and clean up any generated or compiled files they leave behind before finishing unless those files are intentional tracked outputs.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **DDEV-PHP** — Always run Laravel and PHP commands inside `ddev` unless explicitly told not to.

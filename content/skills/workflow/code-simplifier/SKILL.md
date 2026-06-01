@@ -14,7 +14,7 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 3. Remove anything unreferenced, unreachable, superseded, duplicated, obsolete, or incidental.
 4. Collapse indirection and rebuild the smallest clear version that keeps the contract.
 5. Clean related tests when removal or rewriting is clearly safe.
-6. Run relevant checks and fix task-related fallout.
+6. Run the related `check-and-fix` workflow for task-relevant checks and fix task-related fallout.
 7. Report meaningful simplifications, protected behavior, anything under `Not safe to delete yet`, and complexity intentionally kept.
 
 ## Rules
