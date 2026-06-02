@@ -15,9 +15,4 @@ export interface RemoteMcpServer {
 
 export type McpServer = LocalMcpServer | RemoteMcpServer;
 
-export const MCP_SERVERS: Record<string, McpServer> = {
-  solo: {
-    type: "remote",
-    url: "http://localhost:45678/",
-  },
-};
+export const MCP_SERVERS: Record<string, McpServer> = {};

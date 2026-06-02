@@ -48,12 +48,14 @@ const SHARED_PATHS = {
   zshenv: join(HOME, ".zshenv"),
   secrets: join(HOME, ".config/my-setup/secrets.zsh"),
   binDir: join(HOME, "bin"),
+  localBinDir: join(HOME, ".local/bin"),
 };
 
 const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
 const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY"] as const;
+const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [
   { name: "gbr", source: "gbr.zsh" },
@@ -266,6 +268,7 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
 
 async function installShared(): Promise<void> {
   await installLocalSecrets();
+  await installSoloCli();
 
   const zshSource = join(ROOT_DIR, "shell", "zsh-custom.zsh");
   if (existsSync(zshSource)) {
@@ -287,20 +290,41 @@ async function installShared(): Promise<void> {
     await chmod(sourcePath, 0o755);
   }
 
-  print.info(`Ensuring ~/bin is in PATH via ${SHARED_PATHS.zshenv}...`);
+  print.info(`Ensuring local command paths are in PATH via ${SHARED_PATHS.zshenv}...`);
   await ensureParentDir(SHARED_PATHS.zshenv);
-  const pathLine = 'export PATH="$HOME/bin:$PATH"';
+  const pathLines = ['export PATH="$HOME/bin:$PATH"', 'export PATH="$HOME/.local/bin:$PATH"'];
   const zshenvContent = existsSync(SHARED_PATHS.zshenv)
     ? await readFile(SHARED_PATHS.zshenv, "utf-8")
     : "";
+  let nextContent = zshenvContent.trimEnd();
+  let changed = false;
 
-  if (!zshenvContent.includes(pathLine)) {
-    const nextContent = `${zshenvContent.trimEnd()}\n${pathLine}\n`;
-    await writeFile(SHARED_PATHS.zshenv, nextContent);
-    print.success("Added ~/bin PATH entry to .zshenv");
-  } else {
-    print.success("PATH entry already present in .zshenv");
+  for (const pathLine of pathLines) {
+    if (zshenvContent.includes(pathLine)) {
+      continue;
+    }
+
+    nextContent = `${nextContent}\n${pathLine}`;
+    changed = true;
   }
+
+  if (changed) {
+    await writeFile(SHARED_PATHS.zshenv, `${nextContent}\n`);
+    print.success("Added local command PATH entries to .zshenv");
+  } else {
+    print.success("Local command PATH entries already present in .zshenv");
+  }
+}
+
+async function installSoloCli(): Promise<void> {
+  const destinationPath = join(SHARED_PATHS.localBinDir, "solo");
+
+  if (!existsSync(SOLO_CLI_SOURCE)) {
+    print.warning(`Solo CLI source not found at ${SOLO_CLI_SOURCE}`);
+    return;
+  }
+
+  await installManagedSymlink(SOLO_CLI_SOURCE, destinationPath, "solo command");
 }
 
 async function installManagedSymlink(src: string, dest: string, label: string): Promise<void> {
