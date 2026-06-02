@@ -25,9 +25,10 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 ## Setup Boundary
 
-- Normal product agents receive an existing worktree path.
+- Normal product agents receive an existing secondary worktree path, or the canonical checkout for normal local work.
 - The setup script is the only setup authority in normal product work.
-- Normal product agents run `scripts/setup-worktree.ts "$PWD"` once and wait for `READY`.
+- The canonical checkout is not prepared by `scripts/setup-worktree.ts`; use normal repo instructions there.
+- In secondary worktrees, normal product agents run `scripts/setup-worktree.ts "$PWD"` once and wait for `READY`.
 - Normal product agents do not create worktrees, edit env files, start DDEV by hand, install dependencies, run migrations or seeders, start Vite, repair storage, repair search, or recreate setup steps from logs.
 - If readiness is missing before product work, the setup command must return `WORKTREE_NOT_READY` with blockers.
 - If readiness disappears after `READY`, product work stops with `WORKTREE_NOT_READY`; the agent does not repair setup manually.

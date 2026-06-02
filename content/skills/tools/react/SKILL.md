@@ -9,6 +9,7 @@ Critical defaults for React development.
 
 ## Hooks
 
+- Use `sg` before broad `rg` when finding hook calls, JSX component usages, prop patterns, or component shapes.
 - Hooks first, top-level only.
 - Order: hooks, derived values, handlers, JSX return.
 - Group by concern: state/store, data/query, memo, effects.

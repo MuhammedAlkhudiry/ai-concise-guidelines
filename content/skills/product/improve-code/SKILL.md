@@ -10,12 +10,13 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 ## Workflow
 
 1. For open-ended requests, do not ask what to improve. Inspect first, choose the highest-impact code target, and explain the choice.
-2. Inspect the relevant code, callers, tests, data model, runtime paths, dependencies, docs, and existing `PRODUCT_SETUP.md`.
-3. Trace behavior before changing it: inputs, outputs, side effects, consumers, tests, migrations, jobs, API contracts, UI contracts, and deployment boundaries.
-4. Search the web when current library docs, framework behavior, migration guidance, security guidance, performance recommendations, or package choices matter.
-5. Identify improvements across correctness, simplicity, duplication, architecture, data assumptions, performance, dependency health, test coverage, observability, and developer workflow.
-6. Match the scope to the request. It is valid to recommend anything from a tiny cleanup to a major refactor or new dependency.
-7. Suggest the change only. Include enough detail for a later execution pass.
+2. Use `product-setup` for durable product setup, approved evidence sources, and any needed `PRODUCT_SETUP.md` updates.
+3. Inspect the relevant code, callers, tests, data model, runtime paths, dependencies, and docs.
+4. Trace behavior before changing it: inputs, outputs, side effects, consumers, tests, migrations, jobs, API contracts, UI contracts, and deployment boundaries.
+5. Search the web when current library docs, framework behavior, migration guidance, security guidance, performance recommendations, or package choices matter.
+6. Identify improvements across correctness, simplicity, duplication, architecture, data assumptions, performance, dependency health, test coverage, observability, and developer workflow.
+7. Match the scope to the request. It is valid to recommend anything from a tiny cleanup to a major refactor or new dependency.
+8. Suggest the change only. Include enough detail for a later execution pass.
 
 ## Result Style
 
@@ -32,4 +33,4 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 - Ask for clarification only when the target codebase is unknown or multiple unrelated targets make inspection impossible.
 - Do not add a library only because it is popular; justify the boundary it improves and verify current package guidance first.
 - Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context unless the user explicitly asks for prior context.
-- Do not create separate code-audit setup files. Extend `PRODUCT_SETUP.md` only for durable code surfaces, risks, evidence sources, or check behavior.
+- Do not create separate code-audit setup files.

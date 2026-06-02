@@ -10,9 +10,10 @@ Use these defaults only when the app has no stronger local pattern.
 ## Workflow
 
 1. Check sibling files, related controllers, models, and tests first.
-2. Confirm schema, relationships, requests, policies, queues, cache, and consumers before behavior changes.
-3. Follow local conventions over this skill.
-4. Load `references/defaults.md` when the task needs Laravel-specific defaults.
+2. Use `sg` before broad `rg` when finding PHP classes, methods, attributes, Eloquent calls, or chained query shapes.
+3. Confirm schema, relationships, requests, policies, queues, cache, and consumers before behavior changes.
+4. Follow local conventions over this skill.
+5. Load `references/defaults.md` when the task needs Laravel-specific defaults.
 
 ## Defaults
 

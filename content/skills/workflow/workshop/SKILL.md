@@ -11,20 +11,18 @@ Stress-test an idea before implementation.
 
 1. Research the current product, codebase, docs, and prior art before reacting.
 2. Restate the idea clearly.
-3. Choose one primary branch: Code Architecture, UX/UI, or Product.
-4. Surface assumptions and ask only the questions that change direction.
-5. Focus on the challenging parts first.
-6. Explore alternatives only when they change the recommendation.
-7. Take a position and explain why.
-8. Load `references/branches.md` when you need branch-specific lenses.
+3. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product.
+4. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`.
+5. Surface assumptions and ask only the questions that change direction.
+6. Focus on the challenging parts first.
+7. Explore alternatives only when they change the recommendation.
+8. Take a position and explain why.
 
 ## Output
 
 Respond in normal discussion format, not HTML and not a generated artifact.
 
-Spend most of the response on what is genuinely hard, unclear, risky, or easy to underestimate.
-
-Cover:
+Spend most of the response on what is genuinely hard, unclear, risky, or easy to underestimate. Cover only what matters:
 
 - What the idea is trying to achieve
 - The hardest parts and why they are hard
@@ -41,6 +39,7 @@ Cover:
 - Ask one question at a time when clarification is needed.
 - If the idea contains multiple independent systems, stop and decompose it before discussing details.
 - Present 2-3 approaches only when they represent meaningfully different paths.
+- Cluster divergent ideas by underlying angle, then converge on the strongest path.
 - Before finalizing, check for contradictions, vague scope, missing constraints, and untested assumptions.
 - Cite evidence when it shapes the recommendation.
 - Treat every user statement as a claim to examine, not a premise to endorse; stay impartial and keep it open to debate.

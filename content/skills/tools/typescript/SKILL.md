@@ -17,6 +17,7 @@ Critical defaults for TypeScript and JavaScript development.
 
 ## Code Style
 
+- Use `sg` before broad `rg` when finding imports, exports, function calls, object shapes, or callback patterns.
 - `const` by default; `let` only for mutation; never `var`.
 - Destructure props/objects at function entry.
 - Use arrow functions for callbacks and named functions for top-level/exported functions.
