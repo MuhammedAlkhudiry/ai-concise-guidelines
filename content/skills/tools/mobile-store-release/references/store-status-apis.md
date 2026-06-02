@@ -2,6 +2,30 @@
 
 Use store APIs for repeatable status checks. Use dashboards for auth prompts, agreements, policy forms, and ambiguous review-state wording.
 
+## Skill Script
+
+Run the read-only skill script with project-specific params:
+
+```sh
+rtk bun "$HOME/.agents/skills/mobile-store-release/scripts/mobile-store-status.ts" \
+  --project-root /path/to/project \
+  --mobile-dir path/to/expo-app \
+  --env "$HOME/.config/<project>/mobile-release.env"
+```
+
+Useful options:
+
+- `--local-only`
+- `--json`
+- `--platform android|ios|all`
+- `--release-version`
+- `--android-package`
+- `--google-track`
+- `--ios-bundle-id`
+- `--asc-app-id`
+
+The script is project-independent and read-only. It must not contain project names, app IDs, package names, or credential paths.
+
 ## EAS
 
 EAS owns builds and binary upload. Capture:
