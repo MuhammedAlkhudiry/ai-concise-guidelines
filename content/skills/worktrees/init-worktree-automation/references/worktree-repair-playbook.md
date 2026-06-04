@@ -37,7 +37,7 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 - `READY` means the product can be worked on, not merely that the setup script finished.
 - Verify required services, env, dependencies, database state, seed or fixture data, storage, search, background asset servers, and app URLs before printing `READY`.
-- Include product-specific working URLs such as login, dashboard, API health, or fixture pages when they are needed for normal QA.
+- Include product-specific working URLs such as login, dashboard, API health, or fixture pages when they are needed for normal product work.
 - Treat optional helper or admin services as non-blocking unless product work depends on them.
 - Start background dev servers from setup when they are required for normal browser or app work.
 - Verify background dev servers with an HTTP or health check, not only by process existence.
@@ -50,6 +50,14 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - Print before DDEV start, dependency install or reuse, env writes, migrations, seeders, storage/search repair, Vite startup, and URL checks.
 - Keep final summaries and `READY`, but do not rely on final output as the only feedback.
 - Avoid dumping noisy command output unless a command fails.
+
+## Tooling Bootstrap
+
+- If the repo uses `mise`, make mise trust non-interactive inside setup before running `mise run` commands.
+- Prefer the repo's documented bootstrap command; otherwise use `mise trust` from the worktree root.
+- Print a live progress line such as `[setup] run mise trust`.
+- If tool trust or bootstrap cannot be established automatically, return `WORKTREE_NOT_READY` with the exact blocker.
+- After `READY`, normal agents must not repair tool trust manually.
 
 ## Agent Audit Loop
 
@@ -84,10 +92,12 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - When dependency reuse comes from a canonical checkout, create the fresh worktree from the canonical checkout's `HEAD` or another ref with matching lockfiles.
 - Do not default to `origin/main` when that makes lockfiles diverge from the warm dependency source.
 
-## Data And Services
+## Data And Fixtures
 
 - Run project-local migrations after required services are ready.
-- Use the smallest useful local or QA seeder, then verify the seeded QA fixture exists before printing `READY`.
+- For Laravel apps, run the normal `DatabaseSeeder` by default with `ddev artisan db:seed --force`.
+- Use a specific local, demo, fixture, or workflow seeder only when repo docs name it as the standard setup path, or when `DatabaseSeeder` delegates to it.
+- Verify required seeded users, tenants, records, or fixture pages exist before printing `READY`.
 - Use seeders and fixtures as the default data path.
 - If realistic production-like data is needed, mention `~/db-dumps` and `prod-db-to-ddev`.
 - Never import production data without explicit approval.
@@ -96,9 +106,9 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 ## Frontend Startup
 
-- For Laravel/Vite apps, make normal dev-server startup deterministic instead of adding a browser-QA-only wrapper.
+- For Laravel/Vite apps, make normal dev-server startup deterministic instead of adding a browser-only wrapper.
 - Remove stale ignored `public/hot` files as hygiene.
-- Expose a simple command or script that starts Vite on `127.0.0.1` with a free strict port so browser QA and regular agents use the same path.
+- Expose a simple command or script that starts Vite on `127.0.0.1` with a free strict port so browser work and regular agents use the same path.
 
 ## Mobile
 
