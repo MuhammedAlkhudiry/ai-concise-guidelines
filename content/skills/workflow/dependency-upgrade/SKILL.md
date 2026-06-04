@@ -20,8 +20,13 @@ Upgrade dependencies with proven coverage, controlled risk, and a clear per-pack
 9. Run the relevant checks after each risky batch and at the end.
 10. Re-check the inventory so every in-scope dependency is upgraded, intentionally skipped, or still blocked with a reason.
 
-## Patching
+## Unused Packages
+- Search manifests, imports, config, scripts, service providers, tests, build tooling, and runtime integration before calling a package unused.
+- Remove clearly unused packages with the package manager, update the lockfile, and verify affected checks.
+- Ask approval before removing packages with unclear dynamic, framework, plugin, or production-only usage.
+- Report removed, kept, and unclear unused-package candidates with evidence.
 
+## Patching
 - Do not patch dependencies, vendor files, installed dependency directories, generated package output, or lockfile internals as a permanent fix.
 - Use temporary patches only to diagnose or unblock verification, then remove them before finishing.
 - Ask approval before keeping temporary patches or adding permanent patches, forks, aliases, Composer patches, `patch-package`, or monkey patches.
@@ -29,13 +34,16 @@ Upgrade dependencies with proven coverage, controlled risk, and a clear per-pack
 
 ## Report
 
-Start the report before changing versions, then update it after each dependency or batch so long-running work can resume from it. Finish by sharing the current report, not reconstructing it from memory.
+Create a durable report file before changing versions. Keep it outside source control unless the user asks for a repo doc, share its path early, and update it after each dependency or batch.
+On resume, read the report before continuing. Final answers must link the report and include the latest status; never substitute a summary for the report.
+Create an entry for every in-scope dependency, including packages that were not upgraded.
 
 Each dependency entry includes:
 
 - Package, ecosystem, old version, new version, and upgrade reason.
+- Direct dependency entry, or transitive dependency grouped under its parent package or advisory.
 - Links used: changelog, release notes, upgrade guide, advisory, docs, or relevant PR/issue.
-- Notable changelog items, behavior changes, fixes, features, removals, and security notes.
+- Notable changes/features explained in plain language, including practical impact, behavior changes, removals, security notes, and why the user should care.
 - Code/config/test changes made, including touched files when useful.
 - Checks run and result for that dependency or batch.
 - Patch status: none, temporary removed, temporary kept with approval, or permanent approved.

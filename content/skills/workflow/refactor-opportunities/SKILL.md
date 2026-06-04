@@ -1,11 +1,11 @@
 ---
 name: refactor-opportunities
-description: Identify worthwhile refactor opportunities exposed by recent work or a focused code review. Use after implementation, cleanup, branch sync, conflict resolution, or when the user asks for refactor opportunities, follow-up cleanup, structural improvements, or what should be refactored next.
+description: Suggest worthwhile refactor opportunities exposed by recent work or a focused code review without editing files. Use after implementation, cleanup, branch sync, conflict resolution, or when the user asks for refactor opportunities, follow-up cleanup, structural improvements, or what should be refactored next.
 ---
 
 # Refactor Opportunities
 
-Find refactors worth naming without implementing them.
+Find refactors worth naming. Never edit files.
 
 ## Workflow
 
@@ -15,7 +15,7 @@ Find refactors worth naming without implementing them.
    - `Recommended`: meaningful clarity, safety, maintainability, or product leverage.
    - `Optional`: real but lower-value cleanup.
 4. For each item, name the concrete code smell, affected files, impact, likely effort or risk, and safest next move.
-5. Do not implement refactors unless the user explicitly asks.
+5. Suggest only. Do not edit files, apply patches, run formatters, or implement refactors.
 
 ## Look For
 
@@ -30,6 +30,7 @@ Find refactors worth naming without implementing them.
 ## Rules
 
 - Keep findings tied to evidence in the code.
+- Stay read-only even when a suggested refactor looks obvious.
 - Prefer fewer high-signal items over an exhaustive list.
 - Do not suggest abstractions without real duplication, complexity, or boundary pressure.
 - Do not preserve backward compatibility when a clean-cut change is correct inside one system.

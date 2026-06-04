@@ -46,7 +46,6 @@
 ## Verification
 
 - **QUALITY** — Run type-check, lint, format, and relevant tests; fix only task-related issues before finishing.
-- **POST-IMPLEMENTATION** — After implementation, bug fixes, refactors, branch syncs, or conflict resolution, use the split finish loop before the final answer unless the user explicitly limited the work to a narrower step: `code-simplifier` for cleanup, relevant checks for verification, `refactor-opportunities` for follow-up structure, and `deploy-readiness` for ship status.
 - **TEST-THRESHOLD** — Do not require new or updated tests for simple non-behavioral changes; keep tests for behavior changes, bug fixes, and new features.
 - **CHECKLIST** — Repo-root `CHECKLIST.md` is for stable project-wide verification commands only; never add task-specific checks to it, and update it rarely.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
@@ -83,13 +82,16 @@ Template:
 [Only for concrete bugs, logic risks, misleading structure, dead code, inconsistencies, or unnecessary complexity that creates real task risk. Do not use for general observations, nice-to-have improvements, routine caveats, suggestions, or anything already covered in `Answer`.]
 
 **Plan**
-[Only when the user is walking through a plan or grouping tasks or action items. Use exactly two subsections: `Implementation Steps` for decisions, conclusions, and agreed action items, and `Verification Steps` for required checks and post-work review. Do not include `Next Steps` when `Plan` is used.]
+[Only when the user is walking through a plan or grouping tasks or action items. Use exactly three subsections: `Implementation Steps` for decisions, conclusions, and agreed action items, `Verification Steps` for required checks and post-work review, and `QA Steps` for manual QA paths and repeatable test data. Do not include `Next Steps` when `Plan` is used.]
 
 Implementation Steps:
 [Committed implementation actions.]
 
 Verification Steps:
 [Required checks and post-work review.]
+
+QA Steps:
+[Manual QA paths and repeatable test data.]
 
 **Next Steps**
 [Only when finishing a plan or other significant work and `Plan` is not being used. Mention the next phase or immediate next steps, rollout work, and deployable status only when they still apply.]
