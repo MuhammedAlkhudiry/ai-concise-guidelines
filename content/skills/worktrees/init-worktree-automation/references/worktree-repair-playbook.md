@@ -23,6 +23,25 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - Fall back to `$PWD` and Git worktree discovery for manual runs outside Codex.
 - Do not put secrets, machine-specific absolute paths, or duplicated readiness logic in `environment.toml`.
 
+## Codex Cleanup Environment
+
+- Add a `[cleanup]` script to `.codex/environments/environment.toml` when setup creates owned local resources.
+- Keep the Codex cleanup script tiny; it should call the repo cleanup script instead of duplicating cleanup logic.
+- Use this default shape:
+
+```toml
+[cleanup]
+script = '''
+bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
+'''
+```
+
+- Cleanup runs before Codex removes the worktree; do not remove the Git worktree path yourself.
+- Stop only resources clearly owned by that worktree: background processes, DDEV lane, containers, volumes, ready marker, and local temp/runtime files.
+- Never touch the canonical checkout, shared dependency caches, production dumps, or unrelated Docker/DDEV projects.
+- Print concise live progress with `[cleanup] ...` stage labels.
+- If cleanup cannot finish automatically, print exact blockers.
+
 ## Setup Boundary
 
 - Normal product agents receive an existing secondary worktree path, or the canonical checkout for normal local work.
@@ -109,6 +128,8 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - For Laravel/Vite apps, make normal dev-server startup deterministic instead of adding a browser-only wrapper.
 - Remove stale ignored `public/hot` files as hygiene.
 - Expose a simple command or script that starts Vite on `127.0.0.1` with a free strict port so browser work and regular agents use the same path.
+- Stop stale non-ready Vite processes owned by the worktree before starting a new one.
+- Write Vite stdout and stderr to an owned log file, then include the log tail in `WORKTREE_NOT_READY` when Vite exits or times out.
 
 ## Mobile
 

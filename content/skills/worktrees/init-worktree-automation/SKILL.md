@@ -1,11 +1,11 @@
 ---
 name: init-worktree-automation
-description: Initialize or repair repo-local worktree setup automation when a repo lacks scripts/setup-worktree.ts, the setup command is broken, or READY cannot be reached automatically.
+description: Initialize or repair repo-local worktree setup and cleanup automation when scripts/setup-worktree.ts, scripts/cleanup-worktree.ts, or Codex local environment readiness is missing or broken.
 ---
 
 # Init Worktree Automation
 
-Create or repair the repo-owned automation that makes an existing worktree ready.
+Create or repair the repo-owned automation that makes an existing worktree ready and cleans up its owned resources.
 
 ## Workflow
 
@@ -18,14 +18,16 @@ rtk bun "$HOME/.agents/skills/init-worktree-automation/scripts/collect-worktree-
 
 3. Read repo setup docs, manifests, DDEV config, `.env.example`, and `CHECKLIST.md`.
 4. Create or update `scripts/setup-worktree.ts`; it must accept the current worktree, use Codex path env vars when present, stay idempotent, support `--dry-run`, print `READY` only after verification passes, and print `WORKTREE_NOT_READY` with exact blockers otherwise.
-5. Create or update `.codex/environments/environment.toml` so Codex-created worktrees run the setup command automatically.
-6. Use `references/worktree-repair-playbook.md` for Codex local environments, DDEV lanes, dependency reuse, env/data reuse, Vite/assets, storage, search, mobile boundaries, and cleanup ownership.
-7. Run the setup command inside a fresh test worktree.
-8. If setup cannot reach `READY`, patch the setup script and repeat from a fresh test worktree.
-9. After `READY`, run a tiny product task through a normal agent without explaining setup internals, then audit its command log for setup touches.
-10. If setup fails, or product work touches setup after `READY`, tighten the skill/script contract and repeat from a fresh test worktree.
-11. Clean up disposable branches, worktrees, processes, and owned local services.
-12. Summarize the setup command, Codex environment file, changed automation files, verification evidence, and cleanup.
+5. Create or update `scripts/cleanup-worktree.ts`; it must remove only resources owned by the current worktree and leave Git worktree removal to the caller.
+6. Create or update `.codex/environments/environment.toml` so Codex-created worktrees run setup automatically and cleanup before removal.
+7. Use `references/worktree-repair-playbook.md` for Codex local environments, DDEV lanes, dependency reuse, env/data reuse, Vite/assets, storage, search, mobile boundaries, and cleanup ownership.
+8. Run the setup command inside a fresh test worktree.
+9. If setup cannot reach `READY`, patch the setup script and repeat from a fresh test worktree.
+10. After `READY`, run a tiny product task through a normal agent without explaining setup internals, then audit its command log for setup touches.
+11. Run cleanup in the disposable worktree and verify owned local resources are gone.
+12. If setup fails, cleanup fails, or product work touches setup after `READY`, tighten the skill/script contract and repeat from a fresh test worktree.
+13. Clean up disposable branches, worktrees, processes, and owned local services.
+14. Summarize setup, cleanup, Codex environment file, changed automation files, verification evidence, and cleanup.
 
 ## Rules
 
@@ -37,6 +39,7 @@ rtk bun "$HOME/.agents/skills/init-worktree-automation/scripts/collect-worktree-
 - `READY` means required services, env, storage, search, seed data, Vite/assets, and app URL checks pass.
 - Do not trust summaries as audit evidence; inspect command logs for what ran before and after `READY`.
 - Codex local environment setup must call the same repo setup script, not a second setup path.
+- Codex local environment cleanup must call the same repo cleanup script, not inline cleanup logic.
 - Keep mobile out of the default web setup path unless explicitly asked for mobile readiness.
 - Normal agents run only `scripts/setup-worktree.ts`; they do not create worktrees or repair setup by hand.
 - Do not touch the main worktree while testing a disposable worktree unless explicitly asked.
