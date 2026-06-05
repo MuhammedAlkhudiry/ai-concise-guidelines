@@ -1,6 +1,6 @@
 ---
 name: check-and-fix
-description: "Run project checks from repo-root `CHECKLIST.md` and fix task-related failures. Use when the user asks to run checks, lint and fix, or verify code quality."
+description: "Run project checks from repo-root `CHECKLIST.md` and fix task-related failures, including skipped tests. Use when the user asks to run checks, lint and fix, or verify code quality."
 ---
 
 # Check and Fix
@@ -36,7 +36,7 @@ bun "$HOME/.agents/skills/check-and-fix/scripts/discover-checks.ts" /path/to/rep
 
 1. Run the relevant checklist command.
 2. Read the exact failure.
-3. Fix only issues related to the current task or directly blocking clean output.
+3. Fix only issues related to the current task or directly blocking clean output, including unexpected skipped tests.
 4. Re-run the same command.
 5. Continue until all relevant checks pass or a real blocker remains.
 

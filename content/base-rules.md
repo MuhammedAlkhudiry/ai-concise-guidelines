@@ -5,7 +5,7 @@
 ## Environment
 
 - **SOLO** — Never start dev servers directly; use the Solo CLI first and Solo HTTP API only as a fallback for dev servers and process logs, except inside a real git worktree during its explicit setup phase.
-- **WORKTREE-SETUP-GATE** — Apply repo-local worktree setup only to secondary worktrees, never to the canonical checkout. Before coding, checking, QA, or product work in a secondary worktree, treat `.codex/worktree-ready.json` with `READY` as already prepared. Running setup when that marker exists is failure. When no ready marker exists and `scripts/setup-worktree.ts` exists, run repo-local setup automation once. Continue only after `READY`. After `READY`, do not touch DDEV setup, `.env`, installs, migrations, seeders, Vite startup, storage/search setup, or setup scripts again; stop with `WORKTREE_NOT_READY` if readiness is missing.
+- **WORKTREE-SETUP-GATE** — Apply repo-local worktree setup only during the explicit Codex/local-environment setup phase for secondary worktrees, never during normal product work and never in the canonical checkout. Before coding, checking, QA, or product work in a secondary worktree, require `.codex/worktree-ready.json` with `READY`. After `READY`, do not touch DDEV setup, `.env`, installs, migrations, seeders, Vite startup, storage/search setup, setup scripts, or readiness repair; stop with `WORKTREE_NOT_READY` if readiness is missing.
 - **BUILD-CLEANUP** — Run builds only when they are the right verification step, and clean up any generated or compiled files they leave behind before finishing unless those files are intentional tracked outputs.
 - **HOST-PM** — `npm`/`bun` commands are almost always run on the host, not inside Docker.
 - **DDEV-PHP** — Always run Laravel and PHP commands inside `ddev` unless explicitly told not to.
@@ -40,12 +40,13 @@
 - **DISCUSS-FIRST** — When discussing or planning, avoid switching into execution or editing code files unless the user says "ok go", "do it", or gives a similar explicit go-ahead. Non-code files may be updated when the discussion is explicitly about capturing notes, terms, decisions, documentation, or other non-code content.
 - **MAKE-SENSE** — When the user says "make sense?", "right?", or asks a "why" question, treat it as uncertainty: make no code edits, answer the question directly, and do research first if needed.
 - **PLAN-TRACKING** — When the user wants to walk through a plan or group tasks or action items, keep a short bold `**Plan**` section that tracks the decisions and conclusions reached in the discussion.
-- **EXPLICIT-PLANS** — Plans must be explicit and committed; do not include conditional or uncertain wording like `if`, `when`, `decide`, or `maybe`.
+- **EXPLICIT-PLANS** — Plan steps must name the exact implementation action and real target path, command, or artifact, such as `update src/auth/session.ts`, `add tests/auth/session.test.ts`, or `run bun test tests/auth/session.test.ts`. Never hand-wave with placeholders, broad outcome wording like `add auth` or `fix onboarding`, or uncertain wording like `if`, `when`, `decide`, or `maybe`.
 - **GAP-CHECK** — Raise concrete bugs, logic risks, misleading structure, dead code, or inconsistencies when they matter. Do not use `Flag` for general observations, preferences, routine caveats, suggestions, or unrelated local git changes unless they create a real task risk.
 
 ## Verification
 
 - **QUALITY** — Run type-check, lint, format, and relevant tests; fix only task-related issues before finishing.
+- **TWEAK-UI** — When the active mode is `tweak-ui`, make the requested UI change and stop after the smallest useful visual check. Skip broad checks, extra refactors, deep QA, and unrelated verification so iteration stays fast.
 - **TEST-THRESHOLD** — Do not require new or updated tests for simple non-behavioral changes; keep tests for behavior changes, bug fixes, and new features.
 - **CHECKLIST** — Repo-root `CHECKLIST.md` is for stable project-wide verification commands only; never add task-specific checks to it, and update it rarely.
 - **PARALLEL** — Always run checks in parallel when the tooling supports it, including running tests with parallel workers by default and running unrelated checks concurrently whenever possible.
@@ -64,7 +65,7 @@
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. In `Answer [emoji mode]`, replace `emoji mode` with an emoji plus the active mode. Possible mode values are `discuss`, `plan`, `teach`, `workshop`, and `execute`. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
+Use this reply template and omit sections that do not apply. In `Answer [emoji mode]`, replace `emoji mode` with an emoji plus the active mode. Possible mode values are `discuss`, `plan`, `teach`, `workshop`, `tweak-ui`, and `execute`. Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section. Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
 
 ```md
 Minimal real example:

@@ -44,12 +44,13 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 ## Setup Boundary
 
-- Normal product agents receive an existing secondary worktree path, or the canonical checkout for normal local work.
-- The setup script is the only setup authority in normal product work.
+- Product agents receive an already-prepared secondary worktree path, or the canonical checkout for normal local work.
+- The setup script is the only setup authority during Codex/local-environment setup.
 - The canonical checkout is not prepared by `scripts/setup-worktree.ts`; use normal repo instructions there.
-- In secondary worktrees, normal product agents run `scripts/setup-worktree.ts "$PWD"` once and wait for `READY`.
-- Normal product agents do not create worktrees, edit env files, start DDEV by hand, install dependencies, run migrations or seeders, start Vite, repair storage, repair search, or recreate setup steps from logs.
-- If readiness is missing before product work, the setup command must return `WORKTREE_NOT_READY` with blockers.
+- In secondary worktrees, product agents require `.codex/worktree-ready.json` with `READY` before coding, checking, QA, or product work.
+- Product agents do not create worktrees, run setup, run cleanup, edit env files, start DDEV by hand, install dependencies, run migrations or seeders, start Vite, repair storage, repair search, or recreate setup steps from logs.
+- Running setup when `.codex/worktree-ready.json` reports `READY` is failure.
+- If readiness is missing before product work, the product agent stops with `WORKTREE_NOT_READY`.
 - If readiness disappears after `READY`, product work stops with `WORKTREE_NOT_READY`; the agent does not repair setup manually.
 
 ## Ready Contract
@@ -57,10 +58,20 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - `READY` means the product can be worked on, not merely that the setup script finished.
 - Verify required services, env, dependencies, database state, seed or fixture data, storage, search, background asset servers, and app URLs before printing `READY`.
 - Include product-specific working URLs such as login, dashboard, API health, or fixture pages when they are needed for normal product work.
+- Built-in verification commands must target the prepared worktree URL by default, not the canonical checkout URL.
 - Treat optional helper or admin services as non-blocking unless product work depends on them.
 - Start background dev servers from setup when they are required for normal browser or app work.
 - Verify background dev servers with an HTTP or health check, not only by process existence.
 - Record enough process or service ownership for cleanup.
+
+## Verification URLs
+
+- Inventory repo-local URL defaults that can send checks, smoke tests, browser tests, callbacks, or API calls to the canonical checkout.
+- Scan `.env.example`, project env files, package scripts, mise tasks, browser test configs, app config, QA docs, and agent docs.
+- For secondary worktrees, override only worktree-local runtime values such as `.env`, generated local config, setup-exported env vars, ready marker metadata, or a smoke-command wrapper.
+- Do not mass-edit source configs just because they contain canonical URLs.
+- Prefer env values such as `APP_URL`, `PLAYWRIGHT_BASE_URL`, API base URLs, callback URLs, and test host URLs.
+- `READY` is incomplete when a normal verification command still defaults to the canonical checkout URL.
 
 ## Progress Output
 
@@ -85,7 +96,7 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - If setup fails, patch the setup script or skill wording, delete the disposable worktree, and repeat from a fresh worktree.
 - After `READY`, give a normal agent a tiny product task and the worktree path only.
 - Do not explain the setup contract, worktree internals, or forbidden commands to the audited agent.
-- Pass only when the agent runs setup first, waits for `READY`, completes product work, and performs no setup operation after `READY`.
+- Pass only when Codex setup reaches `READY`, then the agent completes product work without any setup or cleanup operation.
 - Use command logs as evidence; final summaries are not enough.
 - If the audited agent skips setup, strengthen the trigger wording or repo setup gate.
 - If the audited agent touches setup after `READY`, strengthen the boundary in the skill, repo instructions, or setup script output.
