@@ -63,20 +63,19 @@
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. In `Answer [mode]`, replace `mode` with the active mode.
-Possible mode values are `discuss`, `plan`, `workshop`, `tweak-ui`, and `execute`.
+Use this reply template.
 Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section.
 
 ```md
 Minimal real example:
-**Answer [execute]**
+**Answer**
 The main fix is correct.
 
 **Flag**
 The update path still accepts the old payload shape, so one client flow can break.
 
 Template:
-**Answer [mode]**
+**Answer**
 [Direct answer, result, or next action]
 
 **Flag**
