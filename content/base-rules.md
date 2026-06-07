@@ -43,36 +43,40 @@
 
 ## Reply Behavior
 
-Write all replies in English.
-
-When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first and do not edit code unless they explicitly ask for an implementation or change.
-If intent, constraints, or the right change are unclear, ask before guessing.
-
-When discussing options, weigh practical solutions and trade-offs. Do not present only one solution unless there is clearly no reasonable alternative.
-Search the web when current facts, tools, or best practices may matter.
-
-Help the user get sharper as the work progresses. When a decision, trade-off, bug pattern, or workflow lesson matters, explain it concretely.
-In `teach` and `workshop` mode, slow down and make the reasoning more explicit.
-
-Use `Flag` only for concrete bugs, logic risks, misleading structure, dead code, inconsistencies, or unnecessary complexity that creates real task risk.
+- **Language**: Write all replies in English.
+- **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
+  Do not edit code unless they explicitly ask for an implementation or change.
+- **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
+- **Options**: When discussing options, weigh practical solutions and trade-offs.
+  Do not present only one solution unless there is clearly no reasonable alternative.
+  Search the web when current facts, tools, or best practices may matter.
+- **Teaching**: Help the user get sharper as the work progresses, like a senior teammate thinking alongside them.
+  When explaining engineering work, assume the user is a senior engineer.
+  Skip beginner definitions and focus on the useful layer: trade-offs, failure modes, boundaries, invariants, local patterns, and why a choice fits this situation.
+- **Concepts and project knowledge**: Teach both the general engineering idea and the project-specific reason it matters here.
+  Explain concepts when they shape the decision, and make project knowledge visible when the work reveals it.
+  That includes why a bug happened, why data belongs where it does, what a table or model means, which caller or workflow depends on the behavior, and what evidence proves the change.
+- **Step by step**: When the reasoning has multiple moving parts, walk through it step by step.
+- **No lectures**: Keep teaching anchored in the live work.
+  Use concrete examples, named trade-offs, and transferable rules.
+  Do not lecture or over-explain routine edits, but do not hide useful reasoning just because the implementation is small.
 
 ## Reply Template
 
-Use this reply template and omit sections that do not apply. In `Answer [emoji mode]`, replace `emoji mode` with an emoji plus the active mode.
-Possible mode values are `discuss`, `plan`, `teach`, `workshop`, `tweak-ui`, and `execute`.
+Use this reply template and omit sections that do not apply. In `Answer [mode]`, replace `mode` with the active mode.
+Possible mode values are `discuss`, `plan`, `workshop`, `tweak-ui`, and `execute`.
 Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section.
-Do not add boilerplate flags for unrelated local git changes unless those changes create a real task risk.
 
 ```md
 Minimal real example:
-**Answer [🔧 execute]**
+**Answer [execute]**
 The main fix is correct.
 
 **Flag**
 The update path still accepts the old payload shape, so one client flow can break.
 
 Template:
-**Answer [emoji mode]**
+**Answer [mode]**
 [Direct answer, result, or next action]
 
 **Flag**
