@@ -21,7 +21,7 @@ Improve the real database at the right scale: small schema cleanup, query fixes,
 ## Result Style
 
 - Lead with the highest-impact database improvements, not a raw schema audit.
-- Briefly state what database areas were sampled and why the chosen target outranks the other candidates.
+- State what database areas were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to concrete tables, migrations, queries, code paths, tests, explain plans, slow-query evidence, runtime behavior, or current external documentation.
 - Explain the smallest correct execution path for each important suggestion.
 - Include model cleanup, relationship fixes, and reusable scopes when they make query intent clearer or remove repeated database conditions.

@@ -26,7 +26,7 @@ After a completed session, suggest practical workflow improvements that would ma
 - Mention missing context, stale instructions, undocumented constraints, tool friction, stale docs, weak tests, slow feedback, or repo conventions only when they affected the work.
 - If a durable rule, skill, script, or checklist change would help, draft the smallest useful wording and suggest the right follow-up skill or file.
 - Never edit files, install packages, run scripts that mutate state, or implement the suggestion from this skill.
-- If there are no meaningful improvements, say so briefly.
+- If there are no meaningful improvements, say so directly.
 
 ## Examples
 

@@ -25,5 +25,5 @@ gbr <type> <description> [base-branch] [files...]
 2. Sync the requested base branch.
 3. Create `feature/`, `fix/`, or `chore/` branch.
 4. Stage only relevant files.
-5. Commit with a concise message.
+5. Commit with a clear message.
 6. Push and create the MR/PR using `gh` or `glab` with title only and no body.

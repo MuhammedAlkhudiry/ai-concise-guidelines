@@ -5,7 +5,7 @@ description: Create, update, prune, or review AGENTS.md-style agent instruction 
 
 # Manage Agent Markdown
 
-Manage durable agent instruction files as concise operating rules, not documentation.
+Manage durable agent instruction files as focused operating rules, not documentation.
 
 ## Workflow
 
@@ -23,4 +23,4 @@ Manage durable agent instruction files as concise operating rules, not documenta
 - The rule belongs in an agent instruction file instead of a skill, script, checklist, or project doc.
 - The wording tells the agent what to do.
 - The instruction is current, testable, and not duplicated elsewhere.
-- The file stays concise enough for always-loaded context.
+- The file stays focused enough for always-loaded context.

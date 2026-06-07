@@ -22,7 +22,7 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 ## Result Style
 
 - Lead with the highest-impact code improvements, not a raw file audit.
-- Briefly state what areas were sampled and why the chosen target outranks the other candidates.
+- State what areas were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to concrete code paths, tests, runtime behavior, dependency evidence, or current external documentation.
 - Explain the smallest correct execution path for each important suggestion.
 - Include larger refactors, package installs, or framework changes when they are the correct answer.

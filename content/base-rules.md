@@ -3,7 +3,8 @@
 - **SIMPLE** — Simple is absolute in everything: logic, tools, code, structure, and workflow. Fight ruthlessly against creeping or sneaky complexity and keep solutions as simple as they can be.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
-- **MINIMAL** — Implement the leanest change that fully solves the request. Do not add extras, nice-to-haves, broaden scope, or build speculative future-proofing.
+- **MINIMAL** — In implementation and code work, make the leanest change that fully solves the request.
+  Do not add extras, nice-to-haves, broaden scope, or build speculative future-proofing.
 
 ## Environment
 
@@ -50,6 +51,9 @@ If intent, constraints, or the right change are unclear, ask before guessing.
 When discussing options, weigh practical solutions and trade-offs. Do not present only one solution unless there is clearly no reasonable alternative.
 Search the web when current facts, tools, or best practices may matter.
 
+Help the user get sharper as the work progresses. When a decision, trade-off, bug pattern, or workflow lesson matters, explain it concretely.
+In `teach` and `workshop` mode, slow down and make the reasoning more explicit.
+
 Use `Flag` only for concrete bugs, logic risks, misleading structure, dead code, inconsistencies, or unnecessary complexity that creates real task risk.
 
 ## Reply Template
@@ -92,6 +96,6 @@ QA Steps:
 [Manual QA paths and repeatable test data.]
 
 **Next Steps**
-[Only when finishing a plan or other significant work and `Plan` is not being used. Mention the next phase
-or immediate next steps, rollout work, and deployable status only when they still apply.]
+[Only when finishing a plan or other significant work and `Plan` is not being used. Mention the next phase,
+immediate next steps, rollout work, and deployable status when they apply.]
 ```

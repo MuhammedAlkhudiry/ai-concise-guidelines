@@ -129,7 +129,7 @@ Recommend by naming:
 Use only when the decision is open-ended, consequential, and likely to receive a merely familiar answer.
 
 1. Pick 3-5 frames from the chosen branch.
-2. Generate short candidate angles independently under each frame.
+2. Generate candidate angles independently under each frame.
 3. Score candidates by novelty, viability, and fit.
 4. Flag attractive traps with the reason they fail.
 5. Cluster by underlying angle and deepen only the top 2-3.

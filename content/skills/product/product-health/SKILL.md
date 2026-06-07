@@ -28,12 +28,12 @@ bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /pa
 - Explain what matters: likely causes, severity, baseline change, user or business impact, suspicious changes, false alarms, and what can be ignored.
 - Compare current signals with the previous window and usual baseline before calling a number good or bad.
 - Rank findings by affected users, tenants, critical flows, revenue risk, or operational risk.
-- When naming issues with opaque identifiers such as `AWRAQ-1VX`, include the readable title or description inline: `AWRAQ-1VX - short issue description`.
+- When naming issues with opaque identifiers such as `AWRAQ-1VX`, include the readable title or description inline: `AWRAQ-1VX - issue description`.
 - For AI or agentic features, explain actual usage patterns, successful and failed outcomes, tool/action mix, confusing sessions, drop-off points, repeated user intents, and evidence-backed product improvements.
 - Include action items only when useful for investigation, fixes, monitoring follow-up, or access blockers.
 - Report blocked or missing observability as a finding instead of inferring health.
 - Use numbers as evidence for findings. Do not make raw counts, percentages, p95s, rates, or trend stats the main result.
-- Put pure numeric stats in a compact table at the end of the reply.
+- Put pure numeric stats in a clear table at the end of the reply.
 
 ## Safety
 

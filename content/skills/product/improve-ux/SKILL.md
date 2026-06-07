@@ -22,7 +22,7 @@ Improve the real user experience at the right scale: minor polish, flow cleanup,
 ## Result Style
 
 - Lead with the highest-impact UX improvements, not a raw screen audit.
-- Briefly state what surfaces or journeys were sampled and why the chosen target outranks the other candidates.
+- State what surfaces or journeys were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to observed product behavior, user journeys, screenshots, code, analytics, support material, or current external references.
 - Explain the smallest useful version of each important suggestion.
 - Include larger redesign or feature work when it is the correct answer.

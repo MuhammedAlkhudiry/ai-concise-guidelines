@@ -30,7 +30,7 @@ bun "$HOME/.agents/skills/tooling-operations/scripts/tool-doctor.ts"
 - Use `remote`, `remote-tinker`, and `remote-info` only when the project explicitly uses Kubernetes or k8s namespaces. Otherwise use `ssh`.
 - Use `remote` to open a pod shell or run a command in `*-dev`, `*-stg`, `*-uat`, or `*-prod` namespaces.
 - Use `remote-tinker` for `php artisan tinker` code in remote pods, especially when the snippet contains `$`, `->`, quotes, closures, or spans multiple lines.
-- Use `remote-info` for concise namespace diagnostics and resource usage. Use `--full` only when the expanded snapshot is needed.
+- Use `remote-info` for focused namespace diagnostics and resource usage. Use `--full` only when the expanded snapshot is needed.
 - Use `hosts` to list, add, or delete hosts entries. Let the command handle backups and cleanup.
 
 ## Rules

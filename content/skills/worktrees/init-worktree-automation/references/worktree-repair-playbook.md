@@ -39,7 +39,7 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - Cleanup runs before Codex removes the worktree; do not remove the Git worktree path yourself.
 - Stop only resources clearly owned by that worktree: background processes, DDEV lane, containers, volumes, ready marker, and local temp/runtime files.
 - Never touch the canonical checkout, shared dependency caches, production dumps, or unrelated Docker/DDEV projects.
-- Print concise live progress with `[cleanup] ...` stage labels.
+- Print clear live progress with `[cleanup] ...` stage labels.
 - If cleanup cannot finish automatically, print exact blockers.
 
 ## Setup Boundary
@@ -75,7 +75,7 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 ## Progress Output
 
-- Print concise live progress before long setup steps so Codex setup UI does not look stuck.
+- Print clear live progress before long setup steps so Codex setup UI does not look stuck.
 - Use stable stage labels such as `[setup] run ddev start` or `[setup] link node_modules`.
 - Print before DDEV start, dependency install or reuse, env writes, migrations, seeders, storage/search repair, Vite startup, and URL checks.
 - Keep final summaries and `READY`, but do not rely on final output as the only feedback.
@@ -105,7 +105,7 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 ## DDEV Lanes
 
 - Treat DDEV project-name or host-port collisions as soft blockers when a per-worktree lane is safe.
-- Use deterministic, short DDEV names based on the worktree folder slug.
+- Use deterministic DDEV names based on the worktree folder slug.
 - Put the DDEV lane override in the worktree's `.ddev/config.worktree.yaml`.
 - Never mutate the canonical checkout's DDEV config.
 - Keep the canonical checkout's DDEV project name and stable URL reserved for the original checkout.

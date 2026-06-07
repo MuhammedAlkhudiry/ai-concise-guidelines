@@ -20,7 +20,7 @@ plan index --project=<project-name> --write
 ```
 
 5. Create the project folder, `archive/`, and `INDEX.md` when missing.
-6. Store simple plans as `YYYY-MM-DD-short-slug.md`; store multi-file plans as `YYYY-MM-DD-short-slug/PLAN.md` with optional `phases/`.
+6. Store simple plans as `YYYY-MM-DD-meaningful-slug.md`; store multi-file plans as `YYYY-MM-DD-meaningful-slug/PLAN.md` with optional `phases/`.
 7. Add frontmatter with `status`, `created`, `updated`, and `project`.
 8. Add `## Goal Instructions` with a concrete execution prompt and success signals.
 9. Keep status and `updated` in sync while changing or executing a plan.

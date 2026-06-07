@@ -29,7 +29,7 @@ Include:
 
 ## Coverage
 
-- Use compact cases: `TC-01 - <title>` with priority, purpose, steps, and expected result.
+- Use runnable cases: `TC-01 - <title>` with priority, purpose, steps, and expected result.
 - Name the visible outcome, saved state, event, email, job, or API response that proves the case worked.
 - Cover only relevant happy path, changed behavior, validation, permission, boundary, persistence, integration, and nearby regression cases.
 

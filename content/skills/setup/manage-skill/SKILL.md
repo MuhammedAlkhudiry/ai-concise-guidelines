@@ -9,7 +9,7 @@ description: "Create, update, rename, or remove an AI agent skill. Use when the 
 
 - Assume the agent is already capable. Keep only task-specific knowledge.
 - Put trigger guidance in the description, not the body.
-- Keep `SKILL.md` short. Move detail to `references/`, `scripts/`, or `assets/`.
+- Keep `SKILL.md` focused. Move detail to `references/`, `scripts/`, or `assets/`.
 - Keep each fact in one place.
 - Do not copy global rules into skills unless the skill needs a task-specific interpretation.
 
@@ -34,7 +34,7 @@ description: What the skill does and when to trigger it.
 - `name`: lowercase, hyphenated, and matches the folder name exactly.
 - `description`: say what it does, when to use it, and the phrases or contexts that should trigger it.
 - Body: imperative instructions, fast workflow first, references only when needed.
-- Prefer short examples over explanation.
+- Prefer clear examples over abstract explanation.
 
 ## Workflow
 
