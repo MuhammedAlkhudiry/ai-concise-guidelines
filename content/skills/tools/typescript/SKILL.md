@@ -21,6 +21,7 @@ Critical defaults for TypeScript and JavaScript development.
 - `const` by default; `let` only for mutation; never `var`.
 - Destructure props/objects at function entry.
 - Use arrow functions for callbacks and named functions for top-level/exported functions.
+- Build query strings with `URL`, `URLSearchParams`, router helpers, or local API helpers, never manual string concatenation.
 
 ## Async & Error Handling
 

@@ -20,5 +20,6 @@ Use these defaults only when the app has no stronger local pattern.
 - Use typed values, Laravel helpers, collections, enums, Carbon objects, and API Resources where they fit.
 - Keep business operations in clear application code, often invokable actions.
 - Load data upfront; avoid queries in per-item code, accessors, resources, maps, loops, and callbacks.
+- Build query strings with Laravel or framework helpers, never manual string concatenation.
 - Prefer `create()`, `update()`, eager loading, `Cache::remember()`, `once()`, Form Requests, factory states, and model assertions.
 - Keep migrations focused, generated with Artisan, and unchanged once deployed.

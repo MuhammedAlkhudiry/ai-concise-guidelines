@@ -14,6 +14,7 @@ Import a production Laravel MySQL database into local DDEV with production read-
 - Treat local import as destructive: it replaces the local DDEV database.
 - Use `--single-transaction --quick` for InnoDB-friendly dumps.
 - Disable GTID purging when the available `mysqldump` supports it.
+- Keep local production database dumps in `~/db-dumps`.
 - Run local migrations after import only when local code is ahead of production.
 
 ## Script

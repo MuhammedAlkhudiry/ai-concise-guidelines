@@ -1,44 +1,32 @@
 ---
 name: translation
-description: "Review translations for quality, naturalness, and localization correctness."
+description: "Use when writing, translating, or reviewing user-facing copy, adding missing translations, checking localization quality, or improving Arabic copy for natural fusha, tone, and context."
 ---
 
-# Translation Review
+# Translation
 
-Review translations for meaning, tone, context, and technical correctness.
+Write and review localized copy for meaning, tone, context, and technical correctness.
 
-## State File
+## Workflow
 
-For large reviews, keep state in `.docs/ai/<feature-or-file>/translation-review.md`:
+1. Choose the branch: writing, translation, or review.
+2. Check the product voice, existing locale files, placeholders, pluralization, and UI context.
+3. Add missing translations when changing user-facing copy.
+4. For large reviews, read [references/review.md](references/review.md).
 
-- Files and languages
-- Progress
-- Issues by severity
-- Approved groups or patterns
+## Writing
 
-Read and update that file on every continuation.
+- Translate user-facing copy naturally and contextually.
+- Match the product voice and the surrounding UI copy.
+- Keep placeholders, interpolation, pluralization, and formatting intact.
 
-## Review Checklist
+## Review
 
-- Completeness: missing keys, hardcoded strings, fallback gaps
-- Quality: natural phrasing, grammar, tone, machine-translation artifacts
-- Context: button text, errors, placeholders, UI length
-- Technical: interpolation, pluralization, number or date formatting
-
-## Output Format
-
-```text
-`translation.key`
-Current: "..."
-Suggested: "..."
-Issue: literal | unnatural | tone | context | technical
-Reason: ...
-```
-
-Batch approved groups instead of listing every key one by one.
-
-## Rules
-
+- Check completeness, quality, context, and technical correctness.
 - Provide the improved translation, not just the complaint.
 - Call out repeated patterns once, then reference them.
-- For Arabic, rewrite for natural meaning and tone, not word-for-word phrasing.
+
+## Arabic
+
+- Use clear, natural fusha that fits the product voice.
+- Avoid modern media phrasing, machine-like wording, and word-for-word phrasing.
