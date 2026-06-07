@@ -28,8 +28,8 @@ Rules:
 - One runnable verification command per line.
 - Keep only stable project-wide commands the agent should actually run.
 - Prefer the built-in parallel form when the tool supports it, such as `php artisan test --parallel`.
-- Use `#` comments only for short notes or repo headers.
-- In monorepos, group commands under short repo headers.
+- Use `#` comments only for useful notes or repo headers.
+- In monorepos, group commands under clear repo headers.
 - Include non-linting verification commands too, such as `rector`, `phpstan`, type-checkers, framework health checks, schema checks, or other required validators.
 - Do not include `build` commands unless build is explicitly part of the repo's required verification gate.
 - Replace the example commands with repo-specific commands.

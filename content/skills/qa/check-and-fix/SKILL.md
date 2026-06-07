@@ -28,7 +28,7 @@ bun "$HOME/.agents/skills/check-and-fix/scripts/discover-checks.ts" /path/to/rep
 - Prefer repo-level commands such as `mise run check` or `make check` when they cover the needed categories.
 - Use exact runnable commands, not guesses or alternatives.
 - Prefer built-in parallel forms such as `php artisan test --parallel`.
-- Keep `CHECKLIST.md` as plain commands, one per line, with short `#` comments only when useful.
+- Keep `CHECKLIST.md` as plain commands, one per line, with `#` comments only when useful.
 - Include real verification tools beyond lint/tests when the repo uses them.
 - Do not include build commands unless the repo explicitly treats build as verification.
 
