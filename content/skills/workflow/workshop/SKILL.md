@@ -1,11 +1,9 @@
 ---
 name: workshop
-description: "Stress-test ideas before building. Use when the user wants to think through code architecture, UX/UI, or product direction before implementation."
+description: "Stress-test and challenge ideas before building. Use when the user wants to think through code architecture, UX/UI, or product direction before implementation."
 ---
 
 # Workshop
-
-Stress-test an idea before implementation.
 
 ## Workflow
 
@@ -13,10 +11,10 @@ Stress-test an idea before implementation.
 2. Restate the idea clearly.
 3. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product.
 4. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`.
-5. Surface assumptions and ask only the questions that change direction.
-6. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
-7. Explore alternatives only when they change the recommendation.
-8. Take a position and explain why.
+5. Name the strongest objection to the idea before improving it.
+6. Surface assumptions and ask only the questions that change direction.
+7. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
+8. Take a position, explain why, and explore alternatives only when they change the recommendation.
 
 ## Output
 
@@ -25,6 +23,7 @@ Respond in normal discussion format, not HTML and not a generated artifact.
 Spend most of the response on what is genuinely hard, unclear, risky, or easy to underestimate. Cover only what matters:
 
 - What the idea is trying to achieve
+- The strongest objection or reason not to do it
 - The hardest parts and why they are hard
 - Hidden assumptions or constraints
 - Important trade-offs
@@ -43,6 +42,8 @@ Spend most of the response on what is genuinely hard, unclear, risky, or easy to
 - Before finalizing, check for contradictions, vague scope, missing constraints, and untested assumptions.
 - Cite evidence when it shapes the recommendation.
 - Treat every user statement as a claim to examine, not a premise to endorse; stay impartial and keep it open to debate.
+- Do not soften real objections into neutral trade-offs. Say plainly when the idea is over-scoped, under-evidenced, structurally awkward, or solving the wrong problem.
+- Push back on the user's preferred direction when another path is simpler, safer, or more coherent; if the idea is weak, say so early and offer the strongest salvageable version.
 - Critique the idea, not the user.
 - Prefer a clear recommendation over a long option list.
 - Do not drift into generic brainstorming.

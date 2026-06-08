@@ -26,12 +26,12 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
-    repository: "https://github.com/microsoft/playwright-cli.git",
+    repository: "https://github.com/vercel-labs/agent-browser.git",
     ref: "main",
     skills: [
       {
-        name: "playwright",
-        sourcePath: "skills/playwright-cli",
+        name: "agent-browser",
+        sourcePath: "skills/agent-browser",
       },
     ],
   },

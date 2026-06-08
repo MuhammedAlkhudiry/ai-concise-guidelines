@@ -27,11 +27,15 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `phpstorm` | Default editor command in `shell/zsh-custom.zsh`. |
 | `ddev` | Laravel aliases and local PHP workflows use it. |
 | `opencode` | `ai` launcher and OpenCode workflows use it. |
+| `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA. |
 | `rtk` | Reduces noisy command output before it reaches AI agent context. |
 | `solo` | Controls Solo projects, processes, dev servers, logs, todos, and scratchpads through the Solo HTTP control plane. |
 | `jq` | Reads Solo's local HTTP API discovery file for raw API fallback workflows. |
 | `fzf` | Used by project pickers and interactive hosts deletion. |
 | `sg` | Optional AST-shaped code search through ast-grep when text search is too loose. |
+
+The installed `context-health` helper audits recent Codex session context waste through the local `improve-my-setup` analyzer.
+Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
 
 ## Git And Remote Workflow Helpers
 

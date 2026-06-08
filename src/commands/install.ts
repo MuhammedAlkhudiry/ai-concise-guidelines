@@ -58,6 +58,7 @@ const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY"] as const;
 const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [
+  { name: "context-health", source: "context-health.zsh" },
   { name: "gbr", source: "gbr.zsh" },
   { name: "hugeicons", source: "hugeicons.zsh" },
   { name: "remote", source: "remote.zsh" },

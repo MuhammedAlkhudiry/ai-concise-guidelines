@@ -40,7 +40,7 @@ Create an entry for every in-scope dependency, including packages that were not 
 
 Each dependency entry includes:
 
-- Package, ecosystem, old version, new version, and upgrade reason.
+- Package, ecosystem, old version, new version, upgrade reason, and scan marker: 🩹 patch, ✨ minor, or 🚨 major.
 - Direct dependency entry, or transitive dependency grouped under its parent package or advisory.
 - Links used: changelog, release notes, upgrade guide, advisory, docs, or relevant PR/issue.
 - Notable changes/features explained in plain language, including practical impact, behavior changes, removals, security notes, and why the user should care.

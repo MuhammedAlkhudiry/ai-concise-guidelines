@@ -214,6 +214,7 @@ main() {
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
   check_tool ddev optional "Used by Laravel aliases in the synced zsh config."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
+  check_tool agent-browser required "Default AI-agent browser automation CLI."
   check_tool rtk optional "Used to reduce noisy command output before it reaches AI agent context."
   check_tool fzf optional "Used by project pickers and interactive hosts deletion."
   check_tool sg optional "Install ast-grep for AST-shaped code search."
@@ -233,6 +234,7 @@ main() {
 
   print_header "My Setup links"
   check_link zsh "$HOME/.config/zsh-sync/custom.zsh" "$MY_SETUP_ROOT/shell/zsh-custom.zsh"
+  check_link context-health "$HOME/bin/context-health" "$MY_SETUP_ROOT/shell/context-health.zsh"
   check_link gbr "$HOME/bin/gbr" "$MY_SETUP_ROOT/shell/gbr.zsh"
   check_link hugeicons "$HOME/bin/hugeicons" "$MY_SETUP_ROOT/shell/hugeicons.zsh"
   check_link remote "$HOME/bin/remote" "$MY_SETUP_ROOT/shell/remote.zsh"
