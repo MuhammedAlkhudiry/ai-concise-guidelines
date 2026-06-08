@@ -43,5 +43,10 @@
       "model": "opencode/kimi-k2.6"
     }
   },
-  "mcp": {}
+  "mcp": {
+    "jetbrains": {
+      "type": "remote",
+      "url": "http://127.0.0.1:64342/stream"
+    }
+  }
 }
