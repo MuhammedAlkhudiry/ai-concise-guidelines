@@ -241,6 +241,7 @@ main() {
   check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
   check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"
+  check_link knowledge "$HOME/bin/knowledge" "$MY_SETUP_ROOT/shell/knowledge.zsh"
 
   print_header "Managed skills"
   check_installed_skills

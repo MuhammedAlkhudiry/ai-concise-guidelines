@@ -24,6 +24,7 @@ Pressure-test with:
 - What breaks if the input is stale, duplicated, partial, late, or malicious?
 - What invariant must stay true before, during, and after the change?
 - Which boundary is real, and which boundary exists only because the current code is shaped that way?
+- What should be reshaped first so the requested change becomes straightforward?
 - What complexity is being introduced, moved, or deleted?
 - What is the simplest correct version that still respects production contracts?
 
@@ -65,6 +66,7 @@ Pressure-test with:
 - What decision does the user need to make at each step?
 - What is obvious only because the builder already understands the system?
 - Where does the flow create waiting, mode switching, double entry, or avoidable reading?
+- What should be reshaped first so the requested experience becomes straightforward?
 - Which state would make the experience feel broken if it were not designed?
 - What should be removed, merged, renamed, or moved closer to the user's intent?
 
@@ -107,6 +109,7 @@ Pressure-test with:
 - What user pain becomes meaningfully smaller if this ships?
 - Why would the target user choose this over doing nothing?
 - What must be true for adoption, retention, and differentiation to hold?
+- What should be reshaped first so the requested product outcome becomes straightforward?
 - What attractive version of the idea is still not worth building?
 - Which smaller proof would change the decision with the least effort?
 

@@ -14,7 +14,7 @@ Stress-test an idea before implementation.
 3. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product.
 4. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`.
 5. Surface assumptions and ask only the questions that change direction.
-6. Focus on the challenging parts first.
+6. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
 7. Explore alternatives only when they change the recommendation.
 8. Take a position and explain why.
 

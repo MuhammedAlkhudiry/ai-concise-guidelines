@@ -66,6 +66,7 @@ const SHARED_BIN_COMMANDS = [
   { name: "hosts", source: "hosts.zsh" },
   { name: "doctor", source: "doctor.zsh" },
   { name: "plan", source: "plan.zsh" },
+  { name: "knowledge", source: "knowledge.zsh" },
 ];
 
 // =============================================================================

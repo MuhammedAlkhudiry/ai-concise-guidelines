@@ -5,8 +5,6 @@ description: "Run project checks from repo-root `CHECKLIST.md` and fix task-rela
 
 # Check and Fix
 
-Run the repo verification checklist, fix task-related failures, and report clean results or blockers.
-
 ## Checklist First
 
 Repo-root `CHECKLIST.md` is the source of truth for verification commands.
@@ -31,6 +29,9 @@ bun "$HOME/.agents/skills/check-and-fix/scripts/discover-checks.ts" /path/to/rep
 - Keep `CHECKLIST.md` as plain commands, one per line, with `#` comments only when useful.
 - Include real verification tools beyond lint/tests when the repo uses them.
 - Do not include build commands unless the repo explicitly treats build as verification.
+- If verification depends on git hooks, inspect existing setup first: `.githooks`, `.husky`, `.pre-commit-config.yaml`, `lefthook.yml`, package scripts, or install docs.
+- Prefer the documented setup command; if only `.githooks` exists, use `git config core.hooksPath .githooks`.
+- Do not create new hooks unless the user explicitly asks.
 
 ## Fix Loop
 

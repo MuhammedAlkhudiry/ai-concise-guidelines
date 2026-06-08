@@ -7,8 +7,11 @@
 - **THIN-ZSHRC** — If anything is added directly to user `~/.zshrc`, tell the user it should be migrated into `shell/zsh-custom.zsh`.
 - **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep `doctor` in sync with that list.
 - **SKILL-STRUCTURE** — Each skill must live in `content/skills/<category>/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
+- **SKILL-REFERENCES** — When reading or editing a skill, inspect its referenced files and relevant nearby source files too; do not judge the skill from `SKILL.md` alone.
+- **SKILL-CREATION-WORKSHOP** — Before creating a new skill, always workshop the goal, arguments, trade-offs, and scope with the user, then do a deep web search for current external guidance or examples even if the user did not ask for it.
 - **SKILL-PORTABLE** — Installed-facing skill files must not point back to source-only repo paths such as `content/skills/...` or local `my-setup` paths; use skill-relative references.
 - **SKILL-GLOBAL** — Skill instructions are global capabilities; do not mention any project, repo, product, client, or local workspace by name.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **MY-SETUP-CLI** — Supported local commands are `my-setup generate`, `my-setup install`, `my-setup doctor`, `my-setup skills overview`, and `my-setup skills dump`.
+- **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.

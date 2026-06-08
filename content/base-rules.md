@@ -37,6 +37,7 @@
 
 - **IGNORE-UNRELATED-DIFFS** — Ignore unrelated git diffs or changes completely; do not touch them in any way.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
+- **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and the task mentions a feature, domain term, workflow, product behavior, glossary, or history, run `knowledge list` before broad code exploration.
 - **SOLO-SCOPE** — Assume the user is usually working on one-person projects.
   When planning, specing, or writing docs, avoid enterprise process, heavy formality, and oversized documents unless explicitly needed.
   Simple and casual is usually better.
@@ -64,7 +65,7 @@
 ## Reply Template
 
 Use this reply template.
-Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag`, `Next Steps`, or any other section.
+Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag` or any other section.
 
 ```md
 Minimal real example:
@@ -83,22 +84,4 @@ Template:
 complexity that creates real task risk. Do not use for general observations, nice-to-have improvements,
 routine caveats, suggestions, or anything already covered in `Answer`.]
 
-**Plan**
-[Only when the user is walking through a plan or grouping tasks or action items. Use exactly three subsections:
-`Implementation Steps` for decisions, conclusions, and agreed action items, `Verification Steps` for required
-checks and post-work review, and `QA Steps` for manual QA paths and repeatable test data. Do not include
-`Next Steps` when `Plan` is used.]
-
-Implementation Steps:
-[Committed implementation actions.]
-
-Verification Steps:
-[Required checks and post-work review.]
-
-QA Steps:
-[Manual QA paths and repeatable test data.]
-
-**Next Steps**
-[Only when finishing a plan or other significant work and `Plan` is not being used. Mention the next phase,
-immediate next steps, rollout work, and deployable status when they apply.]
 ```

@@ -29,7 +29,7 @@ Structure the response as:
 - Small gems
 - Recommended priority
 - Questions
-- Next steps
+- Recommended action
 
 ## Rules
 
