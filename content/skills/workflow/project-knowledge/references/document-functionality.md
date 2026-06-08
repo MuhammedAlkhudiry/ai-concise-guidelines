@@ -23,8 +23,10 @@ Create a short, accurate feature pack that helps a future agent understand the f
 13. Write the pack in the template sections. Prefer bullets over paragraphs when the feature has many states or rules.
 14. Add only high-signal `key_files`: files a future agent should read first, not every touched file.
 15. Make the feature discoverable in `docs/knowledge/INDEX.md` through the feature link and useful aliases in the pack frontmatter.
-16. Set `last_verified` to the current date after verifying code paths.
-17. Run `knowledge check`.
+16. If this work fixed a hard-earned bug, create a learning with `knowledge learning "<Title>"` and follow `bug-learning.md`.
+17. Link relevant learning files from the feature pack's `Known Learnings` section.
+18. Set `last_verified` to the current date after verifying code paths.
+19. Run `knowledge check`.
 
 ## Quality Bar
 
@@ -34,6 +36,7 @@ Create a short, accurate feature pack that helps a future agent understand the f
 - `docs/knowledge/glossary.md` contains durable terms that are useful across more than one feature pack.
 - `Code Map` explains why each key file matters.
 - `History` includes only decisions that still explain current behavior.
+- `Known Learnings` links only to hard-earned bug learnings that still matter.
 - `Update When` names concrete changes that should force a doc update.
 
 ## Anti-Patterns

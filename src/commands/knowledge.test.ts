@@ -5,7 +5,13 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "bun:test";
 
-import { knowledgeCheck, knowledgeFeature, knowledgeInit, knowledgeList } from "./knowledge";
+import {
+  knowledgeCheck,
+  knowledgeFeature,
+  knowledgeInit,
+  knowledgeLearning,
+  knowledgeList,
+} from "./knowledge";
 
 async function withProject(run: (project: string) => Promise<void>): Promise<void> {
   const project = await mkdtemp(join(tmpdir(), "my-setup-knowledge-"));
@@ -31,6 +37,10 @@ async function capture(run: () => Promise<void>): Promise<string[]> {
   }
 }
 
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 describe("project knowledge commands", () => {
   test("initializes project knowledge files", async () => {
     await withProject(async (project) => {
@@ -39,6 +49,7 @@ describe("project knowledge commands", () => {
       expect(existsSync(join(project, "docs/knowledge/INDEX.md"))).toBe(true);
       expect(existsSync(join(project, "docs/knowledge/glossary.md"))).toBe(true);
       expect(existsSync(join(project, "docs/knowledge/features"))).toBe(true);
+      expect(existsSync(join(project, "docs/knowledge/learnings"))).toBe(true);
       expect(existsSync(join(project, "docs/knowledge/decisions"))).toBe(true);
     });
   });
@@ -77,7 +88,31 @@ last_verified: 2026-06-08
       const output = await capture(async () => knowledgeList({ project }));
 
       expect(output).toEqual([
+        "Features:",
         "- Onboarding (aliases: signup, activation): docs/knowledge/features/onboarding.md",
+      ]);
+    });
+  });
+
+  test("creates a hard-earned bug learning and indexes it once", async () => {
+    await withProject(async (project) => {
+      await capture(async () => {
+        await knowledgeLearning("Billing Renewal Race", { project });
+        await knowledgeLearning("Billing Renewal Race", { project });
+      });
+
+      const learningPath = join(
+        project,
+        `docs/knowledge/learnings/${today()}-billing-renewal-race.md`,
+      );
+      const index = readFileSync(join(project, "docs/knowledge/INDEX.md"), "utf-8");
+      const output = await capture(async () => knowledgeList({ project }));
+
+      expect(readFileSync(learningPath, "utf-8")).toContain("title: Billing Renewal Race");
+      expect(index.match(/learnings\/\d{4}-\d{2}-\d{2}-billing-renewal-race\.md/g)).toHaveLength(1);
+      expect(output).toEqual([
+        "Learnings:",
+        `- Billing Renewal Race: docs/knowledge/learnings/${today()}-billing-renewal-race.md`,
       ]);
     });
   });
@@ -95,6 +130,27 @@ aliases: []
 key_files:
   - app/Billing.php
   - app/Missing.php
+last_verified: 2026-06-08
+---
+`,
+      );
+
+      await expect(knowledgeCheck({ project })).rejects.toThrow(/app\/Missing\.php/);
+    });
+  });
+
+  test("checks learning key file references", async () => {
+    await withProject(async (project) => {
+      await capture(async () => knowledgeLearning("Billing Renewal Race", { project }));
+      writeFileSync(
+        join(project, `docs/knowledge/learnings/${today()}-billing-renewal-race.md`),
+        `---
+title: Billing Renewal Race
+feature: billing
+related_features: []
+key_files:
+  - app/Missing.php
+fixed_in:
 last_verified: 2026-06-08
 ---
 `,

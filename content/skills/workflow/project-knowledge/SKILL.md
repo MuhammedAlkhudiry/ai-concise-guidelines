@@ -14,6 +14,7 @@ docs/knowledge/
   INDEX.md
   glossary.md
   features/<feature>.md
+  learnings/<date-slug>.md
   decisions/<date-slug>.md
 ```
 
@@ -27,11 +28,14 @@ docs/knowledge/
 6. If the feature pack is stale or missing important context, update it after verifying the code path.
 7. When creating or refreshing a pack, follow `references/document-functionality.md`.
 8. Use `references/feature-pack.md` for the file shape and keep the pack short.
-9. Run `knowledge check` after adding or editing `key_files`.
+9. Create a learning with `knowledge learning "<Title>"` only for a hard-earned bug.
+10. Use `references/bug-learning.md` for bug learning shape.
+11. Run `knowledge check` after adding or editing `key_files`.
 
 ## Rules
 
 - Do not duplicate code behavior in prose when a key-file link is enough.
 - Do not create a pack for one-off implementation details.
 - Add knowledge only when it explains business meaning, domain language, history, invariants, or recurring AI confusion.
+- Add bug learnings only when detection took long investigation or revealed durable system behavior.
 - Prefer updating an existing pack over adding overlapping files.

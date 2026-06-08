@@ -10,6 +10,7 @@ my-setup skills overview
 my-setup skills dump
 knowledge init
 knowledge feature "Billing"
+knowledge learning "Billing Renewal Race"
 knowledge list
 knowledge check
 ```

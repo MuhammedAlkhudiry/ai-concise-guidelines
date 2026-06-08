@@ -31,6 +31,10 @@ Why the key files matter.
 
 Decisions, migrations, abandoned approaches, and sharp edges.
 
+## Known Learnings
+
+Links to hard-earned bug learnings that still matter for this feature.
+
 ## Update When
 
 Changes that should update this knowledge pack.
