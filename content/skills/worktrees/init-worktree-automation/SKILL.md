@@ -1,6 +1,6 @@
 ---
 name: init-worktree-automation
-description: Initialize or repair repo-local Codex local-environment automation when scripts/setup-worktree.ts, scripts/cleanup-worktree.ts, or automatic worktree readiness is missing or broken.
+description: Codex worktree automation setup or repair for missing scripts/setup-worktree.ts, scripts/cleanup-worktree.ts, automatic readiness, or broken local-environment setup.
 ---
 
 # Init Worktree Automation

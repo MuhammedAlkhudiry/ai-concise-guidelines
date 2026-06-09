@@ -1,6 +1,6 @@
 ---
 name: prod-db-to-ddev
-description: Use when importing a production Laravel MySQL database over SSH into a local DDEV database, especially prompts like "import prod db into ddev", "refresh local db from prod", or "pull production database locally".
+description: Production Laravel MySQL to local DDEV database imports over SSH, including import prod db into ddev, refresh local db from prod, and pull production database locally prompts.
 ---
 
 # Production DB To DDEV

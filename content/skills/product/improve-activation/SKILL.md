@@ -1,6 +1,6 @@
 ---
 name: improve-activation
-description: Improve onboarding, activation, first-run experience, signup-to-value, trial conversion, aha moments, setup flows, empty-dashboard activation, or new-user dropoff.
+description: Onboarding and activation improvements for first-run experience, signup-to-value, trial conversion, aha moments, setup flows, empty-dashboard activation, and new-user dropoff.
 ---
 
 # Improve Activation

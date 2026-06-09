@@ -1,6 +1,6 @@
 ---
 name: git-operations
-description: Use before running two or more git commands for status snapshots, diff review, branch sync, worktree cleanup, targeted restore, or history search. Use raw `rtk git` only for one simple command.
+description: Multi-command git work covering status snapshots, diff review, branch sync, worktree cleanup, targeted restore, and history search; raw `rtk git` fits one simple command.
 ---
 
 # Git Operations
@@ -33,4 +33,4 @@ rtk bun "$HOME/.agents/skills/git-operations/scripts/git-history-find.ts" query-
 - Use `git-restore-preview.ts --apply` only after the restore target is clear.
 - Keep destructive actions opt-in. Preview before restore, merge, branch deletion, or worktree removal.
 - Do not force-remove dirty worktrees without explicit user approval.
-- Use `git-branch-mr` / `gbr` for final branch, commit, push, and PR packaging.
+- Use `git-branch-mr` for final branch, commit, push, and PR packaging.

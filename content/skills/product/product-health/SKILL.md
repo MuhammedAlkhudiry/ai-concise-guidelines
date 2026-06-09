@@ -1,6 +1,6 @@
 ---
 name: product-health
-description: "Report actual product-health run results in chat using durable product setup. Use when the user asks for product health, latest bugs, slow APIs or queries, server status, database status, Redis status, Horizon/jobs health, Sentry health, PostHog analytics health, AI assistant or agentic feature usage, or an operational health report."
+description: Product health reports using durable product setup, covering latest bugs, slow APIs or queries, server/database/Redis/Horizon health, Sentry, PostHog, AI assistant usage, and operational health prompts.
 ---
 
 # Product Health

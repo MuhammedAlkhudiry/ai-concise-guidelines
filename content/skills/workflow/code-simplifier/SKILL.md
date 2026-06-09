@@ -1,6 +1,6 @@
 ---
 name: code-simplifier
-description: Aggressively simplifies code and tests for maximum clarity, consistency, and maintainability while preserving exact behavior. Use after implementation/refactoring, or when user says 'simplify this', 'clean up code', 'refine this', 'remove complexity', 'make this cleaner', clean the test suite, prune outdated tests, remove brittle cases, or simplify overgrown test files.
+description: Code and test simplification after implementation or refactor, especially simplify this, clean up code, remove complexity, make this cleaner, prune brittle tests, or simplify overgrown files.
 ---
 
 # Code Simplifier

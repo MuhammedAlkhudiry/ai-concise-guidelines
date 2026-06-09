@@ -1,6 +1,6 @@
 ---
 name: code-quality-review
-description: Run a strict maintainability review for abstraction quality, structural simplification, file sprawl, and spaghetti-condition growth. Use for code quality review, thermo-nuclear review, deep code audit, harsh maintainability review, or structural code review.
+description: Strict maintainability review for abstraction quality, structural simplification, file sprawl, condition complexity, code quality review, deep audit, harsh review, or structural review.
 ---
 
 # Code Quality Review

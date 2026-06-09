@@ -1,6 +1,6 @@
 ---
 name: systematic-work
-description: "Work exhaustively across a requested set. Use when the user asks to check every item, list all items, change all occurrences, update everything matching a condition, make something consistent everywhere, or similar broad-scope work."
+description: Exhaustive repo-wide or set-wide work for checking every item, listing all items, changing all matches, updating everything matching a condition, or making something consistent everywhere.
 ---
 
 # Systematic Work

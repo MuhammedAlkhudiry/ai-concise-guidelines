@@ -1,6 +1,6 @@
 ---
 name: qa-handoff
-description: Prepare a repeatable manual QA handoff with coverage-focused test cases after implementation. Use when the user asks "how do I QA this?", "prepare QA path", "give me manual QA", "I want to test it", "give me test cases", or asks for QA handoff after a feature or fix is done.
+description: Manual QA handoff after a feature or fix, covering how do I QA this, prepare QA path, give me manual QA, I want to test it, and give me test cases prompts.
 ---
 
 # QA Handoff

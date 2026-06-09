@@ -1,6 +1,6 @@
 ---
 name: dependency-upgrade
-description: Systematically upgrade project dependencies. Use for Composer, npm, bun, pnpm, yarn, lockfile updates, security updates, Laravel/PHP upgrades, React/JavaScript upgrades, framework bumps, package modernization, or dependency cleanup.
+description: Dependency upgrades and cleanup for Composer, npm, bun, pnpm, yarn, lockfiles, security updates, Laravel/PHP, React/JavaScript, framework bumps, and package modernization.
 ---
 
 # Dependency Upgrade

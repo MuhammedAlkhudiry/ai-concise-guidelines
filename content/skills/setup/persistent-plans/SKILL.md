@@ -1,6 +1,6 @@
 ---
 name: persistent-plans
-description: Manage persistent plan files in ~/plans/<project-name>. Use when creating, updating, finding, reviewing, cleaning up, completing, archiving, or marking stale plan files.
+description: Persistent plan files in ~/plans/<project-name>, covering create, update, find, review, clean up, complete, archive, and mark stale plan workflows.
 ---
 
 # Persistent Plans

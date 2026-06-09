@@ -1,6 +1,6 @@
 ---
 name: product-strategy
-description: "Find high-leverage product opportunities. Use when the user wants product strategy, asks what would make something 10x better, or wants to decide what to build next."
+description: Product strategy and high-leverage opportunity work for what would make this 10x better, what to build next, roadmap direction, and product bets.
 ---
 
 # Product Strategy

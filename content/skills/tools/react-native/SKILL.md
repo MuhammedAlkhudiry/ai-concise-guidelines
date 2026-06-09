@@ -1,6 +1,6 @@
 ---
 name: react-native
-description: React Native and Expo guidance for mobile performance, UI patterns, navigation, animations, and native integration.
+description: React Native and Expo implementation guidance for mobile performance, UI patterns, navigation, animations, native integration, and app behavior.
 ---
 
 # React Native

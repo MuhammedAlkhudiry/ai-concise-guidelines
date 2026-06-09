@@ -1,6 +1,6 @@
 ---
 name: check-and-fix
-description: "Run project checks from repo-root `CHECKLIST.md` and fix task-related failures, including skipped tests. Use when the user asks to run checks, lint and fix, or verify code quality."
+description: Project check-and-fix workflow from repo-root `CHECKLIST.md`, including run checks, lint and fix, verify code quality, and task-related failure repair.
 ---
 
 # Check and Fix

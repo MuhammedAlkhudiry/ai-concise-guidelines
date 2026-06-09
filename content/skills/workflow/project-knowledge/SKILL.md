@@ -1,6 +1,6 @@
 ---
 name: project-knowledge
-description: Use when answering questions about a project feature, documenting existing functionality, investigating product behavior, or maintaining docs/knowledge feature packs, glossary terms, aliases, key files, and feature history.
+description: Project feature knowledge tasks covering behavior questions, functionality docs, product investigations, glossary terms, feature packs, aliases, key files, and history.
 ---
 
 # Project Knowledge

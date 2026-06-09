@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Create, review, refine, or execute conversational plans before implementation. Use when the user asks for a plan, implementation plan, roadmap, task breakdown, sequence, scope, phases, or multi-step work. For uncertain architecture, product, UX, or pre-implementation direction, apply the workshop skill first.
+description: Conversational planning for implementation plans, roadmaps, task breakdowns, sequencing, scope, phases, multi-step work, plan review, plan refinement, or plan execution.
 ---
 
 # Planning

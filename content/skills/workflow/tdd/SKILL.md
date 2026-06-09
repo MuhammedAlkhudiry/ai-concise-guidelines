@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: "Apply test-driven development for implementation work. Use when user wants RED-GREEN-REFACTOR flow, asks for failing tests first, or asks to implement by writing tests before code."
+description: Test-driven implementation with RED-GREEN-REFACTOR, failing tests first, or requests to write tests before production code.
 ---
 
 # Test-Driven Development (TDD)

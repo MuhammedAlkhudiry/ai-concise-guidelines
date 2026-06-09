@@ -1,6 +1,6 @@
 ---
 name: translation
-description: "Use when writing, translating, or reviewing user-facing copy, adding missing translations, checking localization quality, or improving Arabic copy for natural fusha, tone, and context."
+description: Translation and localization work for user-facing copy, missing translations, localization quality, Arabic fusha, tone, context, and copy review.
 ---
 
 # Translation

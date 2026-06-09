@@ -1,6 +1,6 @@
 ---
 name: ui-options
-description: Use when the user asks for multiple UI or UX options, variants, directions, explorations, or a switchable preview before choosing a final interface.
+description: Multiple UI or UX directions, variants, explorations, option sets, or switchable previews before choosing a final interface.
 ---
 
 # UI Options

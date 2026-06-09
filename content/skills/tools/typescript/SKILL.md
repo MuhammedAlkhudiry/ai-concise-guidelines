@@ -1,6 +1,6 @@
 ---
 name: typescript
-description: "TypeScript/JavaScript coding standards. Use when working on TS/JS code to ensure type safety, proper async handling, and clean code style."
+description: TypeScript and JavaScript coding standards for TS/JS edits, type safety, async handling, clean code, and maintainable implementation patterns.
 ---
 
 # TypeScript / JavaScript

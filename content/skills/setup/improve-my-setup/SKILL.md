@@ -1,6 +1,6 @@
 ---
 name: improve-my-setup
-description: Audit the user's `my-setup` AI operating system and suggest improvements for rules, skills, install/shell tooling, Codex/OpenCode behavior, context waste, active-project setup, and current tools for the user's Laravel, React, React Native, DDEV, QA, observability, and AI-agent development stack.
+description: Personal AI operating system audit for rules, skills, install and shell tooling, Codex/OpenCode behavior, context waste, active projects, and the user's dev stack.
 ---
 
 # Improve My Setup

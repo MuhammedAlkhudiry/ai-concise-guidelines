@@ -1,6 +1,6 @@
 ---
 name: deploy-readiness
-description: "Assess whether changes are ready to deploy. Use when the user asks \"good to deploy?\", \"ready to ship?\", \"can I deploy this?\", or asks for release/deployment readiness."
+description: Deployment readiness review for prompts like good to deploy, ready to ship, can I deploy this, release readiness, or production go/no-go.
 ---
 
 # Deploy Readiness

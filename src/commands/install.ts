@@ -59,11 +59,7 @@ const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [
   { name: "context-health", source: "context-health.zsh" },
-  { name: "gbr", source: "gbr.zsh" },
   { name: "hugeicons", source: "hugeicons.zsh" },
-  { name: "remote", source: "remote.zsh" },
-  { name: "remote-tinker", source: "remote-tinker.zsh" },
-  { name: "remote-info", source: "remote-info.zsh" },
   { name: "hosts", source: "hosts.zsh" },
   { name: "doctor", source: "doctor.zsh" },
   { name: "plan", source: "plan.zsh" },

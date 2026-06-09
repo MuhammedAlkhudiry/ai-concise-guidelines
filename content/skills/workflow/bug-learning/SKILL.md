@@ -1,6 +1,6 @@
 ---
 name: bug-learning
-description: Use after fixing or investigating a hard-earned bug that took significant debugging, crossed multiple files or systems, had misleading symptoms, or revealed durable system behavior worth preserving in docs/knowledge/learnings.
+description: Hard-earned bug learning after debugging misleading, cross-file, cross-system, or durable behavior problems worth preserving in docs/knowledge/learnings.
 ---
 
 # Bug Learning

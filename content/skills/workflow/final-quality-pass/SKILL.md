@@ -1,6 +1,6 @@
 ---
 name: final-quality-pass
-description: Run a final quality pass after implementation, bug fixes, refactors, branch syncs, or conflict resolution by simplifying code, reviewing maintainability, auditing test coverage, finding worthwhile follow-up refactors, and running/fixing project checks. Use when the user asks to finish, verify, harden, clean up, make solid, make ready, or do a final quality pass.
+description: Final quality pass after implementation, bug fixes, refactors, branch syncs, or conflicts, covering simplification, maintainability, coverage, checks, hardening, and make it ready prompts.
 ---
 
 # Final Quality Pass

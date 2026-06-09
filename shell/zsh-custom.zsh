@@ -71,11 +71,6 @@ _run_installed_command() {
     return 1
 }
 
-unalias gbr 2>/dev/null
-gbr() {
-    _run_installed_command gbr "$@"
-}
-
 hugeicons() {
     _run_installed_command hugeicons "$@"
 }
@@ -89,23 +84,6 @@ hugeicons() {
 # mise owns global runtime activation for this setup. Keep this lightweight so a
 # missing mise binary does not break shell startup on a partially prepared host.
 command -v mise >/dev/null && eval "$(mise activate zsh)"
-
-# --- Kubernetes --------------------------------------------------------------
-# Adds krew plugins to PATH for kubectl-based helper scripts such as `remote`
-# and `remote-info`.
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-
-remote() {
-    _run_installed_command remote "$@"
-}
-
-remote-tinker() {
-    _run_installed_command remote-tinker "$@"
-}
-
-remote-info() {
-    _run_installed_command remote-info "$@"
-}
 
 # --- PHP ---------------------------------------------------------------------
 # Makes the Homebrew PHP 8.2 binaries available for host-side tooling. Laravel

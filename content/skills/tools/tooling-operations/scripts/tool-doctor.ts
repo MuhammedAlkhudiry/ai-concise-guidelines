@@ -5,11 +5,7 @@ import { spawnSync } from "node:child_process";
 
 const tools: Array<[string, string[]]> = [
   ["rtk", ["--version"]],
-  ["gbr", ["--help"]],
   ["hugeicons", ["--help"]],
-  ["remote", ["--help"]],
-  ["remote-tinker", ["--help"]],
-  ["remote-info", ["--help"]],
   ["hosts", ["--help"]],
   ["pdfinfo", ["-v"]],
   ["pdftotext", ["-v"]],

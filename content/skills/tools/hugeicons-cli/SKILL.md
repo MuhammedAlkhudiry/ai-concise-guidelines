@@ -1,6 +1,6 @@
 ---
 name: hugeicons-cli
-description: Use when the task needs Hugeicons icon search, free icon lookup, SVG export, or framework usage snippets through the local `hugeicons` command instead of MCP. Trigger on requests mentioning Hugeicons, icon search, picking an icon, SVG copy/export, or Hugeicons usage examples.
+description: Hugeicons CLI workflows for icon search, free icon lookup, picking an icon, SVG export, framework snippets, Hugeicons usage examples, and local `hugeicons` command use.
 ---
 
 # Hugeicons CLI

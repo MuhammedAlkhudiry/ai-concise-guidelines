@@ -1,6 +1,6 @@
 ---
 name: qa-test-cases
-description: "Generate deep, executable QA test suites for user flows, regressions, releases, acceptance coverage, and end-to-end scenarios; use for QA cases, test cases, coverage matrices, regression suites, or automation-ready scenarios."
+description: Deep executable QA suites for user flows, regressions, releases, acceptance coverage, E2E scenarios, QA cases, coverage matrices, and automation-ready test cases.
 ---
 
 # QA Test Cases

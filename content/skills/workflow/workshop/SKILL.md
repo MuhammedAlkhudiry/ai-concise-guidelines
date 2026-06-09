@@ -1,6 +1,6 @@
 ---
 name: workshop
-description: "Stress-test and challenge ideas before building. Use when the user wants to think through code architecture, UX/UI, or product direction before implementation."
+description: Pre-build workshop for stress-testing code architecture, UX/UI, product direction, trade-offs, scope, risks, and ideas before implementation.
 ---
 
 # Workshop

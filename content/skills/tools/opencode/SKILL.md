@@ -1,6 +1,6 @@
 ---
 name: opencode
-description: Use when the user explicitly wants OpenCode CLI to handle a task, especially for non-interactive prompts, editing files in another repo, or forcing a specific provider/model through `opencode run`.
+description: OpenCode CLI delegation for explicit OpenCode requests, non-interactive prompts, another-repo edits, provider/model forcing, and `opencode run` workflows.
 ---
 
 # OpenCode

@@ -1,6 +1,6 @@
 ---
 name: refactor-opportunities
-description: Suggest worthwhile refactor opportunities exposed by recent work or a focused code review without editing files. Use after implementation, cleanup, branch sync, conflict resolution, or when the user asks for refactor opportunities, follow-up cleanup, structural improvements, or what should be refactored next.
+description: Refactor opportunity report without editing files, triggered after implementation, cleanup, branch sync, conflict resolution, code review, or prompts asking what to refactor next.
 ---
 
 # Refactor Opportunities

@@ -1,6 +1,6 @@
 ---
 name: tooling-operations
-description: Use when a task depends on tool-specific operational guidance, especially Poppler PDF tools or project helper commands such as gbr, remote, remote-tinker, remote-info, and hosts.
+description: Poppler PDF operations, local helper command checks, and hosts-file edits through the hosts helper.
 ---
 
 # Tooling Operations
@@ -26,11 +26,6 @@ bun "$HOME/.agents/skills/tooling-operations/scripts/tool-doctor.ts"
 
 ## Project Helper Commands
 
-- Use `gbr` when the user wants to create a branch, commit, push, and open an MR or PR.
-- Use `remote`, `remote-tinker`, and `remote-info` only when the project explicitly uses Kubernetes or k8s namespaces. Otherwise use `ssh`.
-- Use `remote` to open a pod shell or run a command in `*-dev`, `*-stg`, `*-uat`, or `*-prod` namespaces.
-- Use `remote-tinker` for `php artisan tinker` code in remote pods, especially when the snippet contains `$`, `->`, quotes, closures, or spans multiple lines.
-- Use `remote-info` for focused namespace diagnostics and resource usage. Use `--full` only when the expanded snapshot is needed.
 - Use `hosts` to list, add, or delete hosts entries. Let the command handle backups and cleanup.
 
 ## Rules

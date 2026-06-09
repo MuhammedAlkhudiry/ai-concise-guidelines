@@ -1,6 +1,6 @@
 ---
 name: improve-db
-description: Improve a product database's schema, migrations, indexes, queries, ORM models, scopes, relationships, constraints, data integrity, performance, and persistence workflows. Use for prompts like "improve database", "review schema", "optimize queries", "audit migrations", "database performance", "model cleanup", or "data model cleanup".
+description: Product database improvement for schema, migrations, indexes, queries, ORM models, scopes, relationships, constraints, integrity, performance, persistence workflows, and data model cleanup.
 ---
 
 # Improve DB

@@ -1,6 +1,6 @@
 ---
 name: verification
-description: Use after implementation, fixes, refactors, UI tweaks, QA work, or before claiming work is done to choose and run the right verification checks with evidence.
+description: Verification after implementation, fixes, refactors, UI tweaks, or QA work, with evidence from the right checks before claiming the task is done.
 ---
 
 # Verification

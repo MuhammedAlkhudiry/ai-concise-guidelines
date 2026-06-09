@@ -1,6 +1,6 @@
 ---
 name: product-setup
-description: Manage repo-root PRODUCT_SETUP.md as durable product setup. Use when reading, creating, refreshing, or updating approved product surfaces, evidence sources, safe read-only access paths, check playbooks, or persistent setup gaps for product improvement and health skills.
+description: PRODUCT_SETUP.md durable product setup for approved surfaces, evidence sources, read-only access paths, check playbooks, setup gaps, product improvement, and health workflows.
 ---
 
 # Product Setup

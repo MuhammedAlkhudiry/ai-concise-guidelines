@@ -1,6 +1,6 @@
 ---
 name: manual-work
-description: "Do judgment-heavy work by hand instead of broad automation. Use when the user asks for manual work, one-by-one handling, hand review, careful repeated changes, or explicitly says not to script a task."
+description: Manual judgment-heavy work for one-by-one handling, hand review, careful repeated changes, or explicit requests to avoid scripting or broad automation.
 ---
 
 # Manual Work

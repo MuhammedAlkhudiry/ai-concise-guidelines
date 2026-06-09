@@ -225,21 +225,14 @@ main() {
   check_solo_discovery
   check_solo_control_plane
 
-  print_header "Git and remote workflow helpers"
-  check_tool gh optional "Used by gbr to open a GitHub pull request."
-  check_tool glab optional "Used by gbr to open a GitLab merge request."
-  check_tool kubectl optional "Required by remote and remote-info."
-  check_tool gum optional "Optional styling for remote-info output."
-  check_tool php optional "Required inside remote-tinker payload execution."
+  print_header "Git workflow helpers"
+  check_tool gh optional "Used to open GitHub pull requests from the command line."
+  check_tool glab optional "Used to open GitLab merge requests from the command line."
 
   print_header "My Setup links"
   check_link zsh "$HOME/.config/zsh-sync/custom.zsh" "$MY_SETUP_ROOT/shell/zsh-custom.zsh"
   check_link context-health "$HOME/bin/context-health" "$MY_SETUP_ROOT/shell/context-health.zsh"
-  check_link gbr "$HOME/bin/gbr" "$MY_SETUP_ROOT/shell/gbr.zsh"
   check_link hugeicons "$HOME/bin/hugeicons" "$MY_SETUP_ROOT/shell/hugeicons.zsh"
-  check_link remote "$HOME/bin/remote" "$MY_SETUP_ROOT/shell/remote.zsh"
-  check_link remote-tinker "$HOME/bin/remote-tinker" "$MY_SETUP_ROOT/shell/remote-tinker.zsh"
-  check_link remote-info "$HOME/bin/remote-info" "$MY_SETUP_ROOT/shell/remote-info.zsh"
   check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
   check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"

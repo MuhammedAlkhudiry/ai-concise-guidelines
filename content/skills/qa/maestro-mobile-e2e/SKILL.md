@@ -1,6 +1,6 @@
 ---
 name: maestro-mobile-e2e
-description: Create, refactor, stabilize, and verify Maestro mobile E2E flows for Expo, React Native, iOS, or Android apps. Use when the user mentions Maestro, mobile smoke tests, mobile E2E auth or core coverage, Expo dev-client E2E, or flaky Maestro flows.
+description: Maestro mobile E2E flows for Expo, React Native, iOS, and Android, including mobile smoke tests, auth coverage, Expo dev-client E2E, flaky flow fixes, and verification.
 ---
 
 # Maestro Mobile E2E

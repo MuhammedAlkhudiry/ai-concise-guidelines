@@ -1,6 +1,6 @@
 ---
 name: solo-cli
-description: Use when managing Solo projects, dev processes, or when the user asks to use Solo CLI, start or inspect dev servers through Solo, or check Solo status.
+description: Solo CLI project and process management, including Solo project status, dev server start/inspection, process logs, Solo HTTP fallback, and explicit Solo requests.
 ---
 
 # Solo CLI

@@ -2,7 +2,7 @@
 
 This repo assumes a small set of non-default tools on top of a normal macOS shell environment.
 
-`doctor` checks command presence, Solo control-plane readiness, managed helper links, and installed skill drift. It does not verify login state, credentials, Kubernetes access, DDEV project state, editor/terminal preferences, or full runtime access.
+`doctor` checks command presence, Solo control-plane readiness, managed helper links, and installed skill drift. It does not verify login state, credentials, DDEV project state, editor/terminal preferences, or full runtime access.
 
 Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and similar are intentionally not listed here.
 
@@ -37,14 +37,11 @@ These are referenced by synced shell config or helper commands. Some are optiona
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-my-setup` analyzer.
 Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
 
-## Git And Remote Workflow Helpers
+## Git Workflow Helpers
 
 These are used by the shared helper commands that get installed into `~/bin`.
 
 | Tool | Why this repo assumes it |
 | --- | --- |
-| `gh` | Optional PR creation backend for `gbr`. |
-| `glab` | Optional MR creation backend for `gbr`. |
-| `kubectl` | Required by `remote` and `remote-info`. |
-| `gum` | Optional pretty output for `remote-info`. |
-| `php` | Required by `remote-tinker` payload execution inside the remote shell command. |
+| `gh` | Optional GitHub pull request creation from the command line. |
+| `glab` | Optional GitLab merge request creation from the command line. |

@@ -1,6 +1,6 @@
 ---
 name: direction-check
-description: "Challenge a proposed path before commitment. Use during planning, discussion, or workshops when the user asks whether a product idea, technical approach, architecture, tool choice, or implementation direction is sound."
+description: Pre-commitment challenge for product ideas, technical approaches, architecture, tool choices, implementation direction, planning discussions, or does this make sense prompts.
 ---
 
 # Direction Check

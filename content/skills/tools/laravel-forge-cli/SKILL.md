@@ -1,6 +1,6 @@
 ---
 name: laravel-forge-cli
-description: Use when working with the official Laravel Forge CLI, including installing or authenticating forge, switching Forge servers, deploying sites, pulling or pushing environment files, viewing logs, running remote site commands, opening Forge sites, configuring SSH, or checking and restarting Forge-managed resources.
+description: Laravel Forge CLI operations for install, authentication, server switching, site deploys, env pull/push, logs, remote site commands, opening Forge sites, SSH config, and managed resource checks.
 ---
 
 # Laravel Forge CLI

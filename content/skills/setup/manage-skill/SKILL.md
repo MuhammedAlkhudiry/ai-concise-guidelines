@@ -1,6 +1,6 @@
 ---
 name: manage-skill
-description: "Create, update, rename, or remove an AI agent skill. Use when the user wants a new skill, wants to improve an existing one, or asks how to structure or maintain reusable skills."
+description: AI agent skill creation and maintenance, including new skills, skill updates, renames, removals, trigger descriptions, structure, and reusable workflow design.
 ---
 
 # Manage Skill

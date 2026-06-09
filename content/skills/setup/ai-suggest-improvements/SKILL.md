@@ -1,6 +1,6 @@
 ---
 name: ai-suggest-improvements
-description: Use after a session when the user asks what they can do, stop doing, clarify, document, or change to help AI agents work better, easier, faster, or more accurately next time.
+description: Post-session suggestions for what the user can do, stop doing, clarify, document, or change so AI agents work better, easier, faster, or more accurately next time.
 ---
 
 # AI Suggest Improvements

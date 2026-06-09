@@ -1,6 +1,6 @@
 ---
 name: test-coverage-audit
-description: Audit and update automated test coverage for a specific behavior, feature, bug, component, endpoint, job, command, policy, hook, or service. Use when the user asks "ensure test coverage for X", "what test coverage do we have for X", "do we have tests for X", "audit test coverage of X", or "add missing tests around X".
+description: Automated test coverage audit or updates for a behavior, feature, bug, component, endpoint, job, command, policy, hook, or service, including ensure coverage and add missing tests prompts.
 ---
 
 # Test Coverage Audit
