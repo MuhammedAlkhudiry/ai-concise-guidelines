@@ -14,7 +14,8 @@
       "<home>/PhpstormProjects/*": "allow",
       "/tmp/*": "allow",
       "/private/tmp/*": "allow",
-      "~/.config/*": "allow"
+      "~/.config/*": "allow",
+      "~/.agents/*": "allow"
     },
     "read": {
       "**/.env*": "allow"

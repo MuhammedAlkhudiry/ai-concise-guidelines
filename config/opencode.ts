@@ -45,6 +45,7 @@ export function createOpencodeConfig(homeDir: string): OpencodeConfig {
         "/tmp/*": "allow",
         "/private/tmp/*": "allow",
         "~/.config/*": "allow",
+        "~/.agents/*": "allow",
       },
       read: {
         "**/.env*": "allow",
