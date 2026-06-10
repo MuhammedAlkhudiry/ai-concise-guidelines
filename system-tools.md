@@ -31,7 +31,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `rtk` | Reduces noisy command output before it reaches AI agent context. |
 | `solo` | Controls Solo projects, processes, dev servers, logs, todos, and scratchpads through the Solo HTTP control plane. |
 | `jq` | Reads Solo's local HTTP API discovery file for raw API fallback workflows. |
-| `fzf` | Used by project pickers and interactive hosts deletion. |
+| `fzf` | Used by project pickers and interactive hosts/plan deletion. |
 | `sg` | Optional AST-shaped code search through ast-grep when text search is too loose. |
 
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-my-setup` analyzer.

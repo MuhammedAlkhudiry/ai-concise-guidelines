@@ -32,6 +32,7 @@ status: <current-status>
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 project: project-name
+description: <short list-view summary>
 ---
 ```
 

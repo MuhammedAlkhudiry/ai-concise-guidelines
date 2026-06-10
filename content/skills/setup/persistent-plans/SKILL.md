@@ -16,6 +16,7 @@ Manage persistent plan files outside project repos.
 
 ```bash
 plan list --project=<project-name>
+plan delete --project=<project-name>
 plan index --project=<project-name> --write
 ```
 

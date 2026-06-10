@@ -14,7 +14,7 @@ Prove what is covered before adding tests.
 3. Search with `rg`; use syntax search first when structure matters, such as function calls, component usage, PHP classes/methods, attributes, hooks, imports, or chained calls.
 4. Report existing coverage as specific tested behaviors, not just filenames.
 5. Identify real gaps: missing happy path, changed behavior, boundary, error, authorization, regression, persistence, integration, or UI state coverage.
-6. Add or update the smallest focused tests that close those gaps using local test style and existing fixtures.
+6. Add or update the smallest focused tests that close those gaps using local test style, existing fixtures, and `test-writing`.
 7. Avoid unrelated test rewrites, broad fixture churn, snapshots without behavioral value, and implementation-detail assertions.
 
 ## Verification

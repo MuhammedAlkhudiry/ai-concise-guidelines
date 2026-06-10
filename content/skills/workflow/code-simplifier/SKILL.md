@@ -32,7 +32,7 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 
 ## Test Cleanup
 
-Delete or merge tests when the remaining suite still protects the behavior and the candidate is:
+Use `test-writing`; delete or merge tests when the remaining suite still protects the behavior and the candidate is:
 
 - for removed, unreachable, or unsupported behavior
 - duplicated by equal or better coverage

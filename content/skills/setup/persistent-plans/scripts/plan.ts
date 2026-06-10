@@ -1,6 +1,15 @@
 #!/usr/bin/env bun
 
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { spawnSync } from "node:child_process";
 import { basename, join, resolve } from "node:path";
 
 type Plan = {
@@ -10,6 +19,7 @@ type Plan = {
   status: string;
   updated: string;
   title: string;
+  description: string;
 };
 
 type Options = {
@@ -25,6 +35,7 @@ function usage(): void {
 
 Commands:
   list     List active persistent plans for the current project
+  delete   Select active plans to archive
   index    Print or rewrite the active plan index
 
 Options:
@@ -96,6 +107,7 @@ function readPlan(projectRoot: string, entry: string): Plan | undefined {
     status: meta.status || "missing",
     updated: meta.updated || "missing",
     title: title(text, entry),
+    description: meta.description || "",
   };
 }
 
@@ -146,20 +158,99 @@ function listPlans(options: Options): void {
     Math.max("Status".length, ...plans.map((plan) => plan.status.length)),
   );
   const updatedWidth = Math.max("Updated".length, ...plans.map((plan) => plan.updated.length));
+  const descriptionWidth = Math.min(
+    56,
+    Math.max("Description".length, ...plans.map((plan) => plan.description.length)),
+  );
 
   console.log(
-    `${pad("Updated", updatedWidth)}  ${pad("Status", statusWidth)}  ${pad("Title", titleWidth)}  File`,
+    `${pad("Updated", updatedWidth)}  ${pad("Status", statusWidth)}  ${pad("Title", titleWidth)}  ${pad("Description", descriptionWidth)}  File`,
   );
   console.log(
-    `${"-".repeat(updatedWidth)}  ${"-".repeat(statusWidth)}  ${"-".repeat(titleWidth)}  ${"-".repeat(4)}`,
+    `${"-".repeat(updatedWidth)}  ${"-".repeat(statusWidth)}  ${"-".repeat(titleWidth)}  ${"-".repeat(descriptionWidth)}  ${"-".repeat(4)}`,
   );
 
   for (const plan of plans) {
     const displayTitle =
       plan.title.length > titleWidth ? `${plan.title.slice(0, titleWidth - 3)}...` : plan.title;
+    const displayDescription =
+      plan.description.length > descriptionWidth
+        ? `${plan.description.slice(0, descriptionWidth - 3)}...`
+        : plan.description;
     console.log(
-      `${pad(plan.updated, updatedWidth)}  ${pad(plan.status, statusWidth)}  ${pad(displayTitle, titleWidth)}  ${plan.relativePath}`,
+      `${pad(plan.updated, updatedWidth)}  ${pad(plan.status, statusWidth)}  ${pad(displayTitle, titleWidth)}  ${pad(displayDescription, descriptionWidth)}  ${plan.relativePath}`,
     );
+  }
+}
+
+function deletePlan(options: Options): void {
+  const projectRoot = join(options.plansRoot, options.project);
+  const plans = activePlans(projectRoot);
+
+  if (plans.length === 0) {
+    console.log("No active plans found.");
+    return;
+  }
+
+  const selectionLines = [
+    "Plan\tStatus\tDescription",
+    ...plans.map((plan) => `${plan.name}\t${plan.status}\t${plan.description}`),
+  ];
+
+  const selection = spawnSync(
+    "fzf",
+    [
+      "--height=40%",
+      "--multi",
+      "--reverse",
+      "--border=rounded",
+      "--header-lines=1",
+      "--prompt=Plans > ",
+      "--header=Select plans to delete with Tab, then Enter",
+      "--exit-0",
+    ],
+    {
+      input: selectionLines.join("\n"),
+      encoding: "utf8",
+    },
+  );
+
+  if (selection.error) {
+    console.error("fzf is required for interactive selection.");
+    process.exit(1);
+  }
+
+  const selectedPlans = selection.stdout
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.split("\t")[0]);
+  if (selectedPlans.length === 0) {
+    process.exit(1);
+  }
+
+  const archiveRoot = join(projectRoot, "archive");
+
+  for (const selected of selectedPlans) {
+    const target = join(archiveRoot, selected);
+
+    if (existsSync(target)) {
+      console.error(`Archived plan already exists: ${target}`);
+      process.exit(1);
+    }
+  }
+
+  mkdirSync(archiveRoot, { recursive: true });
+  for (const selected of selectedPlans) {
+    renameSync(join(projectRoot, selected), join(archiveRoot, selected));
+  }
+
+  writeFileSync(join(projectRoot, "INDEX.md"), indexBody(options.project, activePlans(projectRoot)));
+
+  console.log(
+    `Deleted ${selectedPlans.length} plan${selectedPlans.length === 1 ? "" : "s"} from active plans.`,
+  );
+  for (const selected of selectedPlans) {
+    console.log(`Archived at ${join(archiveRoot, selected)}`);
   }
 }
 
@@ -192,6 +283,8 @@ if (command === "help" || command === "--help" || command === "-h") {
   usage();
 } else if (command === "list") {
   listPlans(parseOptions(rawOptions));
+} else if (command === "delete" || command === "remove" || command === "rm") {
+  deletePlan(parseOptions(rawOptions));
 } else if (command === "index") {
   indexPlans(parseOptions(rawOptions));
 } else {
