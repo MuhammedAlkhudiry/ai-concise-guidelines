@@ -61,27 +61,3 @@
 - **No lectures**: Keep teaching anchored in the live work.
   Use concrete examples, named trade-offs, and transferable rules.
   Do not lecture or over-explain routine edits, but do not hide useful reasoning just because the implementation is small.
-
-## Reply Template
-
-Use this reply template.
-Across the full answer, mention each point once. If a point is already covered in `Answer`, do not repeat it in `Flag` or any other section.
-
-```md
-Minimal real example:
-**Answer**
-The main fix is correct.
-
-**Flag**
-The update path still accepts the old payload shape, so one client flow can break.
-
-Template:
-**Answer**
-[Direct answer, result, or next action]
-
-**Flag**
-[Only for concrete bugs, logic risks, misleading structure, dead code, inconsistencies, or unnecessary
-complexity that creates real task risk. Do not use for general observations, nice-to-have improvements,
-routine caveats, suggestions, or anything already covered in `Answer`.]
-
-```
