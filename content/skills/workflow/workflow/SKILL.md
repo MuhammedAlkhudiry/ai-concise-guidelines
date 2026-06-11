@@ -1,6 +1,6 @@
 ---
 name: workflow
-description: Slash-command workflow router for rare procedural tasks: `/workflow github-actions`, `/workflow ci`, `/workflow dependency-upgrade`, and `/workflow qa-test-cases`.
+description: Slash-command workflow router for rare procedural tasks: `/workflow github-actions`, `/workflow ci`, `/workflow dependency-upgrade`, `/workflow mobile-social-sign-in` for mobile social login/sign-in, and `/workflow qa-test-cases`.
 ---
 
 # Workflow
@@ -11,6 +11,7 @@ Use this skill when the user asks for a named workflow branch with `/workflow ..
 
 - `/workflow github-actions` or `/workflow ci`: read `references/github-actions.md`.
 - `/workflow dependency-upgrade`: read `references/dependency-upgrade.md`, then load only the relevant stack refs under `references/dependency-upgrade/`.
+- `/workflow mobile-social-sign-in` or `/workflow mobile-social-auth`: read `references/mobile-social-sign-in.md`.
 - `/workflow qa-test-cases`: read `references/qa-test-cases.md`, then read `references/qa-test-cases/deep-qa-suite.md`.
 
 ## Rules
