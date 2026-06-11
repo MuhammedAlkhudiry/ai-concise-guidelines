@@ -1,15 +1,10 @@
----
-name: improve-my-setup
-description: Personal AI operating system audit for rules, skills, install and shell tooling, Codex/OpenCode behavior, context waste, active projects, and the user's dev stack.
----
-
 # Improve My Setup
 
 Audit `my-setup` as the source of truth for AI agent behavior, then suggest concrete improvements.
 
 ## Workflow
 
-1. Read `references/lenses.md`.
+1. Read `references/my-setup/lenses.md`.
 2. Run all lenses by default. Use a single lens only when the user asks for a specific area.
 3. Inspect broadly before choosing: sample multiple relevant rules, skills, configs, scripts, shell tooling, generated outputs, and active-project setup paths. Do not stop at the first awkward rule, first noisy skill, first missing script, or first obvious context-waste issue when broader setup evidence is available.
 4. Read only the source files and installed outputs needed for the active lenses.
@@ -24,5 +19,5 @@ Audit `my-setup` as the source of truth for AI agent behavior, then suggest conc
 - Codex session context waste:
 
 ```bash
-bun "$HOME/.agents/skills/improve-my-setup/scripts/analyze-codex-sessions.ts"
+bun "$HOME/.agents/skills/improve/scripts/analyze-codex-sessions.ts"
 ```

@@ -1,8 +1,3 @@
----
-name: improve-code
-description: Product code improvement across quality, architecture, reliability, performance, maintainability, tests, dependencies, developer workflow, cleanup, refactors, libraries, frameworks, and modernization.
----
-
 # Improve Code
 
 Improve the real codebase at the right scale: small cleanup, bug-prone code, tests, performance, major refactors, new libraries, framework changes, or architecture cleanup.

@@ -43,5 +43,5 @@ Include:
 - Do not hand over route lists or vague QA paths; make every case runnable and observable.
 - Do not duplicate implementation verification as user-run cases; list completed checks under `Already Verified`.
 - Do not repeat full implementation details, test logs, or generic QA theory.
-- Use `qa-test-cases` instead when the user asks for a full test suite, automation-ready matrix, or executable case document.
+- Use `/workflow qa-test-cases` instead when the user asks for a full test suite, automation-ready matrix, or executable case document.
 - Use `deploy-readiness` instead when the user asks whether the change is ready to ship.

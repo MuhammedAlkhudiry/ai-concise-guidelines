@@ -1,8 +1,3 @@
----
-name: improve-ux
-description: Product UX/UI improvement for flows, screens, copy, interaction design, accessibility, frontend experience, polish, redesigns, UX features, and product-flow changes.
----
-
 # Improve UX
 
 Improve the real user experience at the right scale: minor polish, flow cleanup, new screens, whole features, or broad redesign work.
