@@ -20,7 +20,7 @@ rtk bun "$HOME/.agents/skills/init-worktree-automation/scripts/collect-worktree-
 4. Create or update `scripts/setup-worktree.ts`; it must accept the Codex-created worktree, use Codex path env vars when present, stay idempotent, support `--dry-run`, print `READY` only after verification passes, and print `WORKTREE_NOT_READY` with exact blockers otherwise.
 5. Create or update `scripts/cleanup-worktree.ts`; it must remove only resources owned by the Codex-created worktree and leave Git worktree removal to Codex.
 6. Create or update `.codex/environments/environment.toml` so Codex-created worktrees run setup automatically and cleanup before removal.
-7. Use `references/worktree-repair-playbook.md` for Codex local environments, DDEV lanes, dependency reuse, env/data reuse, Vite/assets, storage, search, mobile boundaries, and cleanup ownership.
+7. Use `references/worktree-repair-playbook.md` for Codex local environments, DDEV lanes, dependency installation, mise trust, env/data setup, Vite/assets, storage, search, mobile boundaries, and cleanup ownership.
 8. Run the setup command inside a fresh test worktree.
 9. If setup cannot reach `READY`, patch the setup script and repeat from a fresh test worktree.
 10. After `READY`, run a tiny product task through a normal agent without explaining setup internals, then audit its command log for setup touches.

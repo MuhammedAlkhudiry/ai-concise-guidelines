@@ -57,6 +57,8 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 - `READY` means the product can be worked on, not merely that the setup script finished.
 - Verify required services, env, dependencies, database state, seed or fixture data, storage, search, background asset servers, and app URLs before printing `READY`.
+- For Laravel apps, inspect `ddev artisan list` and run project prepare/generate commands that create worktree-readiness files or state before printing `READY`.
+- Skip unrelated prepare/generate commands; no readiness-generating artisan work should be left for product agents after `READY`.
 - Include product-specific working URLs such as login, dashboard, API health, or fixture pages when they are needed for normal product work.
 - Built-in verification commands must target the prepared worktree URL by default, not the canonical checkout URL.
 - Treat optional helper or admin services as non-blocking unless product work depends on them.
@@ -76,10 +78,18 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 ## Progress Output
 
 - Print clear live progress before long setup steps so Codex setup UI does not look stuck.
-- Use stable stage labels such as `[setup] run ddev start` or `[setup] link node_modules`.
-- Print before DDEV start, dependency install or reuse, env writes, migrations, seeders, storage/search repair, Vite startup, and URL checks.
+- Use stable stage labels such as `[setup] run ddev start` or `[setup] install node_modules`.
+- Print before DDEV start, dependency install, env writes, migrations, seeders, storage/search repair, Vite startup, and URL checks.
 - Keep final summaries and `READY`, but do not rely on final output as the only feedback.
 - Avoid dumping noisy command output unless a command fails.
+
+## Parallel Setup
+
+- Run independent setup work in parallel inside explicit phases, then wait at readiness boundaries.
+- Local config writes, stale file cleanup, tool trust, host-side installs, and service startup can overlap when they do not share mutable state.
+- Keep container-bound installs and artisan commands behind service readiness and dependency barriers.
+- Keep migrations, seeders, search imports, and coupled data mutations ordered unless repo docs prove they are independent.
+- Run final readiness checks together only after all required setup work has finished.
 
 ## Tooling Bootstrap
 
@@ -115,12 +125,12 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 
 ## Dependencies
 
-- Reuse ignored dependency directories such as `vendor` and `node_modules` from the canonical checkout when lockfiles match.
-- Use symlinks only when the runtime can follow them.
-- For container-visible dependencies such as Laravel `vendor` inside DDEV, copy or mount them so `ddev artisan` works inside the fresh lane.
-- Report the install command as a hard blocker when dependency reuse cannot meet the 1-minute target.
-- When dependency reuse comes from a canonical checkout, create the fresh worktree from the canonical checkout's `HEAD` or another ref with matching lockfiles.
-- Do not default to `origin/main` when that makes lockfiles diverge from the warm dependency source.
+- Install ignored dependency directories such as `vendor` and `node_modules` in the prepared worktree from the project lockfiles.
+- Use the repo's package managers and documented install commands.
+- For container-visible dependencies such as Laravel `vendor` inside DDEV, run the install through DDEV so `ddev artisan` works inside the fresh lane.
+- Report the exact install command as a hard blocker when dependency installation cannot meet the 1-minute target.
+- Create the fresh worktree from the canonical checkout's `HEAD` or another ref with matching lockfiles.
+- Do not default to `origin/main` when that makes lockfiles diverge from the prepared worktree.
 
 ## Data And Fixtures
 
@@ -145,7 +155,7 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 ## Mobile
 
 - Keep mobile out of the default web setup path unless the user explicitly asks for mobile readiness.
-- If the monorepo has a mobile app with warm host-side dependencies, include its `node_modules` reuse when lockfiles match so mobile typecheck/lint can start without a fresh install.
+- If the monorepo has a mobile app, include its dependency install path so mobile typecheck/lint can start from the prepared worktree.
 
 ## Deletion Cleanup
 

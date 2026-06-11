@@ -514,22 +514,21 @@ function detectWarmStartReadiness(apps: AppInfo[], ddevRoots: DdevInfo[]): strin
   return readiness;
 }
 
-function detectReuseCandidates(apps: AppInfo[]): string[] {
+function detectSetupTargets(apps: AppInfo[]): string[] {
   const candidates: string[] = [];
 
   for (const app of apps) {
-    const appPath = join(root, app.dir);
-
-    if (app.path.endsWith("package.json") && dirExists(join(appPath, "node_modules"))) {
-      candidates.push(`${app.dir}/node_modules`);
+    if (app.path.endsWith("package.json")) {
+      candidates.push(`${app.dir}/node_modules (${app.packageManager ?? "package manager"} install)`);
     }
 
-    if (app.path.endsWith("composer.json") && dirExists(join(appPath, "vendor"))) {
-      candidates.push(`${app.dir}/vendor`);
-    }
+    if (app.path.endsWith("composer.json")) {
+      candidates.push(`${app.dir}/vendor (composer install)`);
 
-    if (app.path.endsWith("composer.json") && fileExists(join(appPath, ".env"))) {
-      candidates.push(`${app.dir}/.env`);
+      const appPath = join(root, app.dir);
+      if (fileExists(join(appPath, ".env"))) {
+        candidates.push(`${app.dir}/.env`);
+      }
     }
   }
 
@@ -567,7 +566,7 @@ const ddevGaps = detectDdevGaps(
   envExamples.map(readText),
 );
 const warmStartReadiness = detectWarmStartReadiness([...composerApps, ...packageApps], ddevRoots);
-const reuseCandidates = detectReuseCandidates([...composerApps, ...packageApps]);
+const setupTargets = detectSetupTargets([...composerApps, ...packageApps]);
 
 console.log(`# Worktree Context: ${basename(root)}`);
 console.log(`\nRoot: ${root}`);
@@ -575,7 +574,7 @@ printList("Agent And Project Docs", [...agentFiles, ...docs].sort((a, b) => docR
 printList("Environment Examples", envExamples.map(rel).sort());
 printList("Mobile App Configs", appConfigs);
 printList("Warm Start Readiness Signals", warmStartReadiness);
-printList("Dependency And Env Reuse Candidates", reuseCandidates);
+printList("Dependency Install And Env Setup Targets", setupTargets);
 printList("Project Checklist Commands", checklistCommands);
 printList("QA Hints", qaHints);
 
