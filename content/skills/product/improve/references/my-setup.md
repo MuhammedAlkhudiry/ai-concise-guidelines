@@ -13,6 +13,8 @@ Audit `my-setup` as the source of truth for AI agent behavior, then suggest conc
 7. Identify candidate improvements across the active lenses, then compare them by future-session impact, recurrence, confidence, implementation size, and risk.
 8. Return the strongest improvements as specific changes: rule edit, skill add/merge/delete, script, doctor check, install change, active-project fix, or no-op. Do not merely return the first issue found.
 9. Suggest only. Never edit files, install packages, run scripts that mutate state, or implement the suggestion from this skill.
+10. Use the finding contract from `references/advisor-output.md` for important findings, and include considered-but-rejected notes for tempting setup changes that would add ceremony, duplicate an existing skill, or save too little future context.
+11. For plan requests, read `references/handoff-plans.md` and make the plan self-contained enough for a fresh executor.
 
 ## Scripted Checks
 

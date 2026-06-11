@@ -23,6 +23,30 @@ bun scripts/setup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - Fall back to `$PWD` and Git worktree discovery for manual runs outside Codex.
 - Do not put secrets, machine-specific absolute paths, or duplicated readiness logic in `environment.toml`.
 
+## Codex Local Environment Actions
+
+- Add actions to `.codex/environments/environment.toml` when the repo has stable commands that people run often.
+- Use TOML array tables. Each action has `name`, `icon`, and `command`; `platform` is optional.
+- Valid icons are `tool`, `run`, `debug`, and `test`.
+- Valid platform values are `darwin`, `linux`, and `win32`.
+- Prefer top-level aggregate commands first: check, format, lint, and typecheck.
+- Add only major scoped commands that are genuinely useful as shortcuts, such as build, tests, or smoke. Do not dump every task into the app top bar.
+- Preserve the repo's command conventions in action commands. For example, if the repo requires an `rtk` prefix and uses `mise`, write `rtk mise run check`; otherwise use the repo's normal command shape.
+
+Example:
+
+```toml
+[[actions]]
+name = "Check"
+icon = "test"
+command = "mise run check"
+
+[[actions]]
+name = "Build"
+icon = "run"
+command = "mise run build"
+```
+
 ## Codex Cleanup Environment
 
 - Add a `[cleanup]` script to `.codex/environments/environment.toml` when setup creates owned local resources.

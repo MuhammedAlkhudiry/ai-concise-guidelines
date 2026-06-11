@@ -50,6 +50,7 @@
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
 - **Options**: When discussing options, weigh practical solutions and trade-offs.
   Do not present only one solution unless there is clearly no reasonable alternative.
+  Include external options such as new tools, libraries, products, or infrastructure when they may be the practical answer.
   Search the web when current facts, tools, or best practices may matter.
 - **Teaching**: Help the user get sharper as the work progresses, like a senior teammate thinking alongside them.
   When explaining engineering work, assume the user is a senior engineer.

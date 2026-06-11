@@ -16,17 +16,20 @@ Improve the real database at the right scale: small schema cleanup, query fixes,
 ## Result Style
 
 - Lead with the highest-impact database improvements, not a raw schema audit.
+- Use the finding contract from `references/advisor-output.md` for important findings.
 - State what database areas were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to concrete tables, migrations, queries, code paths, tests, explain plans, slow-query evidence, runtime behavior, or current external documentation.
 - Explain the smallest correct execution path for each important suggestion.
 - Include model cleanup, relationship fixes, and reusable scopes when they make query intent clearer or remove repeated database conditions.
 - Include larger data-model redesigns, index changes, or migration sequences when they are the correct answer.
 - Call out weak evidence, missing access, risky production contracts, or blocked verification directly.
+- Add a short considered-but-rejected note for tempting findings that are by design, duplicated, unsupported, or not worth doing.
 
 ## Rules
 
 - Never edit files, install packages, import databases, run migrations, run seeders, or implement the suggestion from this skill.
 - Never run write queries, destructive queries, schema changes, or maintenance commands against production.
+- For plan requests, read `references/handoff-plans.md` and make the plan self-contained enough for a fresh executor.
 - Use `prod-db-to-ddev` for production-to-local imports, `product-health` for live operational DB health, and framework-specific skills for implementation.
 - Ask for clarification only when the target codebase is unknown or multiple unrelated targets make inspection impossible.
 - Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context unless the user explicitly asks for prior context.

@@ -30,6 +30,8 @@ Improve the system that gets new or invited users from intent to durable first v
 - Current path summary.
 - Main activation blockers.
 - Recommended product, UX, messaging, analytics, and operational changes, with priority rationale.
+- Use the finding contract from `references/advisor-output.md` for important findings.
+- Add considered-but-rejected notes for tempting changes that do not move users toward first value.
 
 ## Rules
 - Optimize for activation leverage, not smallness.
@@ -37,3 +39,4 @@ Improve the system that gets new or invited users from intent to durable first v
 - Do not recommend tours, checklists, emails, or polish unless they move users toward first value.
 - Prefer removing required steps over explaining them better.
 - If the product has multiple user types, separate activation paths by segment.
+- For plan requests, read `references/handoff-plans.md` and make the plan self-contained enough for a fresh executor.

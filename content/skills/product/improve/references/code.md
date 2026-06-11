@@ -17,16 +17,19 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 ## Result Style
 
 - Lead with the highest-impact code improvements, not a raw file audit.
+- Use the finding contract from `references/advisor-output.md` for important findings.
 - State what areas were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to concrete code paths, tests, runtime behavior, dependency evidence, or current external documentation.
 - Explain the smallest correct execution path for each important suggestion.
 - Include larger refactors, package installs, or framework changes when they are the correct answer.
 - Call out weak evidence, missing access, risky contracts, or blocked verification directly.
+- Add a short considered-but-rejected note for tempting findings that are by design, duplicated, unsupported, or not worth doing.
 
 ## Rules
 
 - Prefer the simplest correct change, but do not avoid larger refactors when the codebase needs them.
 - Never edit files, install packages, run migrations, or implement the suggestion from this skill.
+- For plan requests, read `references/handoff-plans.md` and make the plan self-contained enough for a fresh executor.
 - Ask for clarification only when the target codebase is unknown or multiple unrelated targets make inspection impossible.
 - Do not add a library only because it is popular; justify the boundary it improves and verify current package guidance first.
 - Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context unless the user explicitly asks for prior context.

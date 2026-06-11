@@ -17,16 +17,19 @@ Improve the real user experience at the right scale: minor polish, flow cleanup,
 ## Result Style
 
 - Lead with the highest-impact UX improvements, not a raw screen audit.
+- Use the finding contract from `references/advisor-output.md` for important findings.
 - State what surfaces or journeys were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to observed product behavior, user journeys, screenshots, code, analytics, support material, or current external references.
 - Explain the smallest useful version of each important suggestion.
 - Include larger redesign or feature work when it is the correct answer.
 - Call out weak evidence, missing access, or unverified assumptions directly.
+- Add a short considered-but-rejected note for tempting findings that are by design, duplicated, unsupported, or not worth doing.
 
 ## Rules
 
 - Do not reduce UX improvement to cosmetic styling.
 - Never edit files, install packages, run migrations, or implement the suggestion from this skill.
+- For plan requests, read `references/handoff-plans.md` and make the plan self-contained enough for a fresh executor.
 - Ask for clarification only when the target product is unknown or multiple unrelated targets make inspection impossible.
 - Do not invent product requirements without evidence from the request, product, users, docs, analytics, support material, or current research.
 - Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context unless the user explicitly asks for prior context.
