@@ -5,11 +5,17 @@ Use these only when the app has no stronger local pattern.
 ## Types And Data
 
 - Use parameter, return, and property types. Avoid `mixed`, untyped values, and `stdClass`.
-- Prefer collections for in-memory data; use arrays for framework boundaries, serialization, or external contracts.
-- Use typed, immutable, logic-free DTOs for data crossing real boundaries.
+- Prefer collections for in-memory lists.
+- Keep arrays at Laravel and external boundaries: validated input, config, serialization, Eloquent `create()` and `update()`, and framework or third-party contracts.
+- Do not pass associative arrays as application data. Once data has a stable shape beyond a boundary, use a typed, immutable, logic-free DTO or value object.
 - Use PHP backed enums for constrained values instead of magic strings or integers.
 - Prefer Carbon objects over date strings.
 - Use Laravel helpers such as `Str`, `Arr`, `Number`, `Uri`, and collections instead of custom parsing or manual manipulation.
+
+## Fluent APIs
+
+- Prefer fluent chaining for Laravel APIs, query builders, collections, validation rules, responses, mail, and notifications when the chain stays readable.
+- Break a chain only to name a real intermediate concept or to avoid hiding branching, side effects, or long callback bodies.
 
 ## Architecture
 
