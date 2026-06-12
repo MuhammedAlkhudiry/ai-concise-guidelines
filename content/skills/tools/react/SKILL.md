@@ -17,7 +17,7 @@ Critical defaults for React development.
 
 ## State & Data
 
-- State minimal, normalized; derive instead of duplicate
+- State holds ground truth and stays normalized; derive instead of duplicate
 - Prefer local state; global only for truly cross-cutting data
 - Use query libraries (React Query/SWR) for server data; never raw fetch in components
 - Query cache is source of truth; do not mirror it to local state.

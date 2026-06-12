@@ -1,6 +1,6 @@
 # Improve Code
 
-Improve the real codebase at the right scale: small cleanup, bug-prone code, tests, performance, major refactors, new libraries, framework changes, or architecture cleanup.
+Improve the real codebase at the right scale: focused cleanup, bug-prone code, tests, performance, major refactors, new libraries, framework changes, or architecture cleanup.
 
 ## Workflow
 
@@ -11,7 +11,7 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 5. Search the web when current library docs, framework behavior, migration guidance, security guidance, performance recommendations, or package choices matter.
 6. Identify candidate improvements across correctness, simplicity, duplication, architecture, data assumptions, performance, dependency health, test coverage, observability, and developer workflow.
 7. Compare candidates by user impact, defect risk, runtime frequency, confidence, implementation size, and deployment risk. Recommend the strongest target, not merely the first target found.
-8. Match the scope to the request. It is valid to recommend anything from a tiny cleanup to a major refactor or new dependency.
+8. Match the scope to the request. It is valid to recommend anything from a focused cleanup to a major refactor or new dependency.
 9. Suggest the change only. Include enough detail for a later execution pass.
 
 ## Result Style
@@ -20,7 +20,7 @@ Improve the real codebase at the right scale: small cleanup, bug-prone code, tes
 - Use the finding contract from `references/advisor-output.md` for important findings.
 - State what areas were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to concrete code paths, tests, runtime behavior, dependency evidence, or current external documentation.
-- Explain the smallest correct execution path for each important suggestion.
+- Explain the most direct correct execution path for each important suggestion.
 - Include larger refactors, package installs, or framework changes when they are the correct answer.
 - Call out weak evidence, missing access, risky contracts, or blocked verification directly.
 - Add a short considered-but-rejected note for tempting findings that are by design, duplicated, unsupported, or not worth doing.

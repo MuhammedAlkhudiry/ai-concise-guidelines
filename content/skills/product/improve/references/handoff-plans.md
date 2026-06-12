@@ -26,7 +26,7 @@ The plan is the handoff artifact. It should let an agent with no memory of the a
 
 ## Plan Shape
 
-Use the smallest plan that preserves the execution contract. Include these sections when they matter:
+Use the clearest plan that preserves the execution contract. Include these sections when they matter:
 
 ```md
 ## Goal

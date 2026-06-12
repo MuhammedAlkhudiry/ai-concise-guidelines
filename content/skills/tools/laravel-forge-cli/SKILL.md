@@ -16,7 +16,7 @@ Use the official `forge` command for Laravel Forge server, site, deployment, log
 5. Confirm the active server with `forge server:current`; switch with `forge server:switch` before site or resource commands when needed.
 6. Prefer site names, server names, and command options over interactive prompts in automation or CI.
 7. Treat Forge API tokens, environment files, deployment output, logs, and remote command output as sensitive.
-8. Use the smallest CLI command that answers the request before reaching for the Forge API or dashboard.
+8. Use the direct CLI command that answers the request before reaching for the Forge API or dashboard.
 
 ## References
 

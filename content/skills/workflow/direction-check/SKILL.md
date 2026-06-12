@@ -18,14 +18,14 @@ Widen the option space before the work locks in.
    - Tools: libraries, platforms, services, operational cost, ecosystem fit, and project constraints.
 5. Check current real-world practice or official docs when tool choice, platform behavior, pricing, APIs, standards, or community norms matter.
 6. Name the strongest path, the main reason it wins, and the critical risk that could overturn it.
-7. Recommend the smallest proof step that would validate or reject the direction.
+7. Recommend the highest-signal proof step that would validate or reject the direction.
 
 ## Rules
 
 - Stay in discussion mode unless the user explicitly asks for implementation.
 - Challenge familiar choices, impressive tools, and convenient assumptions.
 - Prefer concrete alternatives over generic caution.
-- Treat "do nothing", "use the existing system", and "solve a smaller problem" as valid options.
+- Treat "do nothing", "use the existing system", and "solve a more focused problem" as valid options.
 - Separate product, technical, and tool-choice concerns when they point to different decisions.
 - Be willing to recommend a sharp change in direction when the current path is weak.
 - Flag attractive-but-broken options explicitly instead of letting them linger as equal alternatives.

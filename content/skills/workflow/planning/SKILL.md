@@ -13,7 +13,7 @@ description: Conversational planning for implementation plans, roadmaps, task br
 4. Separate decisions from execution steps.
 5. Map dependencies and sequence foundations before callers, integrations, tests, and cleanup.
 6. Prefer vertical slices that leave the system working over broad horizontal phases.
-7. Keep tasks small enough to implement, verify, and review in one focused pass.
+7. Keep tasks scoped so each can be implemented, verified, and reviewed in one focused pass.
 8. Include only risks, blockers, and questions that can change the plan.
 9. Review an existing plan critically before executing it.
 

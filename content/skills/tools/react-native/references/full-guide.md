@@ -34,7 +34,7 @@ Use these rules when React Native or Expo details matter beyond the routing skil
 
 ## State
 
-- Keep state minimal and derive values instead of duplicating them.
+- Keep state as ground truth and derive values instead of duplicating them.
 - State should represent ground truth, not cached copies of props, query data, or computed labels.
 - Use updater functions when new state depends on previous state.
 - Avoid broad store subscriptions; subscribe to the narrow value each component needs.

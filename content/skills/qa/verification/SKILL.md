@@ -20,7 +20,7 @@ Verify at the right depth for the actual change. Evidence before completion clai
 - Do not require tests for simple non-behavioral changes.
 - Keep tests for behavior changes, bug fixes, and new features.
 - When builds are the right verification step, clean up generated or compiled files unless they are intentional tracked outputs.
-- For UI tweaks, stop after the smallest useful visual check.
+- For UI tweaks, stop after the focused visual check that proves the change.
 - Treat repo-root `CHECKLIST.md` as project-wide verification commands.
 - Prefer parallel test workers and concurrent unrelated checks.
 - For flaky-looking failures, suspect dirty test data or parallelism before deeper debugging.

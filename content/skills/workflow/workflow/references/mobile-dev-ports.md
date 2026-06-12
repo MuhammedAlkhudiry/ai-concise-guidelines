@@ -25,7 +25,7 @@ Do not assume that changing one changes the others. React Native defaults many M
 5. Check automation separately. If the tool defaults to `8081`, pass the project port explicitly, for example `agent-device metro reload --metro-port 8082`.
 6. Keep API host debugging separate from Metro debugging. A bundle reload failure and an API connection failure can have different correct hosts and ports.
 7. Make durable changes in tracked source such as Expo config plugins or docs. Avoid patching ignored/generated `ios/` or `android/` files directly unless the repo tracks native projects.
-8. Verify with machine-readable config output, then run the smallest relevant type/lint/format checks.
+8. Verify with machine-readable config output, then run the most focused relevant type/lint/format checks.
 
 ## Expo Config Verification
 

@@ -1,6 +1,6 @@
 # Improve DB
 
-Improve the real database at the right scale: small schema cleanup, query fixes, useful model scopes, ORM model cleanup, indexes, migration hygiene, data integrity, reporting paths, or broader persistence redesign.
+Improve the real database at the right scale: focused schema cleanup, query fixes, useful model scopes, ORM model cleanup, indexes, migration hygiene, data integrity, reporting paths, or broader persistence redesign.
 
 ## Workflow
 
@@ -19,7 +19,7 @@ Improve the real database at the right scale: small schema cleanup, query fixes,
 - Use the finding contract from `references/advisor-output.md` for important findings.
 - State what database areas were sampled and why the chosen target outranks the other candidates.
 - Tie recommendations to concrete tables, migrations, queries, code paths, tests, explain plans, slow-query evidence, runtime behavior, or current external documentation.
-- Explain the smallest correct execution path for each important suggestion.
+- Explain the most direct correct execution path for each important suggestion.
 - Include model cleanup, relationship fixes, and reusable scopes when they make query intent clearer or remove repeated database conditions.
 - Include larger data-model redesigns, index changes, or migration sequences when they are the correct answer.
 - Call out weak evidence, missing access, risky production contracts, or blocked verification directly.

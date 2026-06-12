@@ -3,7 +3,7 @@
 - **SIMPLE** — Simple is absolute in everything: logic, tools, code, structure, and workflow. Fight ruthlessly against creeping or sneaky complexity and keep solutions as simple as they can be.
 - **CONSISTENCY** — Reuse existing patterns, files, and functions first; avoid new patterns unless approved.
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
-- **MINIMAL** — In implementation and code work, make the leanest change that fully solves the request.
+- **RIGHT-SIZED** — In implementation and code work, make the most direct change that fully solves the request.
   Do not add extras, nice-to-haves, broaden scope, or build speculative future-proofing.
 
 ## Environment
@@ -25,11 +25,11 @@
   Avoid unnecessary `instanceof` checks unless exact value or type semantics are required.
 - **HELPER-REUSE** — When a helper seems needed, search for an existing helper, function, or local pattern first.
   Reuse it if it fits, and add a new helper only when it creates a real boundary or removes real duplication.
-- **KILL-THE-WRAPPER** — Delete pass-through wrappers, aliases, and helpers unless they protect a real boundary, and do not add tiny helpers or functions that barely abstract anything.
-- **COMPATIBILITY** — Prefer the correct change over backward compatibility or artificially small fixes.
+- **KILL-THE-WRAPPER** — Delete pass-through wrappers, aliases, and helpers unless they protect a real boundary, and do not add helpers or functions that barely abstract anything.
+- **COMPATIBILITY** — Prefer the correct change over backward compatibility or artificially constrained fixes.
   Keep backward compatibility only for deployed, production, inter-system contracts.
   If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
-  For bugs, prefer the smallest correct fix first.
+  For bugs, prefer the most direct correct fix first.
 - **BC-ESCALATION** — If keeping backward compatibility adds complexity, explicitly call that out and ask whether a clean-cut change would be acceptable.
 - **STRUCTURE** — Confirm the data model before touching data; never assume schema details.
 
@@ -61,4 +61,4 @@
 - **Step by step**: When the reasoning has multiple moving parts, walk through it step by step.
 - **No lectures**: Keep teaching anchored in the live work.
   Use concrete examples, named trade-offs, and transferable rules.
-  Do not lecture or over-explain routine edits, but do not hide useful reasoning just because the implementation is small.
+  Do not lecture or over-explain routine edits, but do not hide useful reasoning just because the implementation is straightforward.

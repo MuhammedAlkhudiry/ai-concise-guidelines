@@ -11,11 +11,11 @@ Find product moves that materially change value, not just feature count.
 
 1. Understand the product’s current value, users, and main workflows.
 2. Inspect product context so recommendations reflect reality.
-3. Generate opportunities from user pain, constraint removal, opposite bets, competitor pressure, and tiny proof moves.
+3. Generate opportunities from user pain, constraint removal, opposite bets, competitor pressure, and focused proof moves.
 4. Organize the strongest opportunities at three levels:
    - Massive: transformative bets
    - Medium: strong leverage on the core workflow
-   - Small: low-effort changes with outsized value
+   - Focused: contained changes with outsized value
 5. Score by impact, reach, frequency, differentiation, defensibility, and feasibility.
 6. Stack-rank into `Do now`, `Do next`, `Explore`, and `Backlog`.
 
@@ -26,7 +26,7 @@ Structure the response as:
 - Current value
 - Massive opportunities
 - Medium opportunities
-- Small gems
+- Focused gems
 - Recommended priority
 - Questions
 - Recommended action

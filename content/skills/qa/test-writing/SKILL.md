@@ -15,10 +15,10 @@ Do not test private method calls, helper names, incidental call order, internal 
 ## Workflow
 1. Read nearby tests and copy local style.
 2. Trace the real caller, consumer, route, component, command, job, or workflow.
-3. Name the smallest meaningful behavior contract.
-4. Choose the narrowest useful test layer that proves that contract.
+3. Name the focused behavior contract.
+4. Choose the right test layer that proves that contract.
 5. Write the test so it fails for the right reason.
-6. Make it pass with the smallest product change.
+6. Make it pass with a focused product change that satisfies the contract.
 7. Run the focused test target.
 8. Run the refactor-survival check.
 9. Run the bug-kill check.

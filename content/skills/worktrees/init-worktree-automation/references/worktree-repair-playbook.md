@@ -5,7 +5,7 @@ Use this when a fresh worktree setup helper can safely repair local setup fricti
 ## Codex Local Environment
 
 - Add `.codex/environments/environment.toml` so Codex-created worktrees run setup automatically.
-- Keep the Codex setup script tiny; it should call the repo setup script instead of duplicating setup logic.
+- Keep the Codex setup script as a thin delegator; it should call the repo setup script instead of duplicating setup logic.
 - Use this default shape:
 
 ```toml
@@ -50,7 +50,7 @@ command = "mise run build"
 ## Codex Cleanup Environment
 
 - Add a `[cleanup]` script to `.codex/environments/environment.toml` when setup creates owned local resources.
-- Keep the Codex cleanup script tiny; it should call the repo cleanup script instead of duplicating cleanup logic.
+- Keep the Codex cleanup script as a thin delegator; it should call the repo cleanup script instead of duplicating cleanup logic.
 - Use this default shape:
 
 ```toml
@@ -128,7 +128,7 @@ bun scripts/cleanup-worktree.ts "${CODEX_WORKTREE_PATH:-$PWD}"
 - Create a fresh disposable worktree only for automation audits.
 - Run setup inside that fresh worktree and require `READY`.
 - If setup fails, patch the setup script or skill wording, delete the disposable worktree, and repeat from a fresh worktree.
-- After `READY`, give a normal agent a tiny product task and the worktree path only.
+- After `READY`, give a normal agent a focused product task and the worktree path only.
 - Do not explain the setup contract, worktree internals, or forbidden commands to the audited agent.
 - Pass only when Codex setup reaches `READY`, then the agent completes product work without any setup or cleanup operation.
 - Use command logs as evidence; final summaries are not enough.

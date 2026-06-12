@@ -33,7 +33,7 @@ Divergence frames:
 - Remove the assumed boundary: framework, database, request model, queue, or ownership line.
 - Failure operator: design from the outage, abuse case, rollback, or cleanup path backward.
 - Runtime mechanic: reason from latency, memory, contention, cache shape, and IO budget.
-- Maintenance mechanic: optimize for the smallest long-term surface and clearest ownership.
+- Maintenance mechanic: optimize for the clearest long-term surface and ownership.
 
 Recommend by naming:
 
@@ -111,14 +111,14 @@ Pressure-test with:
 - What must be true for adoption, retention, and differentiation to hold?
 - What should be reshaped first so the requested product outcome becomes straightforward?
 - What attractive version of the idea is still not worth building?
-- Which smaller proof would change the decision with the least effort?
+- Which proof would change the decision with the clearest evidence?
 
 Divergence frames:
 
 - Non-user: why the target user ignores this today.
 - Constraint removal: what changes if price, time, data, channel, or trust is no longer fixed.
 - Opposite bet: how to guarantee failure, then invert the strongest causes.
-- Tiny version: the smallest thing that proves the value without building the full system.
+- Focused version: the direct proof of value without building the full system.
 
 Recommend by naming:
 

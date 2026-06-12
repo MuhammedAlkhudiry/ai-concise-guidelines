@@ -15,7 +15,7 @@ Prepare the test cases a human should run to QA a completed change, existing fea
 4. For web handoffs, ensure DDEV is running and share a responding DDEV URL, not localhost; for mobile handoffs, confirm the simulator or emulator is running and usable.
 5. Create, reset, or confirm realistic test data with existing seeders, fixtures, factories, helper commands, or UI flows.
 6. Reuse the implementation verification already done; run only a quick smoke check when the URL, login, fixture, or starting state is uncertain.
-7. Write the smallest useful set of manual test cases the user can follow without guessing.
+7. Write a right-sized set of manual test cases the user can follow without guessing.
 
 ## Handoff
 

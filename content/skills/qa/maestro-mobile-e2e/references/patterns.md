@@ -98,7 +98,7 @@ Do not put project-specific fixture values in this skill.
 
 - Confirm the app is installed and the app id is correct.
 - Confirm the backend and dev server are reachable from the simulator or emulator.
-- Rerun the smallest failing flow before running the full suite.
+- Rerun the most focused failing flow before running the full suite.
 - Close dev-client overlays before tapping app controls they may cover.
 - Hide the keyboard before tapping a submit button below an input.
 - Prefer `scrollUntilVisible` against a stable id, then tap that id.

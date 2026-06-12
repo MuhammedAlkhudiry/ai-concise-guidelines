@@ -23,7 +23,7 @@ rtk bun "$HOME/.agents/skills/init-worktree-automation/scripts/collect-worktree-
 7. Use `references/worktree-repair-playbook.md` for Codex local environments, DDEV lanes, dependency installation, mise trust, env/data setup, Vite/assets, storage, search, mobile boundaries, and cleanup ownership.
 8. Run the setup command inside a fresh test worktree.
 9. If setup cannot reach `READY`, patch the setup script and repeat from a fresh test worktree.
-10. After `READY`, run a tiny product task through a normal agent without explaining setup internals, then audit its command log for setup touches.
+10. After `READY`, run a focused product task through a normal agent without explaining setup internals, then audit its command log for setup touches.
 11. Run cleanup in the disposable worktree and verify owned local resources are gone.
 12. If setup fails, cleanup fails, or product work touches setup after `READY`, tighten the skill/script contract and repeat from a fresh test worktree.
 13. Clean up disposable branches, worktrees, processes, and owned local services.

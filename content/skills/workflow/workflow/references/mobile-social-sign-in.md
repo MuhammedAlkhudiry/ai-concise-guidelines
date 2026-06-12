@@ -9,7 +9,7 @@ Use this workflow for native mobile Google, Apple, or similar provider sign-in i
 ## Start Here
 
 1. Inventory the current flow before changing it: platforms, runtime, provider libraries, Expo config/plugins, build profiles, backend endpoints, token verifier, account-linking rules, tests, CI, EAS/GitHub env vars, Sentry/logging, and release path.
-2. Read current official docs for the provider and runtime before changing behavior. At minimum check Expo, the provider SDK, Google Identity, Apple Developer, and EAS docs when those surfaces are involved.
+2. Read current official docs for the provider and runtime before changing behavior. Include Expo, the provider SDK, Google Identity, Apple Developer, and EAS docs when those surfaces are involved.
 3. Choose the auth path by platform. Prefer native provider SDKs on iOS and Android. Use browser OAuth only when the app intentionally supports a web-style flow and the redirect/deep-link contract is explicit.
 4. Trace the complete contract: button press, provider SDK configuration, native credential prompt, provider result or cancel, ID token presence, backend exchange, server token verification, account lookup/linking, session creation, persisted auth state, sign-out, deletion, and revoked credentials.
 5. Confirm provider-console identity for each platform and signing context before blaming app code.
@@ -89,7 +89,7 @@ Re-read current primary docs when implementing or debugging:
 - Configure the provider SDK once at app startup or the project-standard auth boundary.
 - Add local in-flight state so repeated taps do not launch duplicate provider prompts or backend mutations.
 - Preserve existing button feedback, accessibility labels, loading state, disabled state, and analytics behavior while changing auth internals.
-- Send the smallest backend payload needed: provider, ID token, optional nonce/code only when required, and app metadata if the backend uses it.
+- Send the backend payload the contract needs: provider, ID token, optional nonce/code only when required, and app metadata if the backend uses it.
 - Keep backend social login response shape compatible with the existing app session model.
 - Update docs for rebuild requirements, provider-console prerequisites, and test artifacts.
 - Keep unrelated dependency, registry-token, or CI cleanup in a separate change unless it blocks installation/build.

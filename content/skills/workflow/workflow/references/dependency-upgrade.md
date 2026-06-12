@@ -9,8 +9,8 @@ Upgrade dependencies with proven coverage, controlled risk, and a clear per-pack
 3. Load only the relevant stack references: `dependency-upgrade/php-composer.md`, `dependency-upgrade/laravel.md`, `dependency-upgrade/javascript.md`, and `dependency-upgrade/react.md`.
 4. Research current official release notes, changelogs, upgrade guides, or advisories for direct dependencies with meaningful behavior changes, especially major upgrades.
 5. Classify each dependency by risk: low-risk tooling, leaf package, transitive/security-only, runtime/framework package, or cross-cutting application package.
-6. Upgrade in small batches with the project's existing package manager and lockfile flow.
-7. Apply small compatibility fixes directly, including renamed imports, option changes, config updates, simple callsite changes, type fixes, and related test updates.
+6. Upgrade in cohesive batches with the project's existing package manager and lockfile flow.
+7. Apply straightforward compatibility fixes directly, including renamed imports, option changes, config updates, simple callsite changes, type fixes, and related test updates.
 8. Skip and ask for approval before broad migrations, architecture changes, many-file API rewrites, unclear behavior changes, native rebuilds, or test-suite rewrites.
 9. Run the relevant checks after each risky batch and at the end.
 10. Re-check the inventory so every in-scope dependency is upgraded, intentionally skipped, or still blocked with a reason.
