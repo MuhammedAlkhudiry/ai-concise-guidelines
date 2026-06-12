@@ -34,7 +34,7 @@ Improve the system that gets new or invited users from intent to durable first v
 - Add considered-but-rejected notes for tempting changes that do not move users toward first value.
 
 ## Rules
-- Optimize for activation leverage, not smallness.
+- Optimize for activation leverage, not ease of implementation.
 - Do not confuse onboarding completion with activation.
 - Do not recommend tours, checklists, emails, or polish unless they move users toward first value.
 - Prefer removing required steps over explaining them better.

@@ -20,7 +20,7 @@ Handle sensitive repeated work by reading, deciding, and acting on each item int
 
 Use this when correctness depends on local meaning, human judgment, or per-item context. Apply it to repeated edits, reviews, cleanup, classification, content updates, config changes, tests, migrations, or any task where similar-looking items can require different treatment.
 
-Manual work does not mean avoiding tools entirely. Searches, type checks, tests, formatters, and small targeted commands are fine when they help prove coverage or verify the result.
+Manual work does not mean avoiding tools entirely. Searches, type checks, tests, formatters, and targeted commands are fine when they help prove coverage or verify the result.
 
 ## Working Style
 

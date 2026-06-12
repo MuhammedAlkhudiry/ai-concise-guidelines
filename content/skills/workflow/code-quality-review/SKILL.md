@@ -5,7 +5,7 @@ description: Strict maintainability review for abstraction quality, structural s
 
 # Code Quality Review
 
-Run a strict maintainability review. Look for "code judo" moves: behavior-preserving restructures that make the implementation simpler, smaller, more direct, and easier to reason about.
+Run a strict maintainability review. Look for "code judo" moves: behavior-preserving restructures that make the implementation simpler, clearer, more direct, and easier to reason about.
 
 ## Workflow
 
@@ -42,4 +42,4 @@ Run a strict maintainability review. Look for "code judo" moves: behavior-preser
 
 ## Output
 
-Prioritize structural regressions, missed simplifications, spaghetti branching, boundary problems, file-size concerns, ownership issues, and maintainability concerns. Use a small number of direct, actionable findings. Treat major structural issues as blockers unless justified clearly.
+Prioritize structural regressions, missed simplifications, spaghetti branching, boundary problems, file-size concerns, ownership issues, and maintainability concerns. Use a focused set of direct, actionable findings. Treat major structural issues as blockers unless justified clearly.

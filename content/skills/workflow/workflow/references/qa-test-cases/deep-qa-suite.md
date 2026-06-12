@@ -3,7 +3,7 @@
 ## Coverage Standard
 
 - Default to a regression-ready suite, not a thin smoke list.
-- Include smoke cases as a small subset only when they identify the fastest confidence path.
+- Include smoke cases as a focused subset only when they identify the fastest confidence path.
 - Cover every meaningful user-triggered branch, role or permission difference, durable side effect, and integration boundary.
 - Add negative and edge cases for real failure modes, not artificial permutations.
 - Include end-to-end cases that prove the full workflow works across screens/services and focused cases that isolate risky branches.
