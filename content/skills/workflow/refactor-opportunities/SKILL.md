@@ -11,9 +11,7 @@ Find refactors worth naming. Never edit files.
 
 1. Inspect the actual diff, touched files, nearby callers, tests, data contracts, routes, screens, jobs, and config that matter to the change.
 2. Separate real structural opportunities from style preferences, generic cleanup, and unrelated repo noise.
-3. Classify each opportunity by value:
-   - `Recommended`: meaningful clarity, safety, maintainability, or product leverage.
-   - `Optional`: real but lower-value cleanup.
+3. Classify each opportunity as `Recommended` for meaningful clarity, safety, maintainability, or product leverage, or `Optional` for real but lower-value cleanup.
 4. For each item, name the concrete code smell, affected files, impact, likely effort or risk, and safest next move.
 5. Suggest only. Do not edit files, apply patches, run formatters, or implement refactors.
 
@@ -30,6 +28,7 @@ Find refactors worth naming. Never edit files.
 ## Rules
 
 - Keep findings tied to evidence in the code.
+- For broad targets, split read-only inspection by feature, layer, route/screen, or module across explorer subagents when available and delegation is allowed; the main agent owns ranking, dedupe, and filtering.
 - Stay read-only even when a suggested refactor looks obvious.
 - Prefer fewer high-signal items over an exhaustive list.
 - Do not suggest abstractions without real duplication, complexity, or boundary pressure.

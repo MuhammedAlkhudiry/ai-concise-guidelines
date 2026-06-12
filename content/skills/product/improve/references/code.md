@@ -14,6 +14,12 @@ Improve the real codebase at the right scale: focused cleanup, bug-prone code, t
 8. Match the scope to the request. It is valid to recommend anything from a focused cleanup to a major refactor or new dependency.
 9. Suggest the change only. Include enough detail for a later execution pass.
 
+## Large Surfaces
+
+- For deep, branch-wide, or multi-module code scans, split independent inspection slices across explorer subagents when available and delegation is allowed.
+- Give each subagent a concrete slice such as a module, caller chain, test area, dependency, performance path, or data boundary.
+- Keep the main agent responsible for comparing candidates, rejecting weak findings, ranking impact, and writing the final recommendation.
+
 ## Result Style
 
 - Lead with the highest-impact code improvements, not a raw file audit.

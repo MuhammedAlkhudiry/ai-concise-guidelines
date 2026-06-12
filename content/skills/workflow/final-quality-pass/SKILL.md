@@ -15,6 +15,12 @@ Orchestrate the finishing work without replacing the focused skills.
 4. Use `refactor-opportunities` to name worthwhile follow-up improvements without implementing them.
 5. Use `check-and-fix` to run project checks, fix task-related failures, and report results.
 
+## Large Surfaces
+
+- When the pass spans many files, modules, or behaviors, use subagents when available and delegation is allowed instead of doing a shallow solo scan.
+- Split work by focused skill or disjoint code area: simplification, structural review, coverage, or follow-up refactors.
+- Keep the main agent responsible for the final diff, synthesis, conflicts, verification choices, and final report.
+
 ## Rules
 
 - Default scope is the current `git diff` unless the user names a narrower target.

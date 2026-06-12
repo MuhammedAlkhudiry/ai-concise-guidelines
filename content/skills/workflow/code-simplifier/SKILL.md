@@ -14,13 +14,14 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 3. Remove anything unreferenced, unreachable, superseded, duplicated, obsolete, or incidental.
 4. Collapse indirection and rebuild the clearest version that keeps the contract.
 5. Refactor related tests with app code and clean them when removal or rewriting is clearly safe.
-6. Run the related `check-and-fix` workflow for task-relevant checks and fix task-related fallout.
-7. Report meaningful simplifications, protected behavior, anything under `Not safe to delete yet`, and complexity intentionally kept.
+6. Run the related `check-and-fix` workflow, fix task-related fallout, and report meaningful simplifications, protected behavior, anything under `Not safe to delete yet`, and complexity intentionally kept.
 
 ## Rules
 
 - Preserve outputs, side effects, and real contracts. Do not preserve incidental structure.
 - For every line, ask whether it still has a job.
+- For large surfaces, split by module, behavior, or file group and use subagents when available and delegation is allowed.
+- Use explorer subagents for read-only tracing and worker subagents only for disjoint edit scopes; the main agent owns integration, final simplification, and verification.
 - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, comments about removed logic, and one-off abstractions.
 - It is ok to do mid-refactor work when the simple end state needs it: create, move, split, or merge files instead of preserving awkward placement.
 - Inline wrappers, aliases, pass-through helpers, one-use values, and variables that only rename an expression.
@@ -32,12 +33,7 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 
 ## Test Cleanup
 
-Use `test-writing`; delete or merge tests when the remaining suite still protects the behavior and the candidate is:
-
-- for removed, unreachable, or unsupported behavior
-- duplicated by equal or better coverage
-- coupled to implementation details
-- only fixture/setup noise
+Use `test-writing`; delete or merge tests when the remaining suite still protects the behavior and the candidate is for removed, unreachable, unsupported, duplicated, overfit, or fixture-only coverage.
 
 Do not delete without stronger proof when a test covers:
 

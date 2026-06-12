@@ -18,6 +18,7 @@ Run a strict maintainability review. Look for "code judo" moves: behavior-preser
 ## Standards
 
 - Be ambitious about structural simplification. Look for ways to delete branches, helpers, modes, conditionals, wrappers, or layers.
+- For large reviews, split independent slices across explorer subagents when available and delegation is allowed; the main agent owns synthesis, evidence checks, and final findings.
 - Treat a file crossing 1000 lines because of the diff as a strong smell.
 - Call out ad-hoc conditionals, scattered special cases, one-off flags, nullable modes, and branching in unrelated flows.
 - Prefer direct, boring, maintainable code over hacky, magical, or overly generic mechanisms.

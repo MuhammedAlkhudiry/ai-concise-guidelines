@@ -22,6 +22,12 @@ Choose the inventory method that fits the work. Code search, AST tools, framewor
 
 Do not rely on a few examples when the user asked for all of something. If the full set cannot be proven, say what is missing and why.
 
+## Large Surfaces
+
+- When the confirmed set is large, split it into explicit non-overlapping slices and use subagents when available and delegation is allowed.
+- Use explorer subagents for inventory, classification, and coverage checks. Use worker subagents only when edit scopes are disjoint and easy to merge.
+- Keep the main agent responsible for the master inventory, ambiguous items, final coverage check, and report.
+
 ## Classification
 
 Keep the working set explicit:
