@@ -1,6 +1,6 @@
 ---
 name: test-writing
-description: Writing, reviewing, or updating automated tests for product code, especially preventing brittle, overfit, implementation-detail-heavy, snapshot-heavy, or mock-heavy tests. Use alongside TDD, coverage audits, bug fixes, regression tests, test cleanup, and code review when automated tests are added or changed.
+description: Writing, reviewing, or updating automated tests for product code, especially preventing brittle, overfit, implementation-detail-heavy, snapshot-heavy, or mock-heavy tests. Use alongside coverage audits, bug fixes, regression tests, test cleanup, and code review when automated tests are added or changed.
 ---
 
 # Test Writing

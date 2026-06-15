@@ -24,7 +24,7 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 - Use explorer subagents for read-only tracing and worker subagents only for disjoint edit scopes; the main agent owns integration, final simplification, and verification.
 - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, comments about removed logic, and one-off abstractions.
 - It is ok to do mid-refactor work when the simple end state needs it: create, move, split, or merge files instead of preserving awkward placement.
-- Inline wrappers, aliases, pass-through helpers, one-use values, and variables that only rename an expression.
+- Inline wrappers, aliases, pass-through helpers, one-use values, useless temporary variables, aliased destructuring, and variables that only rename an expression; prefer direct object access when it stays readable.
 - In JSX/TSX, reduce prop plumbing and pass-through props; let children compute or read clean local data when that is simpler.
 - Replace mode and boolean props with simpler component shape, composition, or local conditional render when possible.
 - Flatten nesting with early returns and guard clauses. Never use nested ternaries.
