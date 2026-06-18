@@ -15,9 +15,10 @@ Use this for Expo/EAS production releases, store submission checks, release read
 4. Use [references/expo-eas-store-release.md](references/expo-eas-store-release.md) for the release sequence.
 5. Use [references/store-status-apis.md](references/store-status-apis.md) for Google Play and App Store Connect status checks.
 6. Run `scripts/mobile-store-status.ts` for read-only local, EAS, Google Play, and App Store Connect status when project params are known.
-7. Use browser or computer control only for 2FA, legal agreements, expired sessions, policy forms, and dashboard-only blockers.
-8. Pause before final review/live buttons unless the user already explicitly confirmed the full release.
-9. Report exact states per platform. Do not call a release live from build or upload output alone.
+7. For releases or incidents involving native social sign-in, verify store signing identity against provider OAuth clients before assuming app-code failure.
+8. Use browser or computer control only for 2FA, legal agreements, expired sessions, policy forms, and dashboard-only blockers.
+9. Pause before final review/live buttons unless the user already explicitly confirmed the full release.
+10. Report exact states per platform. Do not call a release live from build or upload output alone.
 
 ## Boundaries
 

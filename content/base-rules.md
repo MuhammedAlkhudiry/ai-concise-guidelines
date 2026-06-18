@@ -5,17 +5,17 @@
 - **HOLISTIC** — Before behavior changes, trace callers, consumers, and tests, then update all impacted parts; do not implement directly.
 - **RIGHT-SIZED** — In implementation and code work, make the most direct change that fully solves the request.
   Do not add extras, nice-to-haves, broaden scope, or build speculative future-proofing.
+- **BUG-REPORT-FIRST** — When the user reports a bug, do not fix it immediately.
+  First investigate and give a concise report with the likely cause, impacted files or flows, evidence, and proposed fix; wait for explicit approval before changing code.
 
 ## Environment
 
 - **SOLO** — Never start dev servers directly; use the Solo CLI first and Solo HTTP API only as a fallback for dev servers and process logs.
   The only exception is inside a real git worktree during its explicit setup phase.
-- **WORKTREE-SETUP-GATE** — Apply repo-local worktree setup only during the explicit Codex/local-environment setup phase for secondary worktrees.
-  Never apply it during normal product work or in the canonical checkout. Before coding, checking, QA, or product work in a secondary worktree, require `.codex/worktree-ready.json` with `READY`.
-  After `READY`, do not touch DDEV setup, `.env`, installs, migrations, seeders, Vite startup, storage/search setup, setup scripts, or readiness repair.
-  Stop with `WORKTREE_NOT_READY` if readiness is missing.
 - **HOST-PM** — `npm`/`bun` commands are always run on the host, not inside Docker.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` and TypeScript by default; use Python only when it is clearly the better tool for the task.
+- **JETBRAINS-MCP** — When JetBrains MCP is available, use it as the semantic IDE layer for symbol info, inspections, rename refactors, and open-editor context.
+  Keep `rg`/`sg` as the first-line discovery tools, and use JetBrains MCP when IDE indexes make the answer safer than text search.
 
 ## Code Principles
 

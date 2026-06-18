@@ -55,9 +55,10 @@ Re-read current primary docs when implementing or debugging:
   - Android client: package/application ID plus signing certificate fingerprint. Register every real signing context that will run the app, such as debug/local, EAS upload key, and Google Play app-signing key.
   - iOS client: bundle ID plus the correct reversed client ID URL scheme or provider config file.
   - Web client: server/audience client used when requesting an ID token that the backend will verify.
+- `DEVELOPER_ERROR`, error code `10`, or a native prompt that fails before any backend request often means Google rejected the Android app identity. Check whether the registered Android OAuth client uses the upload-key SHA-1 while the Play-installed app uses the Play app-signing SHA-1.
 - Check SHA-1 and SHA-256 when provider tooling, Firebase, Play Console, or another Google API asks for fingerprints. OAuth setup often emphasizes SHA-1; adjacent Google APIs or Firebase surfaces may display both.
 - Know whether the artifact is signed by the debug key, upload key, or Play app-signing key. The same version number can represent different effective identities depending on how it was installed.
-- If using Firebase config files, confirm `google-services.json` and `GoogleService-Info.plist` belong to the right app IDs and build profile. If the files are gitignored, verify the EAS file env vars that provide them.
+- If using Firebase config files, confirm `google-services.json` and `GoogleService-Info.plist` belong to the right app IDs, OAuth client project, and build profile. If the files are gitignored, verify the EAS file env vars that provide them.
 - A provider-console fix can be enough when the shipped app already requests the right token and only the Android OAuth client or fingerprint is missing. Do not create code churn for a console-only issue.
 
 ## Apple Details
@@ -166,6 +167,7 @@ Proof required before saying done:
 | Symptom | Suspect First | Evidence To Collect |
 | --- | --- | --- |
 | `invalid_request` on Android after iOS works | Browser OAuth on Android, missing Android OAuth client, wrong package, wrong SHA, wrong signing key | Install source, package ID, signing fingerprint, provider client list, SDK path. |
+| `DEVELOPER_ERROR` or code `10` before backend request | Android OAuth client has upload-key SHA-1 but Play users run the Play app-signing key, or the client lives in the wrong Google project | Play app integrity SHA-1/SHA-256, OAuth client project, package ID, Sentry release/dist, `google-services.json` project/client IDs. |
 | Native Google UI opens but backend rejects | Wrong ID-token audience, access token sent instead of ID token, backend accepted clients stale | Sanitized token claims, backend verifier config, API response class. |
 | Works in debug but not Play/internal | Different signing fingerprint or provider file/env by profile | Debug SHA, upload SHA, Play signing SHA, EAS profile, provider config file source. |
 | Works locally but EAS build fails | Missing remote env/file env, registry token drift, install token mismatch | EAS profile environment, `eas env:list`, CI secrets, install logs. |
@@ -179,6 +181,8 @@ Proof required before saying done:
 ## Incident Lessons
 
 - A mobile app can pass iOS Google Sign-In and still fail Android because Android uses a different native identity: package name plus signing certificate.
+- A production Play build can fail with Google `DEVELOPER_ERROR` even when an Android OAuth client exists, if that client is registered to the upload key instead of the Play app-signing key.
+- `google-services.json` can be misleading when OAuth client IDs are embedded from a different Google Cloud project. Follow the client IDs actually used by the build and create Android OAuth clients in that project.
 - A production Google failure can be a provider-console configuration issue, not a repo-code issue. Check signed artifact identity before patching app logic.
 - A preview APK, Play internal build, and production Play install can carry different signing assumptions. Name the artifact and signing source in every handoff.
 - Browser OAuth can look close enough to work on one platform while being the wrong abstraction for native Android.

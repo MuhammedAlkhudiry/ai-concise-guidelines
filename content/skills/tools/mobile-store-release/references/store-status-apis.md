@@ -58,6 +58,8 @@ Track fields to report:
 - Rollout fraction
 - Release notes
 
+For Android signing-sensitive bugs, also read the app integrity page in Play Console or query generated APK metadata when available. Capture the Play app-signing SHA-1/SHA-256 and compare it with provider-console configuration. The upload key is not the identity users run after Google Play re-signs an app bundle.
+
 Google Play release `status: completed` means the release entry is configured for completed rollout on that track. It may not fully replace dashboard review wording such as pending review or changes in review.
 
 Google Play may run pre-review quick checks after the final send action. Wait for those checks to clear or surface a concrete issue before calling Android handed off to review.

@@ -22,6 +22,7 @@ Confirm:
 - Production build and submit command
 - Android package name and Play track
 - iOS bundle ID and App Store Connect app ID
+- Native social sign-in provider config, especially Android OAuth clients and the signing fingerprints for the artifacts users will install
 
 ## Status Words
 
@@ -55,8 +56,9 @@ Before bumping, check both local config and the latest EAS builds. If the local 
 8. Verify EAS submissions with supported commands or internal status queries before touching stores.
 9. Verify Android through Google Play status.
 10. Verify iOS through App Store Connect status.
-11. Use browser or computer control for legal agreements, review forms, 2FA, and dashboard-only blockers.
-12. Finish with exact per-platform state and any remaining store action.
+11. If native Google Sign-In is in scope, compare Google Play app-signing fingerprints against Android OAuth clients before calling the release healthy.
+12. Use browser or computer control for legal agreements, review forms, 2FA, and dashboard-only blockers.
+13. Finish with exact per-platform state and any remaining store action.
 
 ## EAS Submit Caveats
 
@@ -112,3 +114,13 @@ When using the dashboard:
 7. Send the pending change for review after final confirmation.
 8. Wait for Play quick checks to complete or expose a concrete blocker.
 9. Report `Changes in review`, rejected, approved, or live exactly as shown.
+
+## Google Sign-In And Play Signing
+
+Native Android Google Sign-In validates the installed app identity, not just the package name or web client ID.
+
+- Google Play-delivered builds are signed with the Play app-signing key, while EAS/uploaded artifacts are signed with the upload key before Play re-signs them.
+- An Android OAuth client registered only with the upload-key SHA-1 can still produce `DEVELOPER_ERROR` or error code `10` for production users because their installed APKs are signed by the Play app-signing key.
+- Keep separate Android OAuth clients when needed: one for upload/internal artifacts and one for Play app-signing production artifacts.
+- Create or update the Android OAuth client in the Google Cloud project that owns the client IDs embedded in the app, not merely in whichever Firebase project has a `google-services.json` file.
+- A provider-console-only OAuth fix can repair an already-shipped binary when the app already opens native Google Sign-In and fails before any backend request. Wait for provider propagation, then retest the same signed artifact and monitor Sentry by release/dist.
