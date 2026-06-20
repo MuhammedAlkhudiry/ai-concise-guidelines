@@ -6,6 +6,17 @@ This repo assumes a small set of non-default tools on top of a normal macOS shel
 
 Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and similar are intentionally not listed here.
 
+## Regular Updates
+
+Use these commands for periodic CLI upkeep:
+
+```bash
+mise run tools:status
+mise run tools:update:plan
+```
+
+`tools:status` prints installed paths and versions. `tools:update:plan` prints reviewable update commands and notes, but does not change anything.
+
 ## Core Repo Tools
 
 These are the commands the repo itself relies on for install and day-to-day local use.

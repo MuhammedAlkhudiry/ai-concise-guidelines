@@ -8,6 +8,7 @@ import { execa } from "execa";
 import { generate } from "./commands/generate";
 import { install } from "./commands/install";
 import { skillsDump, skillsOverview } from "./commands/skills";
+import { toolsStatus, toolsUpdatePlan } from "./commands/tools";
 
 const ROOT_DIR = join(import.meta.dir, "..");
 
@@ -55,6 +56,20 @@ cli
       return;
     }
     throw new Error(`Unknown skills action: ${action}`);
+  });
+
+cli
+  .command("tools <action>", "Inspect external CLI tool status and update plans")
+  .action(async (action: string) => {
+    if (action === "status") {
+      await toolsStatus();
+      return;
+    }
+    if (action === "update-plan") {
+      await toolsUpdatePlan();
+      return;
+    }
+    throw new Error(`Unknown tools action: ${action}`);
   });
 
 cli.help();

@@ -33,3 +33,11 @@ run = "bun test"
 [tasks.doctor]
 description = "Check local required and optional tools"
 run = "bun run doctor"
+
+[tasks."tools:status"]
+description = "Show installed external CLI tool versions"
+run = "bun run tools:status"
+
+[tasks."tools:update:plan"]
+description = "Print safe update commands for external CLI tools"
+run = "bun run tools:update:plan"

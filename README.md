@@ -8,6 +8,8 @@ mise run check
 doctor
 my-setup skills overview
 my-setup skills dump
+my-setup tools status
+my-setup tools update-plan
 knowledge init
 knowledge feature "Billing"
 knowledge learning "Billing Renewal Race"
