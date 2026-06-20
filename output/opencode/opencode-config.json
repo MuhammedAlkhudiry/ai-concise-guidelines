@@ -6,7 +6,7 @@
     "model_cycle_favorite": "ctrl+a",
     "model_cycle_favorite_reverse": "ctrl+shift+a"
   },
-  "model": "opencode-go/kimi-k2.6",
+  "model": "opencode-go/deepseek-v4-pro",
   "small_model": "opencode-go/deepseek-v4-flash",
   "permission": {
     "external_directory": {
@@ -41,7 +41,7 @@
       "model": "opencode-go/deepseek-v4-flash"
     },
     "general": {
-      "model": "opencode-go/kimi-k2.6"
+      "model": "opencode-go/deepseek-v4-pro"
     }
   },
   "mcp": {
