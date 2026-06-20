@@ -1,6 +1,6 @@
 ---
 name: workflow
-description: Slash-command workflow router for rare procedural tasks: `/workflow github-actions`, `/workflow ci`, `/workflow dependency-upgrade`, `/workflow mobile-social-sign-in` for mobile social login/sign-in, `/workflow mobile-dev-ports` for Expo/React Native port alignment, and `/workflow qa-test-cases`.
+description: Slash-command workflow router for rare procedural tasks: `/workflow github-actions`, `/workflow ci`, `/workflow dependency-upgrade`, `/workflow mobile-social-sign-in` for mobile social login/sign-in, `/workflow mobile-dev-ports` for Expo/React Native port alignment, `/workflow qa-test-cases`, and `/workflow codex-thread-management`.
 ---
 
 # Workflow
@@ -14,6 +14,7 @@ Use this skill when the user asks for a named workflow branch with `/workflow ..
 - `/workflow mobile-social-sign-in` or `/workflow mobile-social-auth`: read `references/mobile-social-sign-in.md`.
 - `/workflow mobile-dev-ports`, `/workflow rn-ports`, or `/workflow expo-ports`: read `references/mobile-dev-ports.md`.
 - `/workflow qa-test-cases`: read `references/qa-test-cases.md`, then read `references/qa-test-cases/deep-qa-suite.md`.
+- `/workflow codex-thread-management`, `/workflow codex-threads`, `/workflow codex threads`, or `/workflow thread-management`: read `references/codex-thread-management.md`.
 
 ## Rules
 
