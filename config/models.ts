@@ -4,6 +4,6 @@
  */
 
 export const MODELS = {
-  smart: "opencode-go/kimi-k2.6",
+  smart: "opencode-go/deepseek-v4-pro",
   fast: "opencode-go/deepseek-v4-flash",
 } as const;
