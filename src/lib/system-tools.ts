@@ -5,11 +5,23 @@ export interface SystemToolUpdatePlan {
   note?: string;
 }
 
+export type SystemToolLatestSource =
+  | {
+      type: "command";
+      command: string;
+      args: readonly string[];
+    }
+  | {
+      type: "homebrew";
+      formula: string;
+    };
+
 export interface SystemTool {
   name: string;
   level: SystemToolLevel;
   why: string;
   versionArgs?: readonly string[];
+  latest?: SystemToolLatestSource;
   update: SystemToolUpdatePlan;
 }
 
@@ -27,6 +39,11 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "required",
         why: "Runtime used internally by mise run install.",
         versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "bun", "version"],
+        },
         update: {
           commands: ["bun upgrade"],
         },
@@ -45,6 +62,10 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "required",
         why: "Needed for the supported local task workflow and global runtime management.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "mise",
+        },
         update: {
           commands: ["brew upgrade mise"],
           note: "Use mise self-update only when mise was installed by the standalone installer.",
@@ -55,6 +76,11 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "required",
         why: "Needed by the oxfmt CLI used in repo format checks.",
         versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "mise",
+          args: ["latest", "node"],
+        },
         update: {
           commands: ["mise upgrade node --bump"],
           note: "Use this when node is managed by mise.",
@@ -87,6 +113,10 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Used by Laravel aliases in the synced zsh config.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "ddev",
+        },
         update: {
           commands: ["brew upgrade ddev"],
           note: "DDEV upgrades follow the install method; this is for the Homebrew install.",
@@ -97,6 +127,11 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Used by the ai/opencode launcher and OpenCode workflows.",
         versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "opencode-ai", "version"],
+        },
         update: {
           commands: ["opencode upgrade"],
         },
@@ -106,6 +141,11 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "required",
         why: "Default AI-agent browser automation CLI.",
         versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "agent-browser", "version"],
+        },
         update: {
           commands: ["agent-browser upgrade", "agent-browser install"],
           note: "Run agent-browser install after upgrades when Chrome for Testing needs repair.",
@@ -116,8 +156,12 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Used to reduce noisy command output before it reaches AI agent context.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "rtk",
+        },
         update: {
-          note: "Manual/local tool: update from the same source used to install it.",
+          commands: ["brew upgrade rtk"],
         },
       },
       {
@@ -143,6 +187,10 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Used by project pickers and interactive hosts/plan deletion.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "fzf",
+        },
         update: {
           commands: ["brew upgrade fzf"],
         },
@@ -152,6 +200,10 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Optional AST-shaped code search through ast-grep when text search is too loose.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "ast-grep",
+        },
         update: {
           commands: ["brew upgrade ast-grep"],
         },
@@ -166,6 +218,10 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Used to open GitHub pull requests from the command line.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "gh",
+        },
         update: {
           commands: ["brew upgrade gh"],
         },
@@ -175,6 +231,10 @@ export const SYSTEM_TOOL_GROUPS = [
         level: "optional",
         why: "Used to open GitLab merge requests from the command line.",
         versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "glab",
+        },
         update: {
           commands: ["brew install glab"],
         },

@@ -15,7 +15,7 @@ mise run tools:status
 mise run tools:update:plan
 ```
 
-`tools:status` prints installed paths and versions. `tools:update:plan` prints reviewable update commands and notes, but does not change anything.
+`tools:status` prints installed paths, current versions, latest known versions, and freshness labels. `tools:update:plan` prints the same version comparison plus reviewable update commands and notes, but does not change anything.
 
 ## Core Repo Tools
 

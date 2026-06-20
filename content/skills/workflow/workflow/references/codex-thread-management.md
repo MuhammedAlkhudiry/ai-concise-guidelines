@@ -15,18 +15,24 @@ Use this workflow when setting up or refining Codex thread hygiene, especially s
 9. Never archive pinned threads.
 10. Do not archive ambiguous 7-day stale threads; summarize them as needing user judgment.
 11. Pin or unpin threads only when recent activity and importance make the choice obvious.
-12. When a completed or stale thread reveals durable agent-workflow friction, selectively run `ai-suggest-improvements` in a same-directory fork of that thread instead of appending meta-analysis to the original thread.
-13. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, improvement-review forks, and threads needing judgment.
+12. Automatically run `ai-suggest-improvements` for qualifying completed or stale work threads that reveal durable agent-workflow friction; fork each target thread in the same directory and do not append meta-analysis to the original target thread.
+13. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, aggregate improvement-review results, and threads needing judgment.
 
 ## Improvement Reviews
 
 Use this only when the thread shows reusable workflow friction such as missing docs, stale instructions, slow checks, hidden setup, repeated manual steps, brittle automation, or tool pain that would affect nearby future tasks.
 
-Do not ask for improvement reviews by default. Most completed threads should be renamed or archived without a meta-review. Start an improvement review only when the thread has a concrete lesson likely to improve future nearby tasks.
+Do not run improvement reviews for every completed or archived thread. Most completed threads should be renamed or archived without a meta-review. Once a thread shows a concrete lesson likely to improve future nearby tasks, the review should be automatic rather than needing user approval.
 
-Do not send `ai-suggest-improvements` into the original working thread unless the user explicitly asks. Fork the completed thread in the same directory, send the fork a follow-up prompt, and keep the management thread summary short. Archive the fork after its suggestion pass is complete unless the user needs to keep it visible.
+Age alone is not a review signal. Trivial threads such as greetings, simple list commands, one-off title normalization runs, or age-only archive candidates should not get an improvement fork.
 
-When multiple improvement reviews run in one cleanup pass, summarize them as a compact aggregate: number requested, number completed, number with no meaningful suggestions, shared themes, concrete follow-ups, and any forks still pending. Do not paste each fork's full suggestion report into the management thread.
+Do not review the management thread itself unless the user explicitly asks. The targets are the completed or stale work threads found during cleanup.
+
+For each qualifying target thread, fork that target in the same directory, send the fork the follow-up prompt, wait for all review forks to finish, and archive completed review forks unless the user needs to keep them visible.
+
+Cap automatic improvement reviews at 5 target threads per cleanup run. Prefer the highest-signal threads: repeated tool failures, stale or missing instructions, hidden setup, slow/noisy checks, brittle automation, or repeated manual steps.
+
+Summarize improvement reviews as a compact aggregate: number requested, number completed, number with no meaningful suggestions, shared themes, concrete follow-ups, and any forks still pending or failed. Do not paste each fork's full suggestion report into the management thread.
 
 ```text
 Use ai-suggest-improvements for this completed session.
@@ -51,8 +57,8 @@ Manage Codex threads once per day.
 - Never archive pinned threads.
 - Do not archive ambiguous threads; include them in the summary as needing user judgment instead.
 - Pin or unpin threads only when the need is obvious from recent activity and thread importance.
-- When a completed or stale thread reveals durable agent-workflow friction, selectively run ai-suggest-improvements in a same-directory fork of that thread instead of appending meta-analysis to the original thread; archive the fork after its suggestion pass is complete unless it should stay visible.
-- After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, compact improvement-review results, and threads that need user judgment.
+- Automatically run ai-suggest-improvements for up to 5 qualifying completed or stale work threads that reveal durable agent-workflow friction; fork each target thread in the same directory, wait for all review forks, aggregate the results, and archive completed review forks unless they should stay visible.
+- After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, aggregate improvement-review results, and threads that need user judgment.
 ```
 
 ## Rules
