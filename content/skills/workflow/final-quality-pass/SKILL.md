@@ -5,7 +5,7 @@ description: Strict final quality gate after implementation, bug fixes, refactor
 
 # Final Quality Pass
 
-Prove the current diff is ready, or report exactly why the pass is degraded or blocked. This is not a changelog and must not collapse into check-running.
+Prove the current diff is ready, or report exactly what prevents completion. This is not a changelog and must not collapse into check-running.
 Follow [references/final-gate.md](references/final-gate.md) for the full protocol.
 
 ## Start
@@ -17,10 +17,10 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 ## Codex Review Threads
 
 - Use a solo pass only for small, single-surface diffs.
-- For large or cross-surface diffs, create one read-only Codex thread per lane when thread tools are available; otherwise use read-only subagents.
+- For large or cross-surface diffs, this skill is explicit authorization to create one read-only Codex thread per lane when thread tools are available; otherwise use read-only subagents.
 - Required lanes: code simplifier, code quality review, test coverage audit, refactor opportunities, and check discovery.
 - Review lanes must inspect deeply and return large structured feedback: files, flows, findings, severity, required fixes, optional follow-ups, tests/checks, and explicit no-findings statements.
-- If a required lane returns empty, vague, errored, or unusable output, rerun once narrower; if still unusable, mark it `DEGRADED` or `BLOCKED`.
+- If a required lane returns empty, vague, errored, or unusable output, rerun once narrower; if still unusable, disclose that missing lane output with the reason.
 
 ## Workflow
 
@@ -31,19 +31,19 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 5. Main agent presents `code-quality-review` findings unless a blocker is clearly in scope.
 6. Main agent applies accepted `test-coverage-audit` test changes.
 7. Main agent presents `refactor-opportunities` findings without implementing them.
-8. Main agent runs `check-and-fix` until all relevant checks pass or the result is `DEGRADED`/`BLOCKED`.
+8. Main agent runs `check-and-fix` until all relevant checks pass or the exact blocker is reported.
 
-## Evidence
+## Lane Output
 
-- Simplification: deletions, collapsed branches, removed wrappers, cleaned tests, or `PASS` with why nothing was worth simplifying.
-- Code quality: `PASS`, `FIXED`, `DEGRADED`, or `BLOCKED`, with structural findings, fixes made, and remaining risk.
-- Coverage: changed behaviors, existing tests, missing coverage, tests added or changed, and meaningful remaining risk.
-- Refactor opportunities: read-only `No worthwhile refactor opportunities found`, or `Recommended` and `Optional` follow-ups.
+- The main final answer must include every lane's full output.
+- Include the Codex thread id for each lane output.
+- If output is too large, include a faithful full-section synthesis with all findings, files, risks, checks, and recommendations.
+- Do not replace lane output with a short summary.
 
 ## Rules
 
 - Only the current main Codex thread/main agent may edit files, run mutating commands, refresh databases, or run fix loops.
 - Implement only fixes that belong to simplification, coverage gaps, structural blockers, or task-related check failures.
 - Leave optional refactors as recommendations unless the user explicitly asks to do them.
-- Do not report a large or cross-surface pass as fully passed when required review evidence is missing or relevant checks do not pass.
-- Final output must include scope, review-lane status when used, simplification, code quality, coverage, checks, refactor opportunities, and final result.
+- Do not call a large or cross-surface review complete when required review evidence is missing or relevant checks do not pass.
+- Final output must include scope, full lane outputs, aggregation plan, main-thread changes, checks, and remaining risk.
