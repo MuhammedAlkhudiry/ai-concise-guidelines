@@ -1,50 +1,31 @@
 ---
 name: planning
-description: Conversational planning for implementation plans, roadmaps, task breakdowns, sequencing, scope, phases, multi-step work, plan review, plan refinement, or plan execution.
+description: Conversational and disk-backed planning for implementation plans, roadmaps, task breakdowns, plan updates, draft/approved plan files, plan review, and plan execution.
 ---
 
 # Planning
 
+Use this skill when the user asks to plan work, revise a plan, approve a plan, execute from a plan, or review an existing plan.
+
 ## Workflow
 
 1. If the direction is still exploratory, architectural, product, UX, or materially uncertain, apply the workshop workflow first.
-2. Research the relevant repo, callers, consumers, tests, docs, and constraints before committing to steps.
-3. Run a question scan before writing the plan.
-4. Separate decisions from execution steps.
-5. Map dependencies and sequence foundations before callers, integrations, tests, and cleanup.
-6. Prefer vertical slices that leave the system working over broad horizontal phases.
-7. Keep tasks scoped so each can be implemented, verified, and reviewed in one focused pass.
-8. Include only risks, blockers, and questions that can change the plan.
-9. Review an existing plan critically before executing it.
+2. Research the relevant repo, callers, consumers, tests, docs, and constraints before committing to detailed execution steps.
+3. Run a question scan before writing or approving a plan.
+4. Use disk-backed plan files once the user is shaping an implementation plan, roadmap, task breakdown, or execution handoff.
+5. Treat every plan change as a file mutation followed by a readback: update the saved plan, then show the updated plan or changed section.
+6. Follow `references/plan-files.md` for draft, approved, done, and archived behavior.
+
+## Plan Files
+
+Load `references/plan-files.md` before creating, updating, approving, archiving, or executing a disk-backed plan. It is the source of truth for plan file shape, lifecycle, and CLI use.
 
 ## Questions
 
 - If blocking questions exist, ask only the questions needed to make the plan reliable and do not print the plan yet.
-- Use questions to clarify missing facts, explore options, and find the best way to do the work.
-- Prefer one clear question, but ask a few when they belong together; many questions are allowed when the task is genuinely underspecified.
-- Do not apologize for asking planning questions; good questions are part of planning.
 - Treat planning-relevant unknowns as questions; do not hide them as assumptions, risks, or verification notes.
-- Expect question scans to matter most for features, larger work, and uncertain direction; for bugs and minor changes, ask only when answers can change the fix.
-
-## Output
-
-When the user is walking through a plan or grouping action items, use the `Plan` section with exactly these subsections:
-
-```md
-**Plan**
-Implementation Steps:
-[Committed implementation actions.]
-
-Verification Steps:
-[Required checks and post-work review.]
-
-QA Steps:
-[Manual QA paths and repeatable test data.]
-```
 
 ## Rules
 
-- Do not edit files while preparing a plan unless the user explicitly asks to implement.
-- Do not create a persistent plan file unless the user explicitly asks; use persistent-plans for durable plan files outside chat.
-- Skip this skill for simple questions, obvious single-file changes, and already well-defined task lists.
-- Avoid heavyweight process, machine-readable plan ceremony, placeholder tasks, and speculative phases.
+- Do not edit code while preparing a plan unless the user explicitly asks to implement.
+- Do not create plan files for casual advice or early workshop discussion before the user is shaping a concrete plan.

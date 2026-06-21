@@ -25,34 +25,54 @@ type Plan = {
 type Options = {
   project: string;
   plansRoot: string;
+  query: string;
+  status: string;
   write: boolean;
 };
 
 const home = process.env.HOME || "";
 
 function usage(): void {
-  console.log(`Usage: plan <command> [options]
+  console.log(`Usage: plan <command> [query] [options]
 
 Commands:
-  list     List active persistent plans for the current project
-  delete   Select active plans to archive
-  index    Print or rewrite the active plan index
+  list      List active plan files for the current project
+  show      Print the latest plan, or the plan matching query
+  path      Print the file path for the latest plan, or the plan matching query
+  archive   Move a plan into archive/
+  index     Print or rewrite the active plan index
 
 Options:
   --project=<name>       Project folder under ~/plans
   --plans-root=<path>    Plans root, defaults to ~/plans
+  --status=<status>      Filter list by status
   --write                Rewrite INDEX.md with the active plan index`);
 }
 
 function parseOptions(args: string[]): Options {
   const cwdProject = basename(process.cwd().replace(/\/$/, ""));
+  const query: string[] = [];
   let project = cwdProject;
   let plansRoot = join(home, "plans");
+  let status = "";
   let write = false;
 
-  for (const arg of args) {
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+
     if (arg === "--write") {
       write = true;
+      continue;
+    }
+
+    if (arg === "--status") {
+      status = args[index + 1] || "";
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--status=")) {
+      status = arg.slice("--status=".length);
       continue;
     }
 
@@ -63,14 +83,23 @@ function parseOptions(args: string[]): Options {
 
     if (arg.startsWith("--plans-root=")) {
       plansRoot = arg.slice("--plans-root=".length);
+      continue;
     }
+
+    query.push(arg);
   }
 
   return {
     project,
     plansRoot: resolve(plansRoot.replace(/^~/, home)),
+    query: query.join(" ").trim(),
+    status,
     write,
   };
+}
+
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function frontmatter(text: string): Record<string, string> {
@@ -136,16 +165,59 @@ function pad(value: string, width: number): string {
   return value + " ".repeat(Math.max(0, width - value.length));
 }
 
+function filteredPlans(options: Options): Plan[] {
+  const plans = activePlans(join(options.plansRoot, options.project));
+  if (!options.status) return plans;
+
+  return plans.filter((plan) => plan.status === options.status);
+}
+
+function matches(plan: Plan, query: string): boolean {
+  const normalized = query.toLowerCase();
+
+  return [plan.name, plan.relativePath, plan.title, plan.description].some((value) =>
+    value.toLowerCase().includes(normalized),
+  );
+}
+
+function findPlan(options: Options): Plan | undefined {
+  const plans = filteredPlans({ ...options, status: "" });
+  if (!options.query) return plans[0];
+
+  const exact = plans.find(
+    (plan) =>
+      plan.name === options.query ||
+      plan.relativePath === options.query ||
+      plan.title.toLowerCase() === options.query.toLowerCase(),
+  );
+
+  return exact || plans.find((plan) => matches(plan, options.query));
+}
+
+function requirePlan(options: Options): Plan {
+  const projectRoot = join(options.plansRoot, options.project);
+  const plan = findPlan(options);
+
+  if (plan) return plan;
+
+  if (options.query) {
+    console.error(`No plan matched "${options.query}" in ${projectRoot}.`);
+  } else {
+    console.error(`No active plans found in ${projectRoot}.`);
+  }
+  process.exit(1);
+}
+
 function listPlans(options: Options): void {
   const projectRoot = join(options.plansRoot, options.project);
-  const plans = activePlans(projectRoot);
+  const plans = filteredPlans(options);
 
   console.log(`${options.project} plans`);
   console.log(projectRoot);
   console.log("");
 
   if (plans.length === 0) {
-    console.log("No active plans found.");
+    console.log(options.status ? `No ${options.status} plans found.` : "No active plans found.");
     return;
   }
 
@@ -154,7 +226,7 @@ function listPlans(options: Options): void {
     Math.max("Title".length, ...plans.map((plan) => plan.title.length)),
   );
   const statusWidth = Math.min(
-    24,
+    16,
     Math.max("Status".length, ...plans.map((plan) => plan.status.length)),
   );
   const updatedWidth = Math.max("Updated".length, ...plans.map((plan) => plan.updated.length));
@@ -183,47 +255,84 @@ function listPlans(options: Options): void {
   }
 }
 
-function deletePlan(options: Options): void {
+function showPlan(options: Options): void {
+  const plan = requirePlan(options);
+
+  console.log(readFileSync(plan.path, "utf8"));
+}
+
+function showPath(options: Options): void {
+  console.log(requirePlan(options).path);
+}
+
+function replaceFrontmatterValue(text: string, key: string, value: string): string {
+  const frontmatterMatch = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!frontmatterMatch) return text;
+
+  const lines = frontmatterMatch[1].split("\n");
+  const nextLines = lines.map((line) => (line.startsWith(`${key}:`) ? `${key}: ${value}` : line));
+
+  if (!lines.some((line) => line.startsWith(`${key}:`))) {
+    nextLines.push(`${key}: ${value}`);
+  }
+
+  return text.replace(/^---\n[\s\S]*?\n---/, `---\n${nextLines.join("\n")}\n---`);
+}
+
+function markArchived(plan: Plan): void {
+  let text = readFileSync(plan.path, "utf8");
+  text = replaceFrontmatterValue(text, "status", "archived");
+  text = replaceFrontmatterValue(text, "updated", today());
+  writeFileSync(plan.path, text);
+}
+
+function archivePlan(options: Options): void {
   const projectRoot = join(options.plansRoot, options.project);
   const plans = activePlans(projectRoot);
+  let selectedPlans: string[] = [];
 
-  if (plans.length === 0) {
-    console.log("No active plans found.");
-    return;
+  if (options.query) {
+    selectedPlans = [requirePlan(options).name];
+  } else {
+    if (plans.length === 0) {
+      console.log("No active plans found.");
+      return;
+    }
+
+    const selectionLines = [
+      "Plan\tStatus\tDescription",
+      ...plans.map((plan) => `${plan.name}\t${plan.status}\t${plan.description}`),
+    ];
+
+    const selection = spawnSync(
+      "fzf",
+      [
+        "--height=40%",
+        "--multi",
+        "--reverse",
+        "--border=rounded",
+        "--header-lines=1",
+        "--prompt=Plans > ",
+        "--header=Select plans to archive with Tab, then Enter",
+        "--exit-0",
+      ],
+      {
+        input: selectionLines.join("\n"),
+        encoding: "utf8",
+      },
+    );
+
+    if (selection.error) {
+      console.error("fzf is required for interactive selection.");
+      process.exit(1);
+    }
+
+    selectedPlans = selection.stdout
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => line.split("\t")[0]);
   }
 
-  const selectionLines = [
-    "Plan\tStatus\tDescription",
-    ...plans.map((plan) => `${plan.name}\t${plan.status}\t${plan.description}`),
-  ];
-
-  const selection = spawnSync(
-    "fzf",
-    [
-      "--height=40%",
-      "--multi",
-      "--reverse",
-      "--border=rounded",
-      "--header-lines=1",
-      "--prompt=Plans > ",
-      "--header=Select plans to delete with Tab, then Enter",
-      "--exit-0",
-    ],
-    {
-      input: selectionLines.join("\n"),
-      encoding: "utf8",
-    },
-  );
-
-  if (selection.error) {
-    console.error("fzf is required for interactive selection.");
-    process.exit(1);
-  }
-
-  const selectedPlans = selection.stdout
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => line.split("\t")[0]);
   if (selectedPlans.length === 0) {
     process.exit(1);
   }
@@ -241,16 +350,19 @@ function deletePlan(options: Options): void {
 
   mkdirSync(archiveRoot, { recursive: true });
   for (const selected of selectedPlans) {
+    const plan = readPlan(projectRoot, selected);
+    if (plan) markArchived(plan);
     renameSync(join(projectRoot, selected), join(archiveRoot, selected));
   }
 
-  writeFileSync(join(projectRoot, "INDEX.md"), indexBody(options.project, activePlans(projectRoot)));
-
-  console.log(
-    `Deleted ${selectedPlans.length} plan${selectedPlans.length === 1 ? "" : "s"} from active plans.`,
+  writeFileSync(
+    join(projectRoot, "INDEX.md"),
+    indexBody(options.project, activePlans(projectRoot)),
   );
+
+  console.log(`Archived ${selectedPlans.length} plan${selectedPlans.length === 1 ? "" : "s"}.`);
   for (const selected of selectedPlans) {
-    console.log(`Archived at ${join(archiveRoot, selected)}`);
+    console.log(join(archiveRoot, selected));
   }
 }
 
@@ -278,15 +390,25 @@ function indexPlans(options: Options): void {
 }
 
 const [command = "list", ...rawOptions] = Bun.argv.slice(2);
+const options = parseOptions(rawOptions);
 
 if (command === "help" || command === "--help" || command === "-h") {
   usage();
 } else if (command === "list") {
-  listPlans(parseOptions(rawOptions));
-} else if (command === "delete" || command === "remove" || command === "rm") {
-  deletePlan(parseOptions(rawOptions));
+  listPlans(options);
+} else if (command === "show" || command === "latest") {
+  showPlan(options);
+} else if (command === "path") {
+  showPath(options);
+} else if (
+  command === "archive" ||
+  command === "delete" ||
+  command === "remove" ||
+  command === "rm"
+) {
+  archivePlan(options);
 } else if (command === "index") {
-  indexPlans(parseOptions(rawOptions));
+  indexPlans(options);
 } else {
   console.error(`Unknown command: ${command}`);
   usage();

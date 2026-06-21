@@ -16,8 +16,8 @@ Use this reference for all `/improve` branches.
 Use this shape for important findings:
 
 ```md
-| # | Finding | Category | Impact | Effort | Risk | Confidence | Evidence |
-|---|---------|----------|--------|--------|------|------------|----------|
+| #   | Finding | Category | Impact | Effort | Risk | Confidence | Evidence |
+| --- | ------- | -------- | ------ | ------ | ---- | ---------- | -------- |
 ```
 
 - `Finding`: one concrete problem or opportunity, not a vague theme.
@@ -33,6 +33,4 @@ Add a short considered-but-rejected note when a tempting finding is not worth do
 
 ## Plans
 
-For ordinary `/improve`, keep plans in chat. Create durable plan files only when the user explicitly asks for a plan file.
-
-When writing a durable plan, use `persistent-plans` and store it under `~/plans/<project-name>/` unless the user explicitly asks for repo-local files.
+For ordinary `/improve`, keep advice in chat. Use `planning` for plan-file lifecycle and storage when the user is shaping an implementation plan, roadmap, task breakdown, or execution handoff.
