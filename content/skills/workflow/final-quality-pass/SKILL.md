@@ -1,6 +1,6 @@
 ---
 name: final-quality-pass
-description: Strict final quality gate after implementation, bug fixes, refactors, branch syncs, conflict resolution, PR prep, or "make it ready" prompts, using read-only review threads, main-agent-only edits, diff inventory, simplification, maintainability, coverage, checks, and remaining risk.
+description: Strict final quality gate after implementation, bug fixes, refactors, branch syncs, conflict resolution, PR prep, or "make it ready" prompts, using read-only Codex review threads, main-agent-only edits, diff inventory, simplification, maintainability, coverage, checks, and remaining risk.
 ---
 
 # Final Quality Pass
@@ -14,10 +14,10 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 - Start with a diff inventory: comparison target, changed file count, touched apps or layers, behavior areas, and risky surfaces.
 - Keep the pass focused on the current task and directly affected code. Do not widen into unrelated cleanup.
 
-## Review Threads
+## Codex Review Threads
 
 - Use a solo pass only for small, single-surface diffs.
-- For large or cross-surface diffs, spawn one read-only review thread per lane when available; otherwise use read-only subagents.
+- For large or cross-surface diffs, create one read-only Codex thread per lane when thread tools are available; otherwise use read-only subagents.
 - Required lanes: code simplifier, code quality review, test coverage audit, refactor opportunities, and check discovery.
 - Review lanes must inspect deeply and return large structured feedback: files, flows, findings, severity, required fixes, optional follow-ups, tests/checks, and explicit no-findings statements.
 - If a required lane returns empty, vague, errored, or unusable output, rerun once narrower; if still unusable, mark it `DEGRADED` or `BLOCKED`.
@@ -25,7 +25,7 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 ## Workflow
 
 1. Inventory the diff and choose solo or review-lane mode.
-2. Launch required read-only review lanes when the surface requires them.
+2. Launch required read-only Codex review threads or fallback subagents when the surface requires them.
 3. Aggregate all feedback, dedupe it, reject weak findings, and create a step-by-step plan.
 4. Main agent applies accepted `code-simplifier` changes.
 5. Main agent presents `code-quality-review` findings unless a blocker is clearly in scope.
@@ -42,7 +42,7 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 
 ## Rules
 
-- Only the main thread/main agent may edit files, run mutating commands, refresh databases, or run fix loops.
+- Only the current main Codex thread/main agent may edit files, run mutating commands, refresh databases, or run fix loops.
 - Implement only fixes that belong to simplification, coverage gaps, structural blockers, or task-related check failures.
 - Leave optional refactors as recommendations unless the user explicitly asks to do them.
 - Do not report a large or cross-surface pass as fully passed when required review evidence is missing or relevant checks do not pass.

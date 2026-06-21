@@ -8,9 +8,9 @@ If committed branch changes and unstaged edits both exist, inspect them separate
 
 ## Ownership Invariant
 
-Only the main thread/main agent may edit files, run formatters that mutate files, refresh databases, apply migrations, or perform fix loops.
+Only the current main Codex thread/main agent may edit files, run formatters that mutate files, refresh databases, apply migrations, or perform fix loops.
 
-All spawned review threads or subagents are read-only. They may inspect, trace, run read-only commands, and produce findings, but they must not edit files or mutate local state.
+All spawned Codex review threads or fallback subagents are read-only. They may inspect, trace, run read-only commands, and produce findings, but they must not edit files or mutate local state.
 
 The main agent owns synthesis, accepted fixes, implementation order, conflicts, verification choices, final diff state, and the final report.
 
@@ -18,7 +18,7 @@ The main agent owns synthesis, accepted fixes, implementation order, conflicts, 
 
 Use a solo pass only for small, single-surface diffs.
 
-Use one read-only review thread per lane when the diff touches more than one app, more than one layer, more than about 20 files, risky surfaces, broad tests or fixtures, or a PR-sized branch. If separate threads are unavailable, use read-only subagents.
+Use one read-only Codex review thread per lane when the diff touches more than one app, more than one layer, more than about 20 files, risky surfaces, broad tests or fixtures, or a PR-sized branch. If Codex thread tools are unavailable, use read-only subagents.
 
 For large or cross-surface diffs, review lanes are required unless unavailable.
 
@@ -46,7 +46,7 @@ After review lanes finish, the main agent must aggregate all feedback into a pla
 4. Order accepted work so edits are serialized and easy to verify.
 5. Work the plan step by step, updating status as each item is completed.
 
-No other thread may mutate the working tree while the main agent works the plan.
+No other Codex thread or subagent may mutate the working tree while the main agent works the plan.
 
 ## Phase Requirements
 
