@@ -1,6 +1,6 @@
 ---
 name: final-quality-pass
-description: Strict final quality gate after implementation, bug fixes, refactors, branch syncs, conflict resolution, PR prep, or "make it ready" prompts, covering diff inventory, simplification, maintainability, coverage, subagent review, checks, and remaining risk.
+description: Strict final quality gate after implementation, bug fixes, refactors, branch syncs, conflict resolution, PR prep, or "make it ready" prompts, using read-only review threads, main-agent-only edits, diff inventory, simplification, maintainability, coverage, checks, and remaining risk.
 ---
 
 # Final Quality Pass
@@ -14,26 +14,24 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 - Start with a diff inventory: comparison target, changed file count, touched apps or layers, behavior areas, and risky surfaces.
 - Keep the pass focused on the current task and directly affected code. Do not widen into unrelated cleanup.
 
-## Subagents
+## Review Threads
 
 - Use a solo pass only for small, single-surface diffs.
-- Use subagents when the diff touches multiple apps, multiple layers, about 20+ files, risky surfaces, broad tests or fixtures, or a PR-sized branch.
-- For large or cross-surface diffs, subagents are required unless unavailable. Split by focused skill, app, or layer.
-- Required lanes for large diffs: simplification, structure, coverage, checks, and refactor opportunities.
-- Each lane must return files inspected, flows inspected, findings with file references, required fixes, optional follow-ups, and an explicit no-findings statement when clean.
-- If a required subagent returns empty, vague, errored, or unusable output, rerun it once with narrower scope; if still unusable, mark the lane `DEGRADED` or `BLOCKED`.
-- Do not silently replace required subagent review with a shallow solo scan.
+- For large or cross-surface diffs, spawn one read-only review thread per lane when available; otherwise use read-only subagents.
+- Required lanes: code simplifier, code quality review, test coverage audit, refactor opportunities, and check discovery.
+- Review lanes must inspect deeply and return large structured feedback: files, flows, findings, severity, required fixes, optional follow-ups, tests/checks, and explicit no-findings statements.
+- If a required lane returns empty, vague, errored, or unusable output, rerun once narrower; if still unusable, mark it `DEGRADED` or `BLOCKED`.
 
 ## Workflow
 
-1. Inventory the diff and choose solo or subagent mode.
-2. Launch required read-only subagent lanes when the surface requires them.
-3. Synthesize subagent findings, dedupe overlaps, and verify high-risk findings directly.
-4. Use `code-simplifier` to simplify the current diff and remove unnecessary complexity.
-5. Use `code-quality-review` to catch structural regressions, ownership drift, and missed simplifications.
-6. Use `test-coverage-audit` to prove existing coverage and add focused missing tests for changed behavior.
-7. Use `refactor-opportunities` to name worthwhile follow-up improvements without implementing them.
-8. Use `check-and-fix` to run project checks, fix task-related failures, and report results.
+1. Inventory the diff and choose solo or review-lane mode.
+2. Launch required read-only review lanes when the surface requires them.
+3. Aggregate all feedback, dedupe it, reject weak findings, and create a step-by-step plan.
+4. Main agent applies accepted `code-simplifier` changes.
+5. Main agent presents `code-quality-review` findings unless a blocker is clearly in scope.
+6. Main agent applies accepted `test-coverage-audit` test changes.
+7. Main agent presents `refactor-opportunities` findings without implementing them.
+8. Main agent runs `check-and-fix` until all relevant checks pass or the result is `DEGRADED`/`BLOCKED`.
 
 ## Evidence
 
@@ -44,7 +42,8 @@ Follow [references/final-gate.md](references/final-gate.md) for the full protoco
 
 ## Rules
 
+- Only the main thread/main agent may edit files, run mutating commands, refresh databases, or run fix loops.
 - Implement only fixes that belong to simplification, coverage gaps, structural blockers, or task-related check failures.
 - Leave optional refactors as recommendations unless the user explicitly asks to do them.
-- Do not report a large or cross-surface pass as fully passed when required subagent evidence is missing.
-- Final output must include scope, subagent status when used, simplification, code quality, coverage, checks, refactor opportunities, and final result.
+- Do not report a large or cross-surface pass as fully passed when required review evidence is missing or relevant checks do not pass.
+- Final output must include scope, review-lane status when used, simplification, code quality, coverage, checks, refactor opportunities, and final result.
