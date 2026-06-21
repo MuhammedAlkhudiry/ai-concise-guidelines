@@ -17,6 +17,8 @@ mise run tools:update:plan
 
 `tools:status` prints installed paths, current versions, latest known versions, and freshness labels. `tools:update:plan` prints the same version comparison plus reviewable update commands and notes, but does not change anything.
 
+After running update commands, run `mise run install` again. Some installers may append shell setup directly to `~/.zshrc`; if the install fails the thin-`.zshrc` check, move any new shell setup into `shell/zsh-custom.zsh`, restore `~/.zshrc` to only source `~/.config/zsh-sync/custom.zsh`, then rerun `mise run install`.
+
 ## Core Repo Tools
 
 These are the commands the repo itself relies on for install and day-to-day local use.
