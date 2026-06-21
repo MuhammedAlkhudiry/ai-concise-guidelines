@@ -18,7 +18,7 @@ The main agent owns synthesis, accepted fixes, implementation order, conflicts, 
 
 Use a solo pass only for small, single-surface diffs.
 
-Use one read-only Codex review thread per lane when the diff touches more than one app, more than one layer, more than about 20 files, risky surfaces, broad tests or fixtures, or a PR-sized branch. If Codex thread tools are unavailable, use read-only subagents.
+Use one read-only Codex review thread per lane when the diff touches more than one app, more than one layer, more than about 20 files, risky surfaces, broad tests or fixtures, or a PR-sized branch. Invoking this skill is explicit user authorization to create those review Codex threads for this quality pass. If Codex thread tools are unavailable, use read-only subagents.
 
 For large or cross-surface diffs, review lanes are required unless unavailable.
 
@@ -34,7 +34,7 @@ Use focused lanes. Split by app or layer when that is clearer than splitting by 
 
 Each lane must include files inspected, flows inspected, findings with file references, required fixes, optional follow-ups, tests or checks impacted, confidence, and an explicit no-findings statement when clean.
 
-If a required lane returns empty output, vague output, errors, or no usable findings, rerun it once with a narrower scope. If the retry is still unusable, mark that lane `DEGRADED` or `BLOCKED`. Do not silently replace required review with a shallow solo scan. A large or cross-surface pass cannot be reported as fully passed when required review evidence is missing.
+If a required lane returns empty output, vague output, errors, or no usable findings, rerun it once with a narrower scope. If the retry is still unusable, disclose the missing lane output with the reason. Do not silently replace required review with a shallow solo scan. A large or cross-surface pass cannot be reported as complete when required review evidence is missing.
 
 ## Aggregation Plan
 
@@ -44,37 +44,35 @@ After review lanes finish, the main agent must aggregate all feedback into a pla
 2. Reject weak, speculative, or out-of-scope findings.
 3. Separate required fixes, coverage gaps, check failures, and optional refactors.
 4. Order accepted work so edits are serialized and easy to verify.
-5. Work the plan step by step, updating status as each item is completed.
+5. Work the plan step by step, updating progress as each item is completed.
 
 No other Codex thread or subagent may mutate the working tree while the main agent works the plan.
 
 ## Phase Requirements
 
-Simplification must report deletions, collapsed branches, removed wrappers, cleaned tests, or `PASS` with why nothing was worth simplifying. Do not count implementation work done before this skill as final-pass simplification unless this phase discovered it.
+Simplification must report deletions, collapsed branches, removed wrappers, cleaned tests, or why nothing was worth simplifying. Do not count implementation work done before this skill as final-pass simplification unless this phase discovered it.
 
-Code quality review must report `PASS`, `FIXED`, `DEGRADED`, or `BLOCKED`, with structural findings, fixes made, and remaining structural risk.
+Code quality review must report structural findings, fixes made by the main agent, rejected findings, and remaining structural risk.
 
 Coverage audit must name changed behaviors, existing tests that cover them, missing coverage, tests added or changed, and meaningful remaining risk. Do not say coverage is confirmed without naming tested behavior.
 
 Refactor opportunities is read-only. Report `No worthwhile refactor opportunities found` or list `Recommended` and `Optional` follow-ups with concrete files, impact, and safest next move.
 
-Check-and-fix must read `CHECKLIST.md` first when present, run relevant commands, fix only task-related failures, rerun failed commands after fixes, classify skipped commands, and separate pre-existing or unrelated failures from current-diff failures. All relevant checks must pass for a `PASS` result.
+Check-and-fix must read `CHECKLIST.md` first when present, run relevant commands, fix only task-related failures, rerun failed commands after fixes, classify skipped commands, and separate pre-existing or unrelated failures from current-diff failures. All relevant checks must succeed before the review is called complete.
 
 ## Final Gate
 
-Before saying done, confirm every required lane has usable output or an explicit `DEGRADED` or `BLOCKED` status, every review failure is disclosed, every accepted fix was rechecked, all relevant checks passed, remaining failures are classified, and the final response includes evidence from each phase.
+Before saying done, confirm every required lane's full output is included in the main final answer, every missing/unusable lane output is disclosed, every accepted fix was rechecked, all relevant checks succeeded, remaining failures are classified, and the final response includes evidence from each phase.
 
 ## Report Shape
 
 For non-trivial passes, include:
 
 - Scope: base or diff, changed surface, and risk areas.
-- Review lanes: each lane as `PASS`, `FIXED`, `DEGRADED`, or `BLOCKED`.
-- Simplification: what changed or why it passed cleanly.
-- Code Quality: structural findings, fixes, and remaining risk.
-- Coverage: already covered, missing, added or changed, and remaining risk.
-- Checks: `PASS`, `FAIL`, `BLOCKED`, and `SKIPPED` commands.
-- Refactor Opportunities: recommended, optional, or no worthwhile opportunities.
-- Result: `PASS`, `DEGRADED`, or `BLOCKED`.
+- Lane Outputs: full output from each Codex review thread, with thread id and lane name.
+- Aggregation Plan: accepted findings, rejected findings, and implementation order.
+- Main-Thread Changes: files changed and why.
+- Checks: commands run, command outcomes, reruns, skipped commands, and reasons.
+- Remaining Risk: concrete residual risk only.
 
-For tiny diffs, keep the final response shorter, but still report simplification, quality, coverage, checks, refactor opportunities, and final result.
+For tiny diffs, keep the final response shorter, but still include the full output of every lane that was launched.
