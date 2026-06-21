@@ -14,6 +14,7 @@ import {
   type RemoteSkill,
   type RemoteSkillSource,
 } from "../../config/skills";
+import { CODEX_CONFIG } from "../../config/codex";
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { colors, print, printBox, printSeparator } from "../lib/print";
@@ -228,7 +229,59 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
 
 async function installCodex(): Promise<void> {
   copyCodexRules();
+  await mergeCodexConfigAsync();
   await mergeCodexMcpConfigAsync();
+}
+
+function upsertTomlSectionKey(
+  configToml: string,
+  sectionName: string,
+  key: string,
+  value: string,
+): string {
+  const lines = configToml.trimEnd().split(/\r?\n/);
+  const sectionHeader = `[${sectionName}]`;
+  const sectionIndex = lines.findIndex((line) => line.trim() === sectionHeader);
+  const nextLine = `${key} = ${value}`;
+
+  if (sectionIndex === -1) {
+    const trimmed = configToml.trimEnd();
+    return trimmed
+      ? `${trimmed}\n\n${sectionHeader}\n${nextLine}\n`
+      : `${sectionHeader}\n${nextLine}\n`;
+  }
+
+  let insertIndex = lines.length;
+  for (let i = sectionIndex + 1; i < lines.length; i++) {
+    if (/^\s*\[/.test(lines[i])) {
+      insertIndex = i;
+      break;
+    }
+
+    if (new RegExp(`^\\s*${key}\\s*=`).test(lines[i])) {
+      lines[i] = nextLine;
+      return `${lines.join("\n")}\n`;
+    }
+  }
+
+  lines.splice(insertIndex, 0, nextLine);
+  return `${lines.join("\n")}\n`;
+}
+
+async function mergeCodexConfigAsync(): Promise<void> {
+  print.info(`Merging Codex config into ${CODEX_PATHS.config}...`);
+  await ensureParentDir(CODEX_PATHS.config);
+  const existing = existsSync(CODEX_PATHS.config)
+    ? await readFile(CODEX_PATHS.config, "utf-8")
+    : "";
+  const merged = upsertTomlSectionKey(
+    existing,
+    "agents",
+    "max_threads",
+    String(CODEX_CONFIG.agents.max_threads),
+  );
+  await writeFile(CODEX_PATHS.config, merged);
+  print.success("Codex config merged");
 }
 
 async function mergeCodexMcpConfigAsync(): Promise<void> {
@@ -557,7 +610,7 @@ export async function install(): Promise<void> {
   console.log();
   console.log(colors.blue("  Codex:"));
   console.log(`    Rules:    ${CODEX_PATHS.rules}`);
-  console.log(`    Config:   ${CODEX_PATHS.config} (managed block merge)`);
+  console.log(`    Config:   ${CODEX_PATHS.config} (managed merge)`);
   console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(

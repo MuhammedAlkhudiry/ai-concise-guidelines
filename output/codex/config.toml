@@ -1,0 +1,5 @@
+# Managed by my-setup. Do not edit by hand.
+# Source of truth: config/codex.ts
+
+[agents]
+max_threads = 15

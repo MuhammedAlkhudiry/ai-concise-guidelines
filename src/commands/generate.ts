@@ -7,6 +7,7 @@
 import { writeFile, rm } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
+import { CODEX_CONFIG } from "../../config/codex";
 import { createOpencodeConfig } from "../../config/opencode";
 import { MCP_SERVERS } from "../../config/mcp";
 import { ensureDir } from "../lib/fs";
@@ -43,6 +44,22 @@ async function generateOpencodeConfig(): Promise<void> {
 
 function toTomlString(value: string): string {
   return JSON.stringify(value);
+}
+
+async function generateCodexConfig(): Promise<void> {
+  console.log("  [Codex] Generating config...");
+
+  const lines: string[] = [
+    "# Managed by my-setup. Do not edit by hand.",
+    "# Source of truth: config/codex.ts",
+    "",
+    "[agents]",
+    `max_threads = ${CODEX_CONFIG.agents.max_threads}`,
+    "",
+  ];
+
+  await writeFile(join(CODEX_DIR, "config.toml"), lines.join("\n"));
+  console.log("    Generated config.toml");
 }
 
 async function generateCodexMcpConfig(): Promise<number> {
@@ -102,6 +119,7 @@ export async function generate(): Promise<void> {
 
   // Generate Codex
   console.log("Codex:");
+  await generateCodexConfig();
   const codexMcpCount = await generateCodexMcpConfig();
 
   console.log("\n" + "=".repeat(50));
