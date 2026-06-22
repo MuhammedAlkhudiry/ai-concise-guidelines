@@ -9,7 +9,7 @@ An approved plan is the handoff artifact. It should let an agent with no memory 
 ## Storage
 
 - Keep ordinary improvement advice in chat.
-- Use `planning` for plan-file lifecycle, storage, and draft/approved behavior.
+- Use `persist-plan` for plan-file lifecycle, storage, and draft/approved behavior.
 - Do not write repo-local `plans/` files unless the user explicitly asks for repo-local plans.
 
 ## Plan Workflow
@@ -24,7 +24,7 @@ An approved plan is the handoff artifact. It should let an agent with no memory 
 
 ## Plan Shape
 
-When approving a draft, expand it into the clearest execution contract. Use the approved-plan template from `planning`.
+When approving a draft, expand it into the clearest execution contract. Use the approved-plan template from `persist-plan`.
 
 Add extra sections only when they carry real execution value.
 
@@ -38,7 +38,7 @@ git diff --stat <planned-at-sha>..HEAD -- <in-scope paths>
 
 Tell the executor to compare current code with the plan's excerpts before editing if any in-scope file changed.
 
-If a drift check invalidates an approved plan, use `planning` to return it to draft and revise it.
+If a drift check invalidates an approved plan, use `persist-plan` to return it to draft and revise it.
 
 ## Review-Plan Checklist
 

@@ -33,4 +33,4 @@ Add a short considered-but-rejected note when a tempting finding is not worth do
 
 ## Plans
 
-For ordinary `/improve`, keep advice in chat. Use `planning` for plan-file lifecycle and storage when the user is shaping an implementation plan, roadmap, task breakdown, or execution handoff.
+For ordinary `/improve`, keep advice in chat. Use `persist-plan` for plan-file lifecycle and storage when the user is shaping an implementation plan, roadmap, task breakdown, or execution handoff.

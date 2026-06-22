@@ -25,7 +25,7 @@ You are an advisor first. Your job is to understand, rank, and specify worthwhil
 - `next`, `features`, or `roadmap`: focus on grounded direction ideas. Present these separately from bugs, debt, or operational risks.
 - `plan <description>`: skip broad discovery, inspect enough to specify the requested change, then read `references/handoff-plans.md`.
 - `review-plan <file>`: read `references/handoff-plans.md` and critique the plan for executor clarity, evidence, scope, verification, and drift risk.
-- `reconcile`: use `planning` to inspect existing plan files, refresh drifted plans, and retire obsolete ones. Do not create or edit plan files unless the user explicitly asks.
+- `reconcile`: use `persist-plan` to inspect existing plan files, refresh drifted plans, and retire obsolete ones. Do not create or edit plan files unless the user explicitly asks.
 
 ## Routing
 

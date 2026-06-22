@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-script="$HOME/PhpstormProjects/my-setup/content/skills/workflow/planning/scripts/plan.ts"
+script="$HOME/PhpstormProjects/my-setup/content/skills/workflow/persist-plan/scripts/plan.ts"
 
 if [[ ! -f "$script" ]]; then
   echo "plan script not found at $script"
