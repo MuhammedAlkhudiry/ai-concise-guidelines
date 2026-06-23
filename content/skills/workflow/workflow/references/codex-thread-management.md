@@ -9,7 +9,7 @@ Use this workflow when setting up or refining Codex thread hygiene, especially s
 3. Prefer archiving over deletion; Codex thread tools support archiving as the normal cleanup action.
 4. Keep the automation prompt self-sufficient and action-oriented.
 5. Inspect Codex threads broadly; do not use a fixed thread-count cap unless the tool requires one.
-6. Normalize vague or low-signal titles only when the better title is obvious from the conversation.
+6. Normalize vague, low-signal, or unprefixed titles only when the better title and category are obvious from the conversation. Every normalized title must start with exactly one of `[✨ FEAT]`, `[⚠️ BUG]`, `[♻️ REF]`, `[🧭 PLAN]`, or `[📌 OTHER]`.
 7. Archive only unpinned threads that have been inactive for at least 7 days and whose latest messages reasonably suggest completed, stale, or no-longer-useful work.
 8. Archive unpinned threads that have been inactive for at least 30 days even when completion is not obvious.
 9. Never archive pinned threads.
@@ -44,6 +44,16 @@ Do not edit files, install packages, run mutating scripts, or implement the sugg
 If there are no meaningful improvements, say so directly.
 ```
 
+## Thread Title Prefixes
+
+- `[✨ FEAT]`: feature work, product changes, UI additions, integrations, or new behavior.
+- `[⚠️ BUG]`: bug reports, investigations, regressions, fixes, production issues, or failing checks.
+- `[♻️ REF]`: refactors, simplification, cleanup, architecture, tests/coverage cleanup, or code-quality passes.
+- `[🧭 PLAN]`: planning, workshops, research, options, strategy, reviews without edits, or design exploration.
+- `[📌 OTHER]`: administrative, personal, setup, automation, device/browser tasks, simple questions, or anything useful that does not fit the other prefixes.
+
+Treat a missing prefix as a title-cleanup signal. Add or correct a prefix only when the category is obvious; otherwise leave the thread untouched and include it in the judgment summary.
+
 ## Default Automation Prompt
 
 Use this shape when the user asks for active daily thread cleanup and does not need custom wording:
@@ -52,7 +62,7 @@ Use this shape when the user asks for active daily thread cleanup and does not n
 Manage Codex threads once per day.
 
 - Inspect Codex threads broadly; do not use a fixed thread-count cap unless the tool requires one.
-- Normalize vague or low-signal thread titles into concise, useful titles when the correct title is obvious from the conversation.
+- Normalize vague, low-signal, or unprefixed thread titles into concise, useful titles when the correct title and category are obvious from the conversation. Every normalized title must start with exactly one of `[✨ FEAT]`, `[⚠️ BUG]`, `[♻️ REF]`, `[🧭 PLAN]`, or `[📌 OTHER]`.
 - Archive unpinned threads only when they have been inactive for at least 7 days and their latest messages reasonably suggest the work is completed, stale, or no longer useful.
 - Archive unpinned threads that have been inactive for at least 30 days even when completion is not obvious.
 - Never archive pinned threads.
