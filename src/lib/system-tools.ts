@@ -152,6 +152,20 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "agent-device",
+        level: "required",
+        why: "Default AI-agent mobile and device automation CLI.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "agent-device", "version"],
+        },
+        update: {
+          commands: ["npm install -g agent-device"],
+        },
+      },
+      {
         name: "rtk",
         level: "optional",
         why: "Used to reduce noisy command output before it reaches AI agent context.",

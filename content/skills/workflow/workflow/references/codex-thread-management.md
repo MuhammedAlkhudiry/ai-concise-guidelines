@@ -16,7 +16,8 @@ Use this workflow when setting up or refining Codex thread hygiene, especially s
 10. Do not archive ambiguous 7-day stale threads; summarize them as needing user judgment.
 11. Pin or unpin threads only when recent activity and importance make the choice obvious.
 12. Automatically run `ai-suggest-improvements` for qualifying completed or stale work threads that reveal durable agent-workflow friction; fork each target thread in the same directory and do not append meta-analysis to the original target thread.
-13. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, aggregate improvement-review results, and threads needing judgment.
+13. Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
+14. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, aggregate improvement-review results, and threads needing judgment.
 
 ## Improvement Reviews
 
@@ -58,6 +59,7 @@ Manage Codex threads once per day.
 - Do not archive ambiguous threads; include them in the summary as needing user judgment instead.
 - Pin or unpin threads only when the need is obvious from recent activity and thread importance.
 - Automatically run ai-suggest-improvements for up to 5 qualifying completed or stale work threads that reveal durable agent-workflow friction; fork each target thread in the same directory, wait for all review forks, aggregate the results, and archive completed review forks unless they should stay visible.
+- Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
 - After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, aggregate improvement-review results, and threads that need user judgment.
 ```
 

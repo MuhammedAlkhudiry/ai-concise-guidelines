@@ -41,6 +41,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `ddev` | Laravel aliases and local PHP workflows use it. |
 | `opencode` | `ai` launcher and OpenCode workflows use it. |
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA. |
+| `agent-device` | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA. |
 | `rtk` | Reduces noisy command output before it reaches AI agent context. |
 | `solo` | Controls Solo projects, processes, dev servers, logs, todos, and scratchpads through the Solo HTTP control plane. |
 | `jq` | Reads Solo's local HTTP API discovery file for raw API fallback workflows. |
@@ -49,6 +50,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-my-setup` analyzer.
 Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
+Install `agent-device` with `npm install -g agent-device`.
 
 ## Git Workflow Helpers
 
