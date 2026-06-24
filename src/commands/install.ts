@@ -55,7 +55,7 @@ const SHARED_PATHS = {
 const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
-const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY"] as const;
+const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY", "HUGEICONS_TOKEN"] as const;
 const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [

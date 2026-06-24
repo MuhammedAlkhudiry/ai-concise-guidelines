@@ -33,7 +33,16 @@ For each qualifying target thread, fork that target in the same directory, send 
 
 Cap automatic improvement reviews at 5 target threads per cleanup run. Prefer the highest-signal threads: repeated tool failures, stale or missing instructions, hidden setup, slow/noisy checks, brittle automation, or repeated manual steps.
 
-Summarize improvement reviews as a compact aggregate: number requested, number completed, number with no meaningful suggestions, shared themes, concrete follow-ups, and any forks still pending or failed. Do not paste each fork's full suggestion report into the management thread.
+Summarize improvement reviews as an expanded aggregate, not as a single compressed theme sentence. Include:
+
+- Review count: number requested, completed, skipped, failed, and archived.
+- Reviewed targets: short titles or categories of the source threads reviewed.
+- Key themes: 2-5 bullets. Each theme should include the durable lesson and why it matters for future agent work.
+- Concrete follow-ups: specific docs, skills, checks, scripts, automations, or repo rules worth creating or tightening.
+- No-suggestion results: count any review that found no meaningful improvements.
+- Fork status: note whether review forks were archived, left visible, pending, or failed.
+
+Do not paste each fork's full suggestion report into the management thread. The summary should be expanded enough that the user can understand the lessons without opening the forks.
 
 ```text
 Use ai-suggest-improvements for this completed session.

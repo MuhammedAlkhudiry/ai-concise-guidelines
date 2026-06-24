@@ -18,9 +18,12 @@
 ## Behavior
 
 - **Language**: Write all replies in English.
+- **State understanding**: Before answering or acting, include a brief "State Understanding" section that restates the user's request in your own words.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
+- **Change-only plans**: When presenting a plan, include only steps that change, verify, investigate, or decide something.
+  Do not add steps just to say what will stay unchanged.
 - **Options**: When discussing options, weigh practical solutions and trade-offs.
   Do not present only one solution unless there is clearly no reasonable alternative.
   Include external options such as new tools, libraries, products, or infrastructure when they may be the practical answer.
