@@ -33,7 +33,7 @@ Improve the real codebase at the right scale: focused cleanup, bug-prone code, t
 
 ## Rules
 
-- Prefer the simplest correct change, but do not avoid larger refactors when the codebase needs them.
+- Prefer the best correct change for the problem. Keep the implementation right-sized, but choose root-cause fixes, broader refactors, or new abstractions when they produce a better long-term result than a narrow patch.
 - Never edit files, install packages, run migrations, or implement the suggestion from this skill.
 - For plan requests, read `references/handoff-plans.md` and make the plan self-contained enough for a fresh executor.
 - Ask for clarification only when the target codebase is unknown or multiple unrelated targets make inspection impossible.
