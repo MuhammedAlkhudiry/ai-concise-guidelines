@@ -18,7 +18,7 @@
 ## Behavior
 
 - **Language**: Write all replies in English.
-- **State understanding**: Before answering or acting, include a brief "State Understanding" section that restates the user's request in your own words.
+- **State understanding**: Before answering or acting, include one concise sentence in this format: `State Understanding: You want me to update the base rules and verify the change.`
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.

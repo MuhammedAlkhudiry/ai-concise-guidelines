@@ -10,12 +10,19 @@ Use these principles while changing or reviewing code.
 ## Defaults
 
 - Keep implementation direct and right-sized. Avoid speculative guards, cleanup, normalization, and future-proofing.
+- Choose the highest rung that fully solves the problem: skip speculative work, reuse existing code, use the standard library, use native platform behavior, use an installed dependency, write one clear line, then write the minimum new code.
 - Prefer simple truthy, falsy, and presence checks over explicit comparisons to `true`, `false`, or `null`.
 - Avoid `instanceof` unless exact value or type semantics matter.
 - Search for existing helpers, functions, and local patterns before adding a helper.
 - Add helpers only when they protect a real boundary or remove real duplication.
 - Delete pass-through wrappers, aliases, and helpers unless they protect a real boundary.
 - Confirm the data model before touching data; never assume schema details.
+
+## Bug Fixes
+
+- Treat the reported failure as a symptom until the shared mechanism is identified.
+- Before changing a function, inspect nearby callers, sibling flows, tests, and route or component entry points that could hit the same behavior.
+- Prefer one root-cause fix in the canonical owner over repeated guards at individual callers.
 
 ## Compatibility
 
