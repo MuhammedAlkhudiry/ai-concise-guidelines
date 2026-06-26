@@ -11,22 +11,24 @@ Report the current product health run in chat using durable product setup.
 
 1. Use `product-setup` to read, create, or refresh repo-root `PRODUCT_SETUP.md` before the health run when product setup is missing, stale, or blocking the check.
 2. Read target repo context: `PRODUCT.md`, README, deployment docs, manifests, app config, and env examples.
-3. Detect health sources from code and docs, then record sources, evidence paths, adapters, access gaps, recurring risks, and the check playbook for product journeys, scheduled work, data integrity, performance, and capacity. Use the helper for the first pass:
+3. Review recent git history before querying health sources. Summarize the commits that may explain new failures or behavior changes, especially deploys, migrations, config changes, dependencies, scheduled work, monitoring, performance-sensitive code, and critical product journeys. Treat commits as leads to test against evidence, not as proof of causality.
+4. Detect health sources from code and docs, then record sources, evidence paths, adapters, access gaps, recurring risks, and the check playbook for product journeys, scheduled work, data integrity, performance, and capacity. Use the helper for the first pass:
 
 ```bash
 bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /path/to/repo
 ```
 
-4. Query each configured source using `references/source-adapters.md`. Prefer structured CLI/API output over dashboards.
-5. For Sentry, triage unresolved issues for stale groups: verify the org/project context, compare recent events against the checked window, and resolve only issues that are clearly fixed, inactive, duplicated by a newer active issue, or known noise with no current user impact.
-6. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI or agentic feature usage, and cost/capacity wherever the repo provides reliable signals.
-7. Report actual run results in chat using the result style below.
-8. After the run, use `product-setup` to update `PRODUCT_SETUP.md` only for durable changes to what is monitored or how to check it.
+5. Query each configured source using `references/source-adapters.md`. Prefer structured CLI/API output over dashboards.
+6. For Sentry, triage unresolved issues for stale groups: verify the org/project context, compare recent events against the checked window, and resolve only issues that are clearly fixed, inactive, duplicated by a newer active issue, or known noise with no current user impact.
+7. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI or agentic feature usage, and cost/capacity wherever the repo provides reliable signals.
+8. Report actual run results in chat using the result style below.
+9. After the run, use `product-setup` to update `PRODUCT_SETUP.md` only for durable changes to what is monitored or how to check it.
 
 ## Result Style
 
 - Lead with analysis and findings, not dashboard-style stats.
 - Explain what matters: likely causes, severity, baseline change, user or business impact, suspicious changes, false alarms, and what can be ignored.
+- Include relevant recent commit context when it improves diagnosis: commit reference, summary, why it may relate to the signal, and what evidence confirms or weakens the link.
 - Compare current signals with the previous window and usual baseline before calling a number good or bad.
 - Rank findings by affected users, tenants, critical flows, revenue risk, or operational risk.
 - When naming issues with opaque identifiers such as `AWRAQ-1VX`, render the identifier as a Markdown link when the source provides a URL and include the readable title inline: `[AWRAQ-1VX](https://issue-url) - issue description`.
