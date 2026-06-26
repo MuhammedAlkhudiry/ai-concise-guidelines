@@ -5,7 +5,7 @@ description: OpenCode CLI delegation for explicit OpenCode requests, non-interac
 
 # OpenCode
 
-Use the local `opencode` CLI only when the user explicitly asks for OpenCode.
+Use local `opencode` only when the user explicitly asks for OpenCode.
 
 Use this model form:
 

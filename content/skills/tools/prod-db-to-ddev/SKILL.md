@@ -5,7 +5,7 @@ description: Production Laravel MySQL to local DDEV database imports over SSH, i
 
 # Production DB To DDEV
 
-Import a production Laravel MySQL database into local DDEV with production read-only.
+Import a production Laravel MySQL database into local DDEV while keeping production read-only.
 
 ## Safety Rules
 
@@ -15,7 +15,7 @@ Import a production Laravel MySQL database into local DDEV with production read-
 - Use `--single-transaction --quick` for InnoDB-friendly dumps.
 - Disable GTID purging when the available `mysqldump` supports it.
 - Keep local production database dumps in `~/db-dumps`.
-- Run local migrations after import only when local code is ahead of production.
+- Run local migrations after import only when local code is ahead.
 
 ## Script
 

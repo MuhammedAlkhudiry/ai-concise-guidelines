@@ -5,7 +5,7 @@ description: Multiple UI or UX directions, variants, explorations, option sets, 
 
 # UI Options
 
-Create distinct UI or UX options from the product context, existing interface, real constraints, and the repo's design system.
+Create distinct UI or UX options from product context, existing interface, constraints, and the design system.
 
 ## Workflow
 
@@ -13,7 +13,7 @@ Create distinct UI or UX options from the product context, existing interface, r
 2. Trace the current UI, data, actions, constraints, and design system before creating options.
 3. Shape each option around a meaningfully different structure, interaction model, information density, or workflow priority.
 4. For coded previews, put the options behind a simple in-app switcher, tabs, or segmented control.
-5. Keep all coded options wired to the same real data, actions, validation, loading states, permissions, and error states unless the user explicitly asks for static mockups.
+5. Keep coded options wired to the same real data, actions, validation, loading states, permissions, and error states unless the user asks for static mockups.
 6. After the user chooses a direction, collapse the implementation to the selected option and remove unused variants unless the user wants to keep them.
 
 ## Rules

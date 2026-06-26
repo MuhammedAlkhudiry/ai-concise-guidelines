@@ -5,7 +5,7 @@ description: Project feature knowledge tasks covering behavior questions, functi
 
 # Project Knowledge
 
-Use project knowledge packs as the first stop for feature/domain context.
+Use project knowledge packs first for feature or domain context.
 
 ## Folder Structure
 
@@ -23,7 +23,7 @@ docs/knowledge/
 1. If `docs/knowledge/` exists, run `knowledge list` before broad code exploration.
 2. Match the user's words against listed feature names and aliases.
 3. Read the matching feature pack, then inspect the listed `key_files`.
-4. When bootstrapping new project knowledge, inspect local product/code context first, then ask only product/business questions that local evidence cannot answer.
+4. When bootstrapping knowledge, inspect local product/code context first, then ask only product/business questions local evidence cannot answer.
 5. Treat knowledge packs as intent, language, history, and code maps.
 6. Treat code, tests, migrations, and runtime evidence as the source of truth for current behavior.
 7. If the feature pack is stale or missing important context, update it after verifying the code path.
@@ -37,5 +37,5 @@ docs/knowledge/
 
 - Do not duplicate code behavior in prose when a key-file link is enough.
 - Do not create a pack for one-off implementation details.
-- Add knowledge only when it explains business meaning, domain language, history, invariants, or recurring AI confusion.
+- Add knowledge only for business meaning, domain language, history, invariants, or recurring AI confusion.
 - Prefer updating an existing pack over adding overlapping files.

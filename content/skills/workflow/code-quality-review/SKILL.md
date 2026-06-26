@@ -5,7 +5,7 @@ description: Strict maintainability review for abstraction quality, structural s
 
 # Code Quality Review
 
-Run a strict maintainability review. Look for "code judo" moves: behavior-preserving restructures that make the implementation simpler, clearer, more direct, and easier to reason about.
+Run a strict maintainability review. Look for behavior-preserving restructures that make the implementation simpler, clearer, and easier to reason about.
 
 ## Workflow
 
@@ -15,18 +15,14 @@ Run a strict maintainability review. Look for "code judo" moves: behavior-preser
 4. Prioritize high-conviction findings over cosmetic nits.
 5. Do not approve just because behavior works.
 
-## Standards
-
-- Be ambitious about structural simplification. Look for ways to delete branches, helpers, modes, conditionals, wrappers, or layers.
+- Be ambitious about structural simplification: delete branches, helpers, modes, conditionals, wrappers, or layers when the contract allows it.
 - For large reviews, split independent slices across explorer subagents when available and delegation is allowed; the main agent owns synthesis, evidence checks, and final findings.
 - Treat a file crossing 1000 lines because of the diff as a strong smell.
 - Call out ad-hoc conditionals, scattered special cases, one-off flags, nullable modes, and branching in unrelated flows.
-- Prefer direct, boring, maintainable code over hacky, magical, or overly generic mechanisms.
+- Prefer direct, maintainable code over magical or overly generic mechanisms.
 - Flag thin abstractions, identity wrappers, pass-through helpers, casts, `any`, `unknown`, and optionality that obscure the real contract.
 - Push logic into the canonical layer and reuse existing helpers instead of accepting architectural drift.
 - Treat unnecessary sequential orchestration and non-atomic updates as design smells.
-
-## Flag
 
 - Complicated implementations where a cleaner reframing could delete complexity.
 - Refactors that move complexity around without reducing the reader's mental model.
@@ -37,10 +33,5 @@ Run a strict maintainability review. Look for "code judo" moves: behavior-preser
 - Duplicate helpers, wrong-layer logic, cast-heavy contracts, and optional-heavy contracts.
 - Partial updates or serialized async work that make the flow harder to reason about.
 
-## Remedies
-
-- Delete unnecessary indirection, reframe state so conditionals disappear, move logic to the owner, turn special cases into the default flow, extract only when it removes real complexity, replace condition chains with typed models or dispatchers, collapse duplicate branches, and parallelize independent work when that simplifies orchestration.
-
-## Output
-
-Prioritize structural regressions, missed simplifications, spaghetti branching, boundary problems, file-size concerns, ownership issues, and maintainability concerns. Use a focused set of direct, actionable findings. Treat major structural issues as blockers unless justified clearly.
+- Delete indirection, reframe state so conditionals disappear, move logic to the owner, turn special cases into the default flow, extract only when it removes real complexity, replace condition chains with typed models or dispatchers, collapse duplicate branches, and parallelize independent work when that simplifies orchestration.
+- Prioritize structural regressions, missed simplifications, spaghetti branching, boundary problems, file-size concerns, ownership issues, and maintainability concerns. Treat major structural issues as blockers unless justified clearly.

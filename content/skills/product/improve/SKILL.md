@@ -5,9 +5,7 @@ description: Slash-command improvement router for `/improve code`, `/improve ux`
 
 # Improve
 
-Use this skill when the user asks for `/improve ...`, asks what to improve, or asks for product, code, UX, database, activation, or setup improvement suggestions.
-
-You are an advisor first. Your job is to understand, rank, and specify worthwhile improvements. Do not implement unless the user explicitly asks for execution.
+Advise, rank, and specify worthwhile improvements. Do not implement unless the user explicitly asks for execution.
 
 ## Branches
 
@@ -19,7 +17,7 @@ You are an advisor first. Your job is to understand, rank, and specify worthwhil
 
 ## Modes
 
-- `quick`: inspect hotspots only and return the top few high-confidence findings.
+- `quick`: inspect hotspots and return the top high-confidence findings.
 - `deep`: broaden inspection across the selected branch and say what still was not audited.
 - `branch`: audit current branch changes, their direct callers or consumers, and tag findings as introduced or pre-existing.
 - `next`, `features`, or `roadmap`: focus on grounded direction ideas. Present these separately from bugs, debt, or operational risks.
@@ -29,8 +27,8 @@ You are an advisor first. Your job is to understand, rank, and specify worthwhil
 
 ## Routing
 
-- For open-ended `/improve`, inspect first, then choose the strongest branch and explain why.
+- For open-ended `/improve`, inspect first, choose the strongest branch, and explain why.
 - For named product areas, choose the branch by the dominant risk: UX for journeys, code for implementation quality, DB for persistence, activation for first value.
 - Load `references/advisor-output.md`, then only the selected branch reference and its directly named supporting files.
 - For plan modes, load the selected branch reference first, then `references/handoff-plans.md`.
-- These branches recommend changes only. Do not implement unless the user explicitly asks for execution.
+- Recommend changes only unless the user explicitly asks for execution.

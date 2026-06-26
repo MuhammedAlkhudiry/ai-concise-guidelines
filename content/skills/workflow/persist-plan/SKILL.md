@@ -5,7 +5,7 @@ description: Persisted plan file workflow for saved draft/approved plans, plan f
 
 # Persist Plan
 
-Use this skill when the user asks to save, update, approve, review, execute from, find, archive, or reconcile a persisted plan file.
+Use this when the user asks to save, update, approve, review, execute from, find, archive, or reconcile a persisted plan.
 
 ## Workflow
 

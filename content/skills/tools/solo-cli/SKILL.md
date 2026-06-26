@@ -5,7 +5,7 @@ description: Solo CLI project and process management, including Solo project sta
 
 # Solo CLI
 
-Use `solo` as the first choice for Solo-managed projects and dev processes. For complete syntax and current flags, run `solo --help` or `solo <command> --help`.
+Use `solo` first for Solo-managed projects and dev processes. For current syntax, run `solo --help` or `solo <command> --help`.
 
 ## Workflow
 
@@ -36,4 +36,4 @@ solo processes list --project-id 1 --json
 solo commands start-all --project-id 1
 ```
 
-Verify IDs with `solo projects list --json`; do not assume they are stable forever.
+Verify IDs with `solo projects list --json`; do not assume they are stable.

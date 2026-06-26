@@ -5,7 +5,7 @@ description: Exhaustive repo-wide or set-wide work for checking every item, list
 
 # Systematic Work
 
-Handle broad-scope requests by proving coverage, not by sampling and guessing.
+Handle broad-scope requests by proving coverage.
 
 ## Contract
 
@@ -18,7 +18,7 @@ Handle broad-scope requests by proving coverage, not by sampling and guessing.
 
 ## Inventory
 
-Choose the inventory method that fits the work. Code search, AST tools, framework commands, database queries, generated indexes, browser inspection, device inspection, tests, or manual review are all valid when they prove the set.
+Choose the inventory method that fits the work: code search, AST tools, framework commands, database queries, generated indexes, browser inspection, device inspection, tests, or manual review.
 
 Do not rely on a few examples when the user asked for all of something. If the full set cannot be proven, say what is missing and why.
 

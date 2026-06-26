@@ -5,13 +5,13 @@ description: Code implementation, bug-fix, refactor, and review principles for d
 
 # Code Principles
 
-Use these principles while changing or reviewing code.
+Use these principles when changing or reviewing code.
 
 ## Defaults
 
 - Keep implementation direct and right-sized. Avoid speculative guards, cleanup, normalization, and future-proofing.
-- Choose the highest rung that fully solves the problem: skip speculative work, reuse existing code, use the standard library, use native platform behavior, use an installed dependency, write one clear line, then write the minimum new code.
-- Prefer simple truthy, falsy, and presence checks over explicit comparisons to `true`, `false`, or `null`.
+- Choose the highest rung that solves the problem: skip speculative work, reuse existing code, use the standard library, use native platform behavior, use an installed dependency, write one clear line, then write the minimum new code.
+- Prefer simple truthy, falsy, and presence checks over explicit `true`, `false`, or `null` comparisons.
 - Avoid `instanceof` unless exact value or type semantics matter.
 - Search for existing helpers, functions, and local patterns before adding a helper.
 - Add helpers only when they protect a real boundary or remove real duplication.
@@ -28,7 +28,7 @@ Use these principles while changing or reviewing code.
 
 - Prefer the correct change over backward compatibility or artificially constrained fixes.
 - Keep backward compatibility only for deployed, production, inter-system contracts.
-- If a feature is not deployed, the system is not production, or the change is within one system, make a clean-cut change.
+- For undeployed, non-production, or one-system changes, make a clean-cut change.
 - For bugs, prefer the most direct correct fix first.
 - If backward compatibility adds complexity, call that out and ask whether a clean-cut change is acceptable.
 

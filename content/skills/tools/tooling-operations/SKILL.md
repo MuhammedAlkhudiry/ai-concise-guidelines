@@ -5,7 +5,7 @@ description: Poppler PDF operations, local helper command checks, and hosts-file
 
 # Tooling Operations
 
-Use existing project tools instead of recreating their workflows manually.
+Use existing project tools instead of recreating workflows manually.
 
 ## Workflow
 
@@ -16,7 +16,7 @@ Use existing project tools instead of recreating their workflows manually.
 bun "$HOME/.agents/skills/tooling-operations/scripts/tool-doctor.ts"
 ```
 
-3. Stop only when the required tool is missing or lacks the needed capability.
+3. Stop when the required tool is missing or lacks the needed capability.
 
 ## PDF Processing
 
@@ -32,4 +32,4 @@ bun "$HOME/.agents/skills/tooling-operations/scripts/tool-doctor.ts"
 
 - Prefer the purpose-built helper over lower-level commands.
 - Keep usage aligned with the tool's supported workflow.
-- When relevant, suggest tool choices or workflow improvements that would make the task faster, safer, or more repeatable.
+- When useful, suggest tool or workflow improvements that make the task faster, safer, or more repeatable.

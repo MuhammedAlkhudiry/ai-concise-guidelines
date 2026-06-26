@@ -1,6 +1,6 @@
 ---
 name: test-coverage-audit
-description: Automated test coverage audit or updates for a behavior, feature, bug, component, endpoint, job, command, policy, hook, or service, including ensure coverage and add missing tests prompts.
+description: Automated test coverage audit or updates for a behavior, feature, bug, component, endpoint, job, command, policy, hook, or service.
 ---
 
 # Test Coverage Audit
@@ -9,7 +9,7 @@ Prove what is covered before adding tests.
 
 ## Workflow
 
-1. Define the target behavior in concrete terms: inputs, outputs, side effects, boundaries, permissions, persistence, integrations, and failure paths that matter.
+1. Define the target behavior: inputs, outputs, side effects, boundaries, permissions, persistence, integrations, and important failure paths.
 2. Trace implementation paths, callers, consumers, routes/screens/commands/jobs, and existing tests before editing.
 3. Search with `rg`; use syntax search first when structure matters, such as function calls, component usage, PHP classes/methods, attributes, hooks, imports, or chained calls.
 4. Report existing coverage as specific tested behaviors, not just filenames.
@@ -19,7 +19,7 @@ Prove what is covered before adding tests.
 
 ## Large Surfaces
 
-- When the behavior spans many routes, screens, jobs, modules, or test suites, split read-only coverage tracing across subagents when available and delegation is allowed.
+- For broad behavior, split read-only coverage tracing across subagents when available and delegation is allowed.
 - Use subagents to map existing coverage and real gaps for separate paths. Do not let them add overlapping tests.
 - Keep the main agent responsible for deciding which gaps matter, editing tests, and running the final focused verification.
 

@@ -5,16 +5,16 @@ description: Code and test simplification after implementation or refactor, espe
 
 # Code Simplifier
 
-Simplify hard. Delete, inline, collapse, and cut until only the necessary shape remains.
+Simplify hard until only the necessary shape remains.
 
 ## Workflow
 
 1. If no scope is specified, use the current `git diff`.
-2. Trace touched files, callers, consumers, tests, imports, exports, config, and contracts before editing.
+2. Trace touched files, callers, consumers, tests, imports, exports, config, and contracts.
 3. Remove anything unreferenced, unreachable, superseded, duplicated, obsolete, or incidental.
 4. Collapse indirection and rebuild the clearest version that keeps the contract.
 5. Refactor related tests with app code and clean them when removal or rewriting is clearly safe.
-6. Run the related `check-and-fix` workflow, fix task-related fallout, and report meaningful simplifications, protected behavior, anything under `Not safe to delete yet`, and complexity intentionally kept.
+6. Run `check-and-fix`, fix task-related fallout, and report simplifications, protected behavior, anything under `Not safe to delete yet`, and complexity intentionally kept.
 
 ## Rules
 
@@ -23,7 +23,7 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 - For large surfaces, split by module, behavior, or file group and use subagents when available and delegation is allowed.
 - Use explorer subagents for read-only tracing and worker subagents only for disjoint edit scopes; the main agent owns integration, final simplification, and verification.
 - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, comments about removed logic, and one-off abstractions.
-- It is ok to do mid-refactor work when the simple end state needs it: create, move, split, or merge files instead of preserving awkward placement.
+- Create, move, split, or merge files when the simple end state needs it.
 - Inline wrappers, aliases, pass-through helpers, one-use values, useless temporary variables, aliased destructuring, and variables that only rename an expression; prefer direct object access when it stays readable.
 - In JSX/TSX, reduce prop plumbing and pass-through props; let children compute or read clean local data when that is simpler.
 - Replace mode and boolean props with simpler component shape, composition, or local conditional render when possible.
@@ -33,14 +33,6 @@ Simplify hard. Delete, inline, collapse, and cut until only the necessary shape 
 
 ## Test Cleanup
 
-Use `test-writing`; delete or merge tests when the remaining suite still protects the behavior and the candidate is for removed, unreachable, unsupported, duplicated, overfit, or fixture-only coverage.
+Use `test-writing`; delete or merge tests only when the remaining suite still protects the behavior and the candidate covers removed, unreachable, unsupported, duplicated, overfit, or fixture-only coverage.
 
-Do not delete without stronger proof when a test covers:
-
-- A real bug regression.
-- A public contract: API, CLI, event, serialized payload, DB shape, or cross-system behavior.
-- Security, auth, permissions, money, destructive actions, or irreversible state changes.
-- Boundary behavior such as empty, limit, timezone, rounding, or failure-path handling.
-- Integration with external services, queues, jobs, storage, or framework wiring.
-- A flaky test where the cause is still unknown.
-- Any case where the remaining behavior coverage cannot be shown.
+Do not delete without stronger proof when a test covers a real regression, public contract, security/auth/money/destructive path, boundary behavior, external integration, framework wiring, unknown flake, or behavior no remaining test can show.

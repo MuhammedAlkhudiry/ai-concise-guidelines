@@ -5,11 +5,11 @@ description: AGENTS.md-style instruction files, repo instructions, AI coding gui
 
 # Manage Agent Markdown
 
-Manage durable agent instruction files as focused operating rules, not documentation.
+Manage durable agent instructions as operating rules, not documentation.
 
 ## Workflow
 
-1. Find the current instruction source before editing. If the visible file is generated, edit the source file that owns it.
+1. Find the instruction source before editing. If the visible file is generated, edit the source.
 2. Decide whether the request is a new rule, an update, a stale-rule removal, or a rule that belongs in a narrower skill.
 3. Keep each rule single-purpose, direct, and actionable.
 4. Replace stale instructions instead of layering exceptions.

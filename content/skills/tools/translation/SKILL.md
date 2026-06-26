@@ -5,7 +5,7 @@ description: Translation and localization work for user-facing copy, missing tra
 
 # Translation
 
-Write and review localized copy for meaning, tone, context, and technical correctness.
+Write and review localized copy for meaning, tone, context, and correctness.
 
 ## Workflow
 

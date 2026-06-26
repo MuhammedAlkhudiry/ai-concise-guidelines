@@ -1,6 +1,6 @@
 ---
 name: manage-skill
-description: AI agent skill creation and maintenance, including new skills, skill updates, renames, removals, trigger descriptions, structure, and reusable workflow design.
+description: AI agent skill creation and maintenance, including skill updates, renames, removals, trigger descriptions, structure, and reusable workflow design.
 ---
 
 # Manage Skill
@@ -13,27 +13,13 @@ description: AI agent skill creation and maintenance, including new skills, skil
 - Keep each fact in one place.
 - Do not copy global rules into skills unless the skill needs a task-specific interpretation.
 
-## Structure
-
-```text
-skill-name/SKILL.md
-skill-name/references/
-skill-name/scripts/
-skill-name/assets/
-```
-
-```yaml
----
-name: skill-name
-description: What the skill does and when to trigger it.
----
-```
-
 ## Writing
 
+- Structure skills as `skill-name/SKILL.md` plus optional `references/`, `scripts/`, and `assets/`.
+- Use YAML frontmatter with `name` and `description`.
 - `name`: lowercase, hyphenated, and matches the folder name exactly.
 - `description`: say what it does, when to use it, and the phrases or contexts that should trigger it.
-- Body: imperative instructions, fast workflow first, references only when needed.
+- Body: imperative instructions, fast workflow first, references when needed.
 - Prefer clear examples over abstract explanation.
 
 ## Workflow
@@ -46,4 +32,4 @@ description: What the skill does and when to trigger it.
 
 ## Anti-Patterns
 
-- Vague descriptions, kitchen-sink boundaries, tutorials, duplicated guidance, copied global rules, or body-only trigger guidance.
+Vague descriptions, kitchen-sink boundaries, tutorials, duplicated guidance, copied global rules, and body-only trigger guidance.

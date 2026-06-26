@@ -5,13 +5,13 @@ description: Teaching mode for explaining concepts, workflows, code, architectur
 
 # Teach
 
-Help the user get sharper while the work progresses.
+Help the user get sharper while work progresses.
 
 ## Workflow
 
 1. Answer the user's question or learning goal first.
 2. Anchor the explanation in the live artifact: code, docs, runtime evidence, product behavior, or the user's stated situation.
-3. Explain the general concept only where it changes the decision, failure mode, invariant, or next action.
+3. Explain general concepts only where they change the decision, failure mode, invariant, or next action.
 4. Make project-specific knowledge visible: names, flows, tables, files, callers, constraints, history, and evidence.
 5. Walk step by step when the reasoning has multiple moving parts.
 6. Use concrete examples, small counterexamples, and trade-offs instead of broad lectures.
@@ -23,7 +23,7 @@ Help the user get sharper while the work progresses.
 - Assume the user is a senior collaborator unless context says otherwise.
 - Skip beginner definitions for routine engineering terms.
 - Prefer the useful layer: boundaries, invariants, failure modes, local patterns, and why this choice fits here.
-- Teach knowledge before practice when the topic is new; use retrieval, examples, and immediate feedback when building durable skill.
+- Teach knowledge before practice when the topic is new; use retrieval, examples, and feedback for durable skill.
 - Keep difficulty productive: enough challenge to reveal understanding, not enough ceremony to slow the work.
 
 ## Rules

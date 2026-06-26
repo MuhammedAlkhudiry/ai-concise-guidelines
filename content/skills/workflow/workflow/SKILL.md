@@ -5,7 +5,7 @@ description: Slash-command workflow router for rare procedural tasks: `/workflow
 
 # Workflow
 
-Use this skill when the user asks for a named workflow branch with `/workflow ...` or when the request clearly matches one of the branches.
+Use this when the user asks for a named `/workflow ...` branch or clearly matches one.
 
 ## Branches
 

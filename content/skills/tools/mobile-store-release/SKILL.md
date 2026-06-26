@@ -5,11 +5,11 @@ description: Expo/EAS mobile store releases for Google Play and App Store Connec
 
 # Mobile Store Release
 
-Use this for Expo/EAS production releases, store submission checks, release readiness, or setting up store API credentials.
+Use this for Expo/EAS releases, submission checks, readiness, and store API credentials.
 
 ## Workflow
 
-1. Read the project's release docs, app config, EAS config, package scripts, check commands, and ignored local env files.
+1. Read release docs, app config, EAS config, package scripts, check commands, and ignored local env files.
 2. Confirm the target branch, versioning rule, build command, store apps, package IDs, bundle IDs, and release status vocabulary.
 3. Use [references/credential-intake.md](references/credential-intake.md) when store API credentials are missing or the user downloads them.
 4. Use [references/expo-eas-store-release.md](references/expo-eas-store-release.md) for the release sequence.
@@ -26,4 +26,4 @@ Use this for Expo/EAS production releases, store submission checks, release read
 - Do not make screenshots part of the default release path.
 - Prefer existing project scripts for builds and submissions.
 - Keep project release-status command wrappers optional; do not require project build/check tools to include release tasks.
-- Stop for bundle, signing, versioning, or code-policy issues that require a rebuild or product decision.
+- Stop for bundle, signing, versioning, or policy issues that require a rebuild or product decision.

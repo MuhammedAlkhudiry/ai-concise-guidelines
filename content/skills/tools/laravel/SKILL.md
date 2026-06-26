@@ -18,7 +18,7 @@ Use these defaults only when the app has no stronger local pattern.
 
 ## Defaults
 
-- Use typed values, DTOs, Laravel helpers, collections, enums, Carbon objects, and API Resources where they fit.
+- Use typed values, DTOs, Laravel helpers, collections, enums, Carbon, and API Resources where they fit.
 - Keep business operations in clear application code, often invokable actions.
 - Load data upfront; avoid queries in per-item code, accessors, resources, maps, loops, and callbacks.
 - Prefer fluent chaining with Laravel APIs when the chain stays readable.

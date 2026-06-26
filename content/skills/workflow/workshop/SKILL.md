@@ -7,7 +7,7 @@ description: Pre-build workshop for stress-testing code architecture, UX/UI, pro
 
 ## Workflow
 
-1. Research the current product, codebase, docs, and prior art before reacting.
+1. Research the product, codebase, docs, and prior art before reacting.
 2. Restate the idea clearly.
 3. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product.
 4. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`.
@@ -18,22 +18,13 @@ description: Pre-build workshop for stress-testing code architecture, UX/UI, pro
 
 ## Output
 
-Respond in normal discussion format, not HTML and not a generated artifact.
+Spend most of the response on what is hard, unclear, risky, or easy to underestimate. Cover only what matters:
 
-Spend most of the response on what is genuinely hard, unclear, risky, or easy to underestimate. Cover only what matters:
-
-- What the idea is trying to achieve
-- The strongest objection or reason not to do it
-- The hardest parts and why they are hard
-- Hidden assumptions or constraints
-- Important trade-offs
-- A recommendation
-- The full recommended scope by default. Discuss MVPs or staged rollout only if the user asks.
+what the idea is trying to achieve, the strongest objection, the hard parts, hidden assumptions, trade-offs, recommendation, and full recommended scope. Discuss MVPs or staged rollout only if asked.
 
 ## Rules
 
-- No silent assumptions.
-- No code unless the user changes the task.
+- No silent assumptions or code unless the user changes the task.
 - Use one primary branch by default. Mention cross-branch concerns only when they materially change the recommendation.
 - Ask one question at a time when clarification is needed.
 - If the idea contains multiple independent systems, stop and decompose it before discussing details.
@@ -41,8 +32,7 @@ Spend most of the response on what is genuinely hard, unclear, risky, or easy to
 - Cluster divergent ideas by underlying angle, then converge on the strongest path.
 - Before finalizing, check for contradictions, vague scope, missing constraints, and untested assumptions.
 - Cite evidence when it shapes the recommendation.
-- Treat every user statement as a claim to examine, not a premise to endorse; stay impartial and keep it open to debate.
-- Do not soften real objections into neutral trade-offs. Say plainly when the idea is over-scoped, under-evidenced, structurally awkward, or solving the wrong problem.
+- Treat every user statement as a claim to examine, not a premise to endorse. Say plainly when the idea is over-scoped, under-evidenced, structurally awkward, or solving the wrong problem.
 - Push back on the user's preferred direction when another path is simpler, safer, or more coherent; if the idea is weak, say so early and offer the strongest salvageable version.
 - Critique the idea, not the user.
 - Prefer a clear recommendation over a long option list.

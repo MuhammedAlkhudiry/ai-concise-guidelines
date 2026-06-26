@@ -5,14 +5,14 @@ description: Deployment readiness review for prompts like good to deploy, ready 
 
 # Deploy Readiness
 
-Review whether the current diff is genuinely deployable.
+Review whether the current diff is deployable.
 
 ## Workflow
 
 1. Inspect the actual diff, touched code paths, and relevant callers.
 2. Run or verify the checks that match the changed surface.
 3. Look for change-specific rollout risks, data risks, cache/state risks, background-job risks, permission risks, and user-visible regressions.
-4. Assume routine deploy-script chores are already handled, such as migrations, cache refreshes, queue restarts, and asset deployment.
+4. Assume routine deploy-script chores are already handled.
 5. Approve only when the change is genuinely ready; otherwise say what blocks deployment.
 
 ## Response

@@ -5,12 +5,12 @@ description: Hugeicons CLI workflows for icon search, free icon lookup, picking 
 
 # Hugeicons CLI
 
-Use the local `hugeicons` command for icon search, SVG export, and usage snippets.
+Use local `hugeicons` for icon search, SVG export, and usage snippets.
 
 ## Rules
 
 - Stay CLI-first. Do not add Hugeicons MCP config unless the user explicitly asks for MCP.
-- Treat the command as free-icon focused. Do not assume Pro assets or Pro package access unless the user says so.
+- Treat the command as free-icon focused unless the user says Pro access is available.
 - Verify the exact icon name from command output before wiring it into code.
 
 ## Workflow

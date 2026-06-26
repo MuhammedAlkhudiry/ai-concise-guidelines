@@ -5,14 +5,14 @@ description: PRODUCT_SETUP.md durable product setup for approved surfaces, evide
 
 # Product Setup
 
-Maintain `PRODUCT_SETUP.md` as durable product setup for product improvement, product health, UX, code, and database work.
+Maintain durable product setup in `PRODUCT_SETUP.md`.
 
 ## Workflow
 
 1. Read repo-root `PRODUCT_SETUP.md` before product analysis when it exists.
 2. Create or refresh it when product setup is missing, stale, or blocking the requested work. Use `references/PRODUCT_SETUP.md` as the guide.
-3. Inspect durable context sources only as needed: product docs, README, deployment docs, manifests, app config, env examples, routes, jobs, tests, monitoring docs, analytics docs, and operational notes.
-4. Record approved evidence sources, adapters, safe read-only commands, safe production query paths, access gaps, recurring risks, product surfaces, code surfaces, UX surfaces, and check playbooks.
+3. Inspect durable context only as needed: product docs, README, deployment docs, manifests, app config, env examples, routes, jobs, tests, monitoring docs, analytics docs, and operational notes.
+4. Record approved evidence sources, adapters, safe read-only commands, safe production query paths, access gaps, recurring risks, important surfaces, and check playbooks.
 5. Update `PRODUCT_SETUP.md` only for durable changes, not one-off run output.
 
 ## Rules

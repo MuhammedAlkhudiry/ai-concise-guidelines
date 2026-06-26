@@ -5,7 +5,7 @@ description: Pre-commitment challenge for product ideas, technical approaches, a
 
 # Direction Check
 
-Widen the option space before the work locks in.
+Widen the option space before work locks in.
 
 ## Workflow
 
@@ -17,7 +17,7 @@ Widen the option space before the work locks in.
    - Technical: data model, architecture, runtime behavior, reliability, performance, and maintenance.
    - Tools: libraries, platforms, services, operational cost, ecosystem fit, and project constraints.
 5. Check current real-world practice or official docs when tool choice, platform behavior, pricing, APIs, standards, or community norms matter.
-6. Name the strongest path, the main reason it wins, and the critical risk that could overturn it.
+6. Name the strongest path, why it wins, and the risk that could overturn it.
 7. Recommend the highest-signal proof step that would validate or reject the direction.
 
 ## Rules
@@ -27,7 +27,7 @@ Widen the option space before the work locks in.
 - Prefer concrete alternatives over generic caution.
 - Treat "do nothing", "use the existing system", and "solve a more focused problem" as valid options.
 - Separate product, technical, and tool-choice concerns when they point to different decisions.
-- Be willing to recommend a sharp change in direction when the current path is weak.
+- Recommend a sharp change in direction when the current path is weak.
 - Flag attractive-but-broken options explicitly instead of letting them linger as equal alternatives.
 - Do not turn the response into a broad brainstorm; land on a recommendation.
 - Cite evidence when research or repo context changes the recommendation.

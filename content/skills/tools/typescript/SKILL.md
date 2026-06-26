@@ -5,7 +5,7 @@ description: TypeScript and JavaScript coding standards for TS/JS edits, type sa
 
 # TypeScript / JavaScript
 
-Critical defaults for TypeScript and JavaScript development.
+Defaults for TypeScript and JavaScript development.
 
 ## Types & Safety
 

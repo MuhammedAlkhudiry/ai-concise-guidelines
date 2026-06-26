@@ -5,13 +5,13 @@ description: Refactor opportunity report without editing files, triggered after 
 
 # Refactor Opportunities
 
-Find refactors worth naming. Never edit files.
+Find worthwhile refactors. Never edit files.
 
 ## Workflow
 
 1. Inspect the actual diff, touched files, nearby callers, tests, data contracts, routes, screens, jobs, and config that matter to the change.
 2. Separate real structural opportunities from style preferences, generic cleanup, and unrelated repo noise.
-3. Classify each opportunity as `Recommended` for meaningful clarity, safety, maintainability, or product leverage, or `Optional` for real but lower-value cleanup.
+3. Classify opportunities as `Recommended` for meaningful clarity, safety, maintainability, or product leverage, or `Optional` for real but lower-value cleanup.
 4. For each item, name the concrete code smell, affected files, impact, likely effort or risk, and safest next move.
 5. Suggest only. Do not edit files, apply patches, run formatters, or implement refactors.
 
@@ -28,19 +28,13 @@ Find refactors worth naming. Never edit files.
 ## Rules
 
 - Keep findings tied to evidence in the code.
-- For broad targets, split read-only inspection by feature, layer, route/screen, or module across explorer subagents when available and delegation is allowed; the main agent owns ranking, dedupe, and filtering.
+- For broad targets, split read-only inspection across explorer subagents when available and delegation is allowed; the main agent owns ranking, dedupe, and filtering.
 - Stay read-only even when a suggested refactor looks obvious.
 - Prefer fewer high-signal items over an exhaustive list.
 - Do not suggest abstractions without real duplication, complexity, or boundary pressure.
 - Do not preserve backward compatibility when a clean-cut change is correct inside one system.
 - Call out compatibility costs when a refactor would keep old shapes alive.
 - Include size, effort, risk, tests, or verification only as useful context, not as a scope gate.
-- Say `No worthwhile refactor opportunities found` when the diff is already simple.
+- Say `No worthwhile refactor opportunities found` when nothing is worth naming.
 
-## Report
-
-Use only the sections that apply:
-
-- `Recommended`
-- `Optional`
-- `No worthwhile refactor opportunities found`
+Report only the sections that apply: `Recommended`, `Optional`, or `No worthwhile refactor opportunities found`.

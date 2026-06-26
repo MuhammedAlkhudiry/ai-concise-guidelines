@@ -5,7 +5,7 @@ description: React component and hook work covering component edits, hook correc
 
 # React
 
-Critical defaults for React development.
+Defaults for React development.
 
 ## Hooks
 
@@ -20,7 +20,7 @@ Critical defaults for React development.
 - State holds ground truth and stays normalized; derive instead of duplicate
 - Prefer local state; global only for truly cross-cutting data
 - Use query libraries (React Query/SWR) for server data; never raw fetch in components
-- Query cache is source of truth; do not mirror it to local state.
+- Query cache is source of truth; do not mirror it locally.
 
 ## Props & Composition
 

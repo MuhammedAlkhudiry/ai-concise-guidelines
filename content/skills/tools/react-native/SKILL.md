@@ -5,7 +5,7 @@ description: React Native and Expo implementation guidance for mobile performanc
 
 # React Native
 
-Use this routing layer for React Native or Expo work. Read the full guide only when detailed rules matter.
+Use this routing layer for React Native or Expo work.
 
 ## Priority Areas
 
