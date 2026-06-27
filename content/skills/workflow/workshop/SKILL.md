@@ -14,7 +14,8 @@ description: Pre-build workshop for stress-testing code architecture, UX/UI, pro
 5. Name the strongest objection to the idea before improving it.
 6. Surface assumptions and ask only the questions that change direction.
 7. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
-8. Take a position, explain why, and explore alternatives only when they change the recommendation.
+8. When the workshop reveals meaningfully different paths, use the `ask-options` decision surface after identifying the real decision, constraints, strongest objection, and recommendation criteria.
+9. Take a position, explain why, and explore alternatives only when they change the recommendation.
 
 ## Output
 
@@ -29,6 +30,7 @@ what the idea is trying to achieve, the strongest objection, the hard parts, hid
 - Ask one question at a time when clarification is needed.
 - If the idea contains multiple independent systems, stop and decompose it before discussing details.
 - Present 2-3 approaches only when they represent meaningfully different paths.
+- Do not force options when the right path is already clear; use option formatting only when alternatives change the decision.
 - Cluster divergent ideas by underlying angle, then converge on the strongest path.
 - Before finalizing, check for contradictions, vague scope, missing constraints, and untested assumptions.
 - Cite evidence when it shapes the recommendation.

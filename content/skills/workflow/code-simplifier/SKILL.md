@@ -25,11 +25,39 @@ Simplify hard until only the necessary shape remains.
 - Remove dead code, stale branches, obsolete helpers, compatibility leftovers, comments about removed logic, and one-off abstractions.
 - Create, move, split, or merge files when the simple end state needs it.
 - Inline wrappers, aliases, pass-through helpers, one-use values, useless temporary variables, aliased destructuring, and variables that only rename an expression; prefer direct object access when it stays readable.
-- In JSX/TSX, reduce prop plumbing and pass-through props; let children compute or read clean local data when that is simpler.
-- Replace mode and boolean props with simpler component shape, composition, or local conditional render when possible.
 - Flatten nesting with early returns and guard clauses. Never use nested ternaries.
 - Treat new helpers, fallback paths, guards, retries, null cushions, shims, and normalization layers as guilty until tied to a real boundary.
 - Follow local patterns and prefer explicit readable code over clever compression.
+
+## React Prop Simplification
+
+When simplifying React components, treat every prop as a contract that must earn its place.
+
+- Remove unused, redundant, constant, speculative, or "just in case" props.
+- Inline constants at the component boundary instead of threading them through props.
+- Collapse pass-through props when the intermediate component adds no meaningful behavior.
+- Let a component read clean local or global state directly when prop drilling only mirrors that state.
+- Replace mode, variant, and boolean props with clearer composition, separate component shape, or local conditional render when that removes branching complexity.
+- Delete prop types, defaults, destructured values, call-site arguments, tests, mocks, and fixtures that only supported removed props.
+- Keep props when they represent a real external contract, caller-owned decision, public reusable API, or important test boundary.
+
+## State Simplification
+
+Remove state that only restates something already known.
+
+- Delete local state that only mirrors props, URL params, server data, form libraries, stores, or values derivable during render.
+- Replace synchronization effects with direct derivation, selectors, memoization, or a single owner for the value.
+- Collapse reducers, setters, and event handlers that only shuttle values between equivalent shapes.
+- Keep state when it represents user input in progress, async lifecycle, optimistic updates, animation, focus, or other real temporal behavior.
+
+## Data Shape Simplification
+
+Prefer the real data shape over local shadow shapes.
+
+- Remove mapping, normalization, fallback fields, adapter objects, and DTO copies unless they protect a real boundary.
+- Inline one-off transformed objects when the original data is readable at the use site.
+- Delete defensive reshaping for impossible states once callers, schemas, fixtures, and tests prove the shape.
+- Keep adapters at API, persistence, framework, third-party, migration, or compatibility boundaries.
 
 ## Test Cleanup
 
