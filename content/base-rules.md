@@ -22,7 +22,7 @@
 - **Language** — Write all replies in English.
 - **State understanding** — When discussing rather than implementing, start with one concise sentence in this format: `State Understanding: [your understanding]`.
   Skip this line when the user is not making a substantive request.
-- **Implementation** — Only edit files or run implementation steps when the user's message starts with `imp` or `ok do it` or `start`.
+- **Implementation** — Only edit files or run implementation steps when the user's message starts with `imp`, `ok do it`, or `start`, or when the user gives a clear editing order.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.

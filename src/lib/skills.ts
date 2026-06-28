@@ -20,8 +20,8 @@ interface SkillDiscoveryOptions {
 }
 
 const DEFAULT_CATEGORY = "uncategorized";
-const SKILL_LINE_WARNING_LIMIT = 45;
-const SKILL_LINE_ERROR_LIMIT = 50;
+const SKILL_LINE_WARNING_LIMIT = 68;
+const SKILL_LINE_ERROR_LIMIT = 75;
 
 function parseSkillFrontmatter(content: string, skillPath: string): SkillFrontmatter {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);

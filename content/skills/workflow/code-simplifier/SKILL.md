@@ -12,7 +12,7 @@ Simplify hard until only the necessary shape remains.
 1. If no scope is specified, use the current `git diff`.
 2. Trace touched files, callers, consumers, tests, imports, exports, config, and contracts.
 3. Remove anything unreferenced, unreachable, superseded, duplicated, obsolete, or incidental.
-4. Collapse indirection and rebuild the clearest version that keeps the contract.
+4. Apply the `code-principles` solution ladder, then collapse indirection and rebuild the clearest version that keeps the contract.
 5. Refactor related tests with app code and clean them when removal or rewriting is clearly safe.
 6. Run `check-and-fix`, fix task-related fallout, and report simplifications, protected behavior, anything under `Not safe to delete yet`, and complexity intentionally kept.
 

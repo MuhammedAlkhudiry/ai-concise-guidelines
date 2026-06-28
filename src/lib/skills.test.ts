@@ -67,12 +67,12 @@ describe("discoverLocalSkills", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
     const warnings: string[] = [];
     try {
-      writeSkill(root, "tools", "typescript", 45);
+      writeSkill(root, "tools", "typescript", 68);
 
       discoverLocalSkills(root, { reportWarning: (message) => warnings.push(message) });
 
       expect(warnings).toEqual([
-        "Skill is near 50 line limit: tools/typescript/SKILL.md has 45 lines",
+        "Skill is near 75 line limit: tools/typescript/SKILL.md has 68 lines",
       ]);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -82,10 +82,10 @@ describe("discoverLocalSkills", () => {
   test("rejects new skills over the line limit", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
     try {
-      writeSkill(root, "tools", "typescript", 51);
+      writeSkill(root, "tools", "typescript", 76);
 
       expect(() => discoverLocalSkills(root, { reportWarning: () => {} })).toThrow(
-        /Skill exceeds 50 line limit: tools\/typescript\/SKILL.md has 51 lines/,
+        /Skill exceeds 75 line limit: tools\/typescript\/SKILL.md has 76 lines/,
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
