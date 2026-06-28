@@ -1,6 +1,20 @@
 - **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for OpenCode and Codex.
 - **PERSONAL-ONLY** — Treat this repo as personal infrastructure for its owner only; do not design for sharing, multi-user setup, or user-configurable distribution.
 - **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.
+
+## Important Files
+
+- `content/skills/<category>/<name>/SKILL.md` — Source files for local skills; each skill belongs under a category folder.
+- `config/skills.ts` — Remote skill declarations fetched and installed by this repo.
+- `config/codex.ts`, `config/opencode.ts`, and `config/mcp.ts` — Source of truth for generated Codex, OpenCode, and MCP configuration.
+- `src/cli.ts` — `my-setup` CLI entrypoint.
+- `src/commands/generate.ts` — Generator for files under `output/`.
+- `src/commands/install.ts` — Local installer that syncs rules, config, skills, shell helpers, secrets, and shared bin commands.
+- `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
+- `system-tools.md` — Human-readable list of expected system tools; keep it aligned with `doctor`.
+- `content/active-projects.md` — Source of truth for active project references.
+- `output/` — Generated preview artifacts only; do not edit by hand.
+
 - **ACTIVE-PROJECTS** — My active projects are listed in `content/active-projects.md`; when asked to work across active projects, use that file as the source of truth.
 - **MAIN-ONLY** — Work directly on `main`; do not create branches unless explicitly requested.
 - **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
