@@ -7,16 +7,17 @@ Use this flow after an approved implementation plan when the change spans many f
 1. Self-review the diff for scope creep, accidental churn, missing tests, and obvious regressions.
 2. Run `code-simplifier` as one or more fresh-context subagent edit passes. After each pass, the main agent must evaluate the result and decide whether another pass is needed. The main agent must not run these passes itself.
 3. Check behavior coverage and add or adjust focused tests where the implementation changed contracts or flows.
-4. Run `refactor-opportunities` as a read-only suggestion pass in a fresh subagent. Do not implement its suggestions during this flow.
-5. Run `code-quality-review` as a read-only structural review in a fresh subagent.
-6. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
-7. Run `check-and-fix` as the final verification and fix loop. Skip smoke tests unless explicitly requested.
-8. Run one final fresh read-only reviewer gate in a subagent.
+4. Run `code-quality-review` as a read-only structural review in a fresh subagent.
+5. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
+6. Run `check-and-fix` as the final verification and fix loop. Skip smoke tests unless explicitly requested.
+7. Run one final fresh read-only reviewer gate in a subagent.
+8. Run `refactor-opportunities` as a final read-only suggestion pass in a fresh subagent. Do not implement its suggestions during this flow.
 9. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.
 
 ## Rules
 
 - Use subagents for `code-simplifier`, `refactor-opportunities`, `code-quality-review`, and every other review gate. Fresh context is mandatory.
+- Only `code-simplifier` subagents may edit. Review and opportunity subagents are read-only.
 - The main agent owns implementation, synthesis, triage, integration, and final reporting, but not simplifier or review execution.
 - The main agent decides whether a follow-up `code-simplifier` pass is needed after reviewing each subagent pass.
 - Run independent subagent reviews, inspections, or disjoint edit scopes in parallel whenever possible.
