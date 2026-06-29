@@ -1,6 +1,6 @@
 ---
 name: workflow
-description: Slash-command router for rare procedural tasks: CI, dependency/tool updates, mobile auth/payments, Expo/React Native ports, QA cases, and Codex threads.
+description: Slash-command router for rare procedural tasks: CI, dependency/tool updates, mobile auth/payments, Expo/React Native ports, QA cases, Codex threads, and ad/API account access setup.
 ---
 
 # Workflow
@@ -17,6 +17,7 @@ Use this when the user asks for a named `/workflow ...` branch or clearly matche
 - `/workflow mobile-dev-ports`, `/workflow rn-ports`, or `/workflow expo-ports`: read `references/mobile-dev-ports.md`.
 - `/workflow qa-test-cases`: read `references/qa-test-cases.md`, then read `references/qa-test-cases/deep-qa-suite.md`.
 - `/workflow codex-thread-management`, `/workflow codex-threads`, `/workflow codex threads`, or `/workflow thread-management`: read `references/codex-thread-management.md`.
+- `/workflow google-ads-api`, `/workflow google-ads-api-setup`, `/workflow ads-api-access`, or `/workflow marketing-api-access`: read `references/google-ads-api-access.md`.
 
 ## Rules
 

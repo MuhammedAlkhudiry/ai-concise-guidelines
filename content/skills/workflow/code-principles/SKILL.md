@@ -7,6 +7,8 @@ description: Code implementation, bug-fix, refactor, and review principles for d
 
 Use these principles when changing or reviewing code.
 
+For approved implementation plans with broad code changes, you must complete [Large Implementation Hardening](references/large-implementation-hardening.md) before declaring the work READY FOR HUMAN REVIEW.
+
 ## Defaults
 
 - Keep implementation direct and right-sized. Avoid speculative guards, cleanup, normalization, and future-proofing.
