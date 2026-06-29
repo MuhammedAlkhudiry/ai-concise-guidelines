@@ -1,6 +1,6 @@
 ---
 name: project-knowledge
-description: Project feature knowledge tasks covering behavior questions, functionality docs, product investigations, glossary terms, feature packs, aliases, key files, and history.
+description: Project feature knowledge for behavior questions, functionality docs, product investigations, glossary terms, feature packs, aliases, key files, and history.
 ---
 
 # Project Knowledge

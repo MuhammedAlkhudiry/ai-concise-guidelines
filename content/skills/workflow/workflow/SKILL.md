@@ -1,6 +1,6 @@
 ---
 name: workflow
-description: Slash-command workflow router for rare procedural tasks: `/workflow github-actions`, `/workflow ci`, `/workflow dependency-upgrade`, `/workflow tool-updates`, `/workflow mobile-social-sign-in` for mobile social login/sign-in, `/workflow mobile-in-app-payments` or `/workflow mobile-iap` for App Store / Google Play in-app purchases, `/workflow mobile-dev-ports` for Expo/React Native port alignment, `/workflow qa-test-cases`, and `/workflow codex-thread-management`.
+description: Slash-command router for rare procedural tasks: CI, dependency/tool updates, mobile auth/payments, Expo/React Native ports, QA cases, and Codex threads.
 ---
 
 # Workflow

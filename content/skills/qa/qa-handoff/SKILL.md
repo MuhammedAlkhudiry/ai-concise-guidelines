@@ -12,7 +12,8 @@ Prepare runnable human QA cases for a completed change, feature, or product flow
 1. Identify the QA target from the request, feature notes, code, routes/screens/endpoints, tests, QA docs, and diff when one exists.
 2. Map needed coverage: happy path, changed behavior, persistence, permissions, validation, boundaries, integrations, and regressions.
 3. Confirm the local app is usable through the repo's allowed project flow, and confirm local migrations have run when the QA target depends on database schema or seeded state.
-4. For web handoffs, identify whether the current checkout is the canonical checkout or a secondary worktree, then share a clickable Markdown link for a responding URL from that exact checkout. Use worktree-local readiness output, env values, Solo process metadata, or DDEV status/describe output as evidence; never substitute the canonical checkout URL for a worktree.
+4. For web handoffs, identify the canonical checkout or secondary worktree and share a clickable Markdown link for a responding URL from that exact checkout.
+   Use worktree readiness, env values, Solo metadata, or DDEV status as evidence; never substitute the canonical URL for a worktree.
 5. For web handoffs, ensure DDEV is running and share a responding DDEV URL, not localhost; for mobile handoffs, confirm the simulator or emulator is running and usable.
 6. Create, reset, or confirm realistic test data with existing seeders, fixtures, factories, helper commands, or UI flows.
 7. Reuse the implementation verification already done; run only a quick smoke check when the URL, login, fixture, or starting state is uncertain.
@@ -20,7 +21,8 @@ Prepare runnable human QA cases for a completed change, feature, or product flow
 
 ## Handoff
 
-- `URL / Device`: verified responding DDEV URL for the current checkout or worktree and exact starting page for web, formatted as a Markdown link; working simulator or emulator and app state for mobile.
+- `URL / Device`: verified responding DDEV URL for the current checkout or worktree and exact starting page for web.
+  For mobile, include the working simulator or emulator and app state.
 - `Login / Test Data`: account, tenant, fixture, ids, exact test data, and reset command or reset steps.
 - `Test Cases`: 3-8 realistic cases ordered by risk and user value.
 - `Already Verified`: implementation checks, local migration status when relevant, URL checks, fixture setup, and any quick smoke checks already run.

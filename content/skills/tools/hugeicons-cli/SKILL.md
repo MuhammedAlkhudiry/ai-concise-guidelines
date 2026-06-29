@@ -1,6 +1,6 @@
 ---
 name: hugeicons-cli
-description: Hugeicons CLI workflows for icon search, free icon lookup, picking an icon, SVG export, framework snippets, Hugeicons usage examples, and local `hugeicons` command use.
+description: Hugeicons CLI workflows for icon search, free icon lookup, icon picking, SVG export, framework snippets, usage examples, and local `hugeicons` commands.
 ---
 
 # Hugeicons CLI

@@ -1,6 +1,6 @@
 ---
 name: git-operations
-description: Multi-command git work covering status snapshots, diff review, branch sync, worktree cleanup, targeted restore, and history search; raw `rtk git` fits one simple command.
+description: Multi-command git work for snapshots, diff review, branch sync, worktree cleanup, targeted restore, and history search; use raw `rtk git` for simple reads.
 ---
 
 # Git Operations

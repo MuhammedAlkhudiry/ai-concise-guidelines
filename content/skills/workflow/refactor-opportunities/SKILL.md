@@ -1,6 +1,6 @@
 ---
 name: refactor-opportunities
-description: Refactor opportunity report without editing files, triggered after implementation, cleanup, branch sync, conflict resolution, code review, or prompts asking what to refactor next.
+description: Refactor opportunity reports without edits after implementation, cleanup, branch sync, conflict resolution, code review, or what-to-refactor prompts.
 ---
 
 # Refactor Opportunities
@@ -28,7 +28,8 @@ Find worthwhile refactors. Never edit files.
 ## Rules
 
 - Keep findings tied to evidence in the code.
-- For broad targets, split read-only inspection across explorer subagents when available and delegation is allowed; the main agent owns ranking, dedupe, and filtering.
+- For broad targets, split read-only inspection across explorer subagents when useful.
+  The main agent owns ranking, dedupe, and filtering.
 - Stay read-only even when a suggested refactor looks obvious.
 - Prefer fewer high-signal items over an exhaustive list.
 - Do not suggest abstractions without real duplication, complexity, or boundary pressure.

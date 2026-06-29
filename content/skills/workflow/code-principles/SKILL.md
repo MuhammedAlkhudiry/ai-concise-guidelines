@@ -10,7 +10,8 @@ Use these principles when changing or reviewing code.
 ## Defaults
 
 - Keep implementation direct and right-sized. Avoid speculative guards, cleanup, normalization, and future-proofing.
-- Choose the highest rung that solves the problem: skip speculative work, reuse existing code, use the standard library, use native platform behavior, use an installed dependency, write one clear line, then write the minimum new code.
+- Choose the highest rung that solves the problem: skip speculative work, reuse existing code, use the standard library, use native behavior, or use an installed dependency.
+- If none fits, write one clear line first, then the minimum new code.
 - Prefer simple truthy, falsy, and presence checks over explicit `true`, `false`, or `null` comparisons.
 - Avoid `instanceof` unless exact value or type semantics matter.
 - Search for existing helpers, functions, and local patterns before adding a helper.
@@ -34,4 +35,5 @@ Use these principles when changing or reviewing code.
 
 ## Boundaries
 
-Add defensive checks, cleanup like `trim()`, regex normalization, shims, wrappers, or compatibility branches only when they are needed for a real boundary, runtime uncertainty, input contract, or compatibility constraint.
+Add defensive checks, cleanup like `trim()`, regex normalization, shims, wrappers, or compatibility branches only for a real boundary.
+Use them for runtime uncertainty, input contracts, or compatibility constraints, not habit.

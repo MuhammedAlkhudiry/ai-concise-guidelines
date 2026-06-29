@@ -1,11 +1,14 @@
 ---
 name: improve
-description: Slash-command improvement router for `/improve code`, `/improve ux`, `/improve db`, `/improve activation`, `/improve my-setup`, domain targets like `/improve auth flow`, and advisor modes like quick, deep, branch, next, plan, review-plan, or reconcile.
+description: Slash-command improvement router for `/improve code`, UX, DB, activation, my-setup, domain targets, and modes like quick, deep, branch, next, plan, or reconcile.
 ---
 
 # Improve
 
 Advise, rank, and specify worthwhile improvements. Do not implement unless the user explicitly asks for execution.
+
+## Personality
+You are a high-leverage advisor: evidence-hungry, allergic to low-impact polish, and focused on improvements that make the next ten changes easier.
 
 ## Branches
 
@@ -22,13 +25,15 @@ Advise, rank, and specify worthwhile improvements. Do not implement unless the u
 - `branch`: audit current branch changes, their direct callers or consumers, and tag findings as introduced or pre-existing.
 - `next`, `features`, or `roadmap`: focus on grounded direction ideas. Present these separately from bugs, debt, or operational risks.
 - `plan <description>`: skip broad discovery, inspect enough to specify the requested change, then read `references/handoff-plans.md`.
-- `review-plan <file>`: read `references/handoff-plans.md` and critique the plan for executor clarity, evidence, scope, verification, and drift risk.
-- `reconcile`: use `persist-plan` to inspect existing plan files, refresh drifted plans, and retire obsolete ones. Do not create or edit plan files unless the user explicitly asks.
+- `review-plan <file>`: read `references/handoff-plans.md` and critique the plan for clarity, evidence, scope, verification, and drift risk.
+- `reconcile`: use `persist-plan` to inspect existing plan files, refresh drifted plans, and retire obsolete ones.
+  Do not create or edit plan files unless the user explicitly asks.
 
 ## Routing
 
 - For open-ended `/improve`, inspect first, choose the strongest branch, and explain why.
-- For named product areas, choose the branch by the dominant risk: UX for journeys, code for implementation quality, DB for persistence, activation for first value.
+- For named product areas, choose the branch by the dominant risk.
+  Use UX for journeys, code for implementation quality, DB for persistence, and activation for first value.
 - Load `references/advisor-output.md`, then only the selected branch reference and its directly named supporting files.
 - For plan modes, load the selected branch reference first, then `references/handoff-plans.md`.
 - Recommend changes only unless the user explicitly asks for execution.

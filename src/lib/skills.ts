@@ -7,6 +7,7 @@ export interface LocalSkill {
   category: string;
   dir: string;
   skillPath: string;
+  characterCount: number;
   lineCount: number;
 }
 
@@ -20,8 +21,9 @@ interface SkillDiscoveryOptions {
 }
 
 const DEFAULT_CATEGORY = "uncategorized";
-const SKILL_LINE_WARNING_LIMIT = 68;
-const SKILL_LINE_ERROR_LIMIT = 75;
+const SKILL_CHARACTER_WARNING_LIMIT = 4000;
+const SKILL_LONG_LINE_WARNING_LIMIT = 240;
+const SKILL_SECTION_CHARACTER_WARNING_LIMIT = 2000;
 
 function parseSkillFrontmatter(content: string, skillPath: string): SkillFrontmatter {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -78,27 +80,72 @@ function skillCategory(skillsRoot: string, skillDir: string): string {
   return parts.length > 1 ? parts[0] : DEFAULT_CATEGORY;
 }
 
-function validateSkillLineCount(
+function formatList(items: string[]): string {
+  const shownItems = items.slice(0, 3);
+  const suffix =
+    items.length > shownItems.length ? `, and ${items.length - shownItems.length} more` : "";
+  return `${shownItems.join(", ")}${suffix}`;
+}
+
+function validateSkillSize(
   skillsRoot: string,
   skillPath: string,
-  lineCount: number,
+  content: string,
   options: SkillDiscoveryOptions,
 ): void {
-  if (lineCount < SKILL_LINE_WARNING_LIMIT) {
-    return;
-  }
-
   const relativePath = relative(skillsRoot, skillPath);
+  const characterCount = content.length;
 
-  if (lineCount > SKILL_LINE_ERROR_LIMIT) {
-    throw new Error(
-      `Skill exceeds ${SKILL_LINE_ERROR_LIMIT} line limit: ${relativePath} has ${lineCount} lines`,
+  if (characterCount > SKILL_CHARACTER_WARNING_LIMIT) {
+    options.reportWarning?.(
+      `Skill exceeds recommended ${SKILL_CHARACTER_WARNING_LIMIT} character budget: ${relativePath} has ${characterCount} characters`,
     );
   }
 
-  options.reportWarning?.(
-    `Skill is near ${SKILL_LINE_ERROR_LIMIT} line limit: ${relativePath} has ${lineCount} lines`,
+  const lines = content.replace(/\r\n/g, "\n").split("\n");
+  const longLines = lines
+    .map((line, index) => ({ lineNumber: index + 1, length: line.length }))
+    .filter((line) => line.length > SKILL_LONG_LINE_WARNING_LIMIT);
+
+  if (longLines.length > 0) {
+    options.reportWarning?.(
+      `Skill has lines over ${SKILL_LONG_LINE_WARNING_LIMIT} characters: ${relativePath} ${formatList(
+        longLines.map((line) => `line ${line.lineNumber} has ${line.length}`),
+      )}`,
+    );
+  }
+
+  const sections: Array<{ title: string; length: number }> = [];
+  let currentTitle = "frontmatter";
+  let currentContent = "";
+
+  for (const line of lines) {
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
+    if (heading && currentContent) {
+      sections.push({ title: currentTitle, length: currentContent.length });
+      currentTitle = heading[2];
+      currentContent = `${line}\n`;
+      continue;
+    }
+
+    currentContent += `${line}\n`;
+  }
+
+  if (currentContent) {
+    sections.push({ title: currentTitle, length: currentContent.length });
+  }
+
+  const largeSections = sections.filter(
+    (section) => section.length > SKILL_SECTION_CHARACTER_WARNING_LIMIT,
   );
+
+  if (largeSections.length > 0) {
+    options.reportWarning?.(
+      `Skill has sections over ${SKILL_SECTION_CHARACTER_WARNING_LIMIT} characters: ${relativePath} ${formatList(
+        largeSections.map((section) => `"${section.title}" has ${section.length}`),
+      )}`,
+    );
+  }
 }
 
 export function discoverLocalSkills(
@@ -109,6 +156,7 @@ export function discoverLocalSkills(
     const dir = dirname(skillPath);
     const content = readFileSync(skillPath, "utf-8");
     const frontmatter = parseSkillFrontmatter(content, skillPath);
+    const characterCount = content.length;
     const lineCount = countLines(content);
 
     if (basename(dir) !== frontmatter.name) {
@@ -122,12 +170,14 @@ export function discoverLocalSkills(
       category: skillCategory(skillsRoot, dir),
       dir,
       skillPath,
+      characterCount,
       lineCount,
+      content,
     };
   });
 
   for (const skill of skills) {
-    validateSkillLineCount(skillsRoot, skill.skillPath, skill.lineCount, options);
+    validateSkillSize(skillsRoot, skill.skillPath, skill.content, options);
   }
 
   const seen = new Set<string>();
@@ -138,5 +188,7 @@ export function discoverLocalSkills(
     seen.add(skill.name);
   }
 
-  return skills.sort((a, b) => a.name.localeCompare(b.name));
+  return skills
+    .map(({ content: _content, ...skill }) => skill)
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

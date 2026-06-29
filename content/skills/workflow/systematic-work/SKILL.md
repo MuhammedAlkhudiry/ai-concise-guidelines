@@ -1,6 +1,6 @@
 ---
 name: systematic-work
-description: Exhaustive repo-wide or set-wide work for checking every item, listing all items, changing all matches, updating everything matching a condition, or making something consistent everywhere.
+description: Exhaustive repo-wide or set-wide work for checking, listing, changing, updating, or making every matching item consistent.
 ---
 
 # Systematic Work
@@ -18,7 +18,8 @@ Handle broad-scope requests by proving coverage.
 
 ## Inventory
 
-Choose the inventory method that fits the work: code search, AST tools, framework commands, database queries, generated indexes, browser inspection, device inspection, tests, or manual review.
+Choose the inventory method that fits the work: code search, AST tools, framework commands, database queries, generated indexes, tests, or manual review.
+Use browser or device inspection when the artifact is visual, interactive, or runtime-only.
 
 Do not rely on a few examples when the user asked for all of something. If the full set cannot be proven, say what is missing and why.
 
@@ -38,4 +39,5 @@ Keep the working set explicit:
 
 ## Reporting
 
-Finish with the coverage result, not a vague summary. Mention the inventory source, the count or shape of the handled set when useful, and any skipped or uncertain items that affect trust in the result.
+Finish with the coverage result, not a vague summary.
+Mention the inventory source, the handled set when useful, and any skipped or uncertain items that affect trust in the result.

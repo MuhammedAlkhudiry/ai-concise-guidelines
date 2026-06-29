@@ -1,6 +1,6 @@
 ---
 name: manage-agent-md
-description: AGENTS.md-style instruction files, repo instructions, AI coding guidelines, agent rules, durable agent context, and AGENTS.md wording creation, update, pruning, or review.
+description: AGENTS.md-style instruction files, repo instructions, AI coding guidelines, agent rules, durable context, wording creation, updates, pruning, and review.
 ---
 
 # Manage Agent Markdown

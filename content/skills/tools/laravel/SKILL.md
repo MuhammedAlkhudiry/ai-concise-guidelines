@@ -1,6 +1,6 @@
 ---
 name: laravel
-description: Laravel PHP coding, review, and refactor work across controllers, models, migrations, requests, policies, jobs, services, Eloquent, validation, authorization, queues, caching, and performance.
+description: Laravel PHP coding, review, and refactor work across controllers, models, migrations, requests, policies, jobs, services, Eloquent, validation, and queues.
 ---
 
 # Laravel Best Practices

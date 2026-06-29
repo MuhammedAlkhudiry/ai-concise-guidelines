@@ -1,6 +1,6 @@
 ---
 name: maestro-mobile-e2e
-description: Maestro mobile E2E flows for Expo, React Native, iOS, and Android, including mobile smoke tests, auth coverage, Expo dev-client E2E, flaky flow fixes, and verification.
+description: Maestro mobile E2E flows for Expo, React Native, iOS, and Android, including smoke tests, auth coverage, dev-client E2E, flaky flow fixes, and verification.
 ---
 
 # Maestro Mobile E2E
@@ -13,7 +13,8 @@ Use Maestro for repeatable mobile journeys, not unit-level behavior.
 2. Keep each flow atomic: one setup path, one route or user journey, one assertion surface.
 3. Extract repeated launch, setup, and login work into shared subflows that match the repo's existing structure.
 4. Put each stable login role or auth state in its own login subflow.
-5. Prefer visible text when it is the user-facing contract; use accessibility ids or `testID`s for icons, localized UI, repeated labels, dynamic UI, or stability-sensitive controls.
+5. Prefer visible text when it is the user-facing contract.
+   Use accessibility ids or `testID`s for icons, localized UI, repeated labels, dynamic UI, or stability-sensitive controls.
 6. Verify a representative slice after changing shared flows.
 7. Run the full suite only after the slice passes.
 

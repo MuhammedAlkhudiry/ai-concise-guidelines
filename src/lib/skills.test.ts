@@ -9,27 +9,23 @@ import { discoverLocalSkills } from "./skills";
 const ROOT_DIR = join(import.meta.dir, "..", "..");
 const LOCAL_SKILLS_ROOT = join(ROOT_DIR, "content", "skills");
 
-function skillContent(name: string, lineCount = 6): string {
+function skillContent(name: string, bodyLines: string[] = [`# ${name}`]): string {
   const lines = [
     "---",
     `name: ${name}`,
     `description: Example ${name} skill.`,
     "---",
     "",
-    `# ${name}`,
+    ...bodyLines,
   ];
-
-  while (lines.length < lineCount) {
-    lines.push(`Line ${lines.length + 1}`);
-  }
 
   return lines.join("\n") + "\n";
 }
 
-function writeSkill(root: string, path: string, name: string, lineCount?: number): void {
+function writeSkill(root: string, path: string, name: string, bodyLines?: string[]): void {
   const dir = join(root, path, name);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, "SKILL.md"), skillContent(name, lineCount));
+  writeFileSync(join(dir, "SKILL.md"), skillContent(name, bodyLines));
 }
 
 describe("discoverLocalSkills", () => {
@@ -45,6 +41,7 @@ describe("discoverLocalSkills", () => {
       expect(skills.find((skill) => skill.name === "laravel")?.category).toBe("tools");
       expect(skills.find((skill) => skill.name === "qa-handoff")?.category).toBe("qa");
       expect(skills.find((skill) => skill.name === "laravel")?.lineCount).toBe(6);
+      expect(skills.find((skill) => skill.name === "laravel")?.characterCount).toBe(69);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -63,38 +60,71 @@ describe("discoverLocalSkills", () => {
     }
   });
 
-  test("warns when a skill is near the line limit", () => {
+  test("warns when a skill exceeds the recommended character budget", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
     const warnings: string[] = [];
     try {
-      writeSkill(root, "tools", "typescript", 68);
+      writeSkill(root, "tools", "typescript", [
+        "# typescript",
+        ...Array.from({ length: 5 }, (_, sectionIndex) => [
+          `## Section ${sectionIndex + 1}`,
+          ...Array.from({ length: 10 }, () => "x".repeat(90)),
+        ]).flat(),
+      ]);
 
       discoverLocalSkills(root, { reportWarning: (message) => warnings.push(message) });
 
       expect(warnings).toEqual([
-        "Skill is near 75 line limit: tools/typescript/SKILL.md has 68 lines",
+        "Skill exceeds recommended 4000 character budget: tools/typescript/SKILL.md has 4693 characters",
       ]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  test("rejects new skills over the line limit", () => {
+  test("warns when a skill has very long lines", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    const warnings: string[] = [];
     try {
-      writeSkill(root, "tools", "typescript", 76);
+      writeSkill(root, "tools", "typescript", ["# typescript", "x".repeat(241)]);
 
-      expect(() => discoverLocalSkills(root, { reportWarning: () => {} })).toThrow(
-        /Skill exceeds 75 line limit: tools\/typescript\/SKILL.md has 76 lines/,
-      );
+      discoverLocalSkills(root, { reportWarning: (message) => warnings.push(message) });
+
+      expect(warnings).toEqual([
+        "Skill has lines over 240 characters: tools/typescript/SKILL.md line 7 has 241",
+      ]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  test("keeps local source skills within the line limit policy", () => {
+  test("warns when a skill has a huge section", () => {
+    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    const warnings: string[] = [];
+    try {
+      writeSkill(root, "tools", "typescript", [
+        "# typescript",
+        "## Large",
+        ...Array.from({ length: 23 }, () => "x".repeat(90)),
+      ]);
+
+      discoverLocalSkills(root, { reportWarning: (message) => warnings.push(message) });
+
+      expect(warnings).toEqual([
+        'Skill has sections over 2000 characters: tools/typescript/SKILL.md "Large" has 2103',
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("keeps local source skills within the skill size policy", () => {
+    const warnings: string[] = [];
+
     expect(
-      discoverLocalSkills(LOCAL_SKILLS_ROOT, { reportWarning: () => {} }).length,
+      discoverLocalSkills(LOCAL_SKILLS_ROOT, { reportWarning: (message) => warnings.push(message) })
+        .length,
     ).toBeGreaterThan(0);
+    expect(warnings).toEqual([]);
   });
 });

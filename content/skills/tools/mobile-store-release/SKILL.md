@@ -1,6 +1,6 @@
 ---
 name: mobile-store-release
-description: Expo/EAS mobile store releases for Google Play and App Store Connect, including release runs, submission status, credential intake, dashboard fallback, and store readiness.
+description: Expo/EAS mobile store releases for Google Play and App Store Connect, including release runs, submission status, credential intake, dashboard fallback, and readiness.
 ---
 
 # Mobile Store Release
