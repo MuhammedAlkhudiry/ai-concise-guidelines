@@ -15,6 +15,7 @@ import { basename, join, resolve } from "node:path";
 type Plan = {
   name: string;
   path: string;
+  project: string;
   relativePath: string;
   status: string;
   updated: string;
@@ -24,6 +25,7 @@ type Plan = {
 
 type Options = {
   project: string;
+  projectExplicit: boolean;
   plansRoot: string;
   query: string;
   status: string;
@@ -53,6 +55,7 @@ function parseOptions(args: string[]): Options {
   const cwdProject = basename(process.cwd().replace(/\/$/, ""));
   const query: string[] = [];
   let project = cwdProject;
+  let projectExplicit = false;
   let plansRoot = join(home, "plans");
   let status = "";
   let write = false;
@@ -78,6 +81,7 @@ function parseOptions(args: string[]): Options {
 
     if (arg.startsWith("--project=")) {
       project = arg.slice("--project=".length);
+      projectExplicit = true;
       continue;
     }
 
@@ -91,6 +95,7 @@ function parseOptions(args: string[]): Options {
 
   return {
     project,
+    projectExplicit,
     plansRoot: resolve(plansRoot.replace(/^~/, home)),
     query: query.join(" ").trim(),
     status,
@@ -119,7 +124,7 @@ function title(text: string, fallback: string): string {
   return text.match(/^#\s+(.+)$/m)?.[1].trim() || fallback.replace(/\.md$/, "");
 }
 
-function readPlan(projectRoot: string, entry: string): Plan | undefined {
+function readPlan(projectRoot: string, project: string, entry: string): Plan | undefined {
   const full = join(projectRoot, entry);
   const stat = statSync(full);
   const main = stat.isDirectory() ? join(full, "PLAN.md") : full;
@@ -132,6 +137,7 @@ function readPlan(projectRoot: string, entry: string): Plan | undefined {
   return {
     name: entry,
     path: main,
+    project,
     relativePath,
     status: meta.status || "missing",
     updated: meta.updated || "missing",
@@ -140,12 +146,12 @@ function readPlan(projectRoot: string, entry: string): Plan | undefined {
   };
 }
 
-function activePlans(projectRoot: string): Plan[] {
+function activePlans(projectRoot: string, project: string): Plan[] {
   if (!existsSync(projectRoot)) return [];
 
   return readdirSync(projectRoot)
     .filter((entry) => entry !== "INDEX.md" && entry !== "archive")
-    .map((entry) => readPlan(projectRoot, entry))
+    .map((entry) => readPlan(projectRoot, project, entry))
     .filter((plan): plan is Plan => Boolean(plan))
     .sort((a, b) => b.updated.localeCompare(a.updated));
 }
@@ -165,8 +171,37 @@ function pad(value: string, width: number): string {
   return value + " ".repeat(Math.max(0, width - value.length));
 }
 
+function relatedProjectNames(options: Options): string[] {
+  const names = [options.project];
+  if (options.projectExplicit || !existsSync(options.plansRoot)) return names;
+
+  const prefix = `${options.project}-`;
+  const related = readdirSync(options.plansRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith(prefix))
+    .map((entry) => entry.name)
+    .sort();
+
+  return [...new Set([...names, ...related])];
+}
+
+function activePlansForList(options: Options): Plan[] {
+  return relatedProjectNames(options)
+    .flatMap((project) => activePlans(join(options.plansRoot, project), project))
+    .sort((a, b) => b.updated.localeCompare(a.updated));
+}
+
+function groupPlansByProject(projects: string[], plans: Plan[]): Map<string, Plan[]> {
+  const grouped = new Map(projects.map((project) => [project, [] as Plan[]]));
+
+  for (const plan of plans) {
+    grouped.get(plan.project)?.push(plan);
+  }
+
+  return grouped;
+}
+
 function filteredPlans(options: Options): Plan[] {
-  const plans = activePlans(join(options.plansRoot, options.project));
+  const plans = activePlans(join(options.plansRoot, options.project), options.project);
   if (!options.status) return plans;
 
   return plans.filter((plan) => plan.status === options.status);
@@ -208,16 +243,8 @@ function requirePlan(options: Options): Plan {
   process.exit(1);
 }
 
-function listPlans(options: Options): void {
-  const projectRoot = join(options.plansRoot, options.project);
-  const plans = filteredPlans(options);
-
-  console.log(`${options.project} plans`);
-  console.log(projectRoot);
-  console.log("");
-
+function printPlansTable(plans: Plan[]): void {
   if (plans.length === 0) {
-    console.log(options.status ? `No ${options.status} plans found.` : "No active plans found.");
     return;
   }
 
@@ -255,6 +282,45 @@ function listPlans(options: Options): void {
   }
 }
 
+function listPlans(options: Options): void {
+  const projectRoot = join(options.plansRoot, options.project);
+  const projectNames = relatedProjectNames(options);
+  const plans = activePlansForList(options).filter(
+    (plan) => !options.status || plan.status === options.status,
+  );
+  const multipleProjects = projectNames.length > 1;
+
+  console.log(`${options.project} plans`);
+  console.log(multipleProjects ? options.plansRoot : projectRoot);
+  if (multipleProjects) {
+    console.log(`Projects: ${projectNames.join(", ")}`);
+  }
+  console.log("");
+
+  if (plans.length === 0) {
+    console.log(options.status ? `No ${options.status} plans found.` : "No active plans found.");
+    return;
+  }
+
+  if (!multipleProjects) {
+    printPlansTable(plans);
+    return;
+  }
+
+  const groupedPlans = groupPlansByProject(projectNames, plans);
+  let printedAnyProject = false;
+
+  for (const project of projectNames) {
+    const projectPlans = groupedPlans.get(project) || [];
+    if (projectPlans.length === 0) continue;
+
+    if (printedAnyProject) console.log("");
+    console.log(`${project}`);
+    printPlansTable(projectPlans);
+    printedAnyProject = true;
+  }
+}
+
 function showPlan(options: Options): void {
   const plan = requirePlan(options);
 
@@ -288,7 +354,7 @@ function markArchived(plan: Plan): void {
 
 function archivePlan(options: Options): void {
   const projectRoot = join(options.plansRoot, options.project);
-  const plans = activePlans(projectRoot);
+  const plans = activePlans(projectRoot, options.project);
   let selectedPlans: string[] = [];
 
   if (options.query) {
@@ -350,14 +416,14 @@ function archivePlan(options: Options): void {
 
   mkdirSync(archiveRoot, { recursive: true });
   for (const selected of selectedPlans) {
-    const plan = readPlan(projectRoot, selected);
+    const plan = readPlan(projectRoot, options.project, selected);
     if (plan) markArchived(plan);
     renameSync(join(projectRoot, selected), join(archiveRoot, selected));
   }
 
   writeFileSync(
     join(projectRoot, "INDEX.md"),
-    indexBody(options.project, activePlans(projectRoot)),
+    indexBody(options.project, activePlans(projectRoot, options.project)),
   );
 
   console.log(`Archived ${selectedPlans.length} plan${selectedPlans.length === 1 ? "" : "s"}.`);
@@ -368,7 +434,7 @@ function archivePlan(options: Options): void {
 
 function indexPlans(options: Options): void {
   const projectRoot = join(options.plansRoot, options.project);
-  const plans = activePlans(projectRoot);
+  const plans = activePlans(projectRoot, options.project);
 
   console.log(`# Plan index for ${options.project}`);
   console.log(`Root: ${projectRoot}`);

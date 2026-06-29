@@ -56,10 +56,6 @@ When reviewing a plan, check:
 
 ## Reconcile Checklist
 
-When reconciling existing durable plans:
+When reconciling existing durable plans, use `persist-plan` and load `references/plan-reconcile.md` from that skill. That reference is the source of truth for triage, current-code comparison, status handling, all-project mode, plan mutation, index refresh, and output shape.
 
-- Read the plan index first.
-- For `draft` plans, decide whether they should be revised, approved, or archived.
-- For `approved` plans, run or inspect the drift check and refresh stale context before recommending execution.
-- For `done` plans, spot-check cheap acceptance criteria when useful.
-- Archive obsolete plans only when the context is clear or the user asks.
+Keep `/improve reconcile` focused on value judgment: which plans are worth preserving, refreshing, executing, deciding, or archiving. Let `persist-plan` own lifecycle edits.

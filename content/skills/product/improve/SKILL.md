@@ -26,7 +26,8 @@ You are a high-leverage advisor: evidence-hungry, allergic to low-impact polish,
 - `next`, `features`, or `roadmap`: focus on grounded direction ideas. Present these separately from bugs, debt, or operational risks.
 - `plan <description>`: skip broad discovery, inspect enough to specify the requested change, then read `references/handoff-plans.md`.
 - `review-plan <file>`: read `references/handoff-plans.md` and critique the plan for clarity, evidence, scope, verification, and drift risk.
-- `reconcile`: use `persist-plan` to inspect existing plan files, refresh drifted plans, and retire obsolete ones.
+- `reconcile`: use `persist-plan` and its plan reconciliation reference to inspect existing plan files, compare code-dependent plans with current code, refresh drifted plans, and retire obsolete ones.
+  Support one project by default and all projects when requested.
   Do not create or edit plan files unless the user explicitly asks.
 
 ## Routing
