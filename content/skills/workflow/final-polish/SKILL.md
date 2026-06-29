@@ -1,4 +1,9 @@
-# Large Implementation Hardening
+---
+name: final-polish
+description: Post-implementation hardening for broad code changes before human review. Use after approved implementation plans that span many files, behaviors, or review surfaces, especially before saying READY FOR HUMAN REVIEW.
+---
+
+# Final Polish
 
 Use this flow after an approved implementation plan when the change spans many files, behaviors, or review surfaces. Minor edits and small features do not need the full flow.
 
