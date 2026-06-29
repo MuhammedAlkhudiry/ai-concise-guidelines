@@ -26,6 +26,16 @@ Run marketing as an operating loop: setup context, choose the channel/job, gathe
 4. Separate durable setup from run output. Store durable project context in `PRODUCT_SETUP.md`; keep current metrics, incidents, temporary ideas, and raw outputs out of setup files.
 5. Prefer drafts, recommendations, and approval checkpoints. Do not perform public or spend-affecting actions without explicit approval.
 
+## Scripted Checks
+
+Use reusable read-only scripts when they fit the account setup:
+
+```bash
+rtk bun "$HOME/.agents/skills/marketing-manager/scripts/google-ads-readonly-report.ts"
+```
+
+The Google Ads report script expects `GOOGLE_ADS_DEVELOPER_TOKEN`, `GOOGLE_ADS_CUSTOMER_ID`, and either OAuth refresh-token credentials or service-account credentials in the local secrets environment. It reports missing setup as JSON and never mutates campaigns, billing, budgets, ads, keywords, conversion actions, or account settings.
+
 ## Evidence Standard
 
 - Use first-party account data, product setup, project docs, analytics, ad platforms, CRM/inbox data, and real assets before generic advice.

@@ -14,6 +14,14 @@ Inspect durable setup first:
 - Budget, bid strategy, learning/review status, limited eligibility, and schedule.
 - Conversion actions, tags/pixels, app events, landing page, UTM rules, and CRM lead capture.
 
+For Google Ads accounts with API credentials configured, run the read-only helper before using UI-only inference:
+
+```bash
+rtk bun "$HOME/.agents/skills/marketing-manager/scripts/google-ads-readonly-report.ts"
+```
+
+The helper summarizes account basics, campaign status, current 7-day versus previous 7-day delivery, ad approval/review status, and conversion-action status. Treat `configured: false` as a setup gap, not as campaign failure.
+
 ## Diagnosis Patterns
 
 - **Active but not serving**: verification, billing, policy, review, paused parent entity, date/schedule, budget, bid too low, audience too narrow, missing assets, disapproved keywords/ads, conversion strategy constraints, or tracking/domain issues.
