@@ -12,6 +12,7 @@ description: AI agent skill creation and maintenance, including skill updates, r
 - Keep `SKILL.md` focused. Move detail to `references/`, `scripts/`, or `assets/`.
 - Keep each fact in one place.
 - Do not copy global rules into skills unless the skill needs a task-specific interpretation.
+- Never add guidance to a skill when the same rule, constraint, workflow step, or tool preference already lives in a broader source of truth such as `base-rules.md`, repo rules, or system guidance.
 
 ## Writing
 

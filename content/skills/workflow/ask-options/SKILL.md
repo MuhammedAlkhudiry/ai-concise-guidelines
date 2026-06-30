@@ -36,8 +36,6 @@ Use this shape for each option, merging fields for simple choices: `**Option N: 
 
 - Recommend one option clearly, with the reason it wins.
 - Include a "do nothing", "keep current approach", or "solve a smaller problem" option when it is genuinely viable.
-- Include external options such as tools, services, libraries, products, or infrastructure when they may be the practical answer.
-- Search the web when current facts, tool quality, pricing, APIs, standards, legal constraints, or best practices could change the recommendation.
 - Flag attractive-but-bad options instead of presenting them as equal choices.
 - Do not pad the response to reach four options when fewer credible choices exist.
 - Do not make every option sound equally good; name the trade-off that matters.

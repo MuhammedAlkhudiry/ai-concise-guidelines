@@ -18,7 +18,7 @@ Do not assume that changing one changes the others. React Native defaults many M
 
 1. Identify the exact failing contract: reload, bundle loading, API request, deep link, browser web, simulator, or emulator.
 2. Inventory declared ports from docs, `package.json` scripts, app config, Expo config plugins, generated native files, and E2E or automation commands.
-3. Confirm the running process port with the project's process manager. If the repo uses Solo for dev servers, use Solo instead of starting servers directly.
+3. Confirm the running process port with the project's process manager.
 4. Check the native client's Metro port, not only the Metro process:
    - Android reads `reactNativeDevServerPort` and exposes it as `react_native_dev_server_port`.
    - iOS reads `RCT_METRO_PORT`; if it is undefined or empty, React Native falls back to `8081`.

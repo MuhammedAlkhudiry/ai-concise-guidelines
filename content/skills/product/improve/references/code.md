@@ -8,7 +8,7 @@ Improve the real codebase at the right scale: focused cleanup, bug-prone code, t
 2. Use `product-setup` for durable product setup, approved evidence sources, and any needed `PRODUCT_SETUP.md` updates.
 3. Inspect broadly before choosing: sample multiple relevant modules, callers, tests, runtime paths, dependencies, docs, and data-model boundaries. Do not stop at the first file, first smell, first failing test, or first easy cleanup when the codebase has deeper evidence available.
 4. Trace behavior before changing it: inputs, outputs, side effects, consumers, tests, migrations, jobs, API contracts, UI contracts, and deployment boundaries.
-5. Search the web when current library docs, framework behavior, migration guidance, security guidance, performance recommendations, or package choices matter.
+5. For external research, prioritize current library docs, framework behavior, migration guidance, security guidance, performance recommendations, and package-choice evidence.
 6. Identify candidate improvements across correctness, simplicity, duplication, architecture, data assumptions, performance, dependency health, test coverage, observability, and developer workflow.
 7. Compare candidates by user impact, defect risk, runtime frequency, confidence, implementation size, and deployment risk. Recommend the strongest target, not merely the first target found.
 8. Match the scope to the request. It is valid to recommend anything from a focused cleanup to a major refactor or new dependency.

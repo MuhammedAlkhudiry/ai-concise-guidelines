@@ -21,6 +21,5 @@ Use this when the user wants a task carried from request to pull request, especi
 ## Rules
 
 - Do not treat the task as complete until verification has run or a real blocker is reported.
-- Keep unrelated dirty state in the original checkout out of scope.
 - Do not reuse an existing non-clean working tree unless the user explicitly asks.
 - If the PR cannot be created, still leave the branch pushed when possible and explain the exact blocker.

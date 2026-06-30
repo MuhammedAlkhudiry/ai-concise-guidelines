@@ -8,7 +8,7 @@ Improve the real user experience at the right scale: minor polish, flow cleanup,
 2. Use `product-setup` for durable product setup, approved evidence sources, and any needed `PRODUCT_SETUP.md` updates.
 3. Inspect broadly before choosing: sample multiple core routes, journeys, roles, UI surfaces, design patterns, components, copy, and states. Do not stop at the first screen, first issue, login, onboarding, or first obvious polish opportunity when product access or fixtures allow moving deeper.
 4. Use the live product when possible: run or inspect the relevant screens, responsive states, loading/error/empty states, and interaction paths.
-5. Search the web when current platform conventions, accessibility guidance, design patterns, browser behavior, mobile behavior, or competitor/product examples would materially improve the result.
+5. For external research, prioritize current platform conventions, accessibility guidance, design patterns, browser behavior, mobile behavior, and competitor or product examples.
 6. Identify candidate improvements across hierarchy, layout, spacing, navigation, information architecture, interaction cost, forms, copy, feedback, accessibility, responsiveness, mobile ergonomics, and trust.
 7. Compare candidates by user impact, journey frequency, confidence, implementation size, and risk. Recommend the strongest target, not merely the first target found.
 8. Match the scope to the request. It is valid to recommend anything from focused polish to a full UX feature.

@@ -8,7 +8,7 @@ Improve the real database at the right scale: focused schema cleanup, query fixe
 2. Use `product-setup` for durable product setup, approved database evidence sources, safe read-only production query paths, and any needed `PRODUCT_SETUP.md` updates.
 3. Inspect broadly before choosing: sample multiple relevant tables, migrations, relationships, constraints, indexes, query builders, ORM models, scopes, repeated filters, jobs, reports, tests, and docs. Do not stop at the first table, first missing index, first migration smell, or first obvious query issue when deeper database evidence is available.
 4. Run only documented read-only production queries when production evidence is needed. Prefer slow-query logs, monitoring, explain plans, schema dumps, and existing reports over ad hoc probing.
-5. Search the web when current database engine behavior, framework guidance, indexing strategy, migration safety, or package choices matter.
+5. For external research, prioritize current database engine behavior, framework guidance, indexing strategy, migration safety, and package-choice evidence.
 6. Identify candidate improvements across correctness, data integrity, query performance, indexes, constraints, relationship modeling, ORM model clarity, useful scopes, migrations, storage growth, observability, fixtures, and test coverage.
 7. Compare candidates by data-integrity impact, runtime frequency, performance risk, confidence, implementation size, and migration/deployment risk. Recommend the strongest target, not merely the first target found.
 8. Suggest the change only. Include enough detail for a later execution pass.

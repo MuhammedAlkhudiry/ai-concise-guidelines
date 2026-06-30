@@ -34,7 +34,7 @@ It reports missing setup as JSON and never mutates campaigns, billing, budgets, 
 ## Evidence Standard
 
 - Use first-party account data, product setup, project docs, analytics, ad platforms, CRM/inbox data, and real assets before generic advice.
-- Search the web when current platform policies, ad product capabilities, market examples, SEO guidance, or benchmark claims matter.
+- For external research, prioritize primary platform policy, product capability, market example, SEO, and benchmark sources.
 - State when a recommendation is based on inference rather than direct account data.
 - Preserve the distinction between marketing performance, product performance, and tracking gaps.
 
