@@ -19,7 +19,7 @@ Never present equally shiny options when one path clearly earns the work.
 4. For small tactical decisions, use 2-3 options instead of forcing the four-option ladder.
 5. If the choices are not naturally a size ladder, use distinct strategic paths instead.
 6. Compare options against explicit criteria that matter for the decision.
-7. End with a recommendation unless the user asks for a neutral list.
+7. End with a recommendation unless the user asks for a neutral list; the choice is complete when the trade-off that makes the recommendation win is explicit.
 
 ## Option Format
 

@@ -13,6 +13,7 @@ Write and review localized copy for meaning, tone, context, and correctness.
 2. Check the product voice, existing locale files, placeholders, pluralization, and UI context.
 3. Add missing translations when changing user-facing copy.
 4. For large reviews, read [references/review.md](references/review.md).
+5. Finish with the final copy or review finding, and name any locale, placeholder, pluralization, or UI-context uncertainty that remains.
 
 ## Writing
 

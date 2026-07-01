@@ -16,7 +16,7 @@ Manage durable agent instructions as operating rules, not documentation.
 5. Move task-specific workflow guidance into the relevant skill instead of keeping it in always-loaded instructions.
 6. Store local dev URLs only when they are durable setup facts for a real git worktree.
 7. Preserve the file's existing structure and labels unless the local pattern is clearly stale.
-8. Run the repository's supported sync and checks after source edits.
+8. Run the repository's supported sync and checks after source edits, then report the source file changed and the generated or installed target that was verified.
 
 ## Review Checklist
 

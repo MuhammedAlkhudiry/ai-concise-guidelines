@@ -17,7 +17,7 @@ Name the structural problem, the simpler shape, and why the current version is h
 2. Find structural regressions before local cleanup issues.
 3. Push for simpler models, clearer ownership, fewer branches, and fewer layers.
 4. Prioritize high-conviction findings over cosmetic nits.
-5. Do not approve just because behavior works.
+5. Finish with prioritized findings tied to files and evidence, or state that no maintainability issues were found.
 
 ## Review Focus
 

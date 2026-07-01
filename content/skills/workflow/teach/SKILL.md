@@ -22,6 +22,7 @@ Keep the user’s dignity intact, skip performative basics, and make the hidden 
 7. Check understanding through a short question, exercise, or decision prompt only when it would improve the next step.
 8. If the user is learning across sessions, create lightweight state only with their consent.
    Use a mission, trusted resources, learning records, glossary terms, or small lesson artifacts.
+9. Stop when the answer, evidence, and next useful decision are clear; do not keep teaching after the user has enough to act.
 
 ## Teaching Stance
 

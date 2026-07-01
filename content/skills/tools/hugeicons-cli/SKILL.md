@@ -19,6 +19,7 @@ Use local `hugeicons` for icon search, SVG export, and usage snippets.
 2. Inspect or copy the raw SVG with `hugeicons svg <icon-name>` or `hugeicons path <icon-name>`.
 3. Generate framework snippets with `hugeicons usage <platform> <icon-name>`.
 4. Install the matching Hugeicons package only in the target project, not in this guidelines repo.
+5. Finish when the exact icon name, SVG/path or framework snippet, and any installed package are verified against the target project.
 
 ## Common Commands
 
