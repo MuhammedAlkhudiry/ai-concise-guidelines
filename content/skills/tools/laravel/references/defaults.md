@@ -21,7 +21,9 @@ Use these only when the app has no stronger local pattern.
 
 - Follow Laravel conventions and do not override defaults without a clear reason.
 - Use constructor injection.
-- Extract real business operations into invokable action classes.
+- For HTTP endpoints, prefer this flow: route -> controller -> Form Request -> typed DTO or data object -> service or invokable action -> JSON Resource or resource collection.
+- Keep controllers thin. They should authorize, translate HTTP input into typed application data, call services or actions with explicit tenant context, and return redirects, Inertia pages, streams, downloads, or resources.
+- Extract real business operations into service classes or invokable action classes.
 - Do not add private methods to controllers. Inline the logic when it stays readable, or move it to the right Laravel boundary: an action, service, model method, Form Request, API Resource, policy, or another focused class.
 - Prefer procedural application flow over Laravel events unless eventing is the real boundary.
 - Avoid scopes for one-off simple queries.

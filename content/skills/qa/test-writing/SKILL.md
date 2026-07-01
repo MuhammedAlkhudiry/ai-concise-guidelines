@@ -1,6 +1,6 @@
 ---
 name: test-writing
-description: Writing, reviewing, or updating automated tests while avoiding brittle, overfit, snapshot-heavy, mock-heavy, or implementation-detail coverage.
+description: Writing, reviewing, updating, or auditing automated tests while avoiding brittle, overfit, snapshot-heavy, mock-heavy, or implementation-detail coverage.
 ---
 
 # Test Writing
@@ -20,6 +20,10 @@ Do not write mocks that only prove other mocks were called.
 5. Write the test so it fails for the right reason.
 6. Make it pass with a focused product change that satisfies the contract.
 7. Run the focused test, refactor-survival check, and bug-kill check.
+
+## Repo Test Audits
+For complete repo-wide or directory-wide test audits, also use `systematic-work`.
+Read `references/repo-test-audit.md`, build an explicit inventory of every test file or case in scope, and continue until each item is classified, fixed, deleted, merged, moved, or explicitly left with a named uncertainty.
 
 ## Overfit Tests
 Delete, merge, or rewrite overfit tests.

@@ -16,10 +16,12 @@ Use this when the user wants a task carried from request to pull request, especi
 5. Verify with the repo's documented checks, then add focused task-specific checks when the changed behavior needs them.
 6. Review the final diff for accidental churn, unrelated edits, secrets, generated artifacts, and missing tests.
 7. Commit, push, and create the PR. Use `git-branch-mr` when available for branch, commit, push, and PR packaging.
-8. Report the PR link, verification performed, and any known follow-up risks.
+8. Await PR CI, confirm required checks pass, and confirm the branch is mergeable without conflicts.
+9. Report the PR link, verification performed, CI and mergeability status, and any known follow-up risks.
 
 ## Rules
 
 - Do not treat the task as complete until verification has run or a real blocker is reported.
 - Do not reuse an existing non-clean working tree unless the user explicitly asks.
 - If the PR cannot be created, still leave the branch pushed when possible and explain the exact blocker.
+- If CI or mergeability cannot be confirmed, report the exact pending check, failure, conflict, or access blocker.

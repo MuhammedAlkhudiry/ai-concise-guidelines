@@ -21,7 +21,8 @@ Use this flow after an approved implementation plan when the change spans many f
 
 ## Rules
 
-- Use subagents for `code-simplifier`, `refactor-opportunities`, `code-quality-review`, and every other review gate. Fresh context is mandatory.
+- Subagent use is absolute for `code-simplifier`, `refactor-opportunities`, `code-quality-review`, and every other review gate. The main agent must delegate these passes to fresh-context subagents, not perform or simulate them inline.
+- If subagents are unavailable, say that the final-polish flow cannot be completed as written and report the missing subagent passes. Do not replace mandatory subagent passes with main-agent review.
 - Only `code-simplifier` subagents may edit. Review and opportunity subagents are read-only.
 - The main agent owns implementation, synthesis, triage, integration, and final reporting, but not simplifier or review execution.
 - The main agent decides whether a follow-up `code-simplifier` pass is needed after reviewing each subagent pass.
