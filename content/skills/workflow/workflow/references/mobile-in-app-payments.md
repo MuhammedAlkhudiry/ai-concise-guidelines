@@ -342,6 +342,8 @@ Implementation behavior worth copying when it fits:
 
 ## Store Setup Runbook
 
+Before declaring store API credentials missing, look for a local project release env such as `$HOME/.config/<project>/mobile-release.env` and pass it to release/status tools with `--env`. Keep this file outside the repo, never commit it, and report credential names/paths only.
+
 ### Apple
 
 1. Confirm Apple Developer account, app record, bundle ID, SKU, and team.
