@@ -11,26 +11,15 @@ Use this reference for all `/improve` branches.
 5. Prioritize by impact, effort, confidence, fix risk, and whether the work unblocks safer future changes.
 6. Return the strongest findings, not a raw audit log.
 
-## Finding Contract
+## Output
 
-Use this shape for important findings:
+Lead with the recommendations, then give only the evidence needed to trust them.
 
-```md
-| #   | Finding | Category | Impact | Effort | Risk | Confidence | Evidence |
-| --- | ------- | -------- | ------ | ------ | ---- | ---------- | -------- |
-```
-
-- `Finding`: one concrete problem or opportunity, not a vague theme.
-- `Impact`: what user, product, data, runtime, or agent-workflow cost exists today.
-- `Effort`: S, M, or L for the full fix including tests or verification.
-- `Risk`: LOW, MED, or HIGH for what the fix could break.
-- `Confidence`: HIGH, MED, or LOW based on evidence quality.
+- `Top Picks`: the improvements most worth doing, ranked by value.
 - `Evidence`: concrete files, lines, screens, analytics, docs, logs, or current external sources.
+- `Fix Shape`: the smallest correct implementation direction, including verification.
+- `Other Candidates`: only stronger alternatives or close seconds, with why they lost.
 
 ## Rejections
 
-Add a short considered-but-rejected note when a tempting finding is not worth doing, is by design, lacks evidence, duplicates another finding, adds more ceremony than value, or belongs outside the requested scope.
-
-## Plans
-
-For ordinary `/improve`, keep advice in chat. Use `persist-plan` for plan-file lifecycle and storage when the user is shaping an implementation plan, roadmap, task breakdown, or execution handoff.
+Mention rejected ideas only when they would otherwise look tempting.
