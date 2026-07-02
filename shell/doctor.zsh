@@ -147,6 +147,20 @@ check_installed_skills() {
   return 1
 }
 
+check_context_health() {
+  local script="$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
+
+  if [[ -f "$script" ]]; then
+    print_ok "context-health" "$script"
+    (( required_ok++ ))
+    return 0
+  fi
+
+  print_missing "required" "context-health" "analyzer missing; run mise run install"
+  (( required_missing++ ))
+  return 1
+}
+
 check_file() {
   local name="$1"
   local path="$2"
@@ -241,6 +255,7 @@ main() {
 
   print_header "Managed skills"
   check_installed_skills
+  check_context_health
 
   print_summary
 

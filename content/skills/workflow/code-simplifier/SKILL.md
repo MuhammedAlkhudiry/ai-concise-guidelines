@@ -14,7 +14,7 @@ Simplify hard until only the necessary shape remains.
 3. Remove anything unreferenced, unreachable, superseded, duplicated, obsolete, or incidental.
 4. Apply the `code-principles` solution ladder, then collapse indirection and rebuild the clearest version that keeps the contract.
 5. Refactor related tests with app code and clean them when removal or rewriting is clearly safe.
-6. Run `check-and-fix`, fix task-related fallout, and report simplifications, protected behavior, unsafe deletions, and kept complexity.
+6. Run `verification`, fix task-related fallout, and report simplifications, protected behavior, unsafe deletions, and kept complexity.
 
 ## Rules
 

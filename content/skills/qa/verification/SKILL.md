@@ -1,22 +1,23 @@
 ---
-name: check-and-fix
-description: Project check-and-fix workflow from repo-root `CHECKLIST.md`, including run checks, lint and fix, verify code quality, and task-related failure repair.
+name: verification
+description: Project verification workflow from repo-root `CHECKLIST.md`, including command discovery, fix loops, setup for new projects, and task-related failure repair.
 ---
 
-# Check and Fix
+# Verification
 
 Repo-root `CHECKLIST.md` is the source of truth for verification.
 
 1. If `CHECKLIST.md` exists, read it first and use its commands.
 2. If it is missing, create it from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
 3. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
-4. Update it only when a stable project-wide command is missing, wrong, or stale.
-5. Run task-specific checks separately without adding them to `CHECKLIST.md`.
+4. For new projects or weak verification setup, use [references/toolkit.md](references/toolkit.md).
+5. Update `CHECKLIST.md` only when a stable project-wide command is missing, wrong, or stale.
+6. Run task-specific checks separately without adding them to `CHECKLIST.md`.
 
 To discover stable candidates quickly, run:
 
 ```bash
-bun "$HOME/.agents/skills/check-and-fix/scripts/discover-checks.ts" /path/to/repo
+bun "$HOME/.agents/skills/verification/scripts/discover-checks.ts" /path/to/repo
 ```
 
 - Prefer repo-level commands such as `mise run check` or `make check` when they cover the needed categories.

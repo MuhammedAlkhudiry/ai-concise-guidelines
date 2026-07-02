@@ -5,7 +5,7 @@
  */
 
 import { existsSync, copyFileSync, readFileSync, writeFileSync } from "fs";
-import { readFile, writeFile, copyFile, chmod, rm, mkdtemp, symlink } from "fs/promises";
+import { readFile, writeFile, copyFile, chmod, rm, mkdtemp, symlink, readdir } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { execa } from "execa";
@@ -481,11 +481,38 @@ interface ManagedSkillSyncOptions {
   remoteSkillSources?: RemoteSkillSource[];
 }
 
-async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
+async function pruneInvalidInstalledSkillDirs(dest: string): Promise<number> {
+  const entries = await readdir(dest, { withFileTypes: true });
+  let removedCount = 0;
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+
+    const installedSkillPath = join(dest, entry.name);
+    if (existsSync(join(installedSkillPath, "SKILL.md"))) {
+      continue;
+    }
+
+    await rm(installedSkillPath, { recursive: true, force: true });
+    removedCount++;
+  }
+
+  return removedCount;
+}
+
+export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
   const { src, dest, label, remoteSkillSources = [] } = options;
-  print.info(`Syncing ${label} to ${dest} (preserving existing custom skills)...`);
+  print.info(`Syncing ${label} to ${dest} (preserving valid custom skills)...`);
 
   await ensureDir(dest);
+  const invalidSkillCount = await pruneInvalidInstalledSkillDirs(dest);
+  if (invalidSkillCount > 0) {
+    print.warning(
+      `Removed ${invalidSkillCount} installed skill director${invalidSkillCount === 1 ? "y" : "ies"} without SKILL.md`,
+    );
+  }
 
   const skills = discoverLocalSkills(src);
   const skillNames = skills.map((skill) => skill.name).sort();
@@ -614,7 +641,7 @@ export async function install(): Promise<void> {
   console.log();
   console.log(colors.yellow("  Shared:"));
   console.log(
-    `    Skills:   ${SHARED_PATHS.skills} (managed sync, prune removed, preserve others)`,
+    `    Skills:   ${SHARED_PATHS.skills} (managed sync, prune invalid, preserve valid custom)`,
   );
   console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
   console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);

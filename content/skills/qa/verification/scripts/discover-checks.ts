@@ -117,7 +117,7 @@ function miscCommands(): string[] {
 const allCommands = [...miscCommands(), ...packageCommands(), ...composerCommands()];
 const preferred = allCommands.find((command) => /(?:^mise run check$|^make check$| check$)/.test(command));
 
-console.log(`# Check discovery for ${basename(root)}`);
+console.log(`# Verification discovery for ${basename(root)}`);
 console.log(`Root: ${root}`);
 printSection("Detected files", [
   "CHECKLIST.md",

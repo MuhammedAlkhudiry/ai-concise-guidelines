@@ -34,8 +34,9 @@ Do not assume the helper CLI has an all-project command. All-project reconciliat
    - Are verification steps still the cheapest honest signal?
    - Has the work already been completed, made obsolete, or split into a better shape?
 6. Mutate plan files only when the user asked to update, fix, reconcile, refresh, polish, archive, or otherwise change persisted plans.
-7. After each mutation, read back the changed section or whole plan.
-8. Refresh the project index after adding, archiving, renaming, or materially changing active plans:
+7. For `needs-user-decision` plans, ask the user before editing the plan. Do not write unresolved questions into the plan as a substitute for a decision.
+8. After each mutation, read back the changed section or whole plan.
+9. Refresh the project index after adding, archiving, renaming, or materially changing active plans:
 
 ```bash
 plan index --project=<project-name> --write
@@ -46,7 +47,7 @@ plan index --project=<project-name> --write
 For `draft` plans:
 
 - Keep them short unless the user is approving them.
-- Improve the shape, open questions, constraints, and evidence.
+- Improve the shape, constraints, and evidence once decision-blocking questions are answered.
 - Do not expand them into execution contracts without approval.
 
 For `approved` plans:

@@ -14,7 +14,7 @@ Use this flow after an approved implementation plan when the change spans many f
 3. Check behavior coverage and add or adjust focused tests where the implementation changed contracts or flows.
 4. Run `code-quality-review` as a read-only structural review in a fresh subagent.
 5. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
-6. Run `check-and-fix` as the final verification and fix loop. Skip smoke tests unless explicitly requested.
+6. Run `verification` as the final verification and fix loop. Skip smoke tests unless explicitly requested.
 7. Run one final fresh read-only reviewer gate in a subagent.
 8. Run `refactor-opportunities` as a final read-only suggestion pass in a fresh subagent. Do not implement its suggestions during this flow.
 9. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.

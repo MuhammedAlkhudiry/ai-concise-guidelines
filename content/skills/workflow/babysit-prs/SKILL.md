@@ -1,0 +1,76 @@
+---
+name: babysit-prs
+description: PR babysitting across repositories. Use when asked to work open PRs until they are conflict-free, CI-passing, updated, and merge-ready.
+---
+
+# Babysit PRs
+
+Use this with `systematic-work`. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.
+
+## Goal
+
+At the start, set the working goal to: make every in-scope PR merge-ready. If goal tracking exists, create or update it.
+
+Ready means: checked in a fresh clone, no conflicts, required CI passing, checks understood, branch updated, and no draft/status blocker.
+
+## Scope
+
+1. Resolve the repository set from the request.
+   - If the user names repositories, use exactly those.
+   - If the user asks for active/configured projects, use that inventory.
+   - Otherwise use the current repository.
+2. Include drafts by default. Mark them instead of excluding them.
+3. If the user says "my PRs", filter by author after first deciding which repositories are in scope.
+
+## Inventory And Workspace
+
+Prefer structured GitHub data. Use the GitHub connector when it has the fields; otherwise use `gh`.
+
+For each repository, collect open PRs with fields equivalent to:
+
+```bash
+gh pr list --state open --limit 1000 --json number,title,url,author,isDraft,headRefName,headRepositoryOwner,baseRefName,mergeable,mergeStateStatus,statusCheckRollup,reviewDecision,updatedAt
+```
+
+Record total PR count per repository. Page or raise limits until complete.
+
+Create a fresh clone for each repository before touching PR branches.
+Do not use the user's existing working tree.
+Process PRs one by one there, resetting cleanly to latest base before each PR.
+
+## Per-PR Loop
+
+For each PR, loop until ready or hard-blocked:
+
+1. Check out the PR in the fresh clone with `gh pr checkout <pr>`. If it fails, record the blocker and continue.
+2. Mergeability: use `mergeable` and `mergeStateStatus` from `gh pr view` or GraphQL. If stale or unknown, refresh and retry once.
+3. CI status: inspect required checks first with `gh pr checks <pr> --required --json name,state,bucket,link,description,startedAt,completedAt`.
+   Use the JSON `bucket` values, not exit code alone; `gh pr checks` uses a pending-specific exit code and can still need interpretation.
+4. Optional checks: when required checks are absent or incomplete, inspect all checks or `statusCheckRollup`.
+5. Fix actionable blockers: update behind branches, resolve conflicts, repair failing CI, and rerun verification.
+6. Do not leave draft final when otherwise ready. Mark ready for review, or name the missing human decision.
+7. Return the clone to a clean latest-base state before starting the next PR.
+
+## Fixing
+
+Babysitting implies permission to update PR branches and push readiness fixes. Keep changes scoped to the current PR.
+
+1. Prefer `gh pr update-branch <pr>` for clean behind branches.
+2. For conflicts, use the fresh clone's PR branch. Merge or rebase the base branch by repo convention, verify, then push.
+3. For failing CI, inspect logs before editing. Do not rerun checks instead of diagnosing deterministic failures.
+4. After any remote change, re-check mergeability and CI for that PR before moving on.
+
+Never merge, close, force-push, change branch protection, or dismiss reviews unless the user explicitly requested that action.
+
+## Report
+
+Finish with a coverage report:
+
+- Repositories checked and PR counts.
+- Clone workspace used for each repository.
+- PRs ready now: no conflicts, required CI passing, and no merge or draft blocker.
+- PRs blocked by type: conflicts, failing CI, pending CI, behind, draft, review/ruleset/merge queue, access or API uncertainty.
+- Fixes performed, if any, with verification after each fix.
+- Exact PRs still uncertain and the evidence needed to finish them.
+
+Do not claim completion while any in-scope PR remains merely classified instead of ready or hard-blocked.

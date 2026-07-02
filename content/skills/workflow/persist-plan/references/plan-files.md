@@ -54,6 +54,8 @@ Update `updated` whenever changing the plan body or status.
 
 New drafts are intentionally short. They capture the current shared thinking without turning early planning into a detailed document.
 
+If a draft would require an `Open Questions` section, stop and ask the user first. Create the plan only after the blocking decisions are answered.
+
 ```md
 # Auth Feature
 
@@ -62,10 +64,6 @@ New drafts are intentionally short. They capture the current shared thinking wit
 - Add cookie-session login.
 - Reuse the existing user model.
 - Keep signup and password reset out of scope.
-
-## Open Questions
-
-- Which routes remain public?
 
 ## Notes
 

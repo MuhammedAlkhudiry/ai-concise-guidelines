@@ -24,6 +24,7 @@
 - **Implementation** — Only edit files or run implementation steps only when the user gives a clear editing or go-ahead order otherwise assume discussing.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
+- **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
 - **Change-only plans**: When presenting a plan, include only steps that change, verify, investigate, or decide something.
   Do not add steps just to say what will stay unchanged.
