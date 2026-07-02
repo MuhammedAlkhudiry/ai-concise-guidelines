@@ -10,11 +10,11 @@ Audit whether two sides of a boundary share the same contract.
 ## Workflow
 
 1. Identify the boundary, name each side, and determine the source of truth if clear. Otherwise audit both directions and mark it unresolved.
-3. Inventory contract units: endpoints, operations, resources, events, payloads, models, validators, generated files, docs, tests, and fixtures.
-4. For large surfaces, create a WIP report from `references/wip-report-template.md`, split non-overlapping slices, and use subagents for read-only inventory or audits.
-5. Compare each unit for shape, naming, requiredness, nullability, values, formats, defaults, auth, permissions, status/error shapes, pagination, versioning, and transforms.
-6. Write findings to the WIP report as they are found. Keep progress, slice ownership, decisions, attempted fixes, verification, and remaining work current.
-7. Unless the user asked for audit-only, fix findings after the audit queue is clear enough to act.
+2. Inventory contract units: endpoints, operations, resources, events, payloads, models, validators, generated files, docs, tests, and fixtures.
+3. For large surfaces, create a WIP report from `references/wip-report-template.md`, split non-overlapping slices, and use subagents for read-only inventory or audits.
+4. Compare each unit for shape, naming, requiredness, nullability, values, formats, defaults, auth, permissions, status/error shapes, pagination, versioning, and transforms.
+5. Write findings to the WIP report as they are found. Keep progress, slice ownership, decisions, attempted fixes, verification, and remaining work current.
+6. Unless the user asked for audit-only, fix findings after the audit queue is clear enough to act.
    Update the report until every finding is resolved, blocked, or intentionally deferred.
 
 ## Evidence

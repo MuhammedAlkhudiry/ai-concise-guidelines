@@ -127,9 +127,11 @@ plan show --project=<project-name>
 plan show auth --project=<project-name>
 plan path auth --project=<project-name>
 plan archive auth --project=<project-name>
+plan archive --clear --project=<project-name>
 plan index --project=<project-name> --write
 ```
 
 - `plan show` without a query prints the latest active plan.
 - `plan path` prints the path to a matching plan file.
 - `plan archive` moves a plan into `archive/`, marks it `archived`, and refreshes `INDEX.md`.
+- `plan archive --clear` archives all active plans with `status: done`.

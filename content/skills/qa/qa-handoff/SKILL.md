@@ -12,9 +12,8 @@ Prepare runnable human QA cases for a completed change, feature, or product flow
 1. Identify the QA target from the request, feature notes, code, routes/screens/endpoints, tests, QA docs, and diff when one exists.
 2. Map needed coverage: happy path, changed behavior, persistence, permissions, validation, boundaries, integrations, and regressions.
 3. Confirm the local app is usable through the repo's allowed project flow, and confirm local migrations have run when the QA target depends on database schema or seeded state.
-4. For web handoffs, identify the canonical checkout or secondary worktree and share a clickable Markdown link for a responding URL from that exact checkout.
-   Use worktree readiness, env values, Solo metadata, or DDEV status as evidence; never substitute the canonical URL for a worktree.
-5. For web handoffs, ensure DDEV is running and share a responding DDEV URL, not localhost; for mobile handoffs, confirm the simulator or emulator is running and usable.
+4. For web handoffs, identify the canonical checkout or secondary worktree, confirm DDEV is running there, and share a clickable responding DDEV URL from that exact checkout; never substitute the canonical URL for a worktree.
+5. For mobile handoffs, confirm the simulator or emulator is running and usable.
 6. Create, reset, or confirm realistic test data with existing seeders, fixtures, factories, helper commands, or UI flows.
 7. Reuse the implementation verification already done; run only a quick smoke check when the URL, login, fixture, or starting state is uncertain.
 8. Write right-sized manual cases the user can run without guessing.

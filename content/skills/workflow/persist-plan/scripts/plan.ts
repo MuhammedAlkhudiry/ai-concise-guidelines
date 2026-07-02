@@ -24,6 +24,7 @@ type Plan = {
 };
 
 type Options = {
+  clear: boolean;
   project: string;
   projectExplicit: boolean;
   plansRoot: string;
@@ -45,6 +46,7 @@ Commands:
   index     Print or rewrite the active plan index
 
 Options:
+  --clear               Archive all done plans without opening interactive selection
   --project=<name>       Project folder under ~/plans
   --plans-root=<path>    Plans root, defaults to ~/plans
   --status=<status>      Filter list by status
@@ -59,12 +61,18 @@ function parseOptions(args: string[]): Options {
   let plansRoot = join(home, "plans");
   let status = "";
   let write = false;
+  let clear = false;
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
 
     if (arg === "--write") {
       write = true;
+      continue;
+    }
+
+    if (arg === "--clear") {
+      clear = true;
       continue;
     }
 
@@ -94,6 +102,7 @@ function parseOptions(args: string[]): Options {
   }
 
   return {
+    clear,
     project,
     projectExplicit,
     plansRoot: resolve(plansRoot.replace(/^~/, home)),
@@ -357,7 +366,19 @@ function archivePlan(options: Options): void {
   const plans = activePlans(projectRoot, options.project);
   let selectedPlans: string[] = [];
 
-  if (options.query) {
+  if (options.clear) {
+    if (options.query) {
+      console.error("--clear cannot be combined with a plan query.");
+      process.exit(1);
+    }
+
+    selectedPlans = plans.filter((plan) => plan.status === "done").map((plan) => plan.name);
+
+    if (selectedPlans.length === 0) {
+      console.log("No done plans found.");
+      return;
+    }
+  } else if (options.query) {
     selectedPlans = [requirePlan(options).name];
   } else {
     if (plans.length === 0) {

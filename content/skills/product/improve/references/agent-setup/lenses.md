@@ -1,6 +1,6 @@
-# Improve My Setup Lenses
+# Improve Agent Setup Lenses
 
-Use lenses to keep the audit organized. Run all lenses by default for a broad setup audit, and use one lens only when the user names a specific area.
+Use lenses to organize the audit. Run all lenses by default for a broad setup audit, and use one lens only when the user names a specific area.
 
 ## Context/Token Lens
 

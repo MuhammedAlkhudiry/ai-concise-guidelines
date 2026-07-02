@@ -38,18 +38,18 @@ node -e 'const c=require("/tmp/expo-config.json"); console.log(c._internal.modRe
 
 For iOS, remember that `Podfile.properties.json` alone may not be enough. React Native's `React-Core.podspec` uses `GCC_PREPROCESSOR_DEFINITIONS` with `RCT_METRO_PORT=${RCT_METRO_PORT}`, so the Podfile must set the environment variable from the property before pods/build settings are resolved.
 
-## Awraq Case Study
+## Example Failure Mode
 
-Awraq's local ports revealed the failure mode this workflow is meant to prevent:
+This example shows the failure mode this workflow is meant to prevent:
 
-- Web app: `https://awraq-project.ddev.site`
-- Android emulator API docs target: `http://awraq-project.ddev.site`
+- Web app: `https://example-project.ddev.site`
+- Android emulator API docs target: `http://example-project.ddev.site`
 - Mobile API client in local dev: Android uses `http://10.0.2.2:38080`; iOS uses `http://127.0.0.1:38080`.
 - Mobile Metro: `http://localhost:8082`.
-- `awraq-mobile-app/package.json` starts Expo with `expo start --port 8082`.
+- `example-mobile-app/package.json` starts Expo with `expo start --port 8082`.
 - Android dev-client reload was broken because the running Metro server was on `8082` while reload tooling defaulted to `8081`.
 - The durable fix belongs in an Expo config plugin, not ignored generated native files:
   - Android: set `reactNativeDevServerPort=8082`.
   - iOS: set `RCT_METRO_PORT=8082` and bridge it into the Podfile environment.
 
-When changing Awraq's Metro port, update all surfaces together: package scripts, Expo config plugin, QA/docs, automation commands, and any native rebuild instructions. Existing installed dev clients need a native rebuild before they pick up native Metro-port changes.
+When changing a project's Metro port, update all surfaces together: package scripts, Expo config plugin, QA/docs, automation commands, and any native rebuild instructions. Existing installed dev clients need a native rebuild before they pick up native Metro-port changes.

@@ -25,15 +25,4 @@ solo commands restart-all --project-id 2
 solo processes restart <process-id>
 ```
 
-## Active Project Examples
-```bash
-# awraq-project at /Users/muhammed/PhpstormProjects/awraq-project
-solo processes list --project-id 2 --json
-solo commands start-all --project-id 2
-
-# harium-project at /Users/muhammed/PhpstormProjects/harium-project
-solo processes list --project-id 1 --json
-solo commands start-all --project-id 1
-```
-
 Verify IDs with `solo projects list --json`; do not assume they are stable.

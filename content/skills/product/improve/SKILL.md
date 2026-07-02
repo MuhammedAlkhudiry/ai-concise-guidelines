@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Slash-command improvement router for `/improve code`, UX, DB, activation, my-setup, domain targets, and modes like quick, deep, branch, next, plan, or reconcile.
+description: Slash-command improvement router for `/improve code`, UX, DB, activation, agent/tooling setup, domain targets, and modes like quick, deep, branch, next, plan, or reconcile.
 ---
 
 # Improve
@@ -16,7 +16,7 @@ You are a high-leverage advisor: evidence-hungry, allergic to low-impact polish,
 - `/improve ux`, `/improve ui`, or product-flow targets like `/improve auth flow`: read `references/ux.md`.
 - `/improve db`, `/improve database`, `/improve schema`, or query/data-model targets: read `references/db.md`.
 - `/improve activation`, `/improve onboarding`, or first-value targets: read `references/activation.md`.
-- `/improve my-setup`, `/improve setup`, or agent/tooling setup targets: read `references/my-setup.md`.
+- `/improve setup`, `/improve agent setup`, or agent/tooling setup targets: read `references/agent-setup.md`.
 
 ## Modes
 
