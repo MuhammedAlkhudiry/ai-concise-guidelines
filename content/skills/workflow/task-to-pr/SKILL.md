@@ -1,6 +1,6 @@
 ---
 name: task-to-pr
-description: End-to-end task delivery in an isolated workspace. Use when the user asks to handle, implement, fix, or finish a task in a fresh clone, worktree, or separate checkout and then verify, commit, push, and open a pull request.
+description: End-to-end task delivery in a new clone. Use when the user asks to handle, implement, fix, or finish a task in a fresh clone or isolated checkout and then verify, commit, push, and open a pull request.
 ---
 
 # Task to PR
@@ -10,7 +10,7 @@ Use this when the user wants a task carried from request to pull request, especi
 ## Workflow
 
 1. Confirm the task, target repo, base branch, and PR destination when any of them are unclear.
-2. Create an isolated workspace. Prefer `git worktree` from the existing checkout; use a fresh clone only when worktrees are unavailable or the user asks for a clone.
+2. Create the isolated workspace by cloning the target repo into a new directory.
 3. Name the branch from the task intent and keep the change scoped to that task.
 4. Implement the change in the isolated workspace.
 5. Verify with the repo's documented checks, then add focused task-specific checks when the changed behavior needs them.
@@ -22,6 +22,7 @@ Use this when the user wants a task carried from request to pull request, especi
 ## Rules
 
 - Do not treat the task as complete until verification has run or a real blocker is reported.
+- Do not use `git worktree` for this workflow unless the user explicitly asks for a worktree.
 - Do not reuse an existing non-clean working tree unless the user explicitly asks.
 - If the PR cannot be created, still leave the branch pushed when possible and explain the exact blocker.
 - If CI or mergeability cannot be confirmed, report the exact pending check, failure, conflict, or access blocker.

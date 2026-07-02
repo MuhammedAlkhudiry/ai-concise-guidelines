@@ -67,7 +67,7 @@ _run_installed_command() {
     fi
 
     echo "$name executable not found at $command_path"
-    echo "Run mise run install from ~/PhpstormProjects/my-setup"
+    echo "Run mise run install from my-setup"
     return 1
 }
 

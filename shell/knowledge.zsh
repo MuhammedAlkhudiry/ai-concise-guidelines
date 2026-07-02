@@ -2,11 +2,12 @@
 
 set -euo pipefail
 
-script="$HOME/PhpstormProjects/my-setup/src/commands/knowledge-cli.ts"
+MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
+script="$MY_SETUP_ROOT/src/commands/knowledge-cli.ts"
 
 if [[ ! -f "$script" ]]; then
   echo "knowledge script not found at $script"
-  echo "Run mise run install from ~/PhpstormProjects/my-setup"
+  echo "Run mise run install from $MY_SETUP_ROOT"
   exit 1
 fi
 

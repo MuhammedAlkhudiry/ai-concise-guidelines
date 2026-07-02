@@ -14,6 +14,8 @@ export interface RemoteSkillSource {
   skills: RemoteSkill[];
 }
 
+// Remote skills intentionally track upstream branches so `mise run install`
+// refreshes external agent guidance without a separate lockfile workflow.
 export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
   {
     repository: "https://github.com/pbakaus/impeccable.git",

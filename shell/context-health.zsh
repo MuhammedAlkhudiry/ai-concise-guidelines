@@ -2,11 +2,12 @@
 
 set -euo pipefail
 
-script="$HOME/PhpstormProjects/my-setup/content/skills/setup/improve-my-setup/scripts/analyze-codex-sessions.ts"
+script="$HOME/.agents/skills/improve/scripts/analyze-codex-sessions.ts"
+MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
 
 if [[ ! -f "$script" ]]; then
   echo "context-health script not found at $script"
-  echo "Run mise run install from ~/PhpstormProjects/my-setup"
+  echo "Run mise run install from $MY_SETUP_ROOT"
   exit 1
 fi
 

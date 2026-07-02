@@ -9,7 +9,7 @@ typeset -i optional_missing=0
 typeset -i link_ok=0
 typeset -i link_missing=0
 GUM_BIN="$(command -v gum 2>/dev/null || true)"
-MY_SETUP_ROOT="${MY_SETUP_ROOT:-$HOME/PhpstormProjects/my-setup}"
+MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
 
 has_gum() {
   [[ -n "$GUM_BIN" ]]
