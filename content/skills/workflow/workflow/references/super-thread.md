@@ -1,8 +1,3 @@
----
-name: super-thread
-description: Long-running Codex thread continuity for super threads, scarce .super-threads/<thread-name>.md memory, compaction recovery, roadmap updates, and prompts like set this as a super thread or resume super thread.
----
-
 # Super Thread
 
 Use a super thread for long-running work that needs durable continuity across compaction,

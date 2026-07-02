@@ -1,8 +1,3 @@
----
-name: prod-db-to-ddev
-description: Production Laravel MySQL to local DDEV imports over SSH, including import prod db into ddev, refresh local db from prod, and pull production database locally prompts.
----
-
 # Production DB To DDEV
 
 Import a production Laravel MySQL database into local DDEV while keeping production read-only.
@@ -20,12 +15,12 @@ Import a production Laravel MySQL database into local DDEV while keeping product
 ## Script
 
 ```bash
-bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" <ssh-target> <remote-laravel-dir> [local-ddev-dir]
-bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" --dump=/path/local.sql.gz [local-ddev-dir]
+bun "$HOME/.agents/skills/workflow/scripts/import-prod-db-to-ddev.ts" <ssh-target> <remote-laravel-dir> [local-ddev-dir]
+bun "$HOME/.agents/skills/workflow/scripts/import-prod-db-to-ddev.ts" --dump=/path/local.sql.gz [local-ddev-dir]
 ```
 
 ## Example
 
 ```bash
-bun "$HOME/.agents/skills/prod-db-to-ddev/scripts/import-prod-db-to-ddev.ts" forge@example.com /home/forge/app/current /path/to/local/project
+bun "$HOME/.agents/skills/workflow/scripts/import-prod-db-to-ddev.ts" forge@example.com /home/forge/app/current /path/to/local/project
 ```

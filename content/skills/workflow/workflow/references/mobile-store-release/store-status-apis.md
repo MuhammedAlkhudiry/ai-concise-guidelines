@@ -7,7 +7,7 @@ Use store APIs for repeatable status checks. Use dashboards for auth prompts, ag
 Run the read-only skill script with project-specific params:
 
 ```sh
-rtk bun "$HOME/.agents/skills/mobile-store-release/scripts/mobile-store-status.ts" \
+rtk bun "$HOME/.agents/skills/workflow/scripts/mobile-store-status.ts" \
   --project-root /path/to/project \
   --mobile-dir path/to/expo-app \
   --env "$HOME/.config/<project>/mobile-release.env"

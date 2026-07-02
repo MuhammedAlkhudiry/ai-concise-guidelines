@@ -1,12 +1,13 @@
----
-name: codebase-maintenance
-description: Scheduled or explicit codebase maintenance runs that inspect, fix, verify, and prepare PRs for safe repo health across code, tests, dependencies, workflow, and database source changes.
----
-
 # Codebase Maintenance
 
 Run a bounded maintenance pass that leaves a reviewable pull request or concise no-change report.
 Treat database work as codebase health, not a separate branch.
+
+## Simple Prompt
+
+```text
+Use /workflow codebase-maintenance to run a bounded maintenance pass and prepare a reviewable PR if safe fixes are found.
+```
 
 ## Workflow
 
@@ -64,7 +65,7 @@ Do not create a PR for speculative cleanups, failed verification, or investigati
 Use this prompt for scheduled runs:
 
 ```text
-Use $codebase-maintenance for this repository.
+Use /workflow codebase-maintenance for this repository.
 
 Run a bounded maintenance pass on the default branch. Inspect code, tests, dependencies, workflow,
 migrations, schema, indexes, models, query paths, fixtures, jobs, and recent failure signals.

@@ -1,26 +1,39 @@
 ---
 name: workflow
-description: Slash-command router for rare procedural tasks: CI, dependency/tool updates, mobile auth/payments, Expo/React Native ports, QA cases, Codex threads, and ad/API account access setup.
+description: Collection of named workflows for procedural tasks that are useful but not broad enough to stay as standalone skills.
 ---
 
 # Workflow
 
-Use this when the user asks for a named `/workflow ...` branch or clearly matches one.
+Use this when the user asks for `/workflow`, names one of the available workflows, or clearly asks for a rare procedural workflow folded here.
 
-## Branches
+## Available Workflows
 
-- `/workflow github-actions` or `/workflow ci`: read `references/github-actions.md`.
-- `/workflow dependency-upgrade`: read `references/dependency-upgrade.md`, then load only the relevant stack refs under `references/dependency-upgrade/`.
-- `/workflow tool-updates`, `/workflow tools-update`, `/workflow cli-updates`, or `/workflow system-tools`: read `references/tool-updates.md`.
-- `/workflow mobile-social-sign-in` or `/workflow mobile-social-auth`: read `references/mobile-social-sign-in.md`.
-- `/workflow mobile-in-app-payments`, `/workflow mobile-iap`, `/workflow in-app-payments`, or `/workflow iap`: read `references/mobile-in-app-payments.md`.
-- `/workflow mobile-dev-ports`, `/workflow rn-ports`, or `/workflow expo-ports`: read `references/mobile-dev-ports.md`.
-- `/workflow qa-test-cases`: read `references/qa-test-cases.md`, then read `references/qa-test-cases/deep-qa-suite.md`.
-- `/workflow codex-thread-management`, `/workflow codex-threads`, `/workflow codex threads`, or `/workflow thread-management`: read `references/codex-thread-management.md`.
-- `/workflow google-ads-api`, `/workflow google-ads-api-setup`, `/workflow ads-api-access`, or `/workflow marketing-api-access`: read `references/google-ads-api-access.md`.
+- `audit-contract`
+- `babysit-prs`
+- `codebase-maintenance`
+- `codex-management`
+- `dependency-upgrade`
+- `github-actions`
+- `google-ads-api`
+- `improve-agent-setup`
+- `mobile-dev-ports`
+- `mobile-in-app-payments`
+- `mobile-social-sign-in`
+- `mobile-store-release`
+- `prod-db-to-ddev`
+- `product-setup`
+- `qa-test-cases`
+- `super-thread`
+- `task-to-pr`
+- `tool-updates`
 
 ## Rules
 
 - Load only the branch reference needed for the current request.
+- Reference files live under `references/<workflow>.md` unless the closest existing filename differs.
+- For `dependency-upgrade`, load only the relevant stack refs under `references/dependency-upgrade/`.
 - Do not treat this as a generic workflow skill; use it only for listed branches.
-- If a request names an unknown branch, say it is not folded here and continue with the closest existing skill or normal reasoning.
+- Infer the intended workflow from natural wording when the match is clear.
+- If the intended workflow is unclear, ask a short clarifying question before loading a reference.
+- If a request names an unknown workflow, say it is not folded here and continue with the closest existing skill or normal reasoning.

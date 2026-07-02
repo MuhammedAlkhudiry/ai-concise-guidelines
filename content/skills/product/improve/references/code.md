@@ -5,7 +5,7 @@ Improve the real codebase at the right scale: focused cleanup, bug-prone code, t
 ## Workflow
 
 1. Confirm the request names a concrete code target, then inspect enough surrounding context to judge the highest-impact improvement.
-2. Use `product-setup` for durable product setup, approved evidence sources, and any needed `PRODUCT_SETUP.md` updates.
+2. Use `/workflow product-setup` for durable product setup, approved evidence sources, and any needed `PRODUCT_SETUP.md` updates.
 3. Inspect broadly before choosing: sample multiple relevant modules, callers, tests, runtime paths, dependencies, docs, and data-model boundaries. Do not stop at the first file, first smell, first failing test, or first easy cleanup when the codebase has deeper evidence available.
 4. Trace behavior before changing it: inputs, outputs, side effects, consumers, tests, migrations, jobs, API contracts, UI contracts, and deployment boundaries.
 5. For external research, prioritize current library docs, framework behavior, migration guidance, security guidance, performance recommendations, and package-choice evidence.

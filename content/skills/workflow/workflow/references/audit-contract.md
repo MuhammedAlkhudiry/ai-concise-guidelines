@@ -1,8 +1,3 @@
----
-name: audit-contract
-description: Contract consistency audits across APIs, frontend/mobile types, schemas, clients, validators, runtime payloads, webhooks/queues, SDK/provider models, docs, and drift.
----
-
 # Audit Contract
 
 Audit whether two sides of a boundary share the same contract.
@@ -11,7 +6,7 @@ Audit whether two sides of a boundary share the same contract.
 
 1. Identify the boundary, name each side, and determine the source of truth if clear. Otherwise audit both directions and mark it unresolved.
 2. Inventory contract units: endpoints, operations, resources, events, payloads, models, validators, generated files, docs, tests, and fixtures.
-3. For large surfaces, create a WIP report from `references/wip-report-template.md`, split non-overlapping slices, and use subagents for read-only inventory or audits.
+3. For large surfaces, create a WIP report from the template below, split non-overlapping slices, and use subagents for read-only inventory or audits.
 4. Compare each unit for shape, naming, requiredness, nullability, values, formats, defaults, auth, permissions, status/error shapes, pagination, versioning, and transforms.
 5. Write findings to the WIP report as they are found. Keep progress, slice ownership, decisions, attempted fixes, verification, and remaining work current.
 6. Unless the user asked for audit-only, fix findings after the audit queue is clear enough to act.
@@ -41,3 +36,45 @@ Classify findings by contract risk:
 For each non-aligned finding, include the contract unit, both evidence locations, mismatch, likely impact, and smallest correct fix direction.
 
 Treat the WIP report as durable agent state, not a user-facing deliverable; keep it current enough to resume without rediscovery.
+
+## WIP Report Template
+
+```md
+# Contract Audit: <boundary>
+
+Purpose: durable agent working memory for continuing the audit and fix loop across context windows, runs, or threads.
+
+## State
+
+- Side A:
+- Side B:
+- Source of truth:
+- Inventory method:
+- Status:
+- Active slice:
+- Last updated:
+- Next action:
+
+## Coverage
+
+- Checked:
+- Skipped:
+- Unclear:
+
+## Findings
+
+| ID | Status | Severity | Unit | Side A evidence | Side B evidence | Mismatch | Fix direction |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
+## Decisions Needed
+
+-
+
+## Fixes And Verification
+
+-
+
+## Handoff Notes
+
+-
+```

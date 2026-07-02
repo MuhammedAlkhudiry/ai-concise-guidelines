@@ -1,8 +1,3 @@
----
-name: task-to-pr
-description: End-to-end task delivery in a new clone. Use when the user asks to handle, implement, fix, or finish a task in a fresh clone or isolated checkout and then verify, commit, push, and open a pull request.
----
-
 # Task to PR
 
 Use this when the user wants a task carried from request to pull request, especially when they mention a fresh clone, separate workspace, isolated checkout, verification, or PR creation.

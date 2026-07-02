@@ -502,6 +502,30 @@ async function pruneInvalidInstalledSkillDirs(dest: string): Promise<number> {
   return removedCount;
 }
 
+async function pruneEmptyDirs(dir: string): Promise<number> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  let removedCount = 0;
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+
+    const childDir = join(dir, entry.name);
+    removedCount += await pruneEmptyDirs(childDir);
+
+    const remainingEntries = await readdir(childDir);
+    if (remainingEntries.length > 0) {
+      continue;
+    }
+
+    await rm(childDir, { recursive: true, force: true });
+    removedCount++;
+  }
+
+  return removedCount;
+}
+
 export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
   const { src, dest, label, remoteSkillSources = [] } = options;
   print.info(`Syncing ${label} to ${dest} (preserving valid custom skills)...`);
@@ -554,6 +578,13 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
   }
 
   await Promise.all(remoteSkillSources.map((source) => installRemoteSkillSource(source, dest)));
+
+  const emptyDirCount = await pruneEmptyDirs(dest);
+  if (emptyDirCount > 0) {
+    print.warning(
+      `Removed ${emptyDirCount} empty installed skill director${emptyDirCount === 1 ? "y" : "ies"}`,
+    );
+  }
 
   await writeFile(manifestPath, JSON.stringify(managedSkillNames, null, 2) + "\n");
   print.success(`Synced ${managedSkillNames.length} ${label}`);

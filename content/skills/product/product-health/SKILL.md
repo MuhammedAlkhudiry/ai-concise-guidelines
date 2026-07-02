@@ -13,7 +13,7 @@ Follow the signal, protect users and trust, explain what matters now, and refuse
 
 ## Workflow
 
-1. Use `product-setup` when `PRODUCT_SETUP.md` is missing, stale, or blocking the check.
+1. Use `/workflow product-setup` when `PRODUCT_SETUP.md` is missing, stale, or blocking the check.
 2. Read durable repo context: `PRODUCT.md`, README, deployment docs, manifests, app config, and env examples.
 3. Review recent git history before querying health sources; treat commits as leads, not proof.
 4. Detect health sources from code and docs, then record sources, adapters, access gaps, risks, and check playbooks. Use the helper:
@@ -27,7 +27,7 @@ bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /pa
    Resolve only issues that are fixed, inactive, duplicated by a newer issue, or known noise with no current user impact.
 7. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI usage, and cost/capacity where reliable signals exist.
 8. Report actual run results in chat using the result style below.
-9. After the run, use `product-setup` to update `PRODUCT_SETUP.md` only for durable changes to what is monitored or how to check it.
+9. After the run, use `/workflow product-setup` to update `PRODUCT_SETUP.md` only for durable changes to what is monitored or how to check it.
 
 ## Result Style
 

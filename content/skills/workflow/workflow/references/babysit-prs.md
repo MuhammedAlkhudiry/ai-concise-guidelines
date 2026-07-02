@@ -1,8 +1,3 @@
----
-name: babysit-prs
-description: PR babysitting across repositories. Use when asked to work open PRs until they are conflict-free, CI-passing, updated, and merge-ready.
----
-
 # Babysit PRs
 
 Use this with `systematic-work`. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.

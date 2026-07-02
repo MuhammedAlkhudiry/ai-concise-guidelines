@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-script="$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
+script="$HOME/.agents/skills/workflow/scripts/analyze-codex-sessions.ts"
 MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
 
 if [[ ! -f "$script" ]]; then

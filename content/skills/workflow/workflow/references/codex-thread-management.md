@@ -1,8 +1,8 @@
-# Codex Thread Management
+# Codex Management
 
-Use this workflow when setting up or refining Codex thread hygiene, especially scheduled cleanup of titles, archived threads, pinned threads, and daily summaries.
+Use this workflow when setting up or refining Codex hygiene, including scheduled thread cleanup, title normalization, archived or pinned threads, daily summaries, and stale clone or worktree removal.
 
-## Workflow
+## Thread Workflow
 
 1. Confirm whether the user wants a one-off cleanup or a recurring automation.
 2. For recurring cleanup that should continue the same conversation, use a heartbeat automation attached to the current thread.
@@ -17,6 +17,21 @@ Use this workflow when setting up or refining Codex thread hygiene, especially s
 11. Pin or unpin threads only when recent activity and importance make the choice obvious.
 12. Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
 13. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, notable durable follow-ups, and deferred archive decisions.
+
+## Clone And Worktree Cleanup
+
+Use this branch when the user asks to clear stale Codex clones, worktrees, temporary project checkouts, or local environments created for Codex work.
+
+1. Identify the protected keeper checkout first. Prefer the project's active-project registry, repo instructions, or the user's explicit path. Treat that checkout as protected even if it is dirty or resource-heavy.
+2. Inventory candidates before deleting anything. Search common project roots, Codex worktree roots, and temporary directories for matching repositories; include local dev environments, containers, and process managers that refer to those paths.
+3. For each candidate, record path, git remote, current branch, dirty file count, size when useful, and any associated local environment name. A candidate is clean only when it is a repository for the target remote and `git status --short` has no output.
+4. Present the list first unless the user already approved a specific destructive scope. Split it into protected keeper, clean candidates, and dirty candidates. Do not remove dirty candidates unless the user explicitly approves wiping dirty work.
+5. Stop and delete associated local environments before deleting their files. Use the environment's native deletion command so containers, databases, volumes, sync sessions, and built images are removed with the project. If a required privilege prompt cannot be satisfied, report the leftover action.
+6. Delete only approved clean candidate directories. Remove empty wrapper directories after deleting nested worktrees, but do not remove non-empty parents.
+7. Re-scan the filesystem, Codex worktree roots, local environment registry, and running containers or processes. Completion requires the approved clean candidates to be absent and the protected keeper plus any dirty candidates to remain.
+8. Report what was removed, what was intentionally left, any privilege-limited cleanup that remains, and whether the resource-heavy processes improved.
+
+When cleanup is requested as `clean only`, remove only candidates that were clean at the time of approval. If new clean candidates appear during final verification, remove them only when they match the same target repository and cleanup scope.
 
 ## Large Rename Batches
 
