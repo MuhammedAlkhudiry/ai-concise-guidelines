@@ -26,16 +26,6 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
-    repository: "https://github.com/vercel-labs/agent-browser.git",
-    ref: "main",
-    skills: [
-      {
-        name: "agent-browser",
-        sourcePath: "skills/agent-browser",
-      },
-    ],
-  },
-  {
     repository: "https://github.com/expo/skills.git",
     ref: "main",
     skills: [

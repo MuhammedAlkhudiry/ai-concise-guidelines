@@ -15,9 +15,8 @@ Use this workflow when setting up or refining Codex thread hygiene, especially s
 9. Never archive pinned threads.
 10. Do not archive ambiguous 7-day stale threads; summarize them as deferred archive decisions.
 11. Pin or unpin threads only when recent activity and importance make the choice obvious.
-12. Automatically run `ai-suggest-improvements` for qualifying completed or stale work threads that reveal durable agent-workflow friction; fork each target thread in the same directory and do not append meta-analysis to the original target thread.
-13. Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
-14. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, aggregate improvement-review results, and deferred archive decisions.
+12. Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
+13. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, notable durable follow-ups, and deferred archive decisions.
 
 ## Large Rename Batches
 
@@ -32,40 +31,6 @@ Each subagent should:
 - Avoid archiving, pinning, unpinning, forking, sending messages, or editing anything unless explicitly assigned that action.
 
 The management thread should collect subagent results, review them as a batch, and apply high-confidence rename proposals with the Codex thread tools. For best-effort title proposals, make the strongest safe call from the available latest context instead of asking the user to decide; keep the current title only when the proposed title is clearly worse or unsupported. Group rename tool calls where practical instead of applying proposals one by one in a long manual loop.
-
-## Improvement Reviews
-
-Use this only when the thread shows reusable workflow friction such as missing docs, stale instructions, slow checks, hidden setup, repeated manual steps, brittle automation, or tool pain that would affect nearby future tasks.
-
-Do not run improvement reviews for every completed or archived thread. Most completed threads should be renamed or archived without a meta-review. Once a thread shows a concrete lesson likely to improve future nearby tasks, the review should be automatic rather than needing user approval.
-
-Age alone is not a review signal. Trivial threads such as greetings, simple list commands, one-off title normalization runs, or age-only archive candidates should not get an improvement fork.
-
-Do not review the management thread itself unless the user explicitly asks. The targets are the completed or stale work threads found during cleanup.
-
-For each qualifying target thread, fork that target in the same directory, send the fork the follow-up prompt, wait for all review forks to finish, and archive completed review forks unless the user needs to keep them visible.
-
-Cap automatic improvement reviews at 5 target threads per cleanup run. Prefer the highest-signal threads: repeated tool failures, stale or missing instructions, hidden setup, slow/noisy checks, brittle automation, or repeated manual steps.
-
-Summarize improvement reviews as an expanded aggregate, not as a single compressed theme sentence. Include:
-
-- Review count: number requested, completed, skipped, failed, and archived.
-- Reviewed targets: short titles or categories of the source threads reviewed.
-- Key themes: 2-5 bullets. Each theme should include the durable lesson and why it matters for future agent work.
-- Concrete follow-ups: specific docs, skills, checks, scripts, automations, or repo rules worth creating or tightening.
-- No-suggestion results: count any review that found no meaningful improvements.
-- Fork status: note whether review forks were archived, left visible, pending, or failed.
-
-Do not paste each fork's full suggestion report into the management thread. The summary should be expanded enough that the user can understand the lessons without opening the forks.
-
-```text
-Use ai-suggest-improvements for this completed session.
-
-Review the full thread path: goals, constraints, decisions, delays, verification, and instruction gaps.
-Suggest only durable repo, tooling, docs, automation, skill, or process improvements that would help future nearby agent sessions.
-Do not edit files, install packages, run mutating scripts, or implement the suggestions.
-If there are no meaningful improvements, say so directly.
-```
 
 ## Thread Title Prefixes
 
@@ -100,9 +65,8 @@ Manage Codex threads once per day.
 - Never archive pinned threads.
 - Do not archive ambiguous threads; include them in the summary as deferred archive decisions instead.
 - Pin or unpin threads only when the need is obvious from recent activity and thread importance.
-- Automatically run ai-suggest-improvements for up to 5 qualifying completed or stale work threads that reveal durable agent-workflow friction; fork each target thread in the same directory, wait for all review forks, aggregate the results, and archive completed review forks unless they should stay visible.
 - Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
-- After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, aggregate improvement-review results, and deferred archive decisions.
+- After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, notable durable follow-ups, and deferred archive decisions.
 ```
 
 ## Rules
