@@ -1,26 +1,45 @@
 # Codebase Maintenance
 
-Run a bounded maintenance pass that leaves a reviewable pull request or concise no-change report.
-Treat database work as codebase health, not a separate branch.
+Run a substantial maintenance pass from an isolated clone that leaves a reviewable draft PR,
+an active scheduled automation when requested, or a concise no-change report. Treat database work
+as codebase health, not a separate branch.
 
 ## Simple Prompt
 
 ```text
-Use /workflow codebase-maintenance to run a bounded maintenance pass and prepare a reviewable PR if safe fixes are found.
+Use /workflow codebase-maintenance to set up the recurring automation, run a substantial maintenance
+pass from a fresh clone, and create a draft PR if safe fixes are found.
 ```
 
 ## Workflow
 
-1. Establish scope: repo, base branch, schedule context, project rules, current diffs, checks, and PR expectations.
-2. Inspect broadly before changing: recent failures, tests, type/lint/build checks, dependency drift,
+1. Establish scope: repo, base branch, schedule request, project rules, checks, and PR destination.
+2. If the user asked for a schedule, create or update the recurring automation before the run is done.
+3. Create a fresh clone for edits and PR work. Do not edit the user's existing checkout unless they explicitly ask for local-only work.
+4. Inspect broadly before changing: recent failures, tests, type/lint/build checks, dependency drift,
    brittle code, migrations, schema constraints, indexes, ORM models, query builders, fixtures, jobs,
    and developer workflow friction.
-3. Select one maintenance pack: a single fix or tightly related fixes with clear evidence, local verification, and low review burden.
-4. Apply the safety gate before editing.
-5. Implement the selected pack only.
-6. Verify with targeted checks first, then broader checks when the changed surface justifies them.
-7. If changes were made, prepare a PR handoff with summary, evidence, verification, risk, rollback notes, and step-by-step QA.
-8. If no safe change is found, report the top candidates, why they were skipped, and what would unblock them.
+5. Select one substantial maintenance pack: one coherent improvement or tightly related fixes with clear evidence, local verification, and low review burden.
+6. Apply the safety and substance gates before editing.
+7. Implement the selected pack only.
+8. Verify with targeted checks first, then broader checks when the changed surface justifies them.
+9. Commit, push, and create a draft PR when changes were made and verification passed.
+10. If no safe substantial pack is found, report the top candidates, why they were skipped, and what would unblock them.
+
+Completion requires all requested outcomes: automation configured when requested, fresh clone used for changes,
+draft PR opened for verified changes, or a no-change report explaining why no substantial safe pack was available.
+
+## Substance Gate
+
+A normal maintenance PR should be meaningful, not a one-line cleanup. Target at least 100 meaningful changed
+lines across source, tests, fixtures, migrations, docs, or tooling. Small fixes must be folded into a related
+maintenance pack instead of ending the run.
+
+Do not pad a diff to hit the line target. If the only safe work is tiny, keep inspecting for related fixes.
+Stop with a no-change report when no substantial, coherent, safe pack exists.
+
+Allow a smaller PR only when the user explicitly asked for a narrow fix, or the issue is urgent, high-risk,
+or blocks the requested automation/PR setup itself.
 
 ## Safety Gate
 
@@ -35,6 +54,16 @@ Proceed automatically only when all are true:
 Stop and report when the strongest candidate needs human approval, production access beyond approved
 read-only paths, broad architecture direction, ambiguous data migration strategy, or planned project work.
 
+## Automation Setup
+
+When the request mentions a cadence such as daily, weekly, recurring, scheduled, monitor, or automation,
+use the available automation tool. Inspect existing automations first and update a matching one instead of
+creating a duplicate. The automation prompt must instruct future runs to use this workflow, create a fresh
+clone, seek a substantial maintenance pack, verify, and open a draft PR for safe changes.
+
+Do not finish a scheduled setup request after only making a local change. Report the automation name or id,
+schedule, target repo, and whether it is active.
+
 ## Database Surface
 
 Include database concerns in the same maintenance pass. Inspect migrations, schema dumps, models,
@@ -47,14 +76,15 @@ model/query updates, tests, fixtures, or documented read-only checks.
 
 ## Pull Request Handoff
 
-For scheduled runs, prefer a draft PR when safe changes were made and verification passed.
-Keep the PR small and easy to review.
+Use the task-to-PR pattern: fresh clone, branch, scoped commit, push, draft PR, then CI or mergeability check
+when available. Keep the PR coherent and reviewable, but do not stop at a token-sized fix.
 
 Include:
 
 - What changed and why.
 - Evidence that made the fix worth doing.
 - Checks run and their results.
+- PR link, branch, commit, and CI or mergeability status when available.
 - Manual QA steps and basic test cases.
 - Risks, skipped candidates, and follow-up work.
 
@@ -67,17 +97,21 @@ Use this prompt for scheduled runs:
 ```text
 Use /workflow codebase-maintenance for this repository.
 
-Run a bounded maintenance pass on the default branch. Inspect code, tests, dependencies, workflow,
-migrations, schema, indexes, models, query paths, fixtures, jobs, and recent failure signals.
+If this is a scheduled setup request, create or update the recurring automation first and report its
+name, cadence, target repo, and active status.
 
-Select one safe maintenance pack only. Implement it only when the evidence is concrete, the fix is
-small enough for one reviewable PR, and the result can be verified locally or through approved
-read-only checks.
+Run a substantial maintenance pass from a fresh clone on the default branch. Inspect code, tests,
+dependencies, workflow, migrations, schema, indexes, models, query paths, fixtures, jobs, and recent
+failure signals.
+
+Select one safe maintenance pack only. Prefer at least 100 meaningful changed lines across related
+source, tests, fixtures, migrations, docs, or tooling. Fold tiny fixes into a coherent related pack.
+Do not pad the diff. If no substantial safe pack exists, write a no-change report.
 
 Do not run production writes, destructive commands, live maintenance operations, risky backfills, or
 irreversible migrations. If the best candidate needs approval or design work, write a no-change report.
 
-If changes are made and verification passes, prepare a draft PR with the summary, evidence,
-verification, manual QA steps, risks, and skipped candidates. If no safe change is found, report the
-top candidates and what would unblock them.
+If changes are made and verification passes, commit, push, and open a draft PR with the summary,
+evidence, verification, manual QA steps, risks, skipped candidates, branch, commit, and CI status.
+Do not finish with only a local edit when automation or PR creation was requested.
 ```

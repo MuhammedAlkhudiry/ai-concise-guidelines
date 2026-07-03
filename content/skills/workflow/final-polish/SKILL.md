@@ -9,9 +9,10 @@ Use this flow after an approved implementation plan when the change spans many f
 
 ## Flow
 
-1. Self-review the diff for scope creep, accidental churn, missing tests, and obvious regressions.
+1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions.
 2. Run `code-simplifier` as one or more fresh-context subagent edit passes. After each pass, the main agent must evaluate the result and decide whether another pass is needed. The main agent must not run these passes itself.
-3. Check behavior coverage and add or adjust focused tests where the implementation changed contracts or flows.
+3. Check behavior coverage and add or adjust focused tests only where the implementation changed a meaningful contract or flow that is not already covered.
+   Do not add tests merely because files changed, bugs were fixed, or a review checklist mentions coverage.
 4. Run `code-quality-review` as a read-only structural review in a fresh subagent.
 5. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
 6. Run `verification` as the final verification and fix loop. Skip smoke tests unless explicitly requested.

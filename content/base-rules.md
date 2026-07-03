@@ -25,6 +25,9 @@
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
+- **Test restraint** — Do not write or modify automated tests just because code changed or a bug was fixed.
+  Add tests only for a named observable behavior contract, regression, boundary, authorization, persistence, integration, or user-visible flow that is not already covered.
+  Before adding a test, state the gap it closes; if the gap is weak, covered elsewhere, implementation-only, brittle, or low-value, skip the test and mention that choice.
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
 - **Change-only plans**: When presenting a plan, include only steps that change, verify, investigate, or decide something.
   Do not add steps just to say what will stay unchanged.
