@@ -11,12 +11,13 @@ Use this workflow when setting up or refining Codex hygiene, including scheduled
 5. Inspect Codex threads broadly; do not use a fixed thread-count cap unless the tool requires one.
 6. Normalize vague, low-signal, or unprefixed titles only when the better title and category are obvious from the conversation. Read the latest relevant message context before renaming; this usually means more than the last 2-3 messages when the thread is long or has changed direction. Use recent activity and outcome as the source of truth, not the first message or initial title seed. Every normalized title must start with `[emoji TYPE]`, where `TYPE` is exactly one of `FEAT`, `BUG`, `REF`, `PLAN`, or `OTHER`, and `emoji` is chosen to match the specific thread topic.
 7. Archive only unpinned threads that have been inactive for at least 7 days and whose latest messages reasonably suggest completed, stale, or no-longer-useful work.
-8. Archive unpinned threads that have been inactive for at least 30 days even when completion is not obvious.
+8. Archive unpinned threads that have been inactive for at least 21 days even when completion is not obvious.
 9. Never archive pinned threads.
 10. Do not archive ambiguous 7-day stale threads; summarize them as deferred archive decisions.
 11. Pin or unpin threads only when recent activity and importance make the choice obvious.
 12. Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
-13. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, notable durable follow-ups, and deferred archive decisions.
+13. Include stale Codex clone and worktree cleanup when the workflow request or automation prompt includes broader Codex management, not only thread-only cleanup.
+14. After changes, reply in the management thread with a short summary of renamed threads, archived threads, pin changes, clone/worktree cleanup, notable durable follow-ups, and deferred archive decisions.
 
 ## Clone And Worktree Cleanup
 
@@ -76,12 +77,13 @@ Manage Codex threads once per day.
 - Normalize vague, low-signal, or unprefixed thread titles into concise, useful titles when the correct title and category are obvious from the conversation. Read enough latest message context before renaming, especially for long threads; use recent activity and outcome as the source of truth, not the first message, initial title seed, or only the final 2-3 messages. Every normalized title must start with `[emoji TYPE]`, where `TYPE` is exactly one of `FEAT`, `BUG`, `REF`, `PLAN`, or `OTHER`, and `emoji` is chosen to match the specific thread topic rather than the category. Prefer colorful, readable emoji and avoid black, dark, or visually heavy icons when a lighter/colorful alternative fits.
 - For large rename batches, use low-reasoning subagents in groups of 5-10 candidate threads to inspect latest context and return structured title suggestions. Collect the suggestions, batch-review them, and batch-apply high-confidence renames from this management thread with the Codex thread tools. For best-effort suggestions, make the strongest safe call from the available context instead of asking the user to decide. Let a subagent rename directly only if its session exposes the Codex thread title tool and the assignment explicitly allows renaming.
 - Archive unpinned threads only when they have been inactive for at least 7 days and their latest messages reasonably suggest the work is completed, stale, or no longer useful.
-- Archive unpinned threads that have been inactive for at least 30 days even when completion is not obvious.
+- Archive unpinned threads that have been inactive for at least 21 days even when completion is not obvious.
 - Never archive pinned threads.
 - Do not archive ambiguous threads; include them in the summary as deferred archive decisions instead.
 - Pin or unpin threads only when the need is obvious from recent activity and thread importance.
+- Include stale Codex clone and worktree cleanup as part of the workflow: inventory candidates first, protect the keeper checkout, remove only clean approved candidates, and report what was removed or left.
 - Do not create database or filesystem backup files during routine cleanup. Use Codex thread tools first; when a local-index fallback is unavoidable, limit it to exact known thread IDs and report the fallback.
-- After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, notable durable follow-ups, and deferred archive decisions.
+- After making changes, reply in this thread with a short daily summary of renamed threads, archived threads, any pin changes, clone/worktree cleanup, notable durable follow-ups, and deferred archive decisions.
 ```
 
 ## Rules
