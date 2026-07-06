@@ -1,6 +1,6 @@
 # Babysit PRs
 
-Use this with `systematic-work`. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.
+Use this with `deep-work` systematic mode. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.
 
 ## Goal
 

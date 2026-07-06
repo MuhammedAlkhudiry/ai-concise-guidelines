@@ -26,7 +26,7 @@ Do not add a bug-fix regression test unless it would fail on the original bug an
 9. Run the focused test, refactor-survival check, and bug-kill check.
 
 ## Repo Test Audits
-For complete repo-wide or directory-wide test audits, also use `systematic-work`.
+For complete repo-wide or directory-wide test audits, also use `deep-work` systematic mode.
 Read `references/repo-test-audit.md`, build an explicit inventory of every test file or case in scope, and continue until each item is classified, fixed, deleted, merged, moved, or explicitly left with a named uncertainty.
 
 ## Overfit Tests

@@ -19,19 +19,17 @@ Do not assume the helper CLI has an all-project command. All-project reconciliat
 ## Workflow
 
 1. Read the relevant `INDEX.md` file or files first.
-2. Inventory active plans by status: `draft`, `approved`, and `done`.
+2. Inventory active and archived plans by location.
 3. Triage each plan before deep inspection:
    - `execute-ready`: current enough to run.
-   - `needs-refresh`: useful plan, but context, scope, paths, commands, or acceptance criteria are stale or weak.
+   - `needs-refresh`: useful plan, but context, scope, paths, or commands are stale or weak.
    - `needs-code-audit`: plan depends on files, APIs, schemas, tests, product flows, or external contracts that must be compared with current code.
    - `needs-user-decision`: intent, ownership, trade-off, or scope cannot be resolved from local evidence.
-   - `archive-candidate`: obsolete, superseded, already done elsewhere, or no longer worth preserving as active work.
-4. For `needs-code-audit` plans, inspect the plan's named files, commands, tests, routes, schemas, generated artifacts, and nearby source needed to verify its assumptions.
+   - `archive-candidate`: obsolete, superseded, completed elsewhere, or no longer worth preserving as active work.
+4. For `needs-code-audit` plans, inspect the plan's named files, commands, tests, routes, schemas, generated artifacts, and nearby source needed to check its assumptions.
 5. Compare the plan with current code before editing it:
    - Are referenced files, symbols, commands, routes, and tests still real?
    - Does the proposed sequence still match the current architecture and local patterns?
-   - Are acceptance criteria still observable and sufficient?
-   - Are verification steps still the cheapest honest signal?
    - Has the work already been completed, made obsolete, or split into a better shape?
 6. Mutate plan files only when the user asked to update, fix, reconcile, refresh, polish, archive, or otherwise change persisted plans.
 7. For `needs-user-decision` plans, ask the user before editing the plan. Do not write unresolved questions into the plan as a substitute for a decision.
@@ -42,25 +40,21 @@ Do not assume the helper CLI has an all-project command. All-project reconciliat
 plan index --project=<project-name> --write
 ```
 
-## Status Handling
+## Plan Handling
 
-For `draft` plans:
+For active plans:
 
-- Keep them short unless the user is approving them.
-- Improve the shape, constraints, and evidence once decision-blocking questions are answered.
-- Do not expand them into execution contracts without approval.
+- Keep them short.
+- Omit optional sections that do not add signal.
+- Improve the product decisions, technical decisions, migration steps, and updates once decision-blocking questions are answered.
+- Preserve execution content that is still correct and concise.
+- Preserve concise user stories, UX decisions, data model decisions, architecture decisions, migration/backfill steps, and dated updates when they define the intended change.
+- Refresh stale context, file paths, commands, and scope only where they are needed for execution.
+- If the plan is no longer valid, update `updated`, explain why in the plan, and revise the incorrect parts.
 
-For `approved` plans:
+For archived plans:
 
-- Preserve detailed execution content that is still correct.
-- Refresh stale context, file paths, commands, scope, and verification steps.
-- Add or update a drift check when source files are load-bearing.
-- If the plan is no longer valid, set `status: draft`, update `updated`, explain why in the plan, and revise the incorrect parts.
-
-For `done` plans:
-
-- Leave them alone unless there is a cheap reason to spot-check acceptance criteria or the user asked for cleanup.
-- Move them toward archive only when they no longer need to appear in active planning.
+- Leave them alone unless the user asked for cleanup.
 
 For archive candidates:
 
@@ -69,24 +63,14 @@ For archive candidates:
 
 ## Plan Improvements
 
-Improve plans for execution quality, not decorative polish.
+Improve plans for execution quality, not decorative polish. Keep improvements short.
 
 Useful improvements include:
 
 - Stronger goal and scope boundaries.
-- Current file paths, commands, symbols, routes, schemas, and tests.
-- Concrete context that a fresh executor needs.
-- Sequenced implementation steps with verification after meaningful steps.
-- Acceptance criteria tied to observable behavior.
-- Explicit out-of-scope work where scope creep is likely.
-- Notes about drift, false assumptions, blockers, or user decisions.
-
-Avoid:
-
-- Rewriting plans only for style.
-- Deep-auditing drafts whose intent is still unclear.
-- Keeping obsolete work active because it can be made to look tidy.
-- Turning every plan into an approved-plan template.
+- Concise product decisions, data model decisions, architecture decisions, migration/backfill steps, and dated updates.
+- Current file paths, commands, symbols, routes, schemas, and tests only when the plan depends on them.
+- Blockers or user decisions.
 
 ## Output
 
@@ -96,6 +80,6 @@ For one project, return:
 - Plans still valid.
 - Plans needing user decisions.
 - Archive candidates.
-- Verification or code-audit evidence used.
+- Code-audit evidence used.
 
 For all projects, group the same result by project and include a short aggregate count.

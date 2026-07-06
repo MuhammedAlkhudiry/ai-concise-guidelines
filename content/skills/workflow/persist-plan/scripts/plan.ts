@@ -17,19 +17,16 @@ type Plan = {
   path: string;
   project: string;
   relativePath: string;
-  status: string;
   updated: string;
   title: string;
   description: string;
 };
 
 type Options = {
-  clear: boolean;
   project: string;
   projectExplicit: boolean;
   plansRoot: string;
   query: string;
-  status: string;
   write: boolean;
 };
 
@@ -46,10 +43,8 @@ Commands:
   index     Print or rewrite the active plan index
 
 Options:
-  --clear               Archive all done plans without opening interactive selection
   --project=<name>       Project folder under ~/plans
   --plans-root=<path>    Plans root, defaults to ~/plans
-  --status=<status>      Filter list by status
   --write                Rewrite INDEX.md with the active plan index`);
 }
 
@@ -59,31 +54,13 @@ function parseOptions(args: string[]): Options {
   let project = cwdProject;
   let projectExplicit = false;
   let plansRoot = join(home, "plans");
-  let status = "";
   let write = false;
-  let clear = false;
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
 
     if (arg === "--write") {
       write = true;
-      continue;
-    }
-
-    if (arg === "--clear") {
-      clear = true;
-      continue;
-    }
-
-    if (arg === "--status") {
-      status = args[index + 1] || "";
-      index += 1;
-      continue;
-    }
-
-    if (arg.startsWith("--status=")) {
-      status = arg.slice("--status=".length);
       continue;
     }
 
@@ -102,18 +79,12 @@ function parseOptions(args: string[]): Options {
   }
 
   return {
-    clear,
     project,
     projectExplicit,
     plansRoot: resolve(plansRoot.replace(/^~/, home)),
     query: query.join(" ").trim(),
-    status,
     write,
   };
-}
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function frontmatter(text: string): Record<string, string> {
@@ -148,7 +119,6 @@ function readPlan(projectRoot: string, project: string, entry: string): Plan | u
     path: main,
     project,
     relativePath,
-    status: meta.status || "missing",
     updated: meta.updated || "missing",
     title: title(text, entry),
     description: meta.description || "",
@@ -169,9 +139,7 @@ function indexBody(project: string, plans: Plan[]): string {
   return [
     `# ${project} Plans`,
     "",
-    ...plans.map(
-      (plan) => `- [${plan.title}](${plan.relativePath}) - ${plan.status}, updated ${plan.updated}`,
-    ),
+    ...plans.map((plan) => `- [${plan.title}](${plan.relativePath}) - updated ${plan.updated}`),
     "",
   ].join("\n");
 }
@@ -209,13 +177,6 @@ function groupPlansByProject(projects: string[], plans: Plan[]): Map<string, Pla
   return grouped;
 }
 
-function filteredPlans(options: Options): Plan[] {
-  const plans = activePlans(join(options.plansRoot, options.project), options.project);
-  if (!options.status) return plans;
-
-  return plans.filter((plan) => plan.status === options.status);
-}
-
 function matches(plan: Plan, query: string): boolean {
   const normalized = query.toLowerCase();
 
@@ -225,7 +186,7 @@ function matches(plan: Plan, query: string): boolean {
 }
 
 function findPlan(options: Options): Plan | undefined {
-  const plans = filteredPlans({ ...options, status: "" });
+  const plans = activePlans(join(options.plansRoot, options.project), options.project);
   if (!options.query) return plans[0];
 
   const exact = plans.find(
@@ -261,10 +222,6 @@ function printPlansTable(plans: Plan[]): void {
     48,
     Math.max("Title".length, ...plans.map((plan) => plan.title.length)),
   );
-  const statusWidth = Math.min(
-    16,
-    Math.max("Status".length, ...plans.map((plan) => plan.status.length)),
-  );
   const updatedWidth = Math.max("Updated".length, ...plans.map((plan) => plan.updated.length));
   const descriptionWidth = Math.min(
     56,
@@ -272,10 +229,10 @@ function printPlansTable(plans: Plan[]): void {
   );
 
   console.log(
-    `${pad("Updated", updatedWidth)}  ${pad("Status", statusWidth)}  ${pad("Title", titleWidth)}  ${pad("Description", descriptionWidth)}  File`,
+    `${pad("Updated", updatedWidth)}  ${pad("Title", titleWidth)}  ${pad("Description", descriptionWidth)}  File`,
   );
   console.log(
-    `${"-".repeat(updatedWidth)}  ${"-".repeat(statusWidth)}  ${"-".repeat(titleWidth)}  ${"-".repeat(descriptionWidth)}  ${"-".repeat(4)}`,
+    `${"-".repeat(updatedWidth)}  ${"-".repeat(titleWidth)}  ${"-".repeat(descriptionWidth)}  ${"-".repeat(4)}`,
   );
 
   for (const plan of plans) {
@@ -286,7 +243,7 @@ function printPlansTable(plans: Plan[]): void {
         ? `${plan.description.slice(0, descriptionWidth - 3)}...`
         : plan.description;
     console.log(
-      `${pad(plan.updated, updatedWidth)}  ${pad(plan.status, statusWidth)}  ${pad(displayTitle, titleWidth)}  ${pad(displayDescription, descriptionWidth)}  ${plan.relativePath}`,
+      `${pad(plan.updated, updatedWidth)}  ${pad(displayTitle, titleWidth)}  ${pad(displayDescription, descriptionWidth)}  ${plan.relativePath}`,
     );
   }
 }
@@ -294,9 +251,7 @@ function printPlansTable(plans: Plan[]): void {
 function listPlans(options: Options): void {
   const projectRoot = join(options.plansRoot, options.project);
   const projectNames = relatedProjectNames(options);
-  const plans = activePlansForList(options).filter(
-    (plan) => !options.status || plan.status === options.status,
-  );
+  const plans = activePlansForList(options);
   const multipleProjects = projectNames.length > 1;
 
   console.log(`${options.project} plans`);
@@ -307,7 +262,7 @@ function listPlans(options: Options): void {
   console.log("");
 
   if (plans.length === 0) {
-    console.log(options.status ? `No ${options.status} plans found.` : "No active plans found.");
+    console.log("No active plans found.");
     return;
   }
 
@@ -340,45 +295,12 @@ function showPath(options: Options): void {
   console.log(requirePlan(options).path);
 }
 
-function replaceFrontmatterValue(text: string, key: string, value: string): string {
-  const frontmatterMatch = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!frontmatterMatch) return text;
-
-  const lines = frontmatterMatch[1].split("\n");
-  const nextLines = lines.map((line) => (line.startsWith(`${key}:`) ? `${key}: ${value}` : line));
-
-  if (!lines.some((line) => line.startsWith(`${key}:`))) {
-    nextLines.push(`${key}: ${value}`);
-  }
-
-  return text.replace(/^---\n[\s\S]*?\n---/, `---\n${nextLines.join("\n")}\n---`);
-}
-
-function markArchived(plan: Plan): void {
-  let text = readFileSync(plan.path, "utf8");
-  text = replaceFrontmatterValue(text, "status", "archived");
-  text = replaceFrontmatterValue(text, "updated", today());
-  writeFileSync(plan.path, text);
-}
-
 function archivePlan(options: Options): void {
   const projectRoot = join(options.plansRoot, options.project);
   const plans = activePlans(projectRoot, options.project);
   let selectedPlans: string[] = [];
 
-  if (options.clear) {
-    if (options.query) {
-      console.error("--clear cannot be combined with a plan query.");
-      process.exit(1);
-    }
-
-    selectedPlans = plans.filter((plan) => plan.status === "done").map((plan) => plan.name);
-
-    if (selectedPlans.length === 0) {
-      console.log("No done plans found.");
-      return;
-    }
-  } else if (options.query) {
+  if (options.query) {
     selectedPlans = [requirePlan(options).name];
   } else {
     if (plans.length === 0) {
@@ -387,8 +309,8 @@ function archivePlan(options: Options): void {
     }
 
     const selectionLines = [
-      "Plan\tStatus\tDescription",
-      ...plans.map((plan) => `${plan.name}\t${plan.status}\t${plan.description}`),
+      "Plan\tDescription",
+      ...plans.map((plan) => `${plan.name}\t${plan.description}`),
     ];
 
     const selection = spawnSync(
@@ -437,8 +359,6 @@ function archivePlan(options: Options): void {
 
   mkdirSync(archiveRoot, { recursive: true });
   for (const selected of selectedPlans) {
-    const plan = readPlan(projectRoot, options.project, selected);
-    if (plan) markArchived(plan);
     renameSync(join(projectRoot, selected), join(archiveRoot, selected));
   }
 
@@ -461,7 +381,7 @@ function indexPlans(options: Options): void {
   console.log(`Root: ${projectRoot}`);
   console.log(`Active plans: ${plans.length}`);
   for (const plan of plans) {
-    console.log(`- ${plan.name}: ${plan.status}, updated ${plan.updated}`);
+    console.log(`- ${plan.name}: updated ${plan.updated}`);
   }
 
   if (options.write) {

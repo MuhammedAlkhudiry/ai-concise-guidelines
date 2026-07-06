@@ -8,20 +8,13 @@ import { describe, expect, test } from "bun:test";
 
 const script = join(dirname(fileURLToPath(import.meta.url)), "plan.ts");
 
-function writePlan(
-  root: string,
-  project: string,
-  file: string,
-  title: string,
-  status = "draft",
-): void {
+function writePlan(root: string, project: string, file: string, title: string): void {
   const projectRoot = join(root, project);
   mkdirSync(projectRoot, { recursive: true });
   writeFileSync(
     join(projectRoot, file),
     [
       "---",
-      `status: ${status}`,
       "created: 2026-06-01",
       "updated: 2026-06-02",
       `project: ${project}`,
@@ -101,7 +94,7 @@ describe("plan list", () => {
 });
 
 describe("plan archive", () => {
-  test("clears done plans without archiving active work", () => {
+  test("archives the matching plan without changing frontmatter", () => {
     const fixture = mkdtempSync(join(tmpdir(), "plan-cli-"));
     const plansRoot = join(fixture, "plans");
     const checkout = join(fixture, "example-project");
@@ -109,13 +102,12 @@ describe("plan archive", () => {
 
     try {
       mkdirSync(checkout, { recursive: true });
-      writePlan(plansRoot, "example-project", "done.md", "Done Plan", "done");
-      writePlan(plansRoot, "example-project", "draft.md", "Draft Plan", "draft");
-      writePlan(plansRoot, "example-project", "approved.md", "Approved Plan", "approved");
+      writePlan(plansRoot, "example-project", "billing.md", "Billing Plan");
+      writePlan(plansRoot, "example-project", "editor.md", "Editor Plan");
 
       const result = spawnSync(
         "bun",
-        [script, "archive", "--clear", `--plans-root=${plansRoot}`],
+        [script, "archive", "billing", `--plans-root=${plansRoot}`],
         {
           cwd: checkout,
           encoding: "utf8",
@@ -124,17 +116,16 @@ describe("plan archive", () => {
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("Archived 1 plan.");
-      expect(result.stdout).toContain(join(projectRoot, "archive", "done.md"));
+      expect(result.stdout).toContain(join(projectRoot, "archive", "billing.md"));
       expect(result.stderr).toBe("");
-      expect(existsSync(join(projectRoot, "done.md"))).toBe(false);
+      expect(existsSync(join(projectRoot, "billing.md"))).toBe(false);
 
-      const archivedPlan = readFileSync(join(projectRoot, "archive", "done.md"), "utf8");
+      const archivedPlan = readFileSync(join(projectRoot, "archive", "billing.md"), "utf8");
       const index = readFileSync(join(projectRoot, "INDEX.md"), "utf8");
 
-      expect(archivedPlan).toContain("status: archived");
-      expect(index).toContain("draft.md");
-      expect(index).toContain("approved.md");
-      expect(index).not.toContain("done.md");
+      expect(archivedPlan).not.toContain("status:");
+      expect(index).toContain("editor.md");
+      expect(index).not.toContain("billing.md");
 
       const list = spawnSync("bun", [script, "list", `--plans-root=${plansRoot}`], {
         cwd: checkout,
@@ -142,35 +133,8 @@ describe("plan archive", () => {
       });
 
       expect(list.status).toBe(0);
-      expect(list.stdout).toContain("draft.md");
-      expect(list.stdout).toContain("approved.md");
-      expect(list.stdout).not.toContain("done.md");
-    } finally {
-      rmSync(fixture, { recursive: true, force: true });
-    }
-  });
-
-  test("reports when there are no done plans to clear", () => {
-    const fixture = mkdtempSync(join(tmpdir(), "plan-cli-"));
-    const plansRoot = join(fixture, "plans");
-    const checkout = join(fixture, "example-project");
-
-    try {
-      mkdirSync(checkout, { recursive: true });
-      writePlan(plansRoot, "example-project", "draft.md", "Draft Plan");
-
-      const result = spawnSync(
-        "bun",
-        [script, "archive", "--clear", `--plans-root=${plansRoot}`],
-        {
-          cwd: checkout,
-          encoding: "utf8",
-        },
-      );
-
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("No done plans found.");
-      expect(result.stderr).toBe("");
+      expect(list.stdout).toContain("editor.md");
+      expect(list.stdout).not.toContain("billing.md");
     } finally {
       rmSync(fixture, { recursive: true, force: true });
     }

@@ -1,25 +1,20 @@
----
-name: ask-options
-description: Decision option formatting for requests about options, alternatives, approaches, paths, choices, trade-offs, product, code, tools, process, writing, or architecture.
----
+# Decision Surface
 
-# Ask Options
+Use when a user asks for options, alternatives, approaches, paths, choices, trade-offs, or when a workshop reveals meaningfully different paths.
 
 Present options as a useful decision surface, not a brainstorm dump.
-
-## Personality
-You are a decision designer. Make the choice crisp, opinionated, and honest about cost.
+Make the choice crisp, opinionated, and honest about cost.
 Never present equally shiny options when one path clearly earns the work.
 
 ## Workflow
 
-1. Identify the real decision, constraints, and stakes before listing options.
+1. Identify the real decision, constraints, stakes, and recommendation criteria before listing options.
 2. Use the user's requested option count when provided.
 3. For meaningful open-ended decisions with no requested count, default to Smallest Safe Move, Balanced Bet, Bigger Strategic Move, and Ideal Version.
 4. For small tactical decisions, use 2-3 options instead of forcing the four-option ladder.
 5. If the choices are not naturally a size ladder, use distinct strategic paths instead.
 6. Compare options against explicit criteria that matter for the decision.
-7. End with a recommendation unless the user asks for a neutral list; the choice is complete when the trade-off that makes the recommendation win is explicit.
+7. End with a recommendation unless the user asks for a neutral list.
 
 ## Option Format
 
@@ -39,3 +34,4 @@ Use this shape for each option, merging fields for simple choices: `**Option N: 
 - Flag attractive-but-bad options instead of presenting them as equal choices.
 - Do not pad the response to reach four options when fewer credible choices exist.
 - Do not make every option sound equally good; name the trade-off that matters.
+- The choice is complete when the trade-off that makes the recommendation win is explicit.
