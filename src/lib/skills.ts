@@ -24,6 +24,7 @@ const DEFAULT_CATEGORY = "uncategorized";
 const SKILL_CHARACTER_WARNING_LIMIT = 4000;
 const SKILL_LONG_LINE_WARNING_LIMIT = 240;
 const SKILL_SECTION_CHARACTER_WARNING_LIMIT = 2000;
+const SKILL_LOCAL_PATH_PREFIXES = ["references/", "scripts/", "assets/"];
 
 function parseSkillFrontmatter(content: string, skillPath: string): SkillFrontmatter {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -87,8 +88,77 @@ function formatList(items: string[]): string {
   return `${shownItems.join(", ")}${suffix}`;
 }
 
+function cleanLocalReferencePath(target: string): string {
+  const strippedTarget = target
+    .replace(/^<|>$/g, "")
+    .split("#", 1)[0]
+    .split("?", 1)[0]
+    .replace(/[.,;:]+$/g, "");
+
+  try {
+    return decodeURIComponent(strippedTarget);
+  } catch {
+    return strippedTarget;
+  }
+}
+
+function isLocalMarkdownTarget(target: string): boolean {
+  return (
+    target.length > 0 &&
+    !target.startsWith("#") &&
+    !target.startsWith("/") &&
+    !target.startsWith("<") &&
+    !target.includes("://") &&
+    !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(target)
+  );
+}
+
+function validateSkillLocalReferences(
+  skillsRoot: string,
+  skillDir: string,
+  skillPath: string,
+  content: string,
+  options: SkillDiscoveryOptions,
+): void {
+  const missingTargets = new Set<string>();
+  const markdownLinkPattern = /\[[^\]]*]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g;
+  const localPathPattern = /(?:^|[\s(`])((?:references|scripts|assets)\/[A-Za-z0-9._~/#?=-]+)/gm;
+
+  for (const match of content.matchAll(markdownLinkPattern)) {
+    const target = match[1];
+    if (!isLocalMarkdownTarget(target)) {
+      continue;
+    }
+
+    const localPath = cleanLocalReferencePath(target);
+    if (localPath && !existsSync(join(skillDir, localPath))) {
+      missingTargets.add(localPath);
+    }
+  }
+
+  for (const match of content.matchAll(localPathPattern)) {
+    const localPath = cleanLocalReferencePath(match[1]);
+    if (
+      localPath &&
+      SKILL_LOCAL_PATH_PREFIXES.some((prefix) => localPath.startsWith(prefix)) &&
+      !existsSync(join(skillDir, localPath))
+    ) {
+      missingTargets.add(localPath);
+    }
+  }
+
+  if (missingTargets.size > 0) {
+    options.reportWarning?.(
+      `Skill references missing local files: ${relative(skillsRoot, skillPath)} ${formatList(
+        Array.from(missingTargets).sort(),
+      )}`,
+    );
+  }
+}
+
 function validateSkillSize(
   skillsRoot: string,
+  skillDir: string,
   skillPath: string,
   content: string,
   options: SkillDiscoveryOptions,
@@ -146,6 +216,8 @@ function validateSkillSize(
       )}`,
     );
   }
+
+  validateSkillLocalReferences(skillsRoot, skillDir, skillPath, content, options);
 }
 
 export function discoverLocalSkills(
@@ -177,7 +249,7 @@ export function discoverLocalSkills(
   });
 
   for (const skill of skills) {
-    validateSkillSize(skillsRoot, skill.skillPath, skill.content, options);
+    validateSkillSize(skillsRoot, skill.dir, skill.skillPath, skill.content, options);
   }
 
   const seen = new Set<string>();

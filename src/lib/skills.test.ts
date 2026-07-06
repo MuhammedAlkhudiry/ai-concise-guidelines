@@ -118,6 +118,26 @@ describe("discoverLocalSkills", () => {
     }
   });
 
+  test("warns when a skill references missing local files", () => {
+    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    const warnings: string[] = [];
+    try {
+      writeSkill(root, "workflow", "workflow", [
+        "# workflow",
+        "Read [the guide](references/missing-guide.md).",
+        "Run `scripts/missing-script.ts` when needed.",
+      ]);
+
+      discoverLocalSkills(root, { reportWarning: (message) => warnings.push(message) });
+
+      expect(warnings).toEqual([
+        "Skill references missing local files: workflow/workflow/SKILL.md references/missing-guide.md, scripts/missing-script.ts",
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("keeps local source skills within the skill size policy", () => {
     const warnings: string[] = [];
 

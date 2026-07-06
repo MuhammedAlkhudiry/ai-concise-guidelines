@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 
 type JsonObject = Record<string, unknown>;
 
@@ -54,7 +54,28 @@ for (let i = 2; i < process.argv.length; i++) {
 const root = args.get("root") || join(home, ".codex", "sessions");
 const days = Number(args.get("days") || 14);
 const limit = Number(args.get("limit") || 12);
-const since = Date.now() - days * 24 * 60 * 60 * 1000;
+const cwdFilter = args.get("cwd");
+const since = resolveSince();
+
+function resolveSince(): number {
+  const sinceMtime = args.get("since-mtime");
+  if (sinceMtime) {
+    const value = Number(sinceMtime);
+    if (!Number.isNaN(value)) {
+      return value > 10_000_000_000 ? value : value * 1000;
+    }
+  }
+
+  const sinceDate = args.get("since");
+  if (sinceDate) {
+    const value = Date.parse(sinceDate);
+    if (!Number.isNaN(value)) {
+      return value;
+    }
+  }
+
+  return Date.now() - days * 24 * 60 * 60 * 1000;
+}
 
 function walk(dir: string): string[] {
   const files: string[] = [];
@@ -94,6 +115,21 @@ function byteLength(value: string): number {
 
 function approxTokens(bytes: number): number {
   return Math.round(bytes / 4);
+}
+
+function normalizePath(path: string): string {
+  const expandedPath = path.startsWith("~/") ? join(home, path.slice(2)) : path;
+  return resolve(expandedPath).replace(/\/+$/, "");
+}
+
+function matchesCwd(cwd: string): boolean {
+  if (!cwdFilter) {
+    return true;
+  }
+
+  const normalizedCwd = normalizePath(cwd);
+  const normalizedFilter = normalizePath(cwdFilter);
+  return normalizedCwd === normalizedFilter || normalizedCwd.startsWith(`${normalizedFilter}/`);
 }
 
 function addCommand(
@@ -178,13 +214,14 @@ for (const file of files) {
     truncatedOutputs: 0,
   };
   const calls = new Map<string, { name: string; command: string }>();
+  const sessionCommands = new Map<string, CommandSummary>();
+  let sessionParsed = 0;
 
   for (const line of readFileSync(file, "utf-8").split(/\n/)) {
     if (!line) continue;
 
     summary.lines++;
     summary.bytes += byteLength(line);
-    totalLines++;
 
     let event: JsonObject;
     try {
@@ -193,7 +230,7 @@ for (const file of files) {
       continue;
     }
 
-    totalParsed++;
+    sessionParsed++;
     const type = asString(event.type);
     const payload = asObject(event.payload);
 
@@ -259,11 +296,31 @@ for (const file of files) {
       summary.execOutputs++;
       if (originalTokens > 1000) summary.largeExecOutputs++;
       if (truncated) summary.truncatedOutputs++;
-      addCommand(commands, call.command, bytes, originalTokens, truncated);
+      addCommand(sessionCommands, call.command, bytes, originalTokens, truncated);
     }
   }
 
+  if (!matchesCwd(summary.cwd)) {
+    continue;
+  }
+
+  totalLines += summary.lines;
+  totalParsed += sessionParsed;
   sessions.push(summary);
+  for (const command of sessionCommands.values()) {
+    const existing = commands.get(command.command) || {
+      command: command.command,
+      count: 0,
+      bytes: 0,
+      originalTokens: 0,
+      truncated: 0,
+    };
+    existing.count += command.count;
+    existing.bytes += command.bytes;
+    existing.originalTokens += command.originalTokens;
+    existing.truncated += command.truncated;
+    commands.set(command.command, existing);
+  }
 }
 
 const totalBytes = sessions.reduce((sum, session) => sum + session.bytes, 0);
@@ -281,8 +338,15 @@ const averageFirstInput = firstInputs.length
   : 0;
 
 console.log(`# Codex Session Context Audit\n`);
-console.log(`Window: last ${days} days`);
-console.log(`Files: ${files.length}`);
+console.log(
+  `Window: ${
+    args.has("since") || args.has("since-mtime") ? `since ${new Date(since).toISOString()}` : `last ${days} days`
+  }`,
+);
+if (cwdFilter) {
+  console.log(`CWD filter: ${normalizePath(cwdFilter).replace(home, "~")}`);
+}
+console.log(`Files: ${sessions.length}/${files.length}`);
 console.log(`Parsed events: ${totalParsed}/${totalLines}`);
 console.log(`Stored session text: ~${approxTokens(totalBytes).toLocaleString()} tokens`);
 console.log(`Average first request input: ${averageFirstInput.toLocaleString()} tokens`);

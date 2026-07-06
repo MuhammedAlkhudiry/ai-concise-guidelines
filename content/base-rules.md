@@ -31,6 +31,8 @@
   Add tests only for a named observable behavior contract, regression, boundary, authorization, persistence, integration, or user-visible flow that is not already covered.
   Before adding a test, state the gap it closes; if the gap is weak, covered elsewhere, implementation-only, brittle, or low-value, skip the test and mention that choice.
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
+- **Fix broken path first**: When the intended code path is broken, fix that path before adding a fallback, alternate adapter, or second implementation method.
+  If a fallback is genuinely the better product or engineering choice, explain the trade-off and get user approval before adding it.
 - **Change-only plans**: When presenting a plan, include only steps that change, verify, investigate, or decide something.
   Do not add steps just to say what will stay unchanged.
 - **Options**: When discussing options, weigh practical solutions and trade-offs.
