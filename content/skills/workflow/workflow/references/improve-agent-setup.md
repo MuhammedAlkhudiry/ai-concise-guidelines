@@ -94,7 +94,7 @@ Use for finding or evaluating current tools that could reduce context, improve s
 Primary checks:
 
 - Search GitHub/web for current tools when recommendations depend on current ecosystem state.
-- Cover the user's real stack by default: Laravel/PHP, React, React Native, DDEV/local environments, testing/QA, Sentry/PostHog/observability, databases/search, and AI-agent context/search workflows.
+- Cover the user's real stack by default: Laravel/PHP, React, React Native, Herd/local environments, testing/QA, Sentry/PostHog/observability, databases/search, and AI-agent context/search workflows.
 - Prefer tools that cut work, reduce context, improve feedback loops, or remove repeated manual steps over dashboards that only report usage.
 - Rank tools by fit, maturity, local integration cost, and whether they reduce complexity.
 - Translate good tools into concrete setup actions: new skill, doctor check, shell helper, project convention, install/evaluation note, or no-op.

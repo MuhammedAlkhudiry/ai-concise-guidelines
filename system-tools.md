@@ -2,7 +2,7 @@
 
 This repo assumes a small set of non-default tools on top of a normal macOS shell environment.
 
-`doctor` checks command presence, Solo control-plane readiness, managed helper links, and installed skill drift. It does not verify login state, credentials, DDEV project state, editor/terminal preferences, or full runtime access.
+`doctor` checks command presence, Solo control-plane readiness, managed helper links, and installed skill drift. It does not verify login state, credentials, local project state, editor/terminal preferences, or full runtime access.
 
 Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and similar are intentionally not listed here.
 
@@ -38,7 +38,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | Tool | Why this repo assumes it |
 | --- | --- |
 | `phpstorm` | Default editor command in `shell/zsh-custom.zsh`. |
-| `ddev` | Laravel aliases and local PHP workflows use it. |
+| `herd` | Laravel aliases and local PHP workflows use it. |
 | `opencode` | `ai` launcher and OpenCode workflows use it. |
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA. |
 | `agent-device` | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA. |

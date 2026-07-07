@@ -109,17 +109,12 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
-        name: "ddev",
+        name: "herd",
         level: "optional",
         why: "Used by Laravel aliases in the synced zsh config.",
         versionArgs: ["--version"],
-        latest: {
-          type: "homebrew",
-          formula: "ddev",
-        },
         update: {
-          commands: ["brew upgrade ddev"],
-          note: "DDEV upgrades follow the install method; this is for the Homebrew install.",
+          note: "Update through the Laravel Herd app.",
         },
       },
       {

@@ -27,7 +27,7 @@ export EDITOR=phpstorm
 
 # --- Android/Java ------------------------------------------------------------
 # Exposes the local Android SDK and the Java runtime expected by mobile tooling.
-# These are host-level paths, not project-specific or DDEV-managed values.
+# These are host-level paths, not project-specific runtime-managed values.
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export PATH="$PATH:$ANDROID_HOME/emulator"
 export PATH="$PATH:$ANDROID_HOME/platform-tools"
@@ -40,14 +40,14 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
-# --- Laravel/DDEV ------------------------------------------------------------
-# Short aliases for the expected Laravel workflow: PHP and Artisan run inside
-# DDEV, while host package-manager commands stay outside Docker.
-alias a="ddev artisan"
-alias ds="ddev start"
+# --- Laravel/Herd ------------------------------------------------------------
+# Short aliases for the expected Laravel workflow: PHP and Artisan run through
+# Herd, while host package-manager commands stay on the host.
+alias a="herd php artisan"
+alias hs="herd open"
 
 # --- Testing -----------------------------------------------------------------
-# Fast Laravel test shortcuts. They intentionally use the `a` alias so the DDEV
+# Fast Laravel test shortcuts. They intentionally use the `a` alias so the Herd
 # boundary remains visible in one place.
 alias t="a test --parallel --stop-on-failure"
 alias coverage="a test --parallel --coverage --stop-on-failure"
@@ -87,9 +87,13 @@ command -v mise >/dev/null && eval "$(mise activate zsh)"
 
 # --- PHP ---------------------------------------------------------------------
 # Makes the Homebrew PHP 8.2 binaries available for host-side tooling. Laravel
-# project commands still go through DDEV aliases unless explicitly run by hand.
+# project commands should normally use Herd unless explicitly run by hand.
 export PATH="/opt/homebrew/opt/php@8.2/bin:$PATH"
 export PATH="/opt/homebrew/opt/php@8.2/sbin:$PATH"
+
+# Herd exposes its PHP binary and PHP 8.4 configuration for host-side tools.
+export HERD_PHP_84_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/84/"
+export PATH="$HOME/Library/Application Support/Herd/bin/:$PATH"
 
 # --- ZSH Settings ------------------------------------------------------------
 # Keeps autosuggestions visible but quiet in dark terminal themes.

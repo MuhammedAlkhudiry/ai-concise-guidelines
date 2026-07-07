@@ -226,7 +226,7 @@ main() {
 
   print_header "Shell and helper integrations"
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
-  check_tool ddev optional "Used by Laravel aliases in the synced zsh config."
+  check_tool herd optional "Used by Laravel aliases in the synced zsh config."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool agent-browser required "Default AI-agent browser automation CLI."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."

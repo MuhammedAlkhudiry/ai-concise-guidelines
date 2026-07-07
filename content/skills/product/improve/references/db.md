@@ -23,7 +23,7 @@ Improve the real database at the right scale: focused schema cleanup, query fixe
 
 - Never edit files, install packages, import databases, run migrations, run seeders, or implement the suggestion from this skill.
 - Never run write queries, destructive queries, schema changes, or maintenance commands against production.
-- Use `/workflow prod-db-to-ddev` for production-to-local imports, `product-health` for live operational DB health, and framework-specific skills for implementation.
+- Use `/workflow prod-db-to-local` for production-to-local imports, `product-health` for live operational DB health, and framework-specific skills for implementation.
 - Ask for clarification only when the target codebase is unknown or multiple unrelated targets make inspection impossible.
 - Do not read, search, cite, or rely on agent memory, rollout summaries, previous-session notes, or memory-derived context unless the user explicitly asks for prior context.
 - Do not create separate database-audit setup files.

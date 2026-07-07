@@ -10,7 +10,7 @@ Use these defaults only when the app has no stronger local pattern.
 ## Workflow
 
 1. Check sibling files, related controllers, models, and tests first.
-2. Run Laravel and PHP commands inside `ddev` unless explicitly told not to.
+2. Run Laravel and PHP commands through Herd unless the project has a stronger local runtime convention.
 3. Use `sg` before broad `rg` when finding PHP classes, methods, attributes, Eloquent calls, or chained query shapes.
 4. Confirm schema, relationships, requests, policies, queues, cache, and consumers before behavior changes.
 5. Follow local conventions over this skill.

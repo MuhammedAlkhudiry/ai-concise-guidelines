@@ -10,7 +10,7 @@ Treat ports as separate contracts:
 - Native client Metro port: the port compiled or configured into the iOS/Android dev client.
 - Automation reload port: the port used by tools such as `agent-device metro reload`.
 - Backend API host and port: the URL the app's API client calls.
-- Web or proxy ports: DDEV, Vite, Laravel, nginx, or tunnel ports.
+- Web or proxy ports: Herd, Vite, Laravel, nginx, or tunnel ports.
 
 Do not assume that changing one changes the others. React Native defaults many Metro paths to `8081`; Expo projects often move Metro elsewhere.
 
@@ -42,9 +42,9 @@ For iOS, remember that `Podfile.properties.json` alone may not be enough. React 
 
 This example shows the failure mode this workflow is meant to prevent:
 
-- Web app: `https://example-project.ddev.site`
-- Android emulator API docs target: `http://example-project.ddev.site`
-- Mobile API client in local dev: Android uses `http://10.0.2.2:38080`; iOS uses `http://127.0.0.1:38080`.
+- Web app: `http://example-project.test`
+- Android emulator API docs target: `http://example-project.test`
+- Mobile API client in local dev uses the same `.test` URL as the local web/backend app unless the device cannot resolve that host.
 - Mobile Metro: `http://localhost:8082`.
 - `example-mobile-app/package.json` starts Expo with `expo start --port 8082`.
 - Android dev-client reload was broken because the running Metro server was on `8082` while reload tooling defaulted to `8081`.

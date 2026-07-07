@@ -51,7 +51,7 @@ export function createOpencodeConfig(homeDir: string): OpencodeConfig {
         "**/.env*": "allow",
       },
       bash: {
-        "ddev *": "allow",
+        "herd *": "allow",
         "git *": "allow",
         "grep *": "allow",
         "rg *": "allow",

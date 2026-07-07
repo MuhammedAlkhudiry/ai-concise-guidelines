@@ -21,7 +21,7 @@ Use this when the user asks for `/workflow`, names one of the available workflow
 - `mobile-in-app-payments`
 - `mobile-social-sign-in`
 - `mobile-store-release`
-- `prod-db-to-ddev`
+- `prod-db-to-local`
 - `product-setup`
 - `qa-test-cases`
 - `super-thread`

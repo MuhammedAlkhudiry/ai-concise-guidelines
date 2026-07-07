@@ -10,7 +10,7 @@ const tools: Array<[string, string[]]> = [
   ["pdfinfo", ["-v"]],
   ["pdftotext", ["-v"]],
   ["pdftoppm", ["-v"]],
-  ["ddev", ["--version"]],
+  ["herd", ["--version"]],
   ["sentry-cli", ["--version"]],
   ["doctl", ["version"]],
   ["gh", ["--version"]],

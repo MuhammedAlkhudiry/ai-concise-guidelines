@@ -82,8 +82,8 @@ function composerCommands(): string[] {
   }
 
   if (deps["laravel/framework"]) {
-    if (deps["pestphp/pest"]) commands.push("ddev artisan test --parallel");
-    else commands.push("ddev artisan test --parallel");
+    if (deps["pestphp/pest"]) commands.push("herd php artisan test --parallel");
+    else commands.push("herd php artisan test --parallel");
   } else if (deps["pestphp/pest"]) {
     commands.push("./vendor/bin/pest --parallel");
   } else if (deps["phpunit/phpunit"]) {
@@ -91,7 +91,7 @@ function composerCommands(): string[] {
   }
 
   if (deps["larastan/larastan"] || has("phpstan.neon") || has("phpstan.neon.dist")) {
-    commands.push("ddev exec ./vendor/bin/phpstan analyse");
+    commands.push("herd php ./vendor/bin/phpstan analyse");
   }
 
   return [...new Set(commands)];

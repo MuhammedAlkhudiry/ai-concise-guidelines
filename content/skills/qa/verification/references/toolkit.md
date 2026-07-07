@@ -7,7 +7,7 @@ Use these Awraq-tested tool categories when establishing verification in a new p
 - `mise`: root task runner for composed gates such as `check`, `format-check`, `lint`, `typecheck`, and per-app commands.
 - `CHECKLIST.md`: short runnable index. Keep composition in `mise.toml`, not the checklist.
 - `bun` / `bunx`: JavaScript package runner for local tools.
-- `ddev`: PHP/Laravel runtime wrapper when the app depends on container services.
+- `herd`: PHP/Laravel runtime wrapper for local apps.
 
 ## JavaScript / TypeScript
 

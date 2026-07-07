@@ -1,7 +1,7 @@
 ## Environment
 
 - **SOLO** — use the Solo CLI for managing repo processes, dev servers.
-- **HOST-PM** — Run `npm` and `bun` commands on the host, not inside Docker.
+- **HOST-PM** — Run `npm` and `bun` commands on the host.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` with TypeScript; use Python only when it is clearly better for the task.
 - **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including mutating the local dev environment when needed.
   Tell the user what changed after the task is done.
