@@ -35,6 +35,10 @@
 - **Ask when unclear**: If intent, constraints, or the right change are unclear, ask before guessing.
 - **Fix broken path first**: When the intended code path is broken, fix that path before adding a fallback, alternate adapter, or second implementation method.
   If a fallback is genuinely the better product or engineering choice, explain the trade-off and get user approval before adding it.
+- **Trust contracts** — Prefer direct, contract-driven code over speculative defensive scaffolding.
+  Validate data at system boundaries, then trust typed inputs, framework guarantees, and established internal call contracts.
+  Do not add guards, fallbacks, retries, normalization layers, compatibility branches, or alternate implementations unless there is evidence the case occurs or the boundary is genuinely untrusted.
+  When a required value is missing inside a trusted flow, fail clearly or fix the upstream contract instead of silently masking the problem.
 - **Change-only plans**: When presenting a plan, include only steps that change, verify, investigate, or decide something.
   Do not add steps just to say what will stay unchanged.
 - **Options**: When discussing options, weigh practical solutions and trade-offs.
