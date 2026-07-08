@@ -27,6 +27,8 @@
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
+- **QA means manual QA** — When the user asks for QA, interpret it as a request for manual QA steps, human-run test cases, or a QA handoff.
+  Do not run or propose end-to-end, smoke, or other automated test commands unless the user explicitly asks for automated verification.
 - **Test restraint** — Do not write or modify automated tests just because code changed or a bug was fixed.
   Add tests only for a named observable behavior contract, regression, boundary, authorization, persistence, integration, or user-visible flow that is not already covered.
   Before adding a test, state the gap it closes; if the gap is weak, covered elsewhere, implementation-only, brittle, or low-value, skip the test and mention that choice.

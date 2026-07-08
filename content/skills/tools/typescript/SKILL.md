@@ -33,4 +33,5 @@ Defaults for TypeScript and JavaScript development.
 
 - Keep imports at the file top, grouped external, internal, then types.
 - Prefer named exports; use default exports only where the framework expects them.
+- Avoid dynamic `import()` for ordinary module loading; use it only for deliberate code splitting, optional dependency isolation, or another concrete runtime boundary.
 - Avoid circular imports.

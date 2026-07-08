@@ -40,4 +40,5 @@ Defaults for React development.
 ## Performance
 
 - No premature optimization; memoize only for real perf issues.
+- Use `React.lazy`, framework dynamic imports, or route-level lazy loading only for deliberate code splitting or a concrete runtime boundary.
 - Avoid inline objects/functions in JSX that cause re-renders.

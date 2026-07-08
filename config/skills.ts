@@ -33,7 +33,7 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     skills: [
       {
         name: "upgrading-expo",
-        sourcePath: "plugins/expo/skills/upgrading-expo",
+        sourcePath: "plugins/expo/skills/expo-upgrade",
       },
     ],
   },
