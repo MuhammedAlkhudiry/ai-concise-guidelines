@@ -21,12 +21,16 @@ Defaults for React development.
 - Prefer local state; global only for truly cross-cutting data.
 - Use query libraries (React Query/SWR) for server data; never raw fetch in components.
 - Query cache is source of truth; do not mirror it locally.
+- Trust validated query results and typed component contracts after the loading, empty, and error states have been handled at the owning boundary.
+- Do not add defensive local fallback state for server data, required route params, or required props. Fix the owner, schema, loader, or route contract instead.
 
 ## Props & Composition
 
 - Minimize props; prefer whole objects over many primitives.
 - No prop drilling; use composition or context.
 - Access global stores via hooks, not props.
+- Treat required props as required. Do not add `?.`, `??`, placeholder labels, or no-op handlers for required props unless the component explicitly supports an optional mode.
+- Keep optional behavior explicit in the prop type, then handle it once near the branch that renders that mode.
 
 ## Effects & Render
 
@@ -36,6 +40,7 @@ Defaults for React development.
 - Keep render pure: no side effects, no mutation.
 - Use stable list keys: real IDs, not array indexes.
 - Put final conditional renders just before JSX, never between hooks.
+- Do not add extra conditional renders for impossible internal states. Use the existing route, suspense, query, or error boundary, and let broken contracts fail visibly during development.
 
 ## Performance
 

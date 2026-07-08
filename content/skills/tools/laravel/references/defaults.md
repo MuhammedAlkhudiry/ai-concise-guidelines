@@ -11,6 +11,8 @@ Use these only when the app has no stronger local pattern.
 - Use PHP backed enums for constrained values instead of magic strings or integers.
 - Prefer Carbon objects over date strings.
 - Use Laravel helpers such as `Str`, `Arr`, `Number`, `Uri`, and collections instead of custom parsing or manual manipulation.
+- Trust values after Form Request validation, typed DTO construction, enum casts, route model binding, and explicit service contracts. Do not re-check required keys, types, or nullability in inner application code.
+- Do not add `isset()`, `empty()`, `??`, `optional()`, `rescue()`, or broad `try`/`catch` wrappers around values the current Laravel boundary already guarantees. If the guarantee is wrong, fix the Form Request, cast, relationship, binding, or caller.
 
 ## Fluent APIs
 
@@ -28,6 +30,7 @@ Use these only when the app has no stronger local pattern.
 - Prefer procedural application flow over Laravel events unless eventing is the real boundary.
 - Avoid scopes for one-off simple queries.
 - Avoid Form Requests with an `authorize()` method that only returns `true`.
+- Keep validation and authorization at the Laravel boundary that owns them. Do not duplicate Form Request validation or policy checks deeper in services unless that service is intentionally callable from another untrusted boundary.
 
 ## Queries And Models
 
@@ -36,6 +39,8 @@ Use these only when the app has no stronger local pattern.
 - Before adding `$fillable` or `$guarded`, check whether the project uses `Model::unguarded()` or `Model::unguard()` globally. If it does, do not add mass-assignment properties.
 - When no explicit order is specified, sort by `id` or `created_at` descending.
 - Avoid hardcoded table names in queries. Exception: migrations can use hardcoded table names because migrations are frozen snapshots and models can change later.
+- Use implicit route model binding, `findOrFail()`, `firstOrFail()`, and relationship constraints when missing records are exceptional. Do not convert required records into nullable flows unless the product behavior genuinely allows absence.
+- When a resource requires a relationship, eager load it where the query is built. Do not hide missing eager loads with nullable relationship access or empty fallbacks in resources.
 
 ## Responses And Cache
 
