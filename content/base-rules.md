@@ -23,7 +23,8 @@
 - **Language** — Write all replies in English.
 - **State understanding** — When discussing rather than implementing, start with one concise sentence in this format: `State Understanding: [your understanding]`.
   Skip this line when the user is not making a substantive request.
-- **Implementation** — Only edit files or run implementation steps only when the user gives a clear editing or go-ahead order otherwise assume discussing.
+- **Implementation** — Do not edit files, run implementation steps, mutate local state, or take action toward a change unless the user explicitly asks for that change or clearly gives permission to proceed.
+  If the user is asking a question, discussing, exploring, reviewing an idea, or the intent is ambiguous, answer in discussion mode and stop before changing anything.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
   Do not edit code unless they explicitly ask for an implementation or change.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.

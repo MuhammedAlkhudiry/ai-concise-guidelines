@@ -6,7 +6,7 @@ Use this with `deep-work` systematic mode. Do not stop at classification. Finish
 
 At the start, set the working goal to: make every in-scope PR merge-ready. If goal tracking exists, create or update it.
 
-Ready means: checked in a fresh clone, no conflicts, required CI passing, checks understood, branch updated, and no draft/status blocker.
+Ready means: checked in a fresh clone, synced with the latest base branch, no conflicts, required CI passing, checks understood, and no draft/status blocker.
 
 ## Scope
 
@@ -38,19 +38,20 @@ Process PRs one by one there, resetting cleanly to latest base before each PR.
 For each PR, loop until ready or hard-blocked:
 
 1. Check out the PR in the fresh clone with `gh pr checkout <pr>`. If it fails, record the blocker and continue.
-2. Mergeability: use `mergeable` and `mergeStateStatus` from `gh pr view` or GraphQL. If stale or unknown, refresh and retry once.
-3. CI status: inspect required checks first with `gh pr checks <pr> --required --json name,state,bucket,link,description,startedAt,completedAt`.
+2. Sync the PR branch with the latest base branch before judging readiness. Use `main` when it is the PR base; otherwise use `baseRefName`.
+3. Mergeability: use `mergeable` and `mergeStateStatus` from `gh pr view` or GraphQL. If stale or unknown, refresh and retry once.
+4. CI status: inspect required checks first with `gh pr checks <pr> --required --json name,state,bucket,link,description,startedAt,completedAt`.
    Use the JSON `bucket` values, not exit code alone; `gh pr checks` uses a pending-specific exit code and can still need interpretation.
-4. Optional checks: when required checks are absent or incomplete, inspect all checks or `statusCheckRollup`.
-5. Fix actionable blockers: update behind branches, resolve conflicts, repair failing CI, and rerun verification.
-6. Do not leave draft final when otherwise ready. Mark ready for review, or name the missing human decision.
-7. Return the clone to a clean latest-base state before starting the next PR.
+5. Optional checks: when required checks are absent or incomplete, inspect all checks or `statusCheckRollup`.
+6. Fix actionable blockers: update behind branches, resolve conflicts, repair failing CI, and rerun verification.
+7. Do not leave draft final when otherwise ready. Mark ready for review, or name the missing human decision.
+8. Return the clone to a clean latest-base state before starting the next PR.
 
 ## Fixing
 
 Babysitting implies permission to update PR branches and push readiness fixes. Keep changes scoped to the current PR.
 
-1. Prefer `gh pr update-branch <pr>` for clean behind branches.
+1. Prefer `gh pr update-branch <pr>` to sync a PR branch with the latest base branch.
 2. For conflicts, use the fresh clone's PR branch. Merge or rebase the base branch by repo convention, verify, then push.
 3. For failing CI, inspect logs before editing. Do not rerun checks instead of diagnosing deterministic failures.
 4. After any remote change, re-check mergeability and CI for that PR before moving on.
@@ -63,7 +64,7 @@ Finish with a coverage report:
 
 - Repositories checked and PR counts.
 - Clone workspace used for each repository.
-- PRs ready now: no conflicts, required CI passing, and no merge or draft blocker.
+- PRs ready now: synced with latest base, no conflicts, required CI passing, and no merge or draft blocker.
 - PRs blocked by type: conflicts, failing CI, pending CI, behind, draft, review/ruleset/merge queue, access or API uncertainty.
 - Fixes performed, if any, with verification after each fix.
 - Exact PRs still uncertain and the evidence needed to finish them.
