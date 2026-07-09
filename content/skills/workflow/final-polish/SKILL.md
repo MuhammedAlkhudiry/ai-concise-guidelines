@@ -11,7 +11,7 @@ Use this flow after an approved implementation plan when the change spans many f
 2. Run `code-simplifier` as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
 3. Check behavior coverage and add or adjust focused tests only where the implementation changed a meaningful contract or flow that is not already covered.
    Do not add tests merely because files changed, bugs were fixed, or a review checklist mentions coverage.
-4. Run `code-quality-review` as a read-only structural review in a fresh subagent.
+4. Run `code-review` as a read-only Standards review in a fresh subagent.
 5. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
 6. Run `verification` as the final verification and fix loop. Skip smoke tests unless explicitly requested.
 7. Run one final fresh read-only reviewer gate in a subagent.
@@ -20,7 +20,7 @@ Use this flow after an approved implementation plan when the change spans many f
 
 ## Rules
 
-- Delegate `code-simplifier`, `refactor-opportunities`, `code-quality-review`, and every review gate to fresh-context subagents.
+- Delegate `code-simplifier`, `refactor-opportunities`, `code-review`, and every review gate to fresh-context subagents.
 - If subagents are unavailable, report the missing passes instead of simulating them.
 - Only `code-simplifier` subagents may edit; review and opportunity subagents are read-only.
 - The main agent owns implementation, synthesis, triage, integration, final reporting, and whether another simplifier pass is needed.
@@ -41,7 +41,7 @@ Implemented:
 Subagent passes:
 - code-simplifier: <passes and result>
 - refactor-opportunities: <count and headline>
-- code-quality-review: <blockers fixed, findings deferred, or none>
+- code-review: <blockers fixed, findings deferred, or none>
 - final reviewer gate: <clear or notes>
 
 Verification:

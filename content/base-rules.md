@@ -26,6 +26,7 @@
 - **Implementation** — Do not edit files, run implementation steps, mutate local state, or take action toward a change unless the user explicitly asks for that change or clearly gives permission to proceed.
   If the user is asking a question, discussing, exploring, reviewing an idea, or the intent is ambiguous, answer in discussion mode and stop before changing anything.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first and stop unless they explicitly ask for a change.
+- **Ground in code** — Before answering any question about a project or changing code, read the relevant code first and let the actual system shape the response.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
 - **QA means manual QA** — When the user asks for QA, give manual QA steps, human-run test cases, or a QA handoff.
   Do not run or propose end-to-end, smoke, or other automated test commands unless the user explicitly asks for automated verification.
