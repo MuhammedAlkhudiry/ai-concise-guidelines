@@ -18,16 +18,6 @@ export interface RemoteSkillSource {
 // refreshes external agent guidance without a separate lockfile workflow.
 export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
   {
-    repository: "https://github.com/pbakaus/impeccable.git",
-    ref: "main",
-    skills: [
-      {
-        name: "impeccable",
-        sourcePath: ".agents/skills/impeccable",
-      },
-    ],
-  },
-  {
     repository: "https://github.com/expo/skills.git",
     ref: "main",
     skills: [

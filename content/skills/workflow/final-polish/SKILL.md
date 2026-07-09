@@ -1,16 +1,14 @@
 ---
 name: final-polish
-description: Post-implementation hardening for broad code changes before human review. Use after approved implementation plans that span many files, behaviors, or review surfaces, especially before saying READY FOR HUMAN REVIEW.
+description: Post-implementation hardening for broad approved changes before human review, especially before saying READY FOR HUMAN REVIEW.
 ---
-
-# Final Polish
 
 Use this flow after an approved implementation plan when the change spans many files, behaviors, or review surfaces. Minor edits and small features do not need the full flow.
 
-## Flow
+## Workflow
 
 1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions.
-2. Run `code-simplifier` as one or more fresh-context subagent edit passes. After each pass, the main agent must evaluate the result and decide whether another pass is needed. The main agent must not run these passes itself.
+2. Run `code-simplifier` as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
 3. Check behavior coverage and add or adjust focused tests only where the implementation changed a meaningful contract or flow that is not already covered.
    Do not add tests merely because files changed, bugs were fixed, or a review checklist mentions coverage.
 4. Run `code-quality-review` as a read-only structural review in a fresh subagent.
@@ -22,48 +20,41 @@ Use this flow after an approved implementation plan when the change spans many f
 
 ## Rules
 
-- Subagent use is absolute for `code-simplifier`, `refactor-opportunities`, `code-quality-review`, and every other review gate. The main agent must delegate these passes to fresh-context subagents, not perform or simulate them inline.
-- If subagents are unavailable, say that the final-polish flow cannot be completed as written and report the missing subagent passes. Do not replace mandatory subagent passes with main-agent review.
-- Only `code-simplifier` subagents may edit. Review and opportunity subagents are read-only.
-- The main agent owns implementation, synthesis, triage, integration, and final reporting, but not simplifier or review execution.
-- The main agent decides whether a follow-up `code-simplifier` pass is needed after reviewing each subagent pass.
+- Delegate `code-simplifier`, `refactor-opportunities`, `code-quality-review`, and every review gate to fresh-context subagents.
+- If subagents are unavailable, report the missing passes instead of simulating them.
+- Only `code-simplifier` subagents may edit; review and opportunity subagents are read-only.
+- The main agent owns implementation, synthesis, triage, integration, final reporting, and whether another simplifier pass is needed.
 - Run independent subagent reviews, inspections, or disjoint edit scopes in parallel whenever possible.
 - Keep review-only passes read-only.
 - Edit automatically only inside the approved plan scope.
 - Defer out-of-scope refactors, optional cleanup, and smoke tests unless the user explicitly approves them.
 - Present `refactor-opportunities` findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
 
-## Reply Template
-
-Use this shape when finishing the flow:
+- Finish with this shape:
 
 ```text
 READY FOR HUMAN REVIEW
 
 Implemented:
-- <user-facing summary of the completed change>
+- <summary>
 
 Subagent passes:
-- code-simplifier: <number of passes; simplifications made, or none>
-- refactor-opportunities: <count and headline summary; details below>
+- code-simplifier: <passes and result>
+- refactor-opportunities: <count and headline>
 - code-quality-review: <blockers fixed, findings deferred, or none>
-- final reviewer gate: <clear, or remaining non-blocking notes>
+- final reviewer gate: <clear or notes>
 
 Verification:
-- <checks run and results>
+- <checks and results>
 
 Deferred:
 - <known non-blockers, skipped checks, or none>
 
 Refactor opportunities:
-Recommended:
-- <opportunity, affected files, impact, safest next move>
-
-Optional:
-- <opportunity, affected files, impact, safest next move>
+- <recommended or optional items, or "No worthwhile refactor opportunities found">
 
 Human review focus:
-- <areas where human judgment is most useful>
+- <areas where human judgment is useful>
 ```
 
-Omit empty `Recommended` or `Optional` sections. If no worthwhile refactor opportunities were found, write `Refactor opportunities: No worthwhile refactor opportunities found`.
+- Omit empty sections.

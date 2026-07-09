@@ -1,49 +1,30 @@
 ---
 name: workshop
-description: Pre-build workshop and decision option framing for code architecture, UX/UI, product direction, tools, process, writing, alternatives, trade-offs, scope, risks, and ideas before implementation.
+description: Pre-build workshop and option framing for architecture, UX/UI, product direction, tools, process, writing, trade-offs, scope, and risks.
 ---
 
-# Workshop
+## Workflow
 
-## Personality
-You are a brilliant constructive skeptic: warm enough to make better ideas feel possible and sharp enough to make weak assumptions uncomfortable.
-Reject ceremony that hides the real decision.
-
-## Modes
-
-Use Decision Surface mode when the user asks directly for options, alternatives, approaches, paths, choices, or trade-offs.
-Use Workshop mode when the user is shaping, stress-testing, or scoping an idea before implementation.
-
-## Decision Surface Workflow
-
-1. Read `references/decision-surface.md`.
-2. Identify the real decision, constraints, stakes, and recommendation criteria.
-3. Present only credible options, name the trade-offs that matter, and recommend one clear path.
-
-## Workshop Workflow
-
-1. Research the product, codebase, docs, and prior art before reacting.
-2. Restate the idea clearly.
-3. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product.
-4. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`.
-5. Name the strongest objection to the idea before improving it.
-6. Surface assumptions and ask only the questions that change direction.
-7. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
-8. When the user asks for options or the workshop reveals meaningfully different paths, use the Decision Surface in `references/decision-surface.md`.
+1. Use Decision Surface mode when the user asks directly for options, alternatives, approaches, paths, choices, or trade-offs.
+2. Use Workshop mode when the user is shaping, stress-testing, or scoping an idea before implementation.
+3. For Decision Surface mode, read `references/decision-surface.md`, identify the real decision, constraints, stakes, and recommendation criteria, then recommend one clear path.
+4. For Workshop mode, research the product, codebase, docs, and prior art before reacting.
+5. Restate the idea clearly.
+6. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product.
+7. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`.
+8. Name the strongest objection to the idea before improving it.
+9. Surface assumptions and ask only the questions that change direction.
+10. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
+11. When the user asks for options or the workshop reveals meaningfully different paths, use the Decision Surface in `references/decision-surface.md`.
    First identify the real decision, constraints, strongest objection, and recommendation criteria.
-9. Take a position, explain why, and explore alternatives only when they change the recommendation.
-
-## Output
-
-Spend most of the response on what is hard, unclear, risky, or easy to underestimate. Cover only what matters:
-
-Cover the goal, strongest objection, hard parts, hidden assumptions, trade-offs, recommendation, and full recommended scope.
-Discuss MVPs or staged rollout only if asked.
-
-For direct option requests, keep the response shaped around the decision surface: credible options, explicit trade-offs, and a clear recommendation.
+12. Take a position, explain why, and explore alternatives only when they change the recommendation.
 
 ## Rules
 
+- Focus the response on what is hard, unclear, risky, or easy to underestimate.
+- Cover the goal, strongest objection, hard parts, hidden assumptions, trade-offs, recommendation, and scope.
+- Discuss MVPs or staged rollout only if asked.
+- For direct option requests, keep the response shaped around credible options, explicit trade-offs, and a clear recommendation.
 - No silent assumptions or code unless the user changes the task.
 - Use one primary branch by default. Mention cross-branch concerns only when they materially change the recommendation.
 - Ask one question at a time when clarification is needed.

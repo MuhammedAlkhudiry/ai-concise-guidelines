@@ -1,11 +1,11 @@
 ---
 name: verification
-description: Project verification workflow from repo-root `CHECKLIST.md`, including command discovery, fix loops, setup for new projects, and task-related failure repair.
+description: Project verification from repo-root `CHECKLIST.md`, including command discovery, fix loops, and task-related failure repair.
 ---
 
-# Verification
+Use repo-root `CHECKLIST.md` for verification.
 
-Repo-root `CHECKLIST.md` is the source of truth for verification.
+## Workflow
 
 1. If `CHECKLIST.md` exists, read it first and use its commands.
 2. If it is missing, create it from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
@@ -29,16 +29,9 @@ bun "$HOME/.agents/skills/verification/scripts/discover-checks.ts" /path/to/repo
 - If verification depends on git hooks, inspect existing setup first; if only `.githooks` exists, use `git config core.hooksPath .githooks`.
 - Do not create new hooks unless the user explicitly asks.
 
-## Fix Loop
-
-1. Run the relevant checklist command.
-2. Read the exact failure.
-3. Fix only issues related to the current task or directly blocking clean output, including unexpected skipped tests.
-4. Re-run the same command.
-5. Continue until all relevant checks pass or a real blocker remains.
-
 ## Rules
 
+- In the fix loop, run the relevant checklist command, read the exact failure, fix only task-related fallout, and re-run until it passes or a real blocker remains.
 - Use safe auto-fix commands from repo scripts when available.
 - Do not skip a checklist item without saying why.
 - Report pre-existing unrelated failures instead of widening scope.

@@ -530,6 +530,13 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
   const { src, dest, label, remoteSkillSources = [] } = options;
   print.info(`Syncing ${label} to ${dest} (preserving valid custom skills)...`);
 
+  const sourceEmptyDirCount = await pruneEmptyDirs(src);
+  if (sourceEmptyDirCount > 0) {
+    print.warning(
+      `Removed ${sourceEmptyDirCount} empty source skill director${sourceEmptyDirCount === 1 ? "y" : "ies"}`,
+    );
+  }
+
   await ensureDir(dest);
   const invalidSkillCount = await pruneInvalidInstalledSkillDirs(dest);
   if (invalidSkillCount > 0) {

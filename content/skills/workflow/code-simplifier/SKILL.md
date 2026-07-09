@@ -1,9 +1,7 @@
 ---
 name: code-simplifier
-description: Code/test simplification after implementation or refactor, for simplify this, clean up code, remove complexity, prune brittle tests, or overgrown files.
+description: Code and test simplification after implementation or refactor, including cleanup, complexity reduction, brittle tests, and overgrown files.
 ---
-
-# Code Simplifier
 
 Simplify hard until only the necessary shape remains.
 
@@ -28,31 +26,7 @@ Simplify hard until only the necessary shape remains.
 - Flatten nesting with early returns and guard clauses. Never use nested ternaries.
 - Treat new helpers, fallback paths, guards, retries, null cushions, shims, and normalization as guilty until tied to a real boundary.
 - Follow local patterns and prefer explicit readable code over clever compression.
-
-## React Prop Simplification
-
-- Remove unused, redundant, constant, speculative, or "just in case" props and all tests, mocks, fixtures, defaults, and call-site arguments that only supported them.
-- Inline constants at the component boundary; collapse pass-through props when the middle component adds no behavior.
-- Let components read clean local or global state directly when prop drilling only mirrors that state.
-- Replace mode, variant, and boolean props with composition, separate component shapes, or local conditionals when that removes branching.
-- Keep props for real external contracts, caller-owned decisions, public reusable APIs, or important test boundaries.
-
-## State Simplification
-
-- Delete local state that only mirrors props, URL params, server data, form libraries, stores, or render-derived values.
-- Replace synchronization effects with direct derivation, selectors, memoization, or one value owner.
-- Collapse reducers, setters, and handlers that only shuttle values between equivalent shapes.
-- Keep state when it represents user input in progress, async lifecycle, optimistic updates, animation, focus, or other real temporal behavior.
-
-## Data Shape Simplification
-
-- Remove mapping, normalization, fallback fields, adapters, and DTO copies unless they protect a real boundary.
-- Inline one-off transformed objects when the original data is readable at the use site.
-- Delete defensive reshaping for impossible states once callers, schemas, fixtures, and tests prove the shape.
-- Keep adapters at API, persistence, framework, third-party, migration, or compatibility boundaries.
-
-## Test Cleanup
-Use `test-writing`.
-Delete or merge tests only when the remaining suite protects the behavior and the candidate is removed, unreachable, unsupported, duplicated, overfit, or fixture-only.
-Keep tests that cover real regressions, public contracts, security/auth/money/destructive paths, boundaries, integrations, or framework wiring.
-Also keep tests for unknown flakes or otherwise unshown behavior.
+- For React, remove unused props, collapse pass-through props, replace mirrored state with derivation, and keep props/state only for real caller decisions or temporal behavior.
+- For data shapes, remove mapping, normalization, fallback fields, adapters, and DTO copies unless they protect API, persistence, framework, third-party, migration, or compatibility boundaries.
+- Use `test-writing` for test cleanup. Delete or merge tests only when the remaining suite protects the behavior and the candidate is removed, unreachable, unsupported, duplicated, overfit, or fixture-only.
+- Keep tests for real regressions, public contracts, security/auth/money/destructive paths, boundaries, integrations, framework wiring, unknown flakes, or otherwise unshown behavior.

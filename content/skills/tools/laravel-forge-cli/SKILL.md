@@ -1,9 +1,7 @@
 ---
 name: laravel-forge-cli
-description: Laravel Forge CLI operations for install, auth, server switching, deploys, env pull/push, logs, remote commands, opening Forge sites, SSH, and resource checks.
+description: Laravel Forge CLI operations for install, auth, server switching, deploys, env sync, logs, remote commands, SSH, and resource checks.
 ---
-
-# Laravel Forge CLI
 
 Use the official `forge` command for Laravel Forge operations.
 

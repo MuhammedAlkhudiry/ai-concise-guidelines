@@ -26,6 +26,6 @@
 - **SKILL-PORTABLE** — Installed-facing skill files must not point back to source-only repo paths such as `content/skills/...` or local `my-setup` paths; use skill-relative references.
 - **SKILL-GLOBAL** — Skill instructions are global capabilities; do not mention any project, repo, product, client, or local workspace by name.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
-- **MY-SETUP-CLI** — Supported local commands are `my-setup generate`, `my-setup install`, `my-setup doctor`, `my-setup skills overview`, `my-setup skills dump`, `my-setup tools status`, and `my-setup tools update-plan`.
+- **MY-SETUP-CLI** — Supported local commands are `my-setup install`, `my-setup doctor`, `my-setup tools status`, and `my-setup tools update-plan`.
 - **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.

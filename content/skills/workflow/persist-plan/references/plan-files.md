@@ -50,7 +50,7 @@ New plans are intentionally short. They capture the current shared thinking with
 
 If a plan would require an `Open Questions` section, stop and ask the user first. Create the plan only after the blocking decisions are answered.
 
-Use the relevant sections from this shape. Every non-empty section uses bullets. Use the emoji-prefixed headings for scanability, but omit sections that do not add signal. Do not add `🎯 Product Decisions` to a refactor or backend cleanup plan unless there is a real product or UX decision. Do not add `🔁 Migration Steps` just to say "none." Use `📝 Updates` only when there are later plan changes, decisions, or scope corrections.
+Use the relevant sections from this shape. Every non-empty section uses bullets. Use emoji-prefixed headings for scanability, and omit sections that do not add signal. Do not add `🎯 Product Decisions` to a refactor or backend cleanup plan unless there is a real product or UX decision. Do not add `🔁 Migration Steps` just to say "none." Use `📝 Updates` only for later changes, decisions, or scope corrections.
 
 ```md
 # Billing Upgrade
@@ -88,7 +88,7 @@ Use the relevant sections from this shape. Every non-empty section uses bullets.
 - Add the unique subscription index only after duplicate legacy IDs are resolved.
 ```
 
-Use `📝 Updates` for later plan changes, decisions, or scope corrections. Examples:
+Example `📝 Updates` entries:
 
 - `2026-07-06: Confirmed provider webhooks already include renewal period end.`
 - `2026-07-06: Dropped separate plan comparison page; billing settings is enough for v1.`

@@ -1,13 +1,11 @@
 ---
 name: project-knowledge
-description: Project feature knowledge for behavior questions, functionality docs, product investigations, glossary terms, feature packs, aliases, key files, and history.
+description: Project feature knowledge for behavior questions, functionality docs, product investigations, glossary terms, feature packs, and history.
 ---
-
-# Project Knowledge
 
 Use project knowledge packs first for feature or domain context.
 
-## Folder Structure
+Knowledge packs live under:
 
 ```text
 docs/knowledge/

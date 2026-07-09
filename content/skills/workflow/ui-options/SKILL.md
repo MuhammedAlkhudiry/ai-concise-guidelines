@@ -3,8 +3,6 @@ name: ui-options
 description: Multiple UI or UX directions, variants, explorations, option sets, or switchable previews before choosing a final interface.
 ---
 
-# UI Options
-
 Create distinct UI or UX options from product context, existing interface, constraints, and the design system.
 
 ## Workflow

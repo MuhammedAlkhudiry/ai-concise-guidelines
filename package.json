@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate": "bun src/cli.ts generate",
     "install:local": "bun src/cli.ts install",
     "doctor": "bun src/cli.ts doctor",
     "tools:status": "bun src/cli.ts tools status",

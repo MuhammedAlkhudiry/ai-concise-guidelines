@@ -1,8 +1,6 @@
 # Codebase Maintenance
 
-Run a substantial maintenance pass from an isolated clone that leaves a reviewable draft PR,
-an active scheduled automation when requested, and an updated maintenance state. Treat database work
-as codebase health, not a separate branch.
+Run a substantial maintenance pass from an isolated clone. Leave a reviewable draft PR, create requested automation, and update maintenance state. Treat database work as codebase health, not a separate branch.
 
 ## Simple Prompt
 
@@ -28,14 +26,11 @@ pass from a fresh clone, and create a draft PR if reviewable changes are found.
 10. Commit, push, and create a draft PR when changes were made and verification passed.
 11. If no substantial pack is found, report the top candidates, why they were skipped, and what would unblock them.
 
-Completion requires all requested outcomes: explicit automation configured when requested, fresh clone used for
-changes, state file updated when a PR is opened, draft PR opened for verified changes, or a no-change report
-explaining why no substantial pack was available.
+Completion requires every requested outcome: automation configured when requested, edits made from a fresh clone, state updated when a PR opens, a draft PR for verified changes, or a no-change report explaining why no substantial pack was available.
 
 ## Maintenance State
 
-Use a source-controlled state file so future runs do not repeat the same shallow fixes or already-rejected ideas.
-Default to repo-root `.codex/codebase-maintenance.md` unless repo rules prescribe another path.
+Use a source-controlled state file so future runs do not repeat shallow fixes or rejected ideas. Default to repo-root `.codex/codebase-maintenance.md` unless repo rules prescribe another path.
 
 Before selecting work, read the state file when it exists. If it does not exist, create it in the first PR that
 changes code. Track:
@@ -51,9 +46,7 @@ no-change report and say that it was not persisted.
 
 ## Depth Gate
 
-Do not default to infrastructure, config, formatting, generated artifacts, dependency chores, logging polish,
-or developer workflow fixes just because they are safest. They are valid only after inspecting deeper product,
-business, data, or architecture paths and deciding they are still the best maintenance pack.
+Do not default to infrastructure, config, formatting, generated artifacts, dependency chores, logging polish, or developer workflow fixes just because they are safest. They are valid only after deeper product, business, data, or architecture inspection shows they are still the best pack.
 
 Each run should inspect at least one real application flow or core module before selecting work. Prefer changes
 that improve correctness, maintainability, domain modeling, state handling, data access, testability, or user-facing
@@ -82,11 +75,9 @@ Proceed automatically only when all are true:
 - The change does not require a product decision, credential change, production write,
   destructive command, irreversible migration, risky data backfill, or live maintenance operation.
 
-Stop and report when the strongest candidate needs human approval, production access beyond approved
-read-only paths, broad architecture direction, ambiguous data migration strategy, or planned project work.
+Stop and report when the strongest candidate needs human approval, production access beyond approved read-only paths, broad architecture direction, ambiguous data migration strategy, or planned project work.
 
-Safe means safe to execute and review, not guaranteed to be accepted. A bold PR may change structure,
-tests, or domain code when it is reversible, well explained, and locally verified.
+Safe means safe to execute and review, not guaranteed to be accepted. A bold PR may change structure, tests, or domain code when it is reversible, well explained, and locally verified.
 
 ## Automation Setup
 

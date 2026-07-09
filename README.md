@@ -6,15 +6,4 @@ Personal source of truth for my Codex and OpenCode rules, skills, and shell help
 mise run install
 mise run check
 doctor
-my-setup skills overview
-my-setup skills dump
-my-setup tools status
-my-setup tools update-plan
-knowledge init
-knowledge feature "Billing"
-knowledge learning "Billing Renewal Race"
-knowledge list
-knowledge check
 ```
-
-`mise run install` creates `~/.config/my-setup/secrets.zsh` from `config/secrets.default.zsh` and fails until required local secrets are filled.

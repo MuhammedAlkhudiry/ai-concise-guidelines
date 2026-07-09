@@ -1,9 +1,7 @@
 ---
 name: refactor-opportunities
-description: Refactor opportunity reports without edits after implementation, cleanup, branch sync, conflict resolution, code review, or what-to-refactor prompts.
+description: Refactor opportunity reports without edits after implementation, cleanup, branch sync, conflict resolution, review, or what-to-refactor prompts.
 ---
-
-# Refactor Opportunities
 
 Find worthwhile refactors. Never edit files.
 
@@ -15,7 +13,7 @@ Find worthwhile refactors. Never edit files.
 4. For each item, name the concrete code smell, affected files, impact, likely effort or risk, and safest next move.
 5. Suggest only. Do not edit files, apply patches, run formatters, or implement refactors.
 
-## Look For
+## Rules
 
 - Framework, standard-library, or existing package APIs replacing custom code or DRY-only helpers.
 - Duplicated behavior that wants one real boundary, not a thin wrapper.
@@ -24,9 +22,6 @@ Find worthwhile refactors. Never edit files.
 - Manual parsing, query building, serialization, validation, or state handling that a local helper already owns.
 - Brittle tests, fixture noise, or coverage tied to implementation details.
 - Hidden coupling, misleading names, long functions, deep nesting, or parameter clutter.
-
-## Rules
-
 - Keep findings tied to evidence in the code.
 - For broad targets, split read-only inspection across explorer subagents when useful.
   The main agent owns ranking, dedupe, and filtering.

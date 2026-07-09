@@ -3,8 +3,6 @@ name: laravel
 description: Laravel PHP coding, review, and refactor work across controllers, models, migrations, requests, policies, jobs, services, Eloquent, validation, and queues.
 ---
 
-# Laravel Best Practices
-
 Use these defaults only when the app has no stronger local pattern.
 
 ## Workflow
@@ -16,7 +14,7 @@ Use these defaults only when the app has no stronger local pattern.
 5. Follow local conventions over this skill.
 6. Always load `references/defaults.md`.
 
-## Defaults
+## Rules
 
 - Use typed values, DTOs, Laravel helpers, collections, enums, Carbon, and API Resources where they fit.
 - Keep business operations in clear application code, often invokable actions.

@@ -1,9 +1,7 @@
 ---
 name: solo-cli
-description: Solo CLI project and process management, including Solo project status, dev server start/inspection, process logs, Solo HTTP fallback, and explicit Solo requests.
+description: Solo CLI project and process management, including project status, dev servers, process logs, HTTP fallback, and explicit Solo requests.
 ---
-
-# Solo CLI
 
 Use `solo` first for Solo-managed projects and dev processes. For current syntax, run `solo --help` or `solo <command> --help`.
 

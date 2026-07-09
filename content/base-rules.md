@@ -1,9 +1,9 @@
 ## Environment
 
-- **SOLO** — use the Solo CLI for managing repo processes, dev servers.
+- **SOLO** — Use the Solo CLI for repo processes and dev servers.
 - **HOST-PM** — Run `npm` and `bun` commands on the host.
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` with TypeScript; use Python only when it is clearly better for the task.
-- **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including mutating the local dev environment when needed.
+- **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including local dev environment changes when needed.
   Tell the user what changed after the task is done.
 - **JETBRAINS-MCP** — When JetBrains MCP is available, use it as the semantic IDE layer for symbol info, inspections, rename refactors, and open-editor context.
   Keep `rg`/`sg` as the first-line discovery tools, and use JetBrains MCP when IDE indexes make the answer safer than text search.
@@ -25,10 +25,9 @@
   Skip this line when the user is not making a substantive request.
 - **Implementation** — Do not edit files, run implementation steps, mutate local state, or take action toward a change unless the user explicitly asks for that change or clearly gives permission to proceed.
   If the user is asking a question, discussing, exploring, reviewing an idea, or the intent is ambiguous, answer in discussion mode and stop before changing anything.
-- **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first.
-  Do not edit code unless they explicitly ask for an implementation or change.
+- **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first and stop unless they explicitly ask for a change.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
-- **QA means manual QA** — When the user asks for QA, interpret it as a request for manual QA steps, human-run test cases, or a QA handoff.
+- **QA means manual QA** — When the user asks for QA, give manual QA steps, human-run test cases, or a QA handoff.
   Do not run or propose end-to-end, smoke, or other automated test commands unless the user explicitly asks for automated verification.
 - **Test restraint** — Do not write or modify automated tests just because code changed or a bug was fixed.
   Add tests only for a named observable behavior contract, regression, boundary, authorization, persistence, integration, or user-visible flow that is not already covered.

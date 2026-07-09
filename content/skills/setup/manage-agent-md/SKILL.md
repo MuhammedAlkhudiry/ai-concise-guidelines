@@ -1,9 +1,7 @@
 ---
 name: manage-agent-md
-description: AGENTS.md-style instruction files, repo instructions, AI coding guidelines, agent rules, durable context, wording creation, updates, pruning, and review.
+description: AGENTS.md-style instruction files, repo rules, AI coding guidelines, durable context, wording updates, pruning, and review.
 ---
-
-# Manage Agent Markdown
 
 Manage durable agent instructions as operating rules, not documentation.
 
@@ -18,7 +16,7 @@ Manage durable agent instructions as operating rules, not documentation.
 7. Preserve the file's existing structure and labels unless the local pattern is clearly stale.
 8. Run the repository's supported sync and checks after source edits, then report the source file changed and the generated or installed target that was verified.
 
-## Review Checklist
+## Rules
 
 - The rule belongs in an agent instruction file instead of a skill, script, checklist, or project doc.
 - The wording tells the agent what to do.

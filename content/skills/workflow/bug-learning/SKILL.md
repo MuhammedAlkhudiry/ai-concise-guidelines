@@ -1,9 +1,7 @@
 ---
 name: bug-learning
-description: Hard-earned bug learning after debugging misleading, cross-file, cross-system, or durable behavior problems worth preserving in docs/knowledge/learnings.
+description: Durable bug learning after misleading, cross-file, cross-system, or behavior-level debugging worth preserving in docs/knowledge/learnings.
 ---
-
-# Bug Learning
 
 Capture hard-earned bug knowledge, not ordinary bug reports.
 

@@ -21,7 +21,7 @@ Use this workflow for Expo or React Native App Store / Google Play purchases; `e
 
 ## Source Check
 
-Re-read current primary docs when implementing or debugging:
+Read current primary docs before changing an affected surface:
 
 - Expo in-app purchases: `https://docs.expo.dev/guides/in-app-purchases/`
 - Expo IAP library docs: `https://hyochan.github.io/expo-iap/`
@@ -331,15 +331,6 @@ php artisan store:refunds:sync --platform=android --since="30 days ago"
 php artisan store:refunds:sync --platform=ios --invoice-id=123
 ```
 
-Implementation behavior worth copying when it fits:
-
-- Android refunds come from Google Play voided purchases and match `android:<orderId>`; this depends on the refund/void action being visible to the Voided Purchases API.
-- iOS refunds are checked by looking up known `ios:<transactionId>` invoices and reading transaction revocation.
-- Refunded invoices store source, reason, metadata, and a reversal timestamp/status.
-- Quota-package refunds subtract the purchased quantity from the account limit in a transaction.
-- Missing account/product data marks the invoice refunded but skips automatic reversal and sends an admin/support notification.
-- Dry runs return the same shape without changing invoice or entitlement state.
-
 ## Store Setup Runbook
 
 Before declaring store API credentials missing, look for a local project release env such as `$HOME/.config/<project>/mobile-release.env` and pass it to release/status tools with `--env`. Keep this file outside the repo, never commit it, and report credential names/paths only.
@@ -567,19 +558,16 @@ Never log raw purchase tokens, signed transaction JWS payloads, service-account 
 
 ## Field Lessons
 
-- Scope the first IAP release to the exact purchase type being shipped. Do not let web payments, unrelated credits, add-ons, or future subscriptions leak into a consumable-package workflow unless they are part of the release.
-- Backend product resolution uses `product_id` as authority. `package_id` is only a consistency guard.
-- Android completion can belong to the backend for consumables. In that model, the mobile client does not call Android `finishTransaction`; the backend consumes after activation.
-- iOS transactions are finished by the client only after backend verification succeeds.
-- A P0 deploy review caught that Android purchases could be granted without consume; the fix made completion idempotent and retryable.
-- A production Android `422` plus `already owned` came from missing `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`; verification failed, so consume never ran.
-- A later Android `422` came from treating Google Play consume `204 No Content` as failure after value was already granted.
-- A production iOS `422` after the App Store sheet succeeded came from missing `APP_STORE_ISSUER_ID`, `APP_STORE_KEY_ID`, and `APP_STORE_PRIVATE_KEY`.
-- Deleted or unapproved App Store product IDs must not remain mobile-visible; stale product IDs add noise during iOS debugging.
-- The useful diagnostic ladder was redacted logs for request validation, product/package resolution, verification, activation, and completion.
-- Store readiness delayed release work: Paid Apps Agreement, IAP approval, Google Play payment/tax setup, service accounts, and backend env need preflight before build day.
-- Store refund sync should detect Google Play voided purchases and App Store transaction revocations, mark invoices refunded, reverse entitlement/quota capacity, support dry runs and invoice targeting, redact Android purchase tokens, and notify admins/support.
-- A package evaluation should compare a custom backend verifier, framework-specific purchase packages, and external purchase platforms. Keep the custom domain activation/idempotency wrapper when the product rules are simple and domain-specific; choose an external revenue platform when subscriptions, restore flows, webhooks, analytics, experiments, and support tooling are the real product need.
+- Scope the first release to the purchase type being shipped. Keep web payments, unrelated credits, add-ons, and future subscriptions out unless they are part of the release.
+- Treat store product ID as authority. Use package or offer IDs only as consistency checks.
+- Make completion ownership explicit: backend consume for Android consumables when chosen; client finish for iOS only after backend verification succeeds.
+- Make completion idempotent and retryable so activation and store completion can recover independently.
+- Check verifier env before client rewrites: missing Google service-account JSON, App Store issuer/key/private-key values, wrong package/bundle, or wrong store environment commonly surface as generic backend `422`s.
+- Accept Google consume `204 No Content` as success.
+- Remove deleted or unapproved store product IDs from mobile-visible catalogs immediately.
+- Add redacted stage logs for request validation, product resolution, verification, activation, completion, and refund reversal before the final device test.
+- Preflight store readiness early: agreements, product approval, Play payment/tax setup, service accounts, API access, backend env, and sandbox accounts.
+- Compare custom backend verification, framework-specific purchase packages, and external purchase platforms. Keep custom domain activation when rules are simple; choose a revenue platform when subscriptions, restore flows, webhooks, analytics, experiments, and support tooling dominate.
 
 ## Tooling And Product Options
 

@@ -37,6 +37,7 @@ describe("syncManagedSkillsAsync", () => {
   test("removes invalid installed skill directories and empty directories", async () => {
     await withTempDirs(async (src, dest) => {
       writeSkill(src, "tools", "typescript");
+      mkdirSync(join(src, "empty-category"), { recursive: true });
       mkdirSync(join(src, "tools", "typescript", "empty-source-dir"), { recursive: true });
 
       mkdirSync(join(dest, "draft-without-skill-md"), { recursive: true });
@@ -50,6 +51,8 @@ describe("syncManagedSkillsAsync", () => {
 
       await syncManagedSkillsAsync({ src, dest, label: "test skills" });
 
+      expect(existsSync(join(src, "empty-category"))).toBe(false);
+      expect(existsSync(join(src, "tools", "typescript", "empty-source-dir"))).toBe(false);
       expect(existsSync(join(dest, "draft-without-skill-md"))).toBe(false);
       expect(existsSync(join(dest, "custom-valid-skill", "empty-custom-dir"))).toBe(false);
       expect(existsSync(join(dest, "custom-valid-skill", "SKILL.md"))).toBe(true);

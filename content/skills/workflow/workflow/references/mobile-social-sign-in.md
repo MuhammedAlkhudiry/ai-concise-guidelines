@@ -20,7 +20,7 @@ Use this workflow for native mobile Google, Apple, or similar provider sign-in i
 
 ## Source Check
 
-Re-read current primary docs when implementing or debugging:
+Read current primary docs before changing an affected surface:
 
 - Expo Google auth: `https://docs.expo.dev/guides/google-authentication/`
 - Expo AuthSession: `https://docs.expo.dev/versions/latest/sdk/auth-session/`
@@ -180,16 +180,16 @@ Proof required before saying done:
 
 ## Incident Lessons
 
-- A mobile app can pass iOS Google Sign-In and still fail Android because Android uses a different native identity: package name plus signing certificate.
-- A production Play build can fail with Google `DEVELOPER_ERROR` even when an Android OAuth client exists, if that client is registered to the upload key instead of the Play app-signing key.
-- `google-services.json` can be misleading when OAuth client IDs are embedded from a different Google Cloud project. Follow the client IDs actually used by the build and create Android OAuth clients in that project.
-- A production Google failure can be a provider-console configuration issue, not a repo-code issue. Check signed artifact identity before patching app logic.
-- A preview APK, Play internal build, and production Play install can carry different signing assumptions. Name the artifact and signing source in every handoff.
-- Browser OAuth can look close enough to work on one platform while being the wrong abstraction for native Android.
-- Rebuild boundaries matter. Native plugins, capabilities, URL schemes, provider files, and build-time env vars are not fixed by a JS reload.
-- Env-name drift can block the auth fix before the auth code runs. Treat build-install failures separately from provider-auth failures.
-- Observability needs to be added before the final mystery test, not after the user reports "it failed."
-- Real-device/account testing is part of the implementation, not a nice-to-have QA footnote.
+- iOS and Android provider success are independent because Android identity includes package name and signing certificate.
+- Google `DEVELOPER_ERROR` can mean the Android OAuth client is registered to the upload key while the installed build uses the Play app-signing key.
+- Follow the OAuth client IDs actually used by the build; provider config files can point at a different cloud project than expected.
+- Check signed artifact identity and provider-console setup before patching app logic.
+- Name the artifact and signing source in every handoff: preview APK, Play internal build, and production Play install can have different identities.
+- Browser OAuth can appear to work on one platform while remaining the wrong abstraction for native Android.
+- Native plugins, capabilities, URL schemes, provider files, and build-time env vars require a rebuilt artifact.
+- Treat build-install failures separately from provider-auth failures.
+- Add observability before the final device test.
+- Real-device/account testing is part of implementation.
 
 ## Release Handoff
 
