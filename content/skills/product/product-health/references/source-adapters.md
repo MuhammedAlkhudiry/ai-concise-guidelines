@@ -1,6 +1,6 @@
 # Product Health Source Adapters
 
-- Sentry: use `sentry-cli` for issues, events, spans, traces, aggregate Explore data, slow APIs/queries, job exceptions, and stale issue cleanup. Use Sentry setup/upgrade skills for setup gaps. Resolve only confirmed stale issues after verifying org/project context and recent event evidence; do not mutate releases, alerts, projects, or non-stale issues.
+- Sentry: use `sentry-cli` for issues, events, spans, traces, aggregate Explore data, slow APIs/queries, job exceptions, and stale issue cleanup. Fetch full issue details and representative event payloads before reporting, fixing, or resolving an issue. Use Sentry setup/upgrade skills for setup gaps. Resolve only confirmed stale issues after verifying org/project context and recent event evidence; do not mutate releases, alerts, projects, or non-stale issues.
 - Laravel/Horizon/jobs: detect Horizon, queues, scheduler, workers, and failed jobs. Check scheduled work, queue depth, oldest queued job age, retry loops, and last successful run. Use Sentry first, then read-only Artisan over SSH or Forge when available.
 - Server: use Forge CLI or SSH from project docs for uptime, disk, memory, PHP-FPM, Nginx, Supervisor, Horizon, Redis, and logs. Include safe capacity clues. Do not mutate services.
 - Database: use `doctl` for DigitalOcean managed databases. Check status, version, nodes, region, storage, backups, maintenance/events, slow queries, connection-pool clues, and durable read-only integrity checks. Do not report credentials.

@@ -33,13 +33,15 @@ describe("discoverLocalSkills", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
     try {
       writeSkill(root, "tools", "laravel");
-      writeSkill(root, "qa", "qa-handoff");
+      writeSkill(root, "workflow", "implementation-walkthrough");
 
       const skills = discoverLocalSkills(root);
 
-      expect(skills.map((skill) => skill.name)).toEqual(["laravel", "qa-handoff"]);
+      expect(skills.map((skill) => skill.name)).toEqual(["implementation-walkthrough", "laravel"]);
       expect(skills.find((skill) => skill.name === "laravel")?.category).toBe("tools");
-      expect(skills.find((skill) => skill.name === "qa-handoff")?.category).toBe("qa");
+      expect(skills.find((skill) => skill.name === "implementation-walkthrough")?.category).toBe(
+        "workflow",
+      );
       expect(skills.find((skill) => skill.name === "laravel")?.lineCount).toBe(6);
       expect(skills.find((skill) => skill.name === "laravel")?.characterCount).toBe(69);
     } finally {

@@ -596,7 +596,7 @@ Never log raw purchase tokens, signed transaction JWS payloads, service-account 
 - State whether the change needs a native rebuild, store submission, backend deploy, config cache refresh, worker reload, store-console update, tax/agreement update, sandbox purchase, production purchase, or JS-only update.
 - Name product IDs, bundle/package IDs, build profiles, app versions/build numbers, backend env names, and store tracks by name only. Never expose secret values.
 - For store releases, use `/workflow mobile-store-release` when build, submit, credential, or track status matters.
-- For manual QA handoff, invoke `qa-handoff`; for focused QA suite design, invoke `qa-test-cases`.
+- For guided inspection, QA, or decision-making after implementation, invoke `implementation-walkthrough`; for focused QA suite design, invoke `qa-test-cases`.
 - For React Native or Expo implementation details, invoke `react-native`.
 - For Sentry SDK setup or missing mobile observability, invoke the relevant Sentry skill.
 - Monitor product fetch failures, backend verification failures, activation failures, completion failures, refund/revocation events, purchase conversion, and platform/build-specific regressions.

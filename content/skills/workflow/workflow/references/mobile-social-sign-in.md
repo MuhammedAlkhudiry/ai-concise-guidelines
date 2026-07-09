@@ -195,7 +195,7 @@ Proof required before saying done:
 
 - State whether the change needs a native rebuild, store submission, provider-console update, EAS env update, backend deploy, or JS update only.
 - For store releases, use `/workflow mobile-store-release` when build, submit, credential, or track status matters.
-- For manual QA handoff, invoke `qa-handoff`; for proof after implementation, invoke `verification`.
+- For guided inspection, QA, or decision-making after implementation, invoke `implementation-walkthrough`; for proof after implementation, invoke `verification`.
 - For React Native or Expo implementation details, invoke `react-native`.
 - For Sentry SDK setup or missing mobile observability, invoke the relevant Sentry skill.
 - Monitor provider-specific failures, backend token-verification failures, sign-in conversion, and platform/build-specific regressions after release.

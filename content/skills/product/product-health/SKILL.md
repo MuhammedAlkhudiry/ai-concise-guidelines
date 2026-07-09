@@ -17,7 +17,7 @@ bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /pa
 ```
 
 5. Query configured sources with `references/source-adapters.md`. Prefer structured CLI/API output over dashboards.
-6. For Sentry stale cleanup, verify org/project context and compare recent events against the checked window.
+6. For Sentry issues, verify org/project context, read the full issue details and representative event details, then compare recent events against the checked window.
    Resolve only issues that are fixed, inactive, duplicated by a newer issue, or known noise with no current user impact.
 7. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI usage, and cost/capacity where reliable signals exist.
 8. Report actual run results using the result style below.
@@ -32,6 +32,7 @@ bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /pa
 - When naming opaque issue identifiers such as `AWRAQ-1VX`, render the identifier as a Markdown link when the source provides a URL.
   Include the readable title inline: `[AWRAQ-1VX](https://issue-url) - issue description`.
 - Include Sentry cleanup results when issues were resolved: issue link, title, stale evidence, and why resolving it was safe.
+- When fixing, resolving, or reporting a Sentry issue, base the conclusion on full issue details and representative event payloads, not issue-list summaries alone.
 - For AI or agentic features, explain usage patterns, successful and failed outcomes, tool/action mix, confusing sessions, and drop-off points.
   Include repeated user intents and evidence-backed product improvements.
 - Include action items only when useful, and report blocked or missing observability as a finding.
