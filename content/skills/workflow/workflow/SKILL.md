@@ -35,4 +35,3 @@ Use this when the user asks for `/workflow`, names one of the available workflow
 - Reference files live under `references/<workflow>.md` unless the closest existing filename differs.
 - For `dependency-upgrade`, load only the relevant stack refs under `references/dependency-upgrade/`.
 - Do not treat this as a generic workflow skill; use it only for listed branches.
-- Infer the intended workflow from natural wording when the match is clear.

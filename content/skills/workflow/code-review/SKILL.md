@@ -8,8 +8,6 @@ Review the diff between `HEAD` and a fixed point along two independent axes.
 - `Standards`: whether the change follows documented repo conventions and the structural smell baseline.
 - `Spec`: whether the change implements the requested issue, PRD, plan, or spec without missing requirements or scope creep.
 
-Keep the review read-only unless the user explicitly asks for fixes.
-
 ## Workflow
 
 1. Pin the fixed point.
@@ -24,7 +22,7 @@ Keep the review read-only unless the user explicitly asks for fixes.
    If no spec exists, skip the Spec axis and say `No spec available`.
 5. Identify standards sources such as agent instructions, `AGENTS.md`, `CONTRIBUTING.md`, `CODING_STANDARDS.md`, style guides, framework conventions, local patterns, and relevant language or framework skills.
 6. Read `references/smell-baseline.md` for the Standards axis.
-7. Run Standards and Spec as independent read-only passes, preferably in fresh subagents when available and useful.
+7. Run Standards and Spec as independent passes.
 8. Aggregate without merging the axes. Put findings under `Standards` and `Spec`, then end with counts and the worst issue within each axis.
 
 ## Standards Axis
@@ -45,8 +43,6 @@ Report only what can be grounded in the spec source or a clear user request.
 - Behavior that was not requested and creates scope creep.
 - Implemented requirements that appear behaviorally wrong.
 - Ambiguous requirements that need human confirmation.
-
-If there is no spec source, do not invent one. Say `No spec available` and keep the Standards axis useful.
 
 ## Output
 

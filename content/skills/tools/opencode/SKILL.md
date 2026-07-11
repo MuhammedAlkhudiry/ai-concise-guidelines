@@ -3,8 +3,6 @@ name: opencode
 description: OpenCode CLI delegation for explicit OpenCode requests, ask-mode second opinions, non-interactive prompts, another-repo edits, and `opencode run` workflows.
 ---
 
-Use local `opencode` only when the user explicitly asks for OpenCode.
-
 ## Workflow
 
 1. Use this model form:

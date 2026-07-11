@@ -9,13 +9,12 @@ Use this flow after an approved implementation plan when the change spans many f
 
 1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions.
 2. Run `code-simplifier` as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
-3. Check behavior coverage and add or adjust focused tests only where the implementation changed a meaningful contract or flow that is not already covered.
-   Do not add tests merely because files changed, bugs were fixed, or a review checklist mentions coverage.
-4. Run `code-review` as a read-only Standards review in a fresh subagent.
+3. Run `test-coverage-audit` and close approved worthwhile behavior gaps.
+4. Run `code-review` as a Standards review in a fresh subagent.
 5. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
-6. Run `verification` as the final verification and fix loop. Skip smoke tests unless explicitly requested.
-7. Run one final fresh read-only reviewer gate in a subagent.
-8. Run `refactor-opportunities` as a final read-only suggestion pass in a fresh subagent. Do not implement its suggestions during this flow.
+6. Run `verification` as the final verification and fix loop.
+7. Run one final fresh reviewer gate in a subagent.
+8. Run `refactor-opportunities` as a final suggestion pass in a fresh subagent.
 9. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.
 
 ## Rules
@@ -25,9 +24,6 @@ Use this flow after an approved implementation plan when the change spans many f
 - Only `code-simplifier` subagents may edit; review and opportunity subagents are read-only.
 - The main agent owns implementation, synthesis, triage, integration, final reporting, and whether another simplifier pass is needed.
 - Run independent subagent reviews, inspections, or disjoint edit scopes in parallel whenever possible.
-- Keep review-only passes read-only.
-- Edit automatically only inside the approved plan scope.
-- Defer out-of-scope refactors, optional cleanup, and smoke tests unless the user explicitly approves them.
 - Present `refactor-opportunities` findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
 
 - Finish with this shape:

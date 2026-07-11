@@ -21,8 +21,6 @@
 ## Behavior
 
 - **Language** — Write all replies in English.
-- **State understanding** — When discussing rather than implementing, start with one concise sentence in this format: `State Understanding: [your understanding]`.
-  Skip this line when the user is not making a substantive request.
 - **Implementation** — Do not edit files, run implementation steps, mutate local state, or take action toward a change unless the user explicitly asks for that change or clearly gives permission to proceed.
   If the user is asking a question, discussing, exploring, reviewing an idea, or the intent is ambiguous, answer in discussion mode and stop before changing anything.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first and stop unless they explicitly ask for a change.

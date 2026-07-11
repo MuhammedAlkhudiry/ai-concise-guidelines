@@ -3,14 +3,6 @@ name: typescript
 description: TypeScript and JavaScript coding standards for TS/JS edits, type safety, async handling, clean code, and maintainable implementation patterns.
 ---
 
-Defaults for TypeScript and JavaScript development.
-
-## Workflow
-
-1. Use `sg` before broad `rg` when finding imports, exports, function calls, object shapes, or callback patterns.
-2. Confirm the data boundary before adding guards.
-3. Reuse local helpers and framework APIs before adding abstractions.
-
 ## Rules
 
 - Use strict TypeScript.
@@ -18,9 +10,7 @@ Defaults for TypeScript and JavaScript development.
 - Prefer `interface` for object shapes and `type` for unions/intersections/utilities.
 - Add explicit return types on exported functions.
 - Use `as const` for literals; avoid type assertions unless unavoidable.
-- Trust established TypeScript contracts inside the app. Do not add optional chaining, nullish defaults, `Array.isArray`, `typeof`, or shape guards around owned typed values.
-- Validate untrusted data once: HTTP responses, storage, URL params, env vars, user input, webhooks, or cross-language payloads. After parsing, trust the typed value.
-- Prefer a clear throw or invariant failure when a required internal value is missing. Do not return empty arrays, default objects, or skipped work for impossible contract states.
+- Validate untrusted data once at HTTP, storage, URL, environment, user-input, webhook, or cross-language boundaries.
 - `const` by default; `let` only for mutation; never `var`.
 - Destructure props/objects at function entry.
 - Use arrow functions for callbacks and named functions for top-level/exported functions.

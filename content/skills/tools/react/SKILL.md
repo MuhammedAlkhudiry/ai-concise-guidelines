@@ -3,14 +3,10 @@ name: react
 description: React component and hook work covering component edits, hook correctness, state management, rendering behavior, performance patterns, and clean React code.
 ---
 
-Defaults for React development.
-
 ## Workflow
 
-1. Use `sg` before broad `rg` when finding hook calls, JSX component usages, prop patterns, or component shapes.
-2. Check local component and hook patterns before editing.
-3. Keep hooks top-level, then derived values, handlers, and JSX return.
-4. Group hooks by concern: state/store, data/query, memo, effects.
+1. Keep hooks top-level, then derived values, handlers, and JSX return.
+2. Group hooks by concern: state/store, data/query, memo, effects.
 
 ## Rules
 
@@ -19,8 +15,6 @@ Defaults for React development.
 - Use query libraries (React Query/SWR) for server data; never raw fetch in components.
 - Query cache is source of truth; do not mirror it locally.
 - Never select an entire store (e.g. Zustand); use selectors plus `shallow`.
-- Trust validated query results and typed component contracts after the loading, empty, and error states have been handled at the owning boundary.
-- Do not add defensive local fallback state for server data, required route params, or required props. Fix the owner, schema, loader, or route contract instead.
 - Minimize props; prefer whole objects over many primitives.
 - No prop drilling; use composition or context.
 - Access global stores via hooks, not props.

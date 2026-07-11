@@ -3,3 +3,6 @@
 
 [mcp_servers.jetbrains]
 url = "http://127.0.0.1:64342/stream"
+
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp?utm_source=plugin"

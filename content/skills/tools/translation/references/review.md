@@ -4,14 +4,14 @@ Use this reference for large or systematic translation reviews.
 
 ## State File
 
-For large reviews, keep state in `.docs/ai/<feature-or-file>/translation-review.md`:
+When the user requests persisted review progress or continuation state, keep it in `.docs/ai/<feature-or-file>/translation-review.md`:
 
 - Files and languages
 - Progress
 - Issues by severity
 - Approved groups or patterns
 
-Read and update that file on every continuation.
+When that state file exists, read and update it on every continuation.
 
 ## Checklist
 

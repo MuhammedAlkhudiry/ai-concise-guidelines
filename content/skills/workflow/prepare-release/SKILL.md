@@ -21,8 +21,6 @@ Prepare the release around the current diff: what must happen outside the normal
 - Lead with the verdict: ready to release, not ready, or ready with named caveats.
 - Group only sections with real content: blockers, release actions, product effects, checks, automation, rollback, cleanup.
 - Use concrete examples when relevant: seeders, backfills, derived-store refreshes, forced logouts, restarts, provider dashboards, notification templates, or watches.
-- Mention only change-specific risks, checks, release actions, product effects, and cleanup when applicable.
-- Do not pad the answer with generic deployment checklists.
 - When the user asks for post-release automation, create actionable watches instead of only suggesting them.
 - Choose automation lenses from user behavior, data integrity, background work, product health, and cleanup.
 - Each automation includes cadence, stop condition, signal to report, and action when it fires.

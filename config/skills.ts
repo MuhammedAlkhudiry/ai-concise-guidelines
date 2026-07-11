@@ -76,24 +76,20 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
-    repository: "https://github.com/getsentry/sentry-for-ai.git",
+    repository: "https://github.com/getsentry/plugin-codex.git",
     ref: "main",
     skills: [
       {
-        name: "sentry-php-sdk",
-        sourcePath: "skills/sentry-php-sdk",
+        name: "sentry-get-started",
+        sourcePath: "plugins/sentry/skills/sentry-get-started",
       },
       {
-        name: "sentry-react-sdk",
-        sourcePath: "skills/sentry-react-sdk",
-      },
-      {
-        name: "sentry-react-native-sdk",
-        sourcePath: "skills/sentry-react-native-sdk",
+        name: "sentry-instrument",
+        sourcePath: "plugins/sentry/skills/sentry-instrument",
       },
       {
         name: "sentry-sdk-upgrade",
-        sourcePath: "skills/sentry-sdk-upgrade",
+        sourcePath: "plugins/sentry/skills/sentry-sdk-upgrade",
       },
     ],
   },

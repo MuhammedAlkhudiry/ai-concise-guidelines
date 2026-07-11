@@ -3,16 +3,13 @@ name: verification
 description: Project verification from repo-root `CHECKLIST.md`, including command discovery, fix loops, and task-related failure repair.
 ---
 
-Use repo-root `CHECKLIST.md` for verification.
-
 ## Workflow
 
 1. If `CHECKLIST.md` exists, read it first and use its commands.
-2. If it is missing, create it from real repo config such as `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
-3. Follow [CHECKLIST.md](CHECKLIST.md) for the file shape.
-4. For new projects or weak verification setup, use [references/toolkit.md](references/toolkit.md).
-5. Update `CHECKLIST.md` only when a stable project-wide command is missing, wrong, or stale.
-6. Run task-specific checks separately without adding them to `CHECKLIST.md`.
+2. If it is missing, discover stable commands from `Makefile`, `package.json`, `composer.json`, `pyproject.toml`, or tool configs.
+3. Follow [CHECKLIST.md](CHECKLIST.md) for the proposed file shape and [references/toolkit.md](references/toolkit.md) when the verification setup is weak.
+4. Create or update `CHECKLIST.md` only when checklist maintenance was requested.
+5. Run task-specific checks separately without adding them to `CHECKLIST.md`.
 
 To discover stable candidates quickly, run:
 
@@ -31,8 +28,8 @@ bun "$HOME/.agents/skills/verification/scripts/discover-checks.ts" /path/to/repo
 
 ## Rules
 
-- In the fix loop, run the relevant checklist command, read the exact failure, fix only task-related fallout, and re-run until it passes or a real blocker remains.
+- For verification-only requests, report failures without editing. Enter the fix loop after authorized implementation or when repair was requested.
+- In the fix loop, run the relevant checklist command, read the exact failure, fix task-related fallout, and re-run until it passes or a real blocker remains.
 - Use safe auto-fix commands from repo scripts when available.
 - Do not skip a checklist item without saying why.
-- Report pre-existing unrelated failures instead of widening scope.
 - Final report lists each checklist item as `PASS`, `FAIL`, or `BLOCKED`.

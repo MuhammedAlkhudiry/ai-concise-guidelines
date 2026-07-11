@@ -410,5 +410,5 @@ export async function knowledgeCheck(options: KnowledgeOptions = {}): Promise<vo
     throw new Error(`Project knowledge check failed:\n${missing.join("\n")}`);
   }
 
-  console.log(`Project knowledge check passed (${packs.length} feature packs).`);
+  console.log(`Project knowledge check passed (${packs.length} documents).`);
 }

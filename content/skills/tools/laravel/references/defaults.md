@@ -11,8 +11,8 @@ Use these only when the app has no stronger local pattern.
 - Use PHP backed enums for constrained values instead of magic strings or integers.
 - Prefer Carbon objects over date strings.
 - Use Laravel helpers such as `Str`, `Arr`, `Number`, `Uri`, and collections instead of custom parsing or manual manipulation.
-- Trust values after Form Request validation, typed DTO construction, enum casts, route model binding, and explicit service contracts. Do not re-check required keys, types, or nullability in inner application code.
-- Do not add `isset()`, `empty()`, `??`, `optional()`, `rescue()`, or broad `try`/`catch` wrappers around values the current Laravel boundary already guarantees. If the guarantee is wrong, fix the Form Request, cast, relationship, binding, or caller.
+- Treat Form Requests, typed DTO construction, enum casts, route model binding, and explicit service contracts as trusted Laravel boundaries; fix missing guarantees at the owning boundary instead of guarding inner code.
+- Build query strings with Laravel or framework URL helpers, never manual string concatenation.
 
 ## Fluent APIs
 

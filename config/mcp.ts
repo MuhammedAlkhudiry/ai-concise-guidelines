@@ -20,4 +20,8 @@ export const MCP_SERVERS: Record<string, McpServer> = {
     type: "remote",
     url: "http://127.0.0.1:64342/stream",
   },
+  sentry: {
+    type: "remote",
+    url: "https://mcp.sentry.dev/mcp?utm_source=plugin",
+  },
 };
