@@ -48,7 +48,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `fzf` | Used by project pickers and interactive hosts/plan deletion. |
 | `sg` | Optional AST-shaped code search through ast-grep when text search is too loose. |
 
-The installed `context-health` helper audits recent Codex session context waste through the local `/workflow improve-agent-setup` analyzer.
+The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer.
 Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
 Install `agent-device` with `npm install -g agent-device`.
 

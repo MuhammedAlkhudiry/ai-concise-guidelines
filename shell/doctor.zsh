@@ -148,7 +148,7 @@ check_installed_skills() {
 }
 
 check_context_health() {
-  local script="$HOME/.agents/skills/workflow/scripts/analyze-codex-sessions.ts"
+  local script="$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
 
   if [[ -f "$script" ]]; then
     print_ok "context-health" "$script"

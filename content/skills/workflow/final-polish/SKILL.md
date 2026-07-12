@@ -8,14 +8,16 @@ Use this flow after an approved implementation plan when the change spans many f
 ## Workflow
 
 1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions.
-2. Run `code-simplifier` as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
-3. Run `test-coverage-audit` and close approved worthwhile behavior gaps.
-4. Run `code-review` as a Standards review in a fresh subagent.
-5. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
-6. Run `verification` as the final verification and fix loop.
-7. Run one final fresh reviewer gate in a subagent.
-8. Run `refactor-opportunities` as a final suggestion pass in a fresh subagent.
-9. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.
+2. When the diff crosses a producer-consumer contract, inventory both sides and compare shape, naming, requiredness, nullability, values, defaults, authorization, errors, versioning, and transforms.
+   Classify each unit as `aligned`, `breaking`, `unsafe`, `stale`, or `ambiguous`; fix or report every non-aligned unit.
+3. Run `code-simplifier` as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
+4. Run `test-coverage-audit` and close approved worthwhile behavior gaps.
+5. Run `code-review` as a Standards review in a fresh subagent.
+6. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
+7. Run `verification` as the final verification and fix loop.
+8. Run one final fresh reviewer gate in a subagent.
+9. Run `refactor-opportunities` as a final suggestion pass in a fresh subagent.
+10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.
 
 ## Rules
 

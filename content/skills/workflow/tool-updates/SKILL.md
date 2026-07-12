@@ -1,3 +1,8 @@
+---
+name: tool-updates
+description: External CLI tool updates using explicit ownership, installed-versus-current evidence, supported update commands, runtime-linked CLI recovery, and final repository health checks.
+---
+
 # Tool Updates
 
 Update external CLI tools with explicit ownership, visible version evidence, and a final health check.

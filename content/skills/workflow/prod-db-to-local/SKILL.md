@@ -1,3 +1,8 @@
+---
+name: prod-db-to-local
+description: Production-to-local Laravel MySQL imports that keep production read-only, replace the intended local database safely, preserve dumps, and optionally run local migrations.
+---
+
 # Production DB To Local
 
 Import a production Laravel MySQL database into a local Laravel/Herd database while keeping production read-only.
@@ -15,12 +20,12 @@ Import a production Laravel MySQL database into a local Laravel/Herd database wh
 ## Script
 
 ```bash
-bun "$HOME/.agents/skills/workflow/scripts/import-prod-db-to-local.ts" <ssh-target> <remote-laravel-dir> [local-laravel-dir]
-bun "$HOME/.agents/skills/workflow/scripts/import-prod-db-to-local.ts" --dump=/path/local.sql.gz [local-laravel-dir]
+bun "$HOME/.agents/skills/prod-db-to-local/scripts/import-prod-db-to-local.ts" <ssh-target> <remote-laravel-dir> [local-laravel-dir]
+bun "$HOME/.agents/skills/prod-db-to-local/scripts/import-prod-db-to-local.ts" --dump=/path/local.sql.gz [local-laravel-dir]
 ```
 
 ## Example
 
 ```bash
-bun "$HOME/.agents/skills/workflow/scripts/import-prod-db-to-local.ts" forge@example.com /home/forge/app/current /path/to/local/project
+bun "$HOME/.agents/skills/prod-db-to-local/scripts/import-prod-db-to-local.ts" forge@example.com /home/forge/app/current /path/to/local/project
 ```

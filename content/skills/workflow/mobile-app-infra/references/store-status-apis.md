@@ -2,12 +2,19 @@
 
 Use store APIs for repeatable status checks. Use dashboards for auth prompts, agreements, policy forms, and ambiguous review-state wording.
 
+## Contents
+
+- Skill script and EAS evidence
+- Google Play Developer API
+- App Store Connect API
+- Dashboard fallback
+
 ## Skill Script
 
 Run the read-only skill script with project-specific params:
 
 ```sh
-rtk bun "$HOME/.agents/skills/workflow/scripts/mobile-store-status.ts" \
+rtk bun "$HOME/.agents/skills/mobile-app-infra/scripts/mobile-store-status.ts" \
   --project-root /path/to/project \
   --mobile-dir path/to/expo-app \
   --env "$HOME/.config/<project>/mobile-release.env"

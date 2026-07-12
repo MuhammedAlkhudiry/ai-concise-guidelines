@@ -1,5 +1,12 @@
 # Expo/EAS Store Release
 
+## Contents
+
+- Discovery, status words, and versioning
+- Release sequence and EAS caveats
+- Store blockers and review flows
+- Google Sign-In and Play signing
+
 ## Discovery
 
 Before running a release, inspect:
@@ -39,10 +46,9 @@ Expo/EAS separates the store-visible app version from native build numbers.
 
 - `expo.version` is the user-facing store version.
 - Android `versionCode` and iOS `buildNumber` are native build numbers.
-- `appVersionSource: remote` and `autoIncrement` can manage native build numbers.
-- EAS does not reliably choose the next user-facing version for the product.
+- `appVersionSource: remote` with `autoIncrement` can manage native build numbers. User-facing version automation depends on the chosen local/remote version strategy and project config.
 
-Before bumping, check both local config and the latest EAS builds. If the local version is behind an already-built remote app version, advance to a genuinely new store version instead of rebuilding the same user-facing version.
+Before bumping, check local config, `eas.json`, and the latest EAS builds. Follow the configured version source; if the local user-facing version is already represented remotely, advance it according to project rules.
 
 ## Release Sequence
 

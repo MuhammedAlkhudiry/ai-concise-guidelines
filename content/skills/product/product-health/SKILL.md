@@ -18,7 +18,7 @@ bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /pa
 6. For Sentry issues, verify org/project context, read full issue details and representative events, then compare recent events against the checked window.
 7. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI usage, and cost/capacity where reliable signals exist.
 8. Report actual run results using the result style below.
-9. If the user requested setup maintenance, use `/workflow product-setup` to record durable changes to what is monitored or how to check it.
+9. If the user requested setup maintenance, use `product-setup` to record durable changes to what is monitored or how to check it.
 
 ## Rules
 

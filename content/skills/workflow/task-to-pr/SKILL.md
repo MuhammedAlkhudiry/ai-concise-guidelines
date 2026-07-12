@@ -1,3 +1,8 @@
+---
+name: task-to-pr
+description: Explicit task-to-pull-request execution in an isolated clone, including scoped implementation, repository verification, diff review, commit and push, draft PR creation, CI monitoring, and mergeability checks.
+---
+
 # Task to PR
 
 Use this when the user wants a task carried from request to pull request, especially when they mention a fresh clone, separate workspace, isolated checkout, verification, or PR creation.
@@ -10,7 +15,7 @@ Use this when the user wants a task carried from request to pull request, especi
 4. Implement the change in the isolated workspace.
 5. Verify with the repo's documented checks, then add focused task-specific checks when the changed behavior needs them.
 6. Review the final diff for accidental churn, unrelated edits, secrets, generated artifacts, and missing tests.
-7. Commit, push, and create the PR. Use `git-branch-mr` when available for branch, commit, push, and PR packaging.
+7. Commit, push, and create the PR with the available GitHub publishing workflow.
 8. Await PR CI, confirm required checks pass, and confirm the branch is mergeable without conflicts.
 9. Report the PR link, verification performed, CI and mergeability status, and any known follow-up risks.
 

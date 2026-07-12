@@ -1,3 +1,8 @@
+---
+name: dependency-upgrade
+description: Dependency upgrades across JavaScript, PHP, Laravel, and React projects, including package inventory, current release research, compatibility fixes, unused-package removal, verification, and per-package reporting.
+---
+
 # Dependency Upgrade
 
 Upgrade dependencies with proven coverage, controlled risk, and a clear per-package report.
@@ -6,7 +11,7 @@ Upgrade dependencies with proven coverage, controlled risk, and a clear per-pack
 
 1. Define the target set: all dependencies, direct dependencies, security-only, framework/runtime, dev tooling, named packages, or another explicit scope.
 2. Inventory manifests, lockfiles, package managers, workspace boundaries, runtime versions, scripts, checks, and related source/test surfaces before changing versions.
-3. Load only the relevant stack references: `dependency-upgrade/php-composer.md`, `dependency-upgrade/laravel.md`, `dependency-upgrade/javascript.md`, and `dependency-upgrade/react.md`.
+3. Load only the relevant stack references: `references/php-composer.md`, `references/laravel.md`, `references/javascript.md`, and `references/react.md`.
 4. Research current official release notes, changelogs, upgrade guides, or advisories for direct dependencies with meaningful behavior changes, especially major upgrades.
 5. Classify each dependency by risk: low-risk tooling, leaf package, transitive/security-only, runtime/framework package, or cross-cutting application package.
 6. Upgrade in cohesive batches with the project's existing package manager and lockfile flow.

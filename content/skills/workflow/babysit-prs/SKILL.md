@@ -1,20 +1,22 @@
+---
+name: babysit-prs
+description: Pull request babysitting across repositories until every in-scope PR is merge-ready or hard-blocked, including fresh-clone checks, base sync, conflicts, CI diagnosis, fixes, and coverage reporting.
+---
+
 # Babysit PRs
 
 Use this with `deep-work` systematic mode. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.
 
 ## Goal
 
-At the start, set the working goal to: make every in-scope PR merge-ready. If goal tracking exists, create or update it.
+Set the working goal to make every in-scope PR merge-ready. Use goal tracking when available.
 
-Ready means: checked in a fresh clone, synced with the latest base branch, no conflicts, required CI passing, checks understood, and no draft/status blocker.
+Ready means: checked in a fresh clone, on the latest base, conflict-free, required CI passing, and no draft or status blocker.
 
 ## Scope
 
-1. Resolve the repository set from the request.
-   - If the user names repositories, use exactly those.
-   - If the user asks for active/configured projects, use that inventory.
-   - Otherwise use the current repository.
-2. Include drafts by default. Mark them instead of excluding them.
+1. Resolve the repository set from named repositories, the active-project inventory, or the current repository in that order.
+2. Include drafts by default; mark rather than exclude them.
 3. If the user says "my PRs", filter by author after first deciding which repositories are in scope.
 
 ## Inventory And Workspace

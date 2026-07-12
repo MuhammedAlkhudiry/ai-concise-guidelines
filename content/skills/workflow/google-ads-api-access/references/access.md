@@ -2,6 +2,15 @@
 
 Use this workflow when setting up, debugging, or monitoring Google Ads API access for read-only reporting, campaign diagnostics, or marketing-account checks.
 
+## Contents
+
+- Boundary and account map
+- Durable credentials and setup sequence
+- Browser and consent safety
+- Read-only helper and error ladder
+- Manager-account and production-access rules
+- Final report
+
 ## Boundary
 
 This workflow is for account/API setup, OAuth, developer-token access, read-only reporting helpers, and approval monitoring. It is not for creating, editing, pausing, launching, deleting, or optimizing ads, campaigns, budgets, bids, keywords, audiences, conversion actions, billing, or account settings.
@@ -31,7 +40,7 @@ Store durable, non-secret facts in the product setup file when available:
 - Google Ads manager account ID.
 - Google Cloud project name or ID.
 - OAuth app status such as testing, verified, or internal where relevant.
-- Developer token access status: test, Basic Access pending, Basic Access approved, Standard Access, rejected, or unknown.
+- Developer token access status: Test Account, Explorer, Basic, Standard, pending, rejected, or unknown.
 - Read-only helper command.
 - Which env names are expected, never their values.
 - Known blocker and next setup step.
@@ -59,11 +68,11 @@ Set `GOOGLE_ADS_LOGIN_CUSTOMER_ID` only when the manager account is linked and i
 1. Confirm the target customer account and the Google account that has access to it.
 2. If API Center is unavailable in the customer account, create or use a manager account because Google Ads API Center lives under manager accounts.
 3. Create or inspect the developer token in the manager account API Center.
-4. If live customer reads are needed, submit Basic or Standard Access for the developer token; test access only works with test accounts.
+4. Check the developer token access level. Test Account Access is test-only; Explorer can read production accounts within its limits; apply for Basic or Standard only when the required production use exceeds the current level.
 5. In Google Cloud, configure the OAuth consent screen.
 6. If the OAuth app is in testing, add the OAuth user as a test user before trying consent.
-7. Create a Desktop OAuth client for local CLI/reporting flows.
-8. If Google hides the original client secret, add or rotate a new client secret and store it securely.
+7. Choose the current supported auth flow for the account model. Use service-account auth when it fits manager-owned accounts; use single-user OAuth as the fallback for a local reporting helper.
+8. For single-user OAuth, create a Desktop client, enable 2-step verification on the authorizing Google account, and store the client secret securely.
 9. Enable the `googleads.googleapis.com` service in the Google Cloud project.
 10. Generate a refresh token through a local loopback OAuth flow with:
     - scope `https://www.googleapis.com/auth/adwords`
@@ -109,7 +118,8 @@ Use API errors as setup-state signals:
 | Unverified app warning | Test user is allowlisted but OAuth app is not verified. | User manually continues if they trust the app. |
 | Broad "see, edit, create, delete" consent text | Normal Google Ads OAuth scope behavior. | Explain broad scope; rely on read-only helper boundaries. |
 | `USER_PERMISSION_DENIED` mentioning `login-customer-id` | Manager login customer is wrong or not linked, or OAuth user lacks Ads access. | Retry direct customer access without manager header; if needed, link manager account or grant user access. |
-| `DEVELOPER_TOKEN_NOT_APPROVED` | Developer token has only test-account access. | Wait for Basic or Standard Access approval before live account reads. |
+| `DEVELOPER_TOKEN_NOT_APPROVED` | The developer token cannot access the requested production account. | Check its access level; complete signup or apply for the required production level. |
+| `TWO_STEP_VERIFICATION_NOT_ENROLLED` | The OAuth user does not meet Google Ads API 2-step-verification requirements. | Enable 2-step verification for that Google account, then retry. |
 | Empty or zero campaign data with `ok: true` | API access works but account has no matching delivery/data in range or queries. | Diagnose campaigns normally from helper output and Ads UI. |
 
 ## Manager Account Rule
@@ -118,15 +128,15 @@ Creating a manager account can be necessary to obtain the developer token, but i
 
 If the OAuth user directly owns or can access the customer account, prefer direct customer access until there is a reason to route through the manager account. This avoids false `USER_PERMISSION_DENIED` errors caused by an unlinked manager header.
 
-## Basic Access Approval
+## Production Access
 
-For Basic Access applications:
+When the current access level cannot support the production use case:
 
 - Prepare a concise design document that states the API is used for read-only reporting, account health, campaign delivery, ad review status, and conversion-action status.
 - State that the helper does not mutate campaigns, budgets, bids, keywords, ads, audiences, conversion actions, billing, or account settings.
-- Submit through the Google Ads API token application flow.
+- Confirm whether Explorer is sufficient; otherwise submit through the Basic or Standard Access application flow.
 - Record the submission date and expected review window as durable setup.
-- Until approval lands, expect live non-test account calls to fail with `DEVELOPER_TOKEN_NOT_APPROVED`.
+- Until the required level is active, expect unsupported live-account calls to fail with `DEVELOPER_TOKEN_NOT_APPROVED`.
 
 When approval is pending, create a small monitor that reruns the read-only helper and reports:
 
@@ -142,7 +152,7 @@ Include:
 - Which account IDs and Cloud project were used.
 - Whether the API service is enabled.
 - Whether OAuth refresh-token auth is present.
-- Whether Basic or Standard Access is approved, pending, rejected, or unknown.
+- The current developer-token level and any pending access request.
 - Whether manager login is blank, used, or needs linking.
 - The read-only helper result and current blocker.
 - Any durable setup updates made.

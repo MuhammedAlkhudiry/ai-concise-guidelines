@@ -32,7 +32,7 @@ Do not assume that changing one changes the others. React Native defaults many M
 Prefer parsing introspection output instead of eyeballing a large one-line JSON blob:
 
 ```sh
-./node_modules/.bin/expo-internal config --type introspect --json > /tmp/expo-config.json
+npx expo config --type introspect --json > /tmp/expo-config.json
 node -e 'const c=require("/tmp/expo-config.json"); console.log(c._internal.modResults.android.gradleProperties); console.log(c._internal.modResults.ios.podfileProperties);'
 ```
 

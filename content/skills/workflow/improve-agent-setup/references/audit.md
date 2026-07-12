@@ -30,7 +30,7 @@ Lead with the recommendations, then give only the evidence needed to trust them.
 - Codex session context waste:
 
 ```bash
-bun "$HOME/.agents/skills/workflow/scripts/analyze-codex-sessions.ts"
+bun "$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
 ```
 
 ## Improve Agent Setup Lenses
