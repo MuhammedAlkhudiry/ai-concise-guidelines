@@ -1,6 +1,7 @@
 /**
  * Skill definitions shared by the installer.
- * Local skills live in content/skills. Remote skills are fetched fresh during install.
+ * Local skills live in content/skills. Remote skills refresh during install when their daily
+ * cache expires, their declarations change, or an installed skill is missing.
  */
 
 export interface RemoteSkill {
@@ -14,8 +15,8 @@ export interface RemoteSkillSource {
   skills: RemoteSkill[];
 }
 
-// Remote skills intentionally track upstream branches so `mise run install`
-// refreshes external agent guidance without a separate lockfile workflow.
+// Remote skills intentionally track upstream branches so periodic refreshes update external
+// agent guidance without a separate lockfile workflow.
 export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
   {
     repository: "https://github.com/expo/skills.git",

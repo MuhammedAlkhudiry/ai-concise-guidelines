@@ -18,6 +18,7 @@ import { CODEX_CONFIG } from "../../config/codex";
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { colors, print, printBox, printSeparator } from "../lib/print";
+import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
 
@@ -27,6 +28,7 @@ import { validateRemoteSkillSources } from "../lib/validation";
 
 const HOME = process.env.HOME || "";
 const ROOT_DIR = join(import.meta.dir, "..", "..");
+const STATE_HOME = process.env.XDG_STATE_HOME || join(HOME, ".local/state");
 
 // =============================================================================
 // Destination Paths
@@ -51,6 +53,8 @@ const SHARED_PATHS = {
   binDir: join(HOME, "bin"),
   localBinDir: join(HOME, ".local/bin"),
 };
+
+const REMOTE_SKILLS_STATE_PATH = join(STATE_HOME, "my-setup/remote-skills.json");
 
 const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
@@ -584,7 +588,22 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
     });
   }
 
-  await Promise.all(remoteSkillSources.map((source) => installRemoteSkillSource(source, dest)));
+  if (remoteSkillSources.length > 0) {
+    const refreshDecision = await getRemoteSkillRefreshDecision({
+      sources: remoteSkillSources,
+      skillsDir: dest,
+      statePath: REMOTE_SKILLS_STATE_PATH,
+      force: process.env.MY_SETUP_REFRESH_REMOTE_SKILLS === "1",
+    });
+
+    if (refreshDecision.refresh) {
+      print.info(`Refreshing remote skills (${refreshDecision.reason})...`);
+      await Promise.all(remoteSkillSources.map((source) => installRemoteSkillSource(source, dest)));
+      await recordRemoteSkillRefresh(remoteSkillSources, REMOTE_SKILLS_STATE_PATH);
+    } else {
+      print.info("Skipping remote skill refresh (refreshed within the last 24 hours)");
+    }
+  }
 
   const emptyDirCount = await pruneEmptyDirs(dest);
   if (emptyDirCount > 0) {

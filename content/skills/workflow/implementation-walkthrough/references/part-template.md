@@ -20,4 +20,4 @@ Use calm, compact language. Orient the user without front-loading the whole impl
 **Pause:** Ask what the user sees, answer questions, then offer the next step without starting it.
 ```
 
-Omit a field when it adds no signal. Keep code focused and actions runnable in the prepared environment. Continue one step at a time; do not dump the remaining sequence unless asked.
+Omit a field when it adds no signal. Keep every part focused on product behavior, substantive changes, or core implementation. Environment and infrastructure preparation—including seeders, development ports, process startup, dependencies, and test-data setup—must happen outside the part. Keep code focused and actions runnable in the prepared environment. Continue one step at a time; do not dump the remaining sequence unless asked.

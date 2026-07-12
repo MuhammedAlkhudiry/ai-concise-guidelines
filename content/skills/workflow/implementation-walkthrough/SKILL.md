@@ -25,17 +25,18 @@ description: >-
 
 ## Parts And Environment
 
-11. Divide work into coherent product or technical parts: a flow, page, role, state machine, integration, risk area, or implementation slice.
-12. Prefer 15-30 minute parts. Keep cohesive flows intact; give larger parts estimates, checkpoints, and pause points.
-13. Prepare the environment through the project-supported flow.
+11. Make parts about product behavior, substantive changes, or core implementation: a flow, page, role, state machine, integration, risk, or implementation slice.
+12. Environment or infrastructure work is never a part or checkpoint. Process startup, dependencies, seeders, dev ports, and test data are preparation only.
+13. Prefer 15-30 minute parts. Keep cohesive flows intact; give larger parts estimates, checkpoints, and pause points.
+14. Prepare the supported environment before the first part.
    For web, verify a responding URL and open the target in Chrome. For mobile, verify the device, build, launch, and target screen.
 
 ## Gentle Walkthrough Loop
 
-14. Orient before asking the user to act. Walk one part and one manageable step at a time; reveal deeper detail only when useful.
-15. Pause naturally for questions, inspection, changes, approval, skipping, or scope reshaping. Never pressure the user to approve or continue.
-16. Update JSON after every part, decision, request, environment change, blocker, skip, stale marker, or scope change.
-17. On scope change, pause, handle the change as requested, resync parts, then continue.
+15. Orient before asking the user to act. Walk one part and one manageable step at a time; reveal deeper detail only when useful.
+16. Pause naturally for questions, inspection, changes, approval, skipping, or scope reshaping. Never pressure the user to approve or continue.
+17. Update JSON after every part, decision, request, environment change, blocker, skip, stale marker, or scope change.
+18. On scope change, pause, handle the change as requested, resync parts, then continue.
 
 ## State Shape
 
