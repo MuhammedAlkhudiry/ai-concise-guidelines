@@ -1,6 +1,6 @@
 ---
 name: ux-ui
-description: UX/UI design, implementation, and review for product flows, screens, and components, including interaction, visual hierarchy, responsive behavior, accessibility, and motion.
+description: UX/UI planning, design, implementation, and review for product flows, screens, and components, including interaction, visual hierarchy, responsive behavior, accessibility, and motion.
 ---
 
 # UX/UI
@@ -17,8 +17,10 @@ Own the complete interface outcome: product behavior, interaction, content, visu
    - [references/motion-accessibility.md](references/motion-accessibility.md): motion, direct manipulation, perceived performance, and accessibility.
    - [references/content-systems-review.md](references/content-systems-review.md): UX writing, design systems, implementation, reviews, and completion checks.
 4. Read every chapter for broad design, redesign, implementation, or full-interface review.
-5. Resolve issues in this order: blocked or unsafe flow, lost work or missing recovery, missing states, accessibility, hierarchy and wording, interaction feedback, visual coherence, then delight.
-6. Evaluate with realistic content, viewports, inputs, text sizes, accessibility preferences, and interaction speeds.
+5. When planning or preparing UI creation or editing, use $imagegen when available to show a raster visual proposal instead of describing the intended appearance only.
+   Keep deterministic UI, simple wireframes, existing vector assets, and design-system elements code-native.
+6. Resolve issues in this order: blocked or unsafe flow, lost work or missing recovery, missing states, accessibility, hierarchy and wording, interaction feedback, visual coherence, then delight.
+7. Evaluate with realistic content, viewports, inputs, text sizes, accessibility preferences, and interaction speeds.
 
 ## Rules
 

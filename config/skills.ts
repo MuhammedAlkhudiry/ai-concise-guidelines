@@ -15,6 +15,9 @@ export interface RemoteSkillSource {
   skills: RemoteSkill[];
 }
 
+// Skills supplied by an agent runtime rather than installed or managed by this repository.
+export const OPTIONAL_EXTERNAL_SKILL_NAMES = ["imagegen"] as const;
+
 // Remote skills intentionally track upstream branches so periodic refreshes update external
 // agent guidance without a separate lockfile workflow.
 export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [

@@ -244,6 +244,20 @@ export const SYSTEM_TOOL_GROUPS = [
           note: "Reading Messages data requires Full Disk Access for the terminal or agent host.",
         },
       },
+      {
+        name: "gcloud",
+        level: "optional",
+        why: "Supports Google Cloud project, API, service account, and IAM workflows.",
+        versionArgs: ["version"],
+        latest: {
+          type: "command",
+          command: "brew",
+          args: ["info", "--cask", "gcloud-cli"],
+        },
+        update: {
+          commands: ["brew upgrade --cask gcloud-cli"],
+        },
+      },
     ],
   },
   {

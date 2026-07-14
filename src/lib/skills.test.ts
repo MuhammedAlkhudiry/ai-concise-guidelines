@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "bun:test";
 
+import { OPTIONAL_EXTERNAL_SKILL_NAMES, REMOTE_SKILL_SOURCES } from "../../config/skills";
 import { discoverLocalSkills } from "./skills";
 
 const ROOT_DIR = join(import.meta.dir, "..", "..");
@@ -192,10 +193,15 @@ describe("discoverLocalSkills", () => {
 
   test("keeps local source skills within the skill size policy", () => {
     const warnings: string[] = [];
+    const remoteSkillNames = REMOTE_SKILL_SOURCES.flatMap((source) =>
+      source.skills.map((skill) => skill.name),
+    );
 
     expect(
-      discoverLocalSkills(LOCAL_SKILLS_ROOT, { reportWarning: (message) => warnings.push(message) })
-        .length,
+      discoverLocalSkills(LOCAL_SKILLS_ROOT, {
+        reportWarning: (message) => warnings.push(message),
+        additionalSkillNames: [...remoteSkillNames, ...OPTIONAL_EXTERNAL_SKILL_NAMES],
+      }).length,
     ).toBeGreaterThan(0);
     expect(warnings).toEqual([]);
   });

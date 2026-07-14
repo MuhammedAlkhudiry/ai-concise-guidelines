@@ -13,6 +13,7 @@
 - **IGNORE-UNRELATED-DIFFS** — Ignore unrelated git diffs or changes completely; do not touch them in any way.
 - **IGNORE-STAGING-STATE** — Do not worry about staged versus unstaged state, including unexpected staging changes; the user handles the Git index.
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
+- **PERSONAL-KNOWLEDGE** — Personal source of truth for the owner's life, work, tools, preferences, decisions, and AI-agent context: `personal-knowledge` is always at `~/PhpstormProjects/personal-knowledge`; from other projects, reference and edit it there.
 - **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and the task mentions a feature, domain term, workflow, product behavior, glossary, or history, run `knowledge list` before broad code exploration.
 - **RIGHT-SIZED-CHANGE** — Optimize for the best correct solution, not merely the smallest diff.
   First identify the root problem and the solution that best matches the user's intent, then choose the narrowest implementation that preserves correctness, maintainability, and product quality.

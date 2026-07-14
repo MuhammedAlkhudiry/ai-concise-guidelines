@@ -10,6 +10,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { execa } from "execa";
 import {
+  OPTIONAL_EXTERNAL_SKILL_NAMES,
   REMOTE_SKILL_SOURCES,
   type RemoteSkill,
   type RemoteSkillSource,
@@ -554,7 +555,7 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
     .sort();
   const skills = discoverLocalSkills(src, {
     reportWarning: console.warn,
-    additionalSkillNames: remoteSkillNames,
+    additionalSkillNames: [...remoteSkillNames, ...OPTIONAL_EXTERNAL_SKILL_NAMES],
   });
   const skillNames = skills.map((skill) => skill.name).sort();
   const managedSkillNames = [...new Set([...skillNames, ...remoteSkillNames])].sort();

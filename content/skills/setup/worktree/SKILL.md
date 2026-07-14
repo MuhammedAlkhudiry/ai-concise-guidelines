@@ -28,7 +28,7 @@ Manage one worktree as one full local environment.
 - Default sections are Identity, Herd, Backend Environment, Backend Bootstrap, Mobile Environment, and Processes.
 - Scripts are `setup.ts`, `mobile-development.ts`, `verify.ts`, and `clean.ts`, with shared helpers under `lib` and one-operation files under `steps`.
 - Put command running, env editing, context, hashing, and logging in `lib`.
-- Derive the worktree slug from the checkout path and use it for every isolated name.
+- Use a checkout-path slug for machine-only isolated names.
 - `setup.ts` is backend/web only; do not create mobile-only state in default setup.
 - `mobile-development.ts` is opt-in and idempotent.
 - `clean.ts` reverses per-worktree state and refuses main-checkout cleanup unless the user explicitly opts in.
@@ -38,6 +38,7 @@ Manage one worktree as one full local environment.
 ### Solo
 
 - Treat Solo projects and command records as per-worktree resources.
+- Name Solo projects `<repository>-<branch>`, not `<repository>-worktree-<opaque-slug>`; add the worktree slug only to resolve a collision.
 - Setup registers the checkout and starts its configured processes through Solo. Verification confirms ownership; cleanup stops and deletes the Solo project.
 - Trust only exact commands loaded from the project process config. Keep automatic trust for later changes disabled so changed commands require setup or a new trust decision.
 

@@ -3,7 +3,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-import { REMOTE_SKILL_SOURCES } from "../../config/skills";
+import { OPTIONAL_EXTERNAL_SKILL_NAMES, REMOTE_SKILL_SOURCES } from "../../config/skills";
 import { discoverLocalSkills } from "../lib/skills";
 
 const HOME = process.env.HOME || "";
@@ -89,11 +89,13 @@ function compareSkillDirs(sourceDir: string, installedDir: string): string[] {
   return differences;
 }
 
-const localSkills = discoverLocalSkills(LOCAL_SKILLS_ROOT);
-const localSkillNames = localSkills.map((skill) => skill.name).sort();
 const remoteSkillNames = REMOTE_SKILL_SOURCES.flatMap((source) =>
   source.skills.map((skill) => skill.name),
 ).sort();
+const localSkills = discoverLocalSkills(LOCAL_SKILLS_ROOT, {
+  additionalSkillNames: [...remoteSkillNames, ...OPTIONAL_EXTERNAL_SKILL_NAMES],
+});
+const localSkillNames = localSkills.map((skill) => skill.name).sort();
 const remoteSkillNameSet = new Set(remoteSkillNames);
 const managedSkillNames = [...new Set([...localSkillNames, ...remoteSkillNames])].sort();
 const installedRootExists = existsSync(INSTALLED_SKILLS_ROOT);

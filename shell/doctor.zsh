@@ -235,6 +235,7 @@ main() {
   check_tool sg optional "Install ast-grep for AST-shaped code search."
   check_tool wacli optional "Used to read and export WhatsApp data for authorized personal knowledge workflows."
   check_tool imsg optional "Used to read and export local SMS and iMessage data for authorized personal knowledge workflows."
+  check_tool gcloud optional "Used for Google Cloud project, API, service account, and IAM workflows."
 
   print_header "Solo control plane"
   check_tool solo required "Link the Solo app CLI into PATH with mise run install."

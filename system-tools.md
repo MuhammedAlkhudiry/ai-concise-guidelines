@@ -33,7 +33,7 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config or helper commands. Some are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. Some are optional, but the repo assumes them when those workflows are used.
 
 | Tool | Why this repo assumes it |
 | --- | --- |
@@ -49,6 +49,7 @@ These are referenced by synced shell config or helper commands. Some are optiona
 | `sg` | Optional AST-shaped code search through ast-grep when text search is too loose. |
 | `wacli` | Reads and exports WhatsApp data for authorized personal knowledge workflows. |
 | `imsg` | Reads and exports local SMS and iMessage data for authorized personal knowledge workflows; reading Messages requires Full Disk Access. |
+| `gcloud` | Supports Google Cloud project, API, service account, and IAM workflows. |
 
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer.
 Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
