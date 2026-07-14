@@ -217,6 +217,33 @@ export const SYSTEM_TOOL_GROUPS = [
           commands: ["brew upgrade ast-grep"],
         },
       },
+      {
+        name: "wacli",
+        level: "optional",
+        why: "Reads and exports WhatsApp data for authorized personal knowledge workflows.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "openclaw/tap/wacli",
+        },
+        update: {
+          commands: ["brew upgrade openclaw/tap/wacli"],
+        },
+      },
+      {
+        name: "imsg",
+        level: "optional",
+        why: "Reads and exports local SMS and iMessage data for authorized personal knowledge workflows.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "steipete/tap/imsg",
+        },
+        update: {
+          commands: ["brew upgrade steipete/tap/imsg"],
+          note: "Reading Messages data requires Full Disk Access for the terminal or agent host.",
+        },
+      },
     ],
   },
   {

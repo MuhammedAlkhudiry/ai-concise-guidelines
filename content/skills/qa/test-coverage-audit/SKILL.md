@@ -14,12 +14,12 @@ Prove coverage as specific behaviors before deciding whether a gap remains.
 5. Identify real gaps: missing happy path, changed behavior, boundary, error, authorization, regression, persistence, integration, or UI state coverage.
 6. Discard weak gaps: implementation-only assertions, duplicated coverage, low-risk copy/styling, framework behavior, private helpers, and mock/fixture-only tests.
 7. For audit requests, report the worthwhile gaps and stop.
-8. For update requests, add or update focused tests for the remaining gaps using existing fixtures and `test-writing`.
+8. For update requests, add or update focused tests for the remaining gaps using existing fixtures and $test-writing.
 9. When no worthwhile gap remains, say what coverage or risk judgment supports that.
 
 ## Rules
 
-- For repo-wide or directory-wide audits, use `deep-work` systematic mode.
+- For repo-wide or directory-wide audits, use $deep-work systematic mode.
 - Discover official test commands from project files and existing docs.
 - Run the most focused relevant test target first: file, class, pattern, or suite.
 - Run broader tests only when the touched behavior is shared or the local command is cheap enough to be useful.

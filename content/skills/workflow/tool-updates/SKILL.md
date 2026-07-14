@@ -1,11 +1,11 @@
 ---
 name: tool-updates
-description: External CLI tool updates using explicit ownership, installed-versus-current evidence, supported update commands, runtime-linked CLI recovery, and final repository health checks.
+description: External CLI tool updates using explicit ownership, supported update commands, runtime-linked CLI recovery, repository health checks, and concise release-note summaries of what changed.
 ---
 
 # Tool Updates
 
-Update external CLI tools with explicit ownership, visible version evidence, and a final health check.
+Update external CLI tools with explicit ownership, visible version evidence, a final health check, and a useful summary of what is new.
 
 ## Workflow
 
@@ -37,13 +37,20 @@ mise run tools:status
 mise run check
 ```
 
+9. For each updated tool, read its official release notes or changelog for the versions crossed.
+   Identify notable new capabilities, behavior or configuration changes, breaking changes, and meaningful bug or security fixes.
+   Do not infer changes when official notes are unavailable.
+
 ## Report
 
-Final output should include:
+Give a short summary focused on what is new:
 
-- Tools updated with old and new versions.
-- Tools already current.
-- Missing optional tools intentionally skipped.
-- Unknown/app/system-owned tools intentionally left alone.
-- Any warnings from update tools that need later attention.
-- Verification commands and results.
+- For each updated tool, its old and new versions followed by the notable release-note changes relevant to the user.
+- Repairs needed because an update removed or broke a runtime-linked CLI.
+- Failed or skipped eligible updates and warnings that need user attention.
+- One compact verification outcome; include command details only when something failed.
+
+Omit dependency bumps, internal refactors, routine maintenance, and changes irrelevant to the current setup.
+Do not list tools that were already current, missing optional tools, or unchanged unknown/app/system-owned tools.
+If release notes cannot be found for an updated tool, say so briefly instead of guessing.
+If nothing changed and no action is needed, say that no updates were needed.

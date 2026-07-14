@@ -5,7 +5,7 @@ Use this reference when the request is to audit all tests in a repo, directory, 
 ## Start
 
 1. If goal tracking is available and the user asked for exhaustive completion, create a goal for the audit and keep working until the inventory is fully handled or genuinely blocked.
-2. Load `deep-work` systematic mode and define the exact test set in scope.
+2. Load $deep-work systematic mode and define the exact test set in scope.
 3. Build a durable inventory from the repo's test discovery sources: test commands, framework listings, filesystem search, naming conventions, and any generated test indexes.
 4. Split large inventories into non-overlapping slices by suite, package, module, feature, or test layer.
 
@@ -15,7 +15,7 @@ Passing tests, lint, typecheck, or build are verification signals only. They do 
 
 ## Deep Work Contract
 
-Treat `deep-work` systematic mode as mandatory for broad test audits:
+Treat $deep-work systematic mode as mandatory for broad test audits:
 
 1. Define the exact set the user asked about: whole repo, directory, package, suite, feature, test layer, or changed branch.
 2. Prove the inventory with commands or indexes that enumerate the target set. Search manually only to supplement, not replace, the inventory.

@@ -8,9 +8,9 @@ description: Code and test simplification after implementation or refactor, incl
 1. If no scope is specified, use the current `git diff`.
 2. Trace touched files, callers, consumers, tests, imports, exports, config, and contracts.
 3. Remove anything unreferenced, unreachable, superseded, duplicated, obsolete, or incidental.
-4. Apply the `code-principles` solution ladder, then collapse indirection and rebuild the clearest version that keeps the contract.
+4. Apply the $code-principles solution ladder, then collapse indirection and rebuild the clearest version that keeps the contract.
 5. Refactor related tests with app code and clean them when removal or rewriting is clearly safe.
-6. Run `verification`, fix task-related fallout, and report simplifications, protected behavior, unsafe deletions, and kept complexity.
+6. Run $verification, fix task-related fallout, and report simplifications, protected behavior, unsafe deletions, and kept complexity.
 
 ## Rules
 
@@ -24,4 +24,4 @@ description: Code and test simplification after implementation or refactor, incl
 - Remove helpers, fallback paths, guards, retries, null cushions, shims, and normalization unless they protect a real boundary.
 - For React, remove unused props, collapse pass-through props, replace mirrored state with derivation, and keep props/state only for real caller decisions or temporal behavior.
 - For data shapes, remove mapping, normalization, fallback fields, adapters, and DTO copies unless they protect API, persistence, framework, third-party, migration, or compatibility boundaries.
-- Use `test-writing` to decide which tests to delete, merge, or rewrite while preserving behavior coverage.
+- Use $test-writing to decide which tests to delete, merge, or rewrite while preserving behavior coverage.

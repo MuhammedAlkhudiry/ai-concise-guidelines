@@ -140,6 +140,56 @@ describe("discoverLocalSkills", () => {
     }
   });
 
+  test("accepts known local and additional skill references", () => {
+    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    try {
+      writeSkill(root, "workflow", "alpha", ["Use $beta and $remote-skill."]);
+      writeSkill(root, "workflow", "beta");
+
+      expect(
+        discoverLocalSkills(root, { additionalSkillNames: ["remote-skill"] }).map(
+          (skill) => skill.name,
+        ),
+      ).toEqual(["alpha", "beta"]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects unknown skill references with their source locations", () => {
+    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    try {
+      writeSkill(root, "workflow", "alpha", ["Use $missing-skill."]);
+
+      expect(() => discoverLocalSkills(root)).toThrow(
+        "Unknown skill references:\n- workflow/alpha/SKILL.md:6 references $missing-skill",
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("checks referenced Markdown while ignoring code examples", () => {
+    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    try {
+      writeSkill(root, "workflow", "alpha", [
+        "Use `$inlineVariable`.",
+        "```bash",
+        "echo $fenced-variable",
+        "```",
+      ]);
+      const referencesDir = join(root, "workflow", "alpha", "references");
+      mkdirSync(referencesDir);
+      writeFileSync(join(referencesDir, "guide.md"), "Use $missing-skill.\n");
+
+      expect(() => discoverLocalSkills(root)).toThrow(
+        "workflow/alpha/references/guide.md:1 references $missing-skill",
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("keeps local source skills within the skill size policy", () => {
     const warnings: string[] = [];
 

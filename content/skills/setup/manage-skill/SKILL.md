@@ -17,6 +17,7 @@ description: AI agent skill creation and maintenance, including updates, renames
 - Use YAML frontmatter with `name` and `description`.
 - `name`: lowercase, hyphenated, and matches the folder name exactly.
 - `description`: start with the leading domain or action, say what the skill does, and list only distinct trigger branches.
+- Reference another skill with the `$name` form so renames, removals, and typos are validated.
 - Prefer clear examples over abstract explanation.
 - Co-locate each concept's rule, caveat, and completion signal under one heading instead of scattering them.
 - Avoid vague descriptions, synonym-stuffed triggers, kitchen-sink boundaries, tutorials, and steps without done signals.

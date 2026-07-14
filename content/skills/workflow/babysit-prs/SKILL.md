@@ -5,7 +5,7 @@ description: Pull request babysitting across repositories until every in-scope P
 
 # Babysit PRs
 
-Use this with `deep-work` systematic mode. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.
+Use this with $deep-work systematic mode. Do not stop at classification. Finish only when every in-scope PR is ready or hard-blocked.
 
 ## Goal
 

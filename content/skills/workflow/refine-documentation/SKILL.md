@@ -11,7 +11,7 @@ Refine documentation into the smallest complete set of current, trustworthy guid
 - For corpus-level work, inventory the requested set. Merge, move, rename, or delete in-scope files when that creates a clearer canonical structure.
 - Find the editable source before changing generated or mirrored Markdown.
 - Pair this with the format-specific skill for agent instructions, skills, project knowledge, or another governed document type. This skill owns refinement; the specialized skill owns its contract.
-- Use `deep-work` when the request promises exhaustive corpus coverage.
+- Use $deep-work when the request promises exhaustive corpus coverage.
 
 ## Workflow
 

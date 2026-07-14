@@ -549,11 +549,14 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
     );
   }
 
-  const skills = discoverLocalSkills(src);
-  const skillNames = skills.map((skill) => skill.name).sort();
   const remoteSkillNames = remoteSkillSources
     .flatMap((source) => source.skills.map((skill) => skill.name))
     .sort();
+  const skills = discoverLocalSkills(src, {
+    reportWarning: console.warn,
+    additionalSkillNames: remoteSkillNames,
+  });
+  const skillNames = skills.map((skill) => skill.name).sort();
   const managedSkillNames = [...new Set([...skillNames, ...remoteSkillNames])].sort();
   const manifestPath = join(dest, ".my-setup-managed-skills.json");
   let previousSkillNames: string[] = [];

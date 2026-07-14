@@ -24,7 +24,7 @@ docs/knowledge/
 6. When creating or refreshing a pack, follow `references/document-functionality.md`.
 7. Use `references/feature-pack.md` for the file shape and keep the pack short.
 8. Read linked learnings when they affect the user's feature question.
-9. Use `bug-learning` when preserving a hard-earned bug investigation.
+9. Use $bug-learning when preserving a hard-earned bug investigation.
 10. Run `knowledge check` after adding or editing `key_files`.
 
 ## Rules

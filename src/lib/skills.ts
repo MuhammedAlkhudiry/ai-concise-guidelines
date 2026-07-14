@@ -18,6 +18,7 @@ interface SkillFrontmatter {
 
 interface SkillDiscoveryOptions {
   reportWarning?: (message: string) => void;
+  additionalSkillNames?: readonly string[];
 }
 
 const DEFAULT_CATEGORY = "uncategorized";
@@ -74,6 +75,18 @@ function findSkillPaths(dir: string): string[] {
     .map((entry) => join(dir, entry))
     .filter((entryPath) => statSync(entryPath).isDirectory())
     .flatMap((entryPath) => findSkillPaths(entryPath));
+}
+
+function findMarkdownPaths(dir: string): string[] {
+  return readdirSync(dir)
+    .map((entry) => join(dir, entry))
+    .flatMap((entryPath) =>
+      statSync(entryPath).isDirectory()
+        ? findMarkdownPaths(entryPath)
+        : entryPath.endsWith(".md")
+          ? [entryPath]
+          : [],
+    );
 }
 
 function skillCategory(skillsRoot: string, skillDir: string): string {
@@ -152,6 +165,61 @@ function validateSkillLocalReferences(
       `Skill references missing local files: ${relative(skillsRoot, skillPath)} ${formatList(
         Array.from(missingTargets).sort(),
       )}`,
+    );
+  }
+}
+
+function stripMarkdownCode(content: string): string {
+  let fenceCharacter: "`" | "~" | undefined;
+
+  return content
+    .split(/\r?\n/)
+    .map((line) => {
+      const fence = line.match(/^\s*(`{3,}|~{3,})/);
+      if (fence) {
+        const character = fence[1].startsWith("`") ? "`" : "~";
+        if (!fenceCharacter) {
+          fenceCharacter = character;
+        } else if (fenceCharacter === character) {
+          fenceCharacter = undefined;
+        }
+        return "";
+      }
+
+      return fenceCharacter ? "" : line.replace(/`[^`]*`/g, "");
+    })
+    .join("\n");
+}
+
+function validateCrossSkillReferences(
+  skillsRoot: string,
+  skills: Array<LocalSkill & { content: string }>,
+  additionalSkillNames: readonly string[],
+): void {
+  const knownSkillNames = new Set([...skills.map((skill) => skill.name), ...additionalSkillNames]);
+  const unknownReferences: string[] = [];
+  const skillReferencePattern =
+    /(?:^|[^A-Za-z0-9_$])\$([a-z][a-z0-9]*(?:-[a-z0-9]+)*)(?![A-Za-z0-9-])/g;
+
+  for (const skill of skills) {
+    for (const markdownPath of findMarkdownPaths(skill.dir)) {
+      const content = stripMarkdownCode(readFileSync(markdownPath, "utf-8"));
+      for (const [lineIndex, line] of content.split("\n").entries()) {
+        for (const match of line.matchAll(skillReferencePattern)) {
+          const referencedSkillName = match[1];
+          if (!knownSkillNames.has(referencedSkillName)) {
+            unknownReferences.push(
+              `${relative(skillsRoot, markdownPath)}:${lineIndex + 1} references $${referencedSkillName}`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  if (unknownReferences.length > 0) {
+    throw new Error(
+      `Unknown skill references:\n${unknownReferences.map((item) => `- ${item}`).join("\n")}`,
     );
   }
 }
@@ -259,6 +327,8 @@ export function discoverLocalSkills(
     }
     seen.add(skill.name);
   }
+
+  validateCrossSkillReferences(skillsRoot, skills, options.additionalSkillNames ?? []);
 
   return skills
     .map(({ content: _content, ...skill }) => skill)

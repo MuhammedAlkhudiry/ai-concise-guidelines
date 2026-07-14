@@ -86,11 +86,6 @@ hugeicons() {
 command -v mise >/dev/null && eval "$(mise activate zsh)"
 
 # --- PHP ---------------------------------------------------------------------
-# Makes the Homebrew PHP 8.2 binaries available for host-side tooling. Laravel
-# project commands should normally use Herd unless explicitly run by hand.
-export PATH="/opt/homebrew/opt/php@8.2/bin:$PATH"
-export PATH="/opt/homebrew/opt/php@8.2/sbin:$PATH"
-
 # Herd exposes its PHP binary and PHP 8.4 configuration for host-side tools.
 export HERD_PHP_84_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/84/"
 export PATH="$HOME/Library/Application Support/Herd/bin/:$PATH"

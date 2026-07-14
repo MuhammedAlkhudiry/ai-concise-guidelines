@@ -10,23 +10,23 @@ Use this flow after an approved implementation plan when the change spans many f
 1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions.
 2. When the diff crosses a producer-consumer contract, inventory both sides and compare shape, naming, requiredness, nullability, values, defaults, authorization, errors, versioning, and transforms.
    Classify each unit as `aligned`, `breaking`, `unsafe`, `stale`, or `ambiguous`; fix or report every non-aligned unit.
-3. Run `code-simplifier` as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
-4. Run `test-coverage-audit` and close approved worthwhile behavior gaps.
-5. Run `code-review` as a Standards review in a fresh subagent.
+3. Run $code-simplifier as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
+4. Run $test-coverage-audit and close approved worthwhile behavior gaps.
+5. Run $code-review as a Standards review in a fresh subagent.
 6. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
-7. Run `verification` as the final verification and fix loop.
+7. Run $verification as the final verification and fix loop.
 8. Run one final fresh reviewer gate in a subagent.
-9. Run `refactor-opportunities` as a final suggestion pass in a fresh subagent.
+9. Run $refactor-opportunities as a final suggestion pass in a fresh subagent.
 10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.
 
 ## Rules
 
-- Delegate `code-simplifier`, `refactor-opportunities`, `code-review`, and every review gate to fresh-context subagents.
+- Delegate $code-simplifier, $refactor-opportunities, $code-review, and every review gate to fresh-context subagents.
 - If subagents are unavailable, report the missing passes instead of simulating them.
-- Only `code-simplifier` subagents may edit; review and opportunity subagents are read-only.
+- Only $code-simplifier subagents may edit; review and opportunity subagents are read-only.
 - The main agent owns implementation, synthesis, triage, integration, final reporting, and whether another simplifier pass is needed.
 - Run independent subagent reviews, inspections, or disjoint edit scopes in parallel whenever possible.
-- Present `refactor-opportunities` findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
+- Present $refactor-opportunities findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
 
 - Finish with this shape:
 

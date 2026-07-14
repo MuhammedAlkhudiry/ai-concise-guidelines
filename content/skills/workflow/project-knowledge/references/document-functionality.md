@@ -26,7 +26,7 @@ Create a short, accurate feature pack that helps a future agent understand the f
 16. Write the pack in the template sections. Prefer bullets over paragraphs when the feature has many states or rules.
 17. Add only high-signal `key_files`: files a future agent should read first, not every touched file.
 18. Make the feature discoverable in `docs/knowledge/INDEX.md` through the feature link and useful aliases in the pack frontmatter.
-19. If this work fixed a hard-earned bug, use the `bug-learning` skill.
+19. If this work fixed a hard-earned bug, use $bug-learning.
 20. Link relevant learning files from the feature pack's `Known Learnings` section.
 21. Set `last_verified` to the current date after verifying code paths.
 22. Run `knowledge check`.
