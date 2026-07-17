@@ -7,6 +7,15 @@ import { execa } from "execa";
 
 import { generate } from "./commands/generate";
 import { install } from "./commands/install";
+import {
+  projectLanesAcquire,
+  projectLanesDestroy,
+  projectLanesRelease,
+  projectLanesReset,
+  projectLanesSetup,
+  projectLanesStatus,
+  projectLanesVerify,
+} from "./commands/project-lanes";
 import { toolsStatus, toolsUpdatePlan } from "./commands/tools";
 
 const ROOT_DIR = join(import.meta.dir, "..");
@@ -49,6 +58,49 @@ cli
     }
     throw new Error(`Unknown tools action: ${action}`);
   });
+
+cli
+  .command("lanes <action> [...args]", "Manage persistent clone lanes for active projects")
+  .option("--json", "Print machine-readable status")
+  .option("--task <task>", "Task description or identifier")
+  .option("--owner <owner>", "Lease owner identifier")
+  .option("--confirm", "Confirm destructive removal")
+  .action(
+    async (
+      action: string,
+      args: string[],
+      options: { json?: boolean; task?: string; owner?: string; confirm?: boolean },
+    ) => {
+      const required = (index: number, name: string): string => {
+        const value = args[index];
+        if (!value) throw new Error(`${name} is required for lanes ${action}`);
+        return value;
+      };
+
+      if (action === "setup") return projectLanesSetup(args[0]);
+      if (action === "status") return projectLanesStatus(args[0], options.json);
+      if (action === "verify") return projectLanesVerify(args[0]);
+      if (action === "acquire") {
+        if (!options.task) throw new Error("--task is required for lanes acquire");
+        return projectLanesAcquire(
+          required(0, "project"),
+          required(1, "branch"),
+          options.task,
+          options.owner,
+        );
+      }
+      if (action === "release") {
+        return projectLanesRelease(required(0, "project"), required(1, "lane"));
+      }
+      if (action === "reset") {
+        return projectLanesReset(required(0, "project"), required(1, "lane"));
+      }
+      if (action === "destroy") {
+        return projectLanesDestroy(required(0, "project"), required(1, "lane"), options.confirm);
+      }
+      throw new Error(`Unknown lanes action: ${action}`);
+    },
+  );
 
 cli.help();
 cli.parse();

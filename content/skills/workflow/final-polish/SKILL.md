@@ -13,11 +13,11 @@ Use this flow after an approved implementation plan when the change spans many f
 3. Run $code-simplifier as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
 4. Run $test-coverage-audit and close approved worthwhile behavior gaps.
 5. Run $code-review as a Standards review in a fresh subagent.
-6. Triage review findings. Fix in-scope blockers and high-confidence issues; defer optional or out-of-scope items.
+6. Triage and report every review finding without fixing it. Treat findings as proposed next work; any blocker prevents the readiness gate.
 7. Run $verification as the final verification and fix loop.
-8. Run one final fresh reviewer gate in a subagent.
+8. Run one final fresh reviewer gate in a subagent and report its findings without fixing them.
 9. Run $refactor-opportunities as a final suggestion pass in a fresh subagent.
-10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made, deferred items, and human review focus.
+10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made outside review passes, review findings, deferred items, and human review focus.
 
 ## Rules
 
@@ -26,7 +26,7 @@ Use this flow after an approved implementation plan when the change spans many f
 - Only $code-simplifier subagents may edit; review and opportunity subagents are read-only.
 - The main agent owns implementation, synthesis, triage, integration, final reporting, and whether another simplifier pass is needed.
 - Run independent subagent reviews, inspections, or disjoint edit scopes in parallel whenever possible.
-- Present $refactor-opportunities findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
+- Present $code-review, final reviewer gate, and $refactor-opportunities findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
 
 - Finish with this shape:
 
@@ -39,11 +39,14 @@ Implemented:
 Subagent passes:
 - code-simplifier: <passes and result>
 - refactor-opportunities: <count and headline>
-- code-review: <blockers fixed, findings deferred, or none>
-- final reviewer gate: <clear or notes>
+- code-review: <count and headline, or none>
+- final reviewer gate: <count and headline, or clear>
 
 Verification:
 - <checks and results>
+
+Review findings:
+- <proposed follow-up items>
 
 Deferred:
 - <known non-blockers, skipped checks, or none>

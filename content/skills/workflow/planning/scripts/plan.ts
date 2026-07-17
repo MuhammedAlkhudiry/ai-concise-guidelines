@@ -49,7 +49,12 @@ Options:
 }
 
 function parseOptions(args: string[]): Options {
-  const cwdProject = basename(process.cwd().replace(/\/$/, ""));
+  const remote = spawnSync("git", ["remote", "get-url", "origin"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  }).stdout.trim();
+  const remoteProject = remote.match(/([^/:]+?)(?:\.git)?$/)?.[1];
+  const cwdProject = remoteProject || basename(process.cwd().replace(/\/$/, ""));
   const query: string[] = [];
   let project = cwdProject;
   let projectExplicit = false;
@@ -149,16 +154,7 @@ function pad(value: string, width: number): string {
 }
 
 function relatedProjectNames(options: Options): string[] {
-  const names = [options.project];
-  if (options.projectExplicit || !existsSync(options.plansRoot)) return names;
-
-  const prefix = `${options.project}-`;
-  const related = readdirSync(options.plansRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith(prefix))
-    .map((entry) => entry.name)
-    .sort();
-
-  return [...new Set([...names, ...related])];
+  return [options.project];
 }
 
 function activePlansForList(options: Options): Plan[] {

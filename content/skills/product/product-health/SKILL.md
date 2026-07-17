@@ -6,7 +6,7 @@ description: Product health reports covering bugs, Sentry cleanup, slow paths, i
 ## Workflow
 
 1. Check `PRODUCT_SETUP.md`; report missing or stale setup as a gap.
-2. Read durable repo context: `PRODUCT.md`, README, deployment docs, manifests, app config, and env examples.
+2. Read durable repo context: README, deployment docs, manifests, app config, and env examples.
 3. Review recent git history before querying health sources; treat commits as leads, not proof.
 4. Detect health sources from code and docs, then record sources, adapters, access gaps, risks, and check playbooks:
 

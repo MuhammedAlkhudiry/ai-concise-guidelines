@@ -83,7 +83,7 @@ Use for active project inventory, cross-project setup, local environment setup, 
 
 Primary checks:
 
-- Inspect `content/active-projects.md`.
+- Inspect `config/active-projects.ts` and the current `my-setup lanes status --json` output.
 - Check project setup instructions and repo script behavior.
 - Verify project paths and contracts before recommending broad changes.
 

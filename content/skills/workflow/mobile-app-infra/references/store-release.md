@@ -11,7 +11,7 @@ Use this for Expo/EAS releases, submission checks, readiness, and store API cred
 5. Use [store-status-apis.md](store-status-apis.md) for Google Play and App Store Connect status checks.
 6. Run `scripts/mobile-store-status.ts` for read-only local, EAS, Google Play, and App Store Connect status when project params are known.
 7. For releases or incidents involving native social sign-in, verify store signing identity against provider OAuth clients before assuming app-code failure.
-8. Use browser or computer control only for 2FA, legal agreements, expired sessions, policy forms, and dashboard-only blockers.
+8. Never use Chrome, browser automation, or computer control for App Store Connect. Use its API; report API-unsupported actions as manual blockers for the user. Browser access for another store is limited to 2FA, legal agreements, expired sessions, policy forms, and dashboard-only blockers.
 9. Pause before final review/live buttons unless the user already explicitly confirmed the full release.
 10. Report exact states per platform. Do not call a release live from build or upload output alone.
 

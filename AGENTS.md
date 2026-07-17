@@ -12,13 +12,14 @@
 - `src/commands/install.ts` — Local installer that syncs rules, config, skills, shell helpers, secrets, and shared bin commands.
 - `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
 - `system-tools.md` — Human-readable list of expected system tools; keep it aligned with `doctor`.
-- `content/active-projects.md` — Source of truth for active project references.
+- `config/active-projects.ts` — Source of truth for active projects and their fixed clone lanes.
 - `output/` — Generated preview artifacts only; do not edit by hand.
 
-- **ACTIVE-PROJECTS** — My active projects are listed in `content/active-projects.md`; when asked to work across active projects, use that file as the source of truth.
+- **ACTIVE-PROJECTS** — Active projects and their fixed clone lanes are declared in `config/active-projects.ts`; use it as the source of truth and acquire work through `$project-lanes`.
 - **MAIN-ONLY** — Work directly on `main`; do not create branches unless explicitly requested.
 - **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
-- **THIN-ZSHRC** — If anything is added directly to user `~/.zshrc`, tell the user it should be migrated into `shell/zsh-custom.zsh`.
+- **THIN-ZSHRC** — If user `~/.zshrc` contains anything beyond the managed `shell/zsh-custom.zsh` import, repair it directly instead of leaving installation blocked.
+  Preserve custom shell code by migrating it into `shell/zsh-custom.zsh`, then restore the thin `~/.zshrc` and rerun installation.
 - **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep `doctor` in sync with that list.
 - **SKILL-STRUCTURE** — Each skill must live in `content/skills/<category>/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and instructions body.
 - **SKILL-OPENAI-YAML** — Never add `agents/openai.yaml` to a skill unless the user explicitly requests it.
@@ -28,6 +29,6 @@
 - **SKILL-PORTABLE** — Installed-facing skill files must not point back to source-only repo paths such as `content/skills/...` or local `my-setup` paths; use skill-relative references.
 - **SKILL-GLOBAL** — Skill instructions are global capabilities; do not mention any project, repo, product, client, or local workspace by name.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
-- **MY-SETUP-CLI** — Supported local commands are `my-setup install`, `my-setup doctor`, `my-setup tools status`, and `my-setup tools update-plan`.
+- **MY-SETUP-CLI** — Supported local commands are `my-setup install`, `my-setup doctor`, `my-setup tools status`, `my-setup tools update-plan`, and `my-setup lanes <setup|status|acquire|release|verify|reset|destroy>`.
 - **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.

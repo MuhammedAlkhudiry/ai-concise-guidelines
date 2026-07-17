@@ -15,4 +15,6 @@ Load only the references needed for the request:
 
 When branches overlap, load each relevant reference and keep one shared artifact, identity, environment, and release-state map. Use current primary provider documentation before changing unstable APIs, policies, or console behavior.
 
+Never access App Store Connect through Chrome, browser automation, or computer control. Use App Store Connect API access; when an action is unavailable through the API, report it as a manual blocker for the user.
+
 Run `scripts/mobile-store-status.ts` only for read-only release/status checks. Never print tokens, private keys, service-account JSON, signed purchase payloads, or private account data.

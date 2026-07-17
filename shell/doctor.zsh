@@ -250,6 +250,7 @@ main() {
   print_header "My Setup links"
   check_link zsh "$HOME/.config/zsh-sync/custom.zsh" "$MY_SETUP_ROOT/shell/zsh-custom.zsh"
   check_link context-health "$HOME/bin/context-health" "$MY_SETUP_ROOT/shell/context-health.zsh"
+  check_link my-setup "$HOME/bin/my-setup" "$MY_SETUP_ROOT/shell/my-setup.zsh"
   check_link hugeicons "$HOME/bin/hugeicons" "$MY_SETUP_ROOT/shell/hugeicons.zsh"
   check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"

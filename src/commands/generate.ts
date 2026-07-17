@@ -56,6 +56,9 @@ async function generateCodexConfig(): Promise<void> {
     "[agents]",
     `max_threads = ${CODEX_CONFIG.agents.max_threads}`,
     "",
+    "[features]",
+    `default_mode_request_user_input = ${CODEX_CONFIG.features.default_mode_request_user_input}`,
+    "",
   ];
 
   await writeFile(join(CODEX_DIR, "config.toml"), lines.join("\n"));

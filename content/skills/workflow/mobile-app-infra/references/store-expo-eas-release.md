@@ -59,12 +59,13 @@ Before bumping, check local config, `eas.json`, and the latest EAS builds. Follo
 5. Commit and push the version/config change when the project workflow requires it.
 6. Run the existing production build-and-submit script.
 7. Capture EAS build IDs, native build numbers, submit IDs, artifact links, and timestamps.
-8. Verify EAS submissions with supported commands or internal status queries before touching stores.
-9. Verify Android through Google Play status.
-10. Verify iOS through App Store Connect status.
-11. If native Google Sign-In is in scope, compare Google Play app-signing fingerprints against Android OAuth clients before calling the release healthy.
-12. Use browser or computer control for legal agreements, review forms, 2FA, and dashboard-only blockers.
-13. Finish with exact per-platform state and any remaining store action.
+8. After EAS accepts the builds, wait three minutes without querying status; builds always need an initial processing window, so do not poll during it.
+9. Verify EAS submissions with supported commands or internal status queries before touching stores.
+10. Verify Android through Google Play status.
+11. Verify iOS through App Store Connect status.
+12. If native Google Sign-In is in scope, compare Google Play app-signing fingerprints against Android OAuth clients before calling the release healthy.
+13. Never use Chrome, browser automation, or computer control for App Store Connect. Use its API and report API-unsupported actions as manual blockers for the user. For Google Play, use browser or computer control only for legal agreements, review forms, 2FA, and dashboard-only blockers.
+14. Finish with exact per-platform state and any remaining store action.
 
 ## EAS Submit Caveats
 
@@ -93,7 +94,7 @@ Handle directly when authorized:
 - Data safety or app-content declaration forms
 - Waiting for build processing
 
-## App Store Connect Flow
+## App Store Connect API Flow
 
 After EAS uploads an iOS build:
 
@@ -106,6 +107,8 @@ After EAS uploads an iOS build:
 7. Add the version for review.
 8. Submit the review bundle.
 9. Verify `Waiting for Review`, `In Review`, approved, or live.
+
+Perform this flow through App Store Connect API access. If a required field or action is unavailable through the API, stop and hand that exact manual action to the user; do not open App Store Connect in Chrome or through browser/computer automation.
 
 ## Google Play Console Flow
 

@@ -7,6 +7,7 @@
     "doctor": "bun src/cli.ts doctor",
     "tools:status": "bun src/cli.ts tools status",
     "tools:update:plan": "bun src/cli.ts tools update-plan",
+    "lanes:status": "bun src/cli.ts lanes status",
     "format": "node node_modules/oxfmt/dist/cli.js src/cli.ts src/commands src/lib config package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
     "format:check": "node node_modules/oxfmt/dist/cli.js --check src/cli.ts src/commands src/lib config package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
     "lint": "bun node_modules/oxlint/dist/cli.js .",

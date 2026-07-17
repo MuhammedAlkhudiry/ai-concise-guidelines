@@ -1,64 +1,63 @@
 ---
 name: implementation-walkthrough
 description: >-
-  Gentle, paced walkthroughs of implemented work, PRs, branches, or large changes with durable progress,
-  prepared environments, coherent parts, inspection, QA, and follow-up changes.
+  Gentle, low-pressure walkthroughs of implemented work, PRs, branches, or large changes with durable progress,
+  progressive disclosure, prepared environments, inspection, and follow-up changes.
 ---
 
-## State Acquisition
+## Gentleness Contract
+
+Gentleness governs structure, pace, and tone.
+
+- Give one orientation, one learning objective, and at most one action per turn. Never combine the full roadmap,
+  implementation explanation, file inventory, risks, and QA in one response.
+- Start with product behavior. Reveal deeper context only when useful now or requested.
+- Pause without pressure. Questions, uncertainty, stopping, skipping, revisiting, and changing depth are normal;
+  silence or a question is never approval to continue.
+- When the user seems overloaded, stop, simplify the current idea, shrink the next step, and ask what would help.
+- Match the user's pace and technical depth without requiring an up-front style choice.
+
+## Durable State
 
 1. Resolve the canonical repo root and current branch or PR identity.
-2. Before scope analysis or any write, inspect every JSON file under `${XDG_STATE_HOME:-~/.local/state}/implementation-walkthroughs/`.
-3. Match by JSON contents, not filename:
-   - Use canonical `repoPath` plus `pr` when a PR exists; otherwise use `repoPath` plus `branch`.
-   - If a branch walkthrough gains a PR, reuse and migrate it.
-4. For one match, resume it in place and preserve recorded progress.
-5. For multiple matches, never create another. Show each path, `updatedAt`, `currentPart`, and completed count; ask which to resume.
-6. For no match, create `${XDG_STATE_HOME:-~/.local/state}/implementation-walkthroughs/<safe-identity>.json`. Never use repo, temporary, chat, `.codex`, or agent state.
-7. Reconcile branch, SHA, diff, or scope changes in place. Mark only affected parts stale; change never justifies new state.
+2. Before analysis or writes, inspect every JSON file under
+   `${XDG_STATE_HOME:-~/.local/state}/implementation-walkthroughs/`.
+3. Match JSON contents by canonical `repoPath` plus `pr`, or `repoPath` plus `branch` when no PR exists.
+4. Resume one match in place; migrate it if the branch gains a PR. For multiple matches, show each path, `updatedAt`,
+   `currentPart`, and completed count, then ask which to resume.
+5. For no match, create `<safe-identity>.json` in that state directory. Never use the repo, temporary storage, chat,
+   `.codex`, or agent state.
+6. Reconcile changes in place and mark only affected parts stale; change never justifies new state.
 
-## Scope
+Track identity, SHA and range, overview, environment, parts, decisions, requests, skips, blockers, and follow-ups.
+Each part records its boundary, estimate, checkpoints, status, stale reason, evidence, and related files.
 
-8. Reconstruct scope from state, PR or branch context, diffs, commits, changed files, product surfaces, migrations, config, docs, tests, and notes. Cover purpose, flows, impact, risks, dependencies, and non-scope.
-9. Compare state with current identity, SHA, diff, and scope; reconcile it and explain what became stale.
-10. Give a compact overview before inspection: purpose, product effect, technical effect, risk map, likely path, and blockers.
+## Prepare Quietly
 
-## Parts And Environment
+1. Reconstruct purpose, flows, impact, risks, dependencies, and non-scope from state, branch or PR context, diffs,
+   commits, changed files, migrations, config, docs, tests, and notes.
+2. Split work into coherent 15–30 minute behaviors or implementation slices. Keep flows intact; give larger parts
+   checkpoints and pause points.
+3. Environment work is preparation, never a part. Verify a responding target URL in Chrome for web, or the built and
+   launched target screen on a device for mobile. Keep preparation invisible unless it needs the user's attention.
 
-11. Make parts about product behavior, substantive changes, or core implementation: a flow, page, role, state machine, integration, risk, or implementation slice.
-12. Environment or infrastructure work is never a part or checkpoint. Process startup, dependencies, seeders, dev ports, and test data are preparation only.
-13. Prefer 15-30 minute parts. Keep cohesive flows intact; give larger parts estimates, checkpoints, and pause points.
-14. Prepare the supported environment before the first part.
-   For web, verify a responding URL and open the target in Chrome. For mobile, verify the device, build, launch, and target screen.
+## Walkthrough Loop
 
-## Gentle Walkthrough Loop
+1. Once a walkthrough is created or resumed, every final answer follows `references/part-template.md` until completion.
+2. Answer questions, challenges, changes, or detours first in the optional `Answer` section. Keep the current step
+   paused; the template below preserves the user's place.
+3. Present only the current part and request at most one action. Pause after each meaningful idea or action; answer
+   questions before offering one next step, and never start that step in the same response.
+4. Update state after each part, decision, request, environment change, blocker, skip, or scope change.
+5. On scope change, pause, handle it, resync affected parts, and continue gently.
 
-15. Orient before asking the user to act. Walk one part and one manageable step at a time; reveal deeper detail only when useful.
-16. Pause naturally for questions, inspection, changes, approval, skipping, or scope reshaping. Never pressure the user to approve or continue.
-17. Update JSON after every part, decision, request, environment change, blocker, skip, stale marker, or scope change.
-18. On scope change, pause, handle the change as requested, resync parts, then continue.
+## Output
 
-## State Shape
-
-Track at least:
-
-- `repoPath`, `branch`, `pr`, `headSha`, `analyzedRange`, `updatedAt`.
-- `overview`: purpose, product impact, technical impact, risks, non-scope.
-- `environment`: web URL or device, app state, login/test data, proof, blockers.
-- `parts`: id, title, boundary, estimate, checkpoints, status, stale reason, notes, evidence, related files.
-- `currentPart`, `decisions`, `requestedChanges`, `skippedItems`, `blockers`, `followUps`.
-
-## Output Shape
-
-- Report one startup outcome:
-  - `Resumed walkthrough: <path> — current part: <title>.`
-  - `Created walkthrough: <path> — no existing state matched <identity>.`
-  - `Multiple walkthroughs matched; selection is required before continuing.`
-- Show parts with estimates, status, stale markers, and the verified environment or blocker.
-- Before presenting a part, load and follow `references/part-template.md`. Start only the first or current part.
-- After each part, summarize, update state, then pause and offer the next move without starting it.
-
-## Rules
-
-- Keep QA cases runnable and observable, but do not reduce the session to QA.
-- Do not hand over route lists, file lists, or generic test cases as the walkthrough.
+- Use the template only in final answers, never in commentary or working updates.
+- Put no walkthrough prose outside the template in a final answer. Its first part reports whether state was created or
+  resumed; multiple matches require selection before continuing.
+- On startup or transition, preview only the current part, next part, and later-part count. Show more only when asked.
+- Report the environment or actionable blocker in one line when relevant.
+- After a part, summarize the outcome and any decision in two or three short lines, update state, then pause and offer
+  one next move without starting it.
+- Keep QA runnable and observable, but never replace the walkthrough with QA, route lists, files, or generic tests.

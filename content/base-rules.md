@@ -15,6 +15,8 @@
 - **GUIDELINES-PROJECT** — Shared AI agent rules/skills/config generator repo: `my-setup` is always at `~/PhpstormProjects/my-setup`; from other projects, reference and edit it there.
 - **PERSONAL-KNOWLEDGE** — Personal source of truth for the owner's life, work, tools, preferences, decisions, and AI-agent context: `personal-knowledge` is always at `~/PhpstormProjects/personal-knowledge`; from other projects, reference and edit it there.
 - **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and the task mentions a feature, domain term, workflow, product behavior, glossary, or history, run `knowledge list` before broad code exploration.
+  Before discussing a feature with the user, read `docs/knowledge/glossary.md` so the conversation uses the project's established domain language.
+  In user-facing prose, bold and italicize every term defined in the glossary whenever it appears, preserving its canonical wording—for example: “We need to allow the ***User*** to...”
 - **RIGHT-SIZED-CHANGE** — Optimize for the best correct solution, not merely the smallest diff.
   First identify the root problem and the solution that best matches the user's intent, then choose the narrowest implementation that preserves correctness, maintainability, and product quality.
   Avoid unrelated churn, but include related changes needed for the stronger engineering answer.
@@ -42,9 +44,11 @@
   If the user is asking a question, discussing, exploring, reviewing an idea, or the intent is ambiguous, answer in discussion mode and stop before changing anything.
 - **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first and stop unless they explicitly ask for a change.
 - **Ground in code** — Before answering any question about a project or changing code, read the relevant code first and let the actual system shape the response.
+- **CLICKABLE URLS** — Render every known URL as a clickable Markdown link to the exact page, never as plain text, inline code, or quoted text.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
 - **QA means manual QA** — When the user asks for QA, give manual QA steps, human-run test cases, or a QA handoff.
   Do not run or propose end-to-end, smoke, or other automated test commands unless the user explicitly asks for automated verification.
+- **LEAVE ENVIRONMENT RUNNING** — Assume the user will QA the work after it is complete; leave the development environment running unless they ask otherwise.
 - **Test restraint** — Do not write or modify automated tests just because code changed or a bug was fixed.
   Add tests only for a named observable behavior contract, regression, boundary, authorization, persistence, integration, or user-visible flow that is not already covered.
   Before adding a test, state the gap it closes; if the gap is weak, covered elsewhere, implementation-only, brittle, or low-value, skip the test and mention that choice.
@@ -61,5 +65,6 @@
   Do not present only one solution unless there is clearly no reasonable alternative.
   Include external options such as new tools, libraries, products, or infrastructure when they may be the practical answer.
   Search the web when current facts, tools, or best practices may matter.
-- **Bug report first** — When the user reports a bug, do not fix it immediately.
-  First investigate and give a concise report with the likely cause, impacted files or flows, evidence, and proposed fix; wait for explicit approval before changing code.
+- **Bug report first** — When the user reports a bug, investigate before changing code.
+  If the confirmed fix changes fewer than five lines or resolves an infrastructure issue, fix it directly and report the cause and change.
+  Otherwise, give a concise report with the likely cause, impacted files or flows, evidence, and proposed fix, then wait for explicit approval.

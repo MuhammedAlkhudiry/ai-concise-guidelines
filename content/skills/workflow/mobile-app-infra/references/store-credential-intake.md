@@ -12,7 +12,7 @@ Ask only for missing values that cannot be discovered locally:
 - App Store Connect Issuer ID
 - Project credential env path
 
-Prefer existing authenticated browser sessions for dashboard-only work. Use local API credentials for repeatable status checks and release operations. Ask the user only for 2FA, missing account access, or values/files that are not discoverable locally.
+Use local API credentials for repeatable status checks and release operations. Never use an authenticated Chrome session, browser automation, or computer control for App Store Connect. Ask the user only for 2FA, missing account access, API-unsupported manual actions, or values/files that are not discoverable locally.
 
 The project release docs should define the env variable names. Common names are:
 

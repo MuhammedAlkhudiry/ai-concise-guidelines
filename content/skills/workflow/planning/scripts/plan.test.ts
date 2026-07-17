@@ -28,13 +28,17 @@ function writePlan(root: string, project: string, file: string, title: string): 
 }
 
 describe("plan list", () => {
-  test("includes worktree-suffixed plan folders for the current project", () => {
+  test("uses the remote repository name across fixed lane clones", () => {
     const fixture = mkdtempSync(join(tmpdir(), "plan-cli-"));
     const plansRoot = join(fixture, "plans");
     const checkout = join(fixture, "example-project");
 
     try {
       mkdirSync(checkout, { recursive: true });
+      spawnSync("git", ["init"], { cwd: checkout });
+      spawnSync("git", ["remote", "add", "origin", "git@github.com:owner/example-project.git"], {
+        cwd: checkout,
+      });
       writePlan(plansRoot, "example-project", "base.md", "Base Plan");
       writePlan(plansRoot, "example-project-auth", "auth.md", "Auth Plan");
       writePlan(plansRoot, "example-project-editor", "editor.md", "Editor Plan");
@@ -46,19 +50,11 @@ describe("plan list", () => {
       });
 
       expect(result.status).toBe(0);
-      expect(result.stdout).toContain(
-        "Projects: example-project, example-project-auth, example-project-editor",
-      );
-      expect(result.stdout).toContain("\nexample-project\n");
-      expect(result.stdout).toContain("\nexample-project-auth\n");
-      expect(result.stdout).toContain("\nexample-project-editor\n");
+      expect(result.stdout).not.toContain("Projects:");
       expect(result.stdout).toContain("base.md");
-      expect(result.stdout).toContain("auth.md");
-      expect(result.stdout).toContain("editor.md");
-      expect(result.stdout).not.toContain("example-project/base.md");
-      expect(result.stdout).not.toContain("example-project-auth/auth.md");
-      expect(result.stdout).not.toContain("example-project-editor/editor.md");
-      expect(result.stdout).not.toContain("other-project/other.md");
+      expect(result.stdout).not.toContain("auth.md");
+      expect(result.stdout).not.toContain("editor.md");
+      expect(result.stdout).not.toContain("other.md");
     } finally {
       rmSync(fixture, { recursive: true, force: true });
     }

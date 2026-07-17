@@ -64,6 +64,7 @@ const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY", "HUGEICONS_TOKEN"] as cons
 const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [
+  { name: "my-setup", source: "my-setup.zsh" },
   { name: "context-health", source: "context-health.zsh" },
   { name: "hugeicons", source: "hugeicons.zsh" },
   { name: "hosts", source: "hosts.zsh" },
@@ -279,11 +280,17 @@ async function mergeCodexConfigAsync(): Promise<void> {
   const existing = existsSync(CODEX_PATHS.config)
     ? await readFile(CODEX_PATHS.config, "utf-8")
     : "";
-  const merged = upsertTomlSectionKey(
+  const withAgents = upsertTomlSectionKey(
     existing,
     "agents",
     "max_threads",
     String(CODEX_CONFIG.agents.max_threads),
+  );
+  const merged = upsertTomlSectionKey(
+    withAgents,
+    "features",
+    "default_mode_request_user_input",
+    String(CODEX_CONFIG.features.default_mode_request_user_input),
   );
   await writeFile(CODEX_PATHS.config, merged);
   print.success("Codex config merged");

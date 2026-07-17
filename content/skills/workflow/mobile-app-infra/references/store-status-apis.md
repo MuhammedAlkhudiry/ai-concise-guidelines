@@ -1,6 +1,6 @@
 # Store Status APIs
 
-Use store APIs for repeatable status checks. Use dashboards for auth prompts, agreements, policy forms, and ambiguous review-state wording.
+Use store APIs for repeatable status checks. Never access App Store Connect through Chrome, browser automation, or computer control; report API-unsupported actions or ambiguous wording as manual blockers for the user. Use dashboards for other stores only when API access cannot handle auth prompts, agreements, policy forms, or ambiguous review-state wording.
 
 ## Contents
 
@@ -46,6 +46,8 @@ EAS owns builds and binary upload. Capture:
 - Submit ID when available
 
 EAS output proves build/upload progress. It does not prove the release is live.
+
+After sending a build to EAS, wait three minutes before the first status query. Do not poll during this initial processing window.
 
 When submit status commands are missing, inspect EAS CLI help before trying alternatives. If the project uses EAS auto-submit, keep the submit IDs from the original output and query by ID through supported tooling when available.
 
@@ -98,9 +100,9 @@ Useful fields:
 
 App Store Connect upload success is not the same as App Review submission. Verify the app version state and latest review submission state after adding the build for review.
 
-## Dashboard Fallback
+## Non-Apple Dashboard Fallback
 
-Use browser or computer control for:
+Do not use this fallback for App Store Connect. Use browser or computer control for another store only for:
 
 - 2FA
 - Expired auth

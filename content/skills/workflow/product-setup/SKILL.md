@@ -1,6 +1,6 @@
 ---
 name: product-setup
-description: Durable PRODUCT_SETUP.md creation and maintenance for product context, journeys, code and data surfaces, evidence sources, access gaps, recurring risks, and reproducible read-only check playbooks.
+description: Durable PRODUCT_SETUP.md creation and maintenance for product definition, journeys, code and data surfaces, evidence sources, access gaps, recurring risks, and reproducible read-only check playbooks.
 ---
 
 Maintain repo-root `PRODUCT_SETUP.md` as durable operating context, not a health report.
@@ -9,14 +9,15 @@ Maintain repo-root `PRODUCT_SETUP.md` as durable operating context, not a health
 
 1. Read existing setup before product analysis.
 2. Create or refresh it only when setup maintenance is requested or required by the requested setup task.
-3. Inspect durable sources as needed: product docs, manifests, app config, env examples, routes, jobs, tests, deployment docs, analytics, and monitoring.
-4. Record product surfaces, critical journeys, evidence sources, safe adapters and commands, access gaps, recurring risks, and check playbooks.
+3. Inspect durable sources as needed: README and other product docs, manifests, app config, env examples, routes, jobs, tests, deployment docs, analytics, and monitoring.
+4. Record the product definition, surfaces, critical journeys, evidence sources, safe adapters and commands, access gaps, recurring risks, and check playbooks.
 5. Keep commands and API calls reproducible without tokens or private values.
 6. Read back the changed document and confirm it contains durable setup rather than current run output.
 
 ## Content
 
-- Product and environment context.
+- Product definition: purpose, audience, problems solved, value, terminology, business model, and durable scope or constraints.
+- Product and environment context, including app names, environments, deployment or hosting clues, and important docs.
 - Backend, frontend, mobile, queues, scheduler, search, billing, support, analytics, infrastructure, AI, and other relevant surfaces.
 - Critical activation, repeated-use, payment, support, and recovery journeys.
 - Important UI states, accessibility or responsive risks, routes, components, services, jobs, models, tests, and technical boundaries.
@@ -34,4 +35,4 @@ Maintain repo-root `PRODUCT_SETUP.md` as durable operating context, not a health
 - Redact secrets, DSNs, tokens, passwords, private keys, and full connection URIs.
 - Keep production access read-only. Production writes, destructive queries, schema changes, long exports, and ambiguous targets are blockers.
 - Keep history only when it explains a recurring risk, product constraint, or future check.
-- Do not split UX, code, database, marketing, or health setup into competing setup files.
+- Do not split product definition, UX, code, database, marketing, or health setup into competing setup files.
