@@ -5,8 +5,6 @@
 - **SCRIPTING** — For scripting and one-time automation, prefer `bun` with TypeScript; use Python only when it is clearly better for the task.
 - **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including local dev environment changes when needed.
   Tell the user what changed after the task is done.
-- **JETBRAINS-MCP** — When JetBrains MCP is available, use it as the semantic IDE layer for symbol info, inspections, rename refactors, and open-editor context.
-  Keep `rg`/`sg` as the first-line discovery tools, and use JetBrains MCP when IDE indexes make the answer safer than text search.
 
 ## Repo Context
 
