@@ -1,9 +1,7 @@
 import {
-  acquireProjectLane,
   destroyProjectLane,
+  LANES_STATE_PATH,
   listProjectLaneStatuses,
-  PROJECT_LANES_STATE_PATH,
-  releaseProjectLane,
   resetProjectLane,
   setupProjectLanes,
   verifyProjectLanes,
@@ -16,34 +14,13 @@ export async function projectLanesSetup(project?: string): Promise<void> {
 export function projectLanesStatus(project?: string, json = false): void {
   const statuses = listProjectLaneStatuses(project);
   if (json) {
-    console.log(JSON.stringify({ statePath: PROJECT_LANES_STATE_PATH, lanes: statuses }, null, 2));
+    console.log(JSON.stringify({ statePath: LANES_STATE_PATH, lanes: statuses }, null, 2));
     return;
   }
-  for (const { lane, status, branch, reason, state } of statuses) {
-    const detail = state.lease
-      ? `${state.lease.branch} — ${state.lease.task}`
-      : branch || reason || "verified";
+  for (const { lane, status, branch, reason } of statuses) {
+    const detail = branch || reason || "verified";
     console.log(`${lane.project.id}/${lane.id}\t${status.toUpperCase()}\t${detail}`);
   }
-}
-
-export async function projectLanesAcquire(
-  project: string,
-  branch: string,
-  task: string,
-  owner?: string,
-): Promise<void> {
-  const status = await acquireProjectLane(
-    project,
-    branch,
-    task,
-    owner || process.env.CODEX_THREAD_ID || process.env.USER || "unknown",
-  );
-  console.log(status.lane.path);
-}
-
-export async function projectLanesRelease(project: string, lane: string): Promise<void> {
-  await releaseProjectLane(project, lane);
 }
 
 export async function projectLanesVerify(project?: string): Promise<void> {

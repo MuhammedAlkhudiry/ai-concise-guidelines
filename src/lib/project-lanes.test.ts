@@ -1,45 +1,18 @@
-import { describe, expect, test } from "bun:test";
+import { expect, test } from "bun:test";
 
-import { chooseReadyLane, type LaneStatus } from "./project-lanes";
+import { getProjectLanes } from "./project-lanes";
 
-function status(id: string, value: LaneStatus["status"]): LaneStatus {
-  return {
-    lane: {
-      id,
-      path: `/lanes/${id}`,
-      project: {
-        id: "project",
-        name: "Project",
-        remoteUrl: "https://example.com/project.git",
-        baseBranch: "main",
-        laneRoot: "/lanes",
-        laneCount: 3,
-        environmentVariable: "PROJECT_LANE_ROOT",
-      },
-    },
-    state: {},
-    status: value,
-  };
-}
-
-describe("chooseReadyLane", () => {
-  test("selects the first ready lane without considering occupied lanes", () => {
-    expect(
-      chooseReadyLane([
-        status("lane-1", "in-use"),
-        status("lane-2", "ready"),
-        status("lane-3", "ready"),
-      ]).lane.id,
-    ).toBe("lane-2");
+test("uses each configured lane path directly", () => {
+  const paths = ["/projects/project-lane-1", "/projects/project-lane-2"];
+  const lanes = getProjectLanes({
+    id: "project",
+    name: "Project",
+    remoteUrl: "https://example.com/project.git",
+    baseBranch: "main",
+    lanePaths: paths,
+    environmentVariable: "PROJECT_LANE_ROOT",
   });
 
-  test("refuses a fourth task when every lane is unavailable", () => {
-    expect(() =>
-      chooseReadyLane([
-        status("lane-1", "in-use"),
-        status("lane-2", "in-use"),
-        status("lane-3", "needs-attention"),
-      ]),
-    ).toThrow("No project lane is ready");
-  });
+  expect(lanes.map(({ id }) => id)).toEqual(["lane-1", "lane-2"]);
+  expect(lanes.map(({ path }) => path)).toEqual(paths);
 });

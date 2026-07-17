@@ -5,7 +5,17 @@
  */
 
 import { existsSync, copyFileSync, readFileSync, writeFileSync } from "fs";
-import { readFile, writeFile, copyFile, chmod, rm, mkdtemp, symlink, readdir } from "fs/promises";
+import {
+  readFile,
+  writeFile,
+  copyFile,
+  chmod,
+  rm,
+  mkdtemp,
+  symlink,
+  readdir,
+  rename,
+} from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { execa } from "execa";
@@ -16,8 +26,10 @@ import {
   type RemoteSkillSource,
 } from "../../config/skills";
 import { CODEX_CONFIG } from "../../config/codex";
+import { ACTIVE_PROJECTS } from "../../config/active-projects";
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
+import { createLanesConfig } from "../lib/lanes-config";
 import { colors, print, printBox, printSeparator } from "../lib/print";
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
@@ -29,6 +41,7 @@ import { validateRemoteSkillSources } from "../lib/validation";
 
 const HOME = process.env.HOME || "";
 const ROOT_DIR = join(import.meta.dir, "..", "..");
+const CONFIG_HOME = process.env.XDG_CONFIG_HOME || join(HOME, ".config");
 const STATE_HOME = process.env.XDG_STATE_HOME || join(HOME, ".local/state");
 
 // =============================================================================
@@ -53,6 +66,8 @@ const SHARED_PATHS = {
   secrets: join(HOME, ".config/my-setup/secrets.zsh"),
   binDir: join(HOME, "bin"),
   localBinDir: join(HOME, ".local/bin"),
+  lanesConfig: join(CONFIG_HOME, "lanes/projects.json"),
+  lanesState: join(STATE_HOME, "lanes/state.json"),
 };
 
 const REMOTE_SKILLS_STATE_PATH = join(STATE_HOME, "my-setup/remote-skills.json");
@@ -71,6 +86,7 @@ const SHARED_BIN_COMMANDS = [
   { name: "doctor", source: "doctor.zsh" },
   { name: "plan", source: "plan.zsh" },
   { name: "knowledge", source: "knowledge.zsh" },
+  { name: "lanes", source: "lanes.zsh" },
 ];
 
 // =============================================================================
@@ -332,6 +348,7 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
 async function installShared(): Promise<void> {
   await installLocalSecrets();
   await installSoloCli();
+  await installLanesConfig();
 
   const zshSource = join(ROOT_DIR, "shell", "zsh-custom.zsh");
   if (existsSync(zshSource)) {
@@ -377,6 +394,23 @@ async function installShared(): Promise<void> {
   } else {
     print.success("Local command PATH entries already present in .zshenv");
   }
+}
+
+async function installLanesConfig(): Promise<void> {
+  const legacyStatePath = join(STATE_HOME, "my-setup/active-project-lanes.json");
+  if (existsSync(legacyStatePath) && !existsSync(SHARED_PATHS.lanesState)) {
+    await ensureParentDir(SHARED_PATHS.lanesState);
+    await rename(legacyStatePath, SHARED_PATHS.lanesState);
+    print.success(`Migrated lanes state to ${SHARED_PATHS.lanesState}`);
+  }
+
+  await ensureParentDir(SHARED_PATHS.lanesConfig);
+  await writeFile(
+    SHARED_PATHS.lanesConfig,
+    `${JSON.stringify(createLanesConfig(ACTIVE_PROJECTS), null, 2)}\n`,
+    { mode: 0o600 },
+  );
+  print.success(`Installed lanes config to ${SHARED_PATHS.lanesConfig}`);
 }
 
 async function installSoloCli(): Promise<void> {
