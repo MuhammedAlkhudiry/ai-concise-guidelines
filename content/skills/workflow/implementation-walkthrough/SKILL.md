@@ -23,14 +23,14 @@ Gentleness governs structure, pace, and tone.
 2. Before analysis or writes, inspect every JSON file under
    `${XDG_STATE_HOME:-~/.local/state}/implementation-walkthroughs/`.
 3. Match JSON contents by canonical `repoPath` plus `pr`, or `repoPath` plus `branch` when no PR exists.
-4. Resume one match in place; migrate it if the branch gains a PR. For multiple matches, show each path, `updatedAt`,
-   `currentPart`, and completed count, then ask which to resume.
+4. Resume one match in place, migrating legacy shapes and branch-to-PR identity. For multiple matches, show path,
+   `updatedAt`, cursor, and completed count, then ask which to resume.
 5. For no match, create `<safe-identity>.json` in that state directory. Never use the repo, temporary storage, chat,
    `.codex`, or agent state.
 6. Reconcile changes in place and mark only affected parts stale; change never justifies new state.
 
-Track identity, SHA and range, overview, environment, parts, decisions, requests, skips, blockers, and follow-ups.
-Each part records its boundary, estimate, checkpoints, status, stale reason, evidence, and related files.
+Use `references/state-schema.md` as the resume checkpoint; omit empty, optional, or null fields. Fold decisions and
+changes into parts, skips into part status, and retain only one blocker. Reconstruct broader context on resume.
 
 ## Prepare Quietly
 

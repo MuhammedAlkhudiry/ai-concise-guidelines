@@ -34,10 +34,14 @@ clears the lease.
 - `my-setup lanes reset <project> <lane>` resets an idle, Git-empty lane without deleting its environment.
 - `my-setup lanes destroy <project> <lane> --confirm` removes an idle lane's resources and clone. Destruction is not task cleanup.
 
-Each project must keep a `PROJECT-LANES.md` contract and a compact project-lanes script suite with
-setup, mobile development, verification, reset, and destruction entry points. Every mutable local
-resource needs one stable lane identity, setup owner, reset owner, destruction owner, and exact
-verification check.
+Register every clone as its own Codex project and name it `<Emoji> <Project> · Lane <N>`, using one
+consistent project-specific emoji, the configured project name, and the one-based lane number. The
+emoji identifies the project; it does not indicate current readiness.
+
+Each active project must use a canonical remote URL and keep its lane contract and compact lane
+script suite on the base branch so every clone owns its setup, mobile development, verification,
+reset, and destruction entry points. Every mutable local resource needs one stable lane identity,
+setup owner, reset owner, destruction owner, and exact verification check.
 
 Provisioning or repair is complete only when all configured lanes are independent clones, mobile
 and backend verification pass for each lane, three simultaneous acquisitions succeed, a fourth

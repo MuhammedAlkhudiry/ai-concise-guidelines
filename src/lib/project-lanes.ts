@@ -244,13 +244,13 @@ async function runEnvironmentCommand(
   script: "setup" | "mobile-development" | "verify" | "reset" | "destroy",
   extraArgs: string[] = [],
 ): Promise<void> {
-  const scriptPath = join(lane.project.repository, "scripts/project-lanes", `${script}.ts`);
+  const scriptPath = join(lane.path, "scripts/project-lanes", `${script}.ts`);
   if (!existsSync(scriptPath)) throw new Error(`Missing project lane script: ${scriptPath}`);
   await execa("bun", [scriptPath, ...extraArgs], {
-    cwd: lane.project.repository,
+    cwd: lane.path,
     env: {
       ...process.env,
-      PROJECT_LANE_DEFINITION_ROOT: lane.project.repository,
+      PROJECT_LANE_DEFINITION_ROOT: lane.path,
       [lane.project.environmentVariable]: lane.path,
     },
     stdio: "inherit",
@@ -270,7 +270,6 @@ export async function setupProjectLanes(projectId?: string): Promise<void> {
   await withRegistryLock(async (registry) => {
     for (const project of projects) {
       mkdirSync(project.laneRoot, { recursive: true });
-      const remote = git(project.repository, ["remote", "get-url", "origin"]);
       for (const lane of getProjectLanes(project)) {
         const state = stateFor(registry, lane);
         try {
@@ -280,10 +279,9 @@ export async function setupProjectLanes(projectId?: string): Promise<void> {
               "--no-local",
               "--branch",
               project.baseBranch,
-              project.repository,
+              project.remoteUrl,
               lane.path,
             ]);
-            git(lane.path, ["remote", "set-url", "origin", remote]);
           } else {
             const current = inspectLane(lane, state);
             if (current.status === "in-use") continue;

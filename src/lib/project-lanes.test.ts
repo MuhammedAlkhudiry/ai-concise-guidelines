@@ -10,7 +10,7 @@ function status(id: string, value: LaneStatus["status"]): LaneStatus {
       project: {
         id: "project",
         name: "Project",
-        repository: "/project",
+        remoteUrl: "https://example.com/project.git",
         baseBranch: "main",
         laneRoot: "/lanes",
         laneCount: 3,
