@@ -16,8 +16,6 @@
 
 ## Buttons and controls
 
-- Label controls with the action and outcome.
-- Give every pressable control immediate active feedback.
 - Match visual weight to action priority; do not style secondary actions as primary.
 - Pair icons with labels when meaning is not universally familiar or space is not genuinely constrained.
 - Reserve destructive styling for commitment, not ordinary navigation toward a destructive setting.

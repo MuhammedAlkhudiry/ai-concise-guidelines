@@ -71,7 +71,7 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
   },
   {
     repository: "https://github.com/getsentry/cli.git",
-    ref: "main",
+    ref: "0.38.0",
     skills: [
       {
         name: "sentry-cli",
@@ -83,14 +83,6 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     repository: "https://github.com/getsentry/plugin-codex.git",
     ref: "main",
     skills: [
-      {
-        name: "sentry-get-started",
-        sourcePath: "plugins/sentry/skills/sentry-get-started",
-      },
-      {
-        name: "sentry-instrument",
-        sourcePath: "plugins/sentry/skills/sentry-instrument",
-      },
       {
         name: "sentry-sdk-upgrade",
         sourcePath: "plugins/sentry/skills/sentry-sdk-upgrade",

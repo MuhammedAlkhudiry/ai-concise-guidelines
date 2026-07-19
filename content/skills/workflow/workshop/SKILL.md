@@ -1,6 +1,6 @@
 ---
 name: workshop
-description: Pre-build workshop and option framing for architecture, UX/UI, product direction, tools, process, writing, trade-offs, scope, and risks.
+description: Stress-test ideas before building: brainstorm, compare options, or think through trade-offs, scope, or risks. For explaining existing things, use $teach; for concrete UI variants, use $ui-options.
 ---
 
 ## Workflow
@@ -29,3 +29,4 @@ description: Pre-build workshop and option framing for architecture, UX/UI, prod
 - Push back on the user's preferred direction when another path is simpler, safer, or more coherent; if the idea is weak, say so early and offer the strongest salvageable version.
 - Critique the idea, not the user.
 - Assume the work will be done in one go unless the user explicitly asks for MVPs, phases, or staged deployment.
+- The workshop is complete when one recommendation stands with its winning trade-off explicit, or when the blocking questions are handed back to the user.

@@ -21,7 +21,6 @@
 
 ## Use familiar, coherent patterns
 
-- Use concepts, labels, control placement, and interaction patterns people already understand.
 - Elements that look alike must behave alike. Keep the same action's label, icon, placement, and feedback consistent.
 - Break a convention only when the alternative improves clarity, speed, safety, or control.
 - Keep spatial relationships stable so people can predict where content and controls will appear.

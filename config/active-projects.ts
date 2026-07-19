@@ -3,7 +3,6 @@ import { join } from "node:path";
 import type { ActiveProject } from "../src/lib/lanes-config";
 
 const projectsRoot = "/Users/muhammed/PhpstormProjects";
-const lanesRoot = join(projectsRoot, "project-lanes");
 
 export const ACTIVE_PROJECTS: ActiveProject[] = [
   {
@@ -19,7 +18,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     name: "Harium",
     remoteUrl: "https://github.com/MuhammedAlkhudiry/harium-project.git",
     baseBranch: "main",
-    lanePaths: [1, 2, 3].map((number) => join(lanesRoot, "harium", `lane-${number}`)),
+    lanePaths: [1, 2, 3].map((number) => join(projectsRoot, `harium-lane-${number}`)),
     environmentVariable: "HARIUM_LANE_ROOT",
   },
 ];

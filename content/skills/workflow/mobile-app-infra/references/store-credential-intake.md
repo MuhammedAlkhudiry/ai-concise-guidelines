@@ -10,9 +10,9 @@ Ask only for missing values that cannot be discovered locally:
 - App Store Connect `.p8` key file downloaded to `~/Downloads`
 - App Store Connect Key ID
 - App Store Connect Issuer ID
-- Project credential env path
+- Credential environment name
 
-Use local API credentials for repeatable status checks and release operations. Never use an authenticated Chrome session, browser automation, or computer control for App Store Connect. Ask the user only for 2FA, missing account access, API-unsupported manual actions, or values/files that are not discoverable locally.
+Use local API credentials for repeatable status checks and release operations, following the store-access rule in [SKILL.md](../SKILL.md). Ask the user only for 2FA, missing account access, API-unsupported manual actions, or values/files that are not discoverable locally.
 
 The project release docs should define the env variable names. Common names are:
 
@@ -25,10 +25,14 @@ ASC_KEY_PATH=
 
 ## File Handling
 
-1. Create durable local credential folders:
+1. Require the centralized credential root and create provider folders:
 
 ```sh
-rtk mkdir -p "$HOME/.credentials" "$(dirname "<project-env-path>")"
+: "${SERVICE_CREDENTIALS_HOME:?SERVICE_CREDENTIALS_HOME is not configured}"
+rtk mkdir -p \
+  "$SERVICE_CREDENTIALS_HOME/google-play" \
+  "$SERVICE_CREDENTIALS_HOME/app-store-connect" \
+  "$SERVICE_CREDENTIALS_HOME/environments/<name>"
 ```
 
 2. List candidate downloads without printing secret contents:
@@ -38,10 +42,10 @@ rtk find "$HOME/Downloads" -maxdepth 1 -type f \( -name "*.json" -o -name "*.p8"
 ```
 
 3. Identify the Google Play service account JSON by shape, not filename. It should contain `type: service_account`, `client_email`, and `private_key`.
-4. Move the Google JSON to a stable project-specific path under `~/.credentials`.
-5. Move the Apple `.p8` key to a Key-ID-based filename under `~/.credentials`.
-6. Write the project env file with quoted shell exports and `$HOME` paths.
-7. Run `chmod 600` on credential files and the env file.
+4. Move the Google JSON to `$SERVICE_CREDENTIALS_HOME/google-play/service-account.json`.
+5. Move the Apple `.p8` key to `$SERVICE_CREDENTIALS_HOME/app-store-connect/AuthKey_<key-id>.p8`.
+6. Write `$SERVICE_CREDENTIALS_HOME/environments/<name>/mobile-release.env` with quoted shell exports whose credential paths start with `$SERVICE_CREDENTIALS_HOME`.
+7. Run `chmod 700` on credential directories and `chmod 600` on credential files and the env file.
 8. Run the project status command to verify API authentication.
 
 ## Safety

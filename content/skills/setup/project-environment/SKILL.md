@@ -17,7 +17,7 @@ clone lifecycle, readiness, state, and invocation; do not put project-specific p
 3. Define one stable lane identity and map every mutable local resource to it.
 4. Write `PROJECT-LANES.md` as the repository contract.
 5. Implement the Bun TypeScript entrypoints in a `project-lanes` subdirectory of the repository's
-   scripts directory.
+   scripts directory. Use the shared runtime supplied by `lanes` for generic mechanics.
 6. Run setup and verification in the current authorized lane. Exercise reset or destruction only
    when the user has authorized their data or resource effects.
 7. Remove superseded setup paths only after the project-owned suite covers them.
@@ -31,14 +31,18 @@ clone lifecycle, readiness, state, and invocation; do not put project-specific p
 - `reset.ts` resets task data while retaining the lane environment.
 - `destroy.ts` removes only lane-owned external resources; `$project-lanes` removes the clone.
 
-Keep shared command execution, context, environment editing, hashing, and logging under `lib/`, and
-put focused provisioning operations under `steps/`.
+Keep a compact runtime adapter and project context under `lib/`. Use the shared runtime for command
+execution, environment editing, hashing, marked installs, Herd, databases, Solo, Mise, and simulator
+lifecycle. Put only project-specific provisioning operations under `steps/`; do not fork shared
+mechanics into the repository.
 
 ## Contract rules
 
 - Derive identity from the configured clone path or environment variable, never the current branch.
 - Treat the project root passed by `PROJECT_LANE_DEFINITION_ROOT` and the configured project-specific
   environment variable as the authoritative clone root.
+- Load the shared module passed by `PROJECT_LANES_RUNTIME_MODULE`; direct entrypoints may use the
+  established installed runtime path when the orchestrator variable is absent.
 - Give every mutable resource one stable lane-specific name, setup owner, reset owner, destruction
   owner, and exact verification check.
 - Cover URLs and certificates, databases, Redis/session/queue identifiers, search and storage

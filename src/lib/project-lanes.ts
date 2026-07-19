@@ -1,7 +1,17 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { execa } from "execa";
 import { z } from "zod";
@@ -11,6 +21,7 @@ import { readLanesConfig, type ActiveProject } from "./lanes-config";
 const laneStateSchema = z.object({
   lastVerifiedAt: z.string().datetime().optional(),
   lastVerifiedHead: z.string().optional(),
+  lastVerifiedRuntimeHash: z.string().optional(),
   lastError: z.string().optional(),
 });
 
@@ -22,6 +33,7 @@ const registrySchema = z.object({
 export interface LaneState {
   lastVerifiedAt?: string;
   lastVerifiedHead?: string;
+  lastVerifiedRuntimeHash?: string;
   lastError?: string;
 }
 
@@ -53,6 +65,31 @@ export const LANES_CONFIG_PATH =
   process.env.LANES_CONFIG_PATH || join(configHome, "lanes/projects.json");
 export const LANES_STATE_PATH = process.env.LANES_STATE_PATH || join(stateHome, "lanes/state.json");
 const stateLockPath = process.env.LANES_STATE_LOCK_PATH || join(stateHome, "lanes/state.lock");
+const projectEnvironmentRuntimeDirectory = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "project-environment",
+);
+const projectEnvironmentRuntimePath = join(projectEnvironmentRuntimeDirectory, "runtime.ts");
+const requiredEnvironmentScripts = [
+  "setup",
+  "mobile-development",
+  "verify",
+  "reset",
+  "destroy",
+] as const;
+
+function projectEnvironmentRuntimeHash(): string {
+  const hash = createHash("sha256");
+  for (const name of readdirSync(projectEnvironmentRuntimeDirectory)
+    .filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"))
+    .sort()) {
+    hash
+      .update(name)
+      .update("\0")
+      .update(readFileSync(join(projectEnvironmentRuntimeDirectory, name)));
+  }
+  return hash.digest("hex");
+}
 
 function git(cwd: string, args: string[], allowFailure = false): string {
   try {
@@ -197,6 +234,27 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
       reason: "task branch still checked out",
     };
   }
+  const missingScript = requiredEnvironmentScripts.find(
+    (script) => !existsSync(join(lane.path, "scripts/project-lanes", `${script}.ts`)),
+  );
+  if (missingScript) {
+    return {
+      lane,
+      state,
+      status: "needs-attention",
+      head,
+      reason: `missing project environment entrypoint: ${missingScript}.ts`,
+    };
+  }
+  if (state.lastVerifiedRuntimeHash !== projectEnvironmentRuntimeHash()) {
+    return {
+      lane,
+      state,
+      status: "needs-attention",
+      head,
+      reason: "shared project environment runtime changed",
+    };
+  }
   if (!state.lastVerifiedAt || state.lastVerifiedHead !== head) {
     return {
       lane,
@@ -222,6 +280,7 @@ async function runEnvironmentCommand(
     env: {
       ...process.env,
       PROJECT_LANE_DEFINITION_ROOT: lane.path,
+      PROJECT_LANES_RUNTIME_MODULE: pathToFileURL(projectEnvironmentRuntimePath).href,
       [lane.project.environmentVariable]: lane.path,
     },
     stdio: "inherit",
@@ -232,6 +291,7 @@ async function verifyLane(lane: Lane, state: LaneState, mobile = true): Promise<
   await runEnvironmentCommand(lane, "verify", mobile ? ["--mobile-development"] : []);
   state.lastVerifiedAt = new Date().toISOString();
   state.lastVerifiedHead = git(lane.path, ["rev-parse", "HEAD"]);
+  state.lastVerifiedRuntimeHash = projectEnvironmentRuntimeHash();
   delete state.lastError;
 }
 

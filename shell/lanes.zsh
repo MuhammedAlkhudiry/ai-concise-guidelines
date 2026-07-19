@@ -1,14 +1,3 @@
-#!/usr/bin/env zsh
+#!/Users/muhammed/.bun/bin/bun
 
-set -euo pipefail
-
-MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
-script="$MY_SETUP_ROOT/src/commands/lanes-cli.ts"
-
-if [[ ! -f "$script" ]]; then
-  echo "lanes script not found at $script"
-  echo "Run mise run install from $MY_SETUP_ROOT"
-  exit 1
-fi
-
-exec bun "$script" "$@"
+await import(new URL("../src/commands/lanes-cli.ts", import.meta.url).href);

@@ -27,11 +27,13 @@ emoji identifies the project; it does not indicate current readiness.
 
 Each active project must use a canonical remote URL and keep its lane contract and compact lane
 script suite on the base branch so every clone owns its setup, mobile development, verification,
-reset, and destruction entry points. Every mutable local resource needs one stable lane identity,
-setup owner, reset owner, destruction owner, and exact verification check.
+reset, and destruction entry points. `lanes` supplies the shared project-environment runtime; the
+repository entry points own lifecycle ordering and project-specific behavior. Every mutable local
+resource needs one stable lane identity, setup owner, reset owner, destruction owner, and exact
+verification check.
 
 Use $project-environment to create or repair that project-owned contract and script suite. Keep
-project-specific environment behavior out of the generic `lanes` CLI.
+project-specific environment behavior out of the shared runtime and generic `lanes` CLI.
 
 Provisioning or repair is complete only when every configured path is an independent clone and
 mobile and backend verification pass for each lane.

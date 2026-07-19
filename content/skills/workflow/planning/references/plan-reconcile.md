@@ -46,9 +46,9 @@ For active plans:
 
 - Keep them short.
 - Omit optional sections that do not add signal.
-- Improve the product decisions, technical decisions, migration steps, and updates once decision-blocking questions are answered.
+- Improve the product decisions, technical decisions, migration steps, implementation steps, verification steps, QA steps, and updates once decision-blocking questions are answered.
 - Preserve execution content that is still correct and concise.
-- Preserve concise user stories, UX decisions, data model decisions, architecture decisions, migration/backfill steps, and dated updates when they define the intended change.
+- Preserve concise user stories, UX decisions, data model decisions, architecture decisions, ordered implementation, migration/backfill steps, verification, manual QA, and dated updates when they define the intended change.
 - Refresh stale context, file paths, commands, and scope only where they are needed for execution.
 - If the plan is no longer valid, update `updated`, explain why in the plan, and revise the incorrect parts.
 
@@ -68,7 +68,7 @@ Improve plans for execution quality, not decorative polish. Keep improvements sh
 Useful improvements include:
 
 - Stronger goal and scope boundaries.
-- Concise product decisions, data model decisions, architecture decisions, migration/backfill steps, and dated updates.
+- Concise product decisions, data model decisions, architecture decisions, ordered implementation, migration/backfill steps, verification, manual QA, and dated updates.
 - Current file paths, commands, symbols, routes, schemas, and tests only when the plan depends on them.
 - Blockers or user decisions.
 

@@ -64,7 +64,7 @@ Before bumping, check local config, `eas.json`, and the latest EAS builds. Follo
 10. Verify Android through Google Play status.
 11. Verify iOS through App Store Connect status.
 12. If native Google Sign-In is in scope, compare Google Play app-signing fingerprints against Android OAuth clients before calling the release healthy.
-13. Never use Chrome, browser automation, or computer control for App Store Connect. Use its API and report API-unsupported actions as manual blockers for the user. For Google Play, use browser or computer control only for legal agreements, review forms, 2FA, and dashboard-only blockers.
+13. Follow the store-access rule in [SKILL.md](../SKILL.md).
 14. Finish with exact per-platform state and any remaining store action.
 
 ## EAS Submit Caveats
@@ -108,7 +108,7 @@ After EAS uploads an iOS build:
 8. Submit the review bundle.
 9. Verify `Waiting for Review`, `In Review`, approved, or live.
 
-Perform this flow through App Store Connect API access. If a required field or action is unavailable through the API, stop and hand that exact manual action to the user; do not open App Store Connect in Chrome or through browser/computer automation.
+Perform this flow through App Store Connect API access per the store-access rule. If a required field or action is unavailable through the API, stop and hand that exact manual action to the user.
 
 ## Google Play Console Flow
 

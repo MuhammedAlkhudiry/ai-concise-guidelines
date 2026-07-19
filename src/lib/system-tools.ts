@@ -261,6 +261,54 @@ export const SYSTEM_TOOL_GROUPS = [
     ],
   },
   {
+    title: "Observability CLIs",
+    tools: [
+      {
+        name: "posthog-cli",
+        level: "required",
+        why: "Primary PostHog analytics and API access for agents without MCP.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "@posthog/cli", "version"],
+        },
+        update: {
+          commands: ["npm install -g @posthog/cli@latest"],
+        },
+      },
+      {
+        name: "sentry",
+        level: "required",
+        why: "Primary Sentry issue, event, trace, log, and API access for agents without MCP.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "sentry", "version"],
+        },
+        update: {
+          commands: ["sentry cli upgrade"],
+        },
+      },
+      {
+        name: "sentry-cli",
+        level: "optional",
+        why: "Legacy Sentry release and build-artifact integrations that invoke this exact command.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "@sentry/cli", "version"],
+        },
+        update: {
+          commands: ["npm install -g @sentry/cli@latest"],
+          note: "Keep this npm-owned command separate from the agent-oriented sentry command because SDK and CI integrations may invoke sentry-cli directly.",
+        },
+      },
+    ],
+  },
+  {
     title: "Git workflow helpers",
     tools: [
       {

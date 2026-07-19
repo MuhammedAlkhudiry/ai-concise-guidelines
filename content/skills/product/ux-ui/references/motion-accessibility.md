@@ -69,10 +69,8 @@ Motion must provide feedback, preserve spatial context, explain a relationship, 
 - Accessibility is a design input, not a final compliance pass.
 - Treat WCAG as a baseline for web work, not proof that an experience works for every person or platform.
 - Support keyboard, touch, pointer, screen reader, zoom, text resizing, high contrast, reduced transparency, reduced motion, and color-vision differences where relevant.
-- Use semantic controls and native behavior before recreating them.
-- Provide programmatic names, roles, values, states, errors, relationships, and status announcements.
+- Use semantic controls and native behavior before recreating them; provide programmatic names, roles, values, states, errors, relationships, and status announcements.
 - Provide large, separated targets and single-pointer alternatives for multipoint, path-based, drag, or complex gestures.
-- Let pointer actions be cancelled before commitment when accidental activation is plausible.
 - Keep DOM, reading, focus, and visual order aligned. Do not let sticky or floating UI obscure focused content.
 - Make the complete experience usable with keyboard alone. Manage focus when content opens, closes, appears, disappears, or fails; do not move it for passive updates.
 - Use semantic headings, landmarks, controls, labels, descriptions, and error associations so structure and state remain understandable nonvisually.

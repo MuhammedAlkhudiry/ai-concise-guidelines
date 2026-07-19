@@ -1,5 +1,0 @@
-# Managed by my-setup. Do not edit by hand.
-# Source of truth: config/mcp.ts
-
-[mcp_servers.sentry]
-url = "https://mcp.sentry.dev/mcp?utm_source=plugin"

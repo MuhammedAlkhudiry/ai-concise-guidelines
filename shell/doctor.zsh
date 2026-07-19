@@ -177,6 +177,51 @@ check_file() {
   return 1
 }
 
+check_credentials_home() {
+  local credentials_home="${SERVICE_CREDENTIALS_HOME:-}"
+  local credential_path mode
+
+  if [[ -z "$credentials_home" ]]; then
+    print_missing "required" "credentials" "SERVICE_CREDENTIALS_HOME is not configured; run mise run install"
+    (( required_missing++ ))
+    return 1
+  fi
+
+  if [[ ! -d "$credentials_home" ]]; then
+    print_missing "required" "credentials" "$credentials_home is missing; run mise run install"
+    (( required_missing++ ))
+    return 1
+  fi
+
+  mode="$(stat -f '%Lp' "$credentials_home" 2>/dev/null || true)"
+  if [[ "$mode" != "700" ]]; then
+    print_missing "required" "credentials" "$credentials_home must use mode 700 (found ${mode:-unknown})"
+    (( required_missing++ ))
+    return 1
+  fi
+
+  for credential_path in "$credentials_home"/**/*(/N); do
+    mode="$(stat -f '%Lp' "$credential_path" 2>/dev/null || true)"
+    if [[ "$mode" != "700" ]]; then
+      print_missing "required" "credentials" "$credential_path must use mode 700 (found ${mode:-unknown})"
+      (( required_missing++ ))
+      return 1
+    fi
+  done
+
+  for credential_path in "$credentials_home"/**/*(.N); do
+    mode="$(stat -f '%Lp' "$credential_path" 2>/dev/null || true)"
+    if [[ "$mode" != "600" ]]; then
+      print_missing "required" "credentials" "$credential_path must use mode 600 (found ${mode:-unknown})"
+      (( required_missing++ ))
+      return 1
+    fi
+  done
+
+  print_ok "credentials" "$credentials_home (private paths verified)"
+  (( required_ok++ ))
+}
+
 check_solo_discovery() {
   local discovery="$HOME/.config/soloterm/http-api.json"
 
@@ -237,11 +282,19 @@ main() {
   check_tool imsg optional "Used to read and export local SMS and iMessage data for authorized personal knowledge workflows."
   check_tool gcloud optional "Used for Google Cloud project, API, service account, and IAM workflows."
 
+  print_header "Observability CLIs"
+  check_tool posthog-cli required "Install the CLI for PostHog access without MCP."
+  check_tool sentry required "Install the agent-oriented Sentry CLI for access without MCP."
+  check_tool sentry-cli optional "Used by legacy Sentry SDK and CI build integrations."
+
   print_header "Solo control plane"
   check_tool solo required "Link the Solo app CLI into PATH with mise run install."
   check_tool jq required "Used for raw Solo HTTP API fallback workflows."
   check_solo_discovery
   check_solo_control_plane
+
+  print_header "Credential storage"
+  check_credentials_home
 
   print_header "Git workflow helpers"
   check_tool gh optional "Used to open GitHub pull requests from the command line."
@@ -256,6 +309,7 @@ main() {
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
   check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"
   check_link knowledge "$HOME/bin/knowledge" "$MY_SETUP_ROOT/shell/knowledge.zsh"
+  check_link sentry-cli "$HOME/bin/sentry-cli" "$MY_SETUP_ROOT/shell/sentry-cli.zsh"
 
   print_header "Managed skills"
   check_installed_skills

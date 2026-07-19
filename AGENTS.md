@@ -13,7 +13,7 @@
 - `src/commands/lanes-cli.ts` and `src/lib/project-lanes.ts` — Standalone `lanes` command and persistent clone-lane runtime.
 - `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
 - `system-tools.md` — Human-readable list of expected system tools; keep it aligned with `doctor`.
-- `config/active-projects.ts` — Source of truth for active projects and their fixed clone lanes.
+- `config/active-projects.ts` — Active projects and their fixed clone lanes (see ACTIVE-PROJECTS).
 - `output/` — Generated preview artifacts only; do not edit by hand.
 
 - **ACTIVE-PROJECTS** — Active projects and their fixed clone lanes are declared in `config/active-projects.ts`; installation writes the standalone `lanes` catalog to `~/.config/lanes/projects.json`.

@@ -21,9 +21,10 @@ description: >-
 
 ## Interview
 
-1. Ask one focused question per turn and wait for the answer.
+1. Ask one focused question per turn and wait for the answer. Use an available question or user-input tool whenever it can represent the question; otherwise ask in a normal reply.
 2. For experiences or facts, use open, neutral questions and probe for concrete past examples.
 3. For decisions or preferences, offer a small set of distinct options when useful; explain the consequential trade-off and recommend one when it clearly wins.
+   Prefix each option with a recommendation signal: 🟢 recommended, 🟡 viable with meaningful trade-offs, or 🔴 discouraged. Use at most one 🟢 unless the options are genuinely tied.
 4. Follow meaningful answers instead of walking a rigid checklist. Close the current topic before moving to an unrelated branch unless the answer changes the interview structure.
 5. Update the topic map after every answer. Summarize when a branch closes, the conversation drifts, or the user needs orientation.
 6. Do not prolong the interview to eliminate harmless uncertainty. Continue only while the next answer could change the downstream outcome.

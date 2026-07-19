@@ -1,9 +1,7 @@
 ---
 name: ui-options
-description: Multiple UI or UX directions, variants, explorations, option sets, or switchable previews before choosing a final interface.
+description: Concrete UI directions or switchable coded previews before choosing a final interface. Use when the user asks to see UI options or variants. For abstract option framing, use $workshop.
 ---
-
-Create distinct UI or UX options from product context, existing interface, constraints, and the design system.
 
 ## Workflow
 

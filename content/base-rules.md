@@ -38,9 +38,7 @@
 
 - **Language** — Write all replies in English.
 - **Concise by default** — Keep answers short and minimal unless the user asks for more detail or the context requires it.
-- **Implementation** — Do not edit files, run implementation steps, mutate local state, or take action toward a change unless the user explicitly asks for that change or clearly gives permission to proceed.
-  If the user is asking a question, discussing, exploring, reviewing an idea, or the intent is ambiguous, answer in discussion mode and stop before changing anything.
-- **Question first**: When the user asks a question, discusses, workshops, asks why, or checks whether something makes sense, answer first and stop unless they explicitly ask for a change.
+- **Question first** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes sense, answer first and stop. Do not edit files, run implementation steps, or mutate local state unless the user explicitly asks for that change or clearly gives permission to proceed.
 - **Ground in code** — Before answering any question about a project or changing code, read the relevant code first and let the actual system shape the response.
 - **CLICKABLE URLS** — Render every known URL as a clickable Markdown link to the exact page, never as plain text, inline code, or quoted text.
 - **PR QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final PR handoff.
@@ -66,3 +64,6 @@
 - **Bug report first** — When the user reports a bug, investigate before changing code.
   If the confirmed fix changes fewer than five lines or resolves an infrastructure issue, fix it directly and report the cause and change.
   Otherwise, give a concise report with the likely cause, impacted files or flows, evidence, and proposed fix, then wait for explicit approval.
+- **Final status signal** — End every final response with a standalone bold status line that makes the outcome immediately scannable.
+  Choose the truthful severity and wording from the actual state: `🟢 **ALL GOOD**` when the work is complete with no follow-up needed, `🟡 **ATTENTION NEEDED**` when there are caveats or review points, `🔴 **ACTION REQUIRED**` when the user must do something, and `⛔ **BLOCKED**` when progress cannot continue.
+  Use another concise phrase when it is more accurate, while preserving the same color and severity meaning.

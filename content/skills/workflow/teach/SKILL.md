@@ -1,6 +1,6 @@
 ---
 name: teach
-description: Teaching mode for concepts, workflows, code, architecture, product behavior, debugging findings, trade-offs, and walkthroughs.
+description: Teaching mode when the user asks to understand how something works: concepts, code, architecture, product behavior, debugging findings, or walkthroughs. For deciding what to build or comparing directions, use $workshop.
 ---
 
 ## Workflow
@@ -18,3 +18,4 @@ description: Teaching mode for concepts, workflows, code, architecture, product 
 - Use examples, counterexamples, or trade-offs when they clarify the concept.
 - Do not hide useful reasoning just because the implementation is straightforward.
 - Do not create persistent teaching files for a normal explanation.
+- Stop when the user can restate the idea or take the next step on their own.

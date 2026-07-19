@@ -27,11 +27,7 @@ Lead with the recommendations, then give only the evidence needed to trust them.
 
 ## Scripted Checks
 
-- Codex session context waste:
-
-```bash
-bun "$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
-```
+- Codex session context waste: run the analyzer script from the skill entry.
 
 ## Improve Agent Setup Lenses
 

@@ -11,7 +11,7 @@ Use this flow after an approved implementation plan when the change spans many f
 2. When the diff crosses a producer-consumer contract, inventory both sides and compare shape, naming, requiredness, nullability, values, defaults, authorization, errors, versioning, and transforms.
    Classify each unit as `aligned`, `breaking`, `unsafe`, `stale`, or `ambiguous`; fix or report every non-aligned unit.
 3. Run $code-simplifier as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
-4. Run $test-coverage-audit and close approved worthwhile behavior gaps.
+4. Run $test-writing to audit coverage and close approved worthwhile behavior gaps.
 5. Run $code-review as a Standards review in a fresh subagent.
 6. Triage and report every review finding without fixing it. Treat findings as proposed next work; any blocker prevents the readiness gate.
 7. Run $verification as the final verification and fix loop.

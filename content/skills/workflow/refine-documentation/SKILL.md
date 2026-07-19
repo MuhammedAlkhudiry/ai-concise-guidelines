@@ -3,14 +3,14 @@ name: refine-documentation
 description: Markdown documentation refinement and corpus rationalization across .md files for accuracy, deduplication, stale-content removal, contradiction resolution, canonical consolidation, restructuring, and concise durable editing.
 ---
 
-Refine documentation into the smallest complete set of current, trustworthy guidance. Optimize for reader value, not merely fewer words.
+Refine documentation into the smallest complete set of current, trustworthy guidance.
 
 ## Scope
 
 - For named-file work, edit only the requested files. Read related sources for context, but do not rename or delete files unless requested.
 - For corpus-level work, inventory the requested set. Merge, move, rename, or delete in-scope files when that creates a clearer canonical structure.
 - Find the editable source before changing generated or mirrored Markdown.
-- Pair this with the format-specific skill for agent instructions, skills, project knowledge, or another governed document type. This skill owns refinement; the specialized skill owns its contract.
+- Pair with the format-specific skill: $manage-agent-md for agent instructions, $manage-skill for skills, $project-knowledge for project knowledge. This skill owns refinement; theirs owns the contract.
 - Use $deep-work when the request promises exhaustive corpus coverage.
 
 ## Workflow

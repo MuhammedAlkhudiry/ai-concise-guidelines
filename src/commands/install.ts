@@ -27,9 +27,11 @@ import {
 } from "../../config/skills";
 import { CODEX_CONFIG } from "../../config/codex";
 import { ACTIVE_PROJECTS } from "../../config/active-projects";
+import { CREDENTIALS_HOME_ENV, CREDENTIALS_ROOT } from "../../config/credentials";
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { createLanesConfig } from "../lib/lanes-config";
+import { migrateManagedCredentials } from "../lib/credentials";
 import { colors, print, printBox, printSeparator } from "../lib/print";
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
@@ -63,7 +65,8 @@ const SHARED_PATHS = {
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
   zshrc: join(HOME, ".zshrc"),
   zshenv: join(HOME, ".zshenv"),
-  secrets: join(HOME, ".config/my-setup/secrets.zsh"),
+  credentials: join(HOME, CREDENTIALS_ROOT),
+  secrets: join(HOME, CREDENTIALS_ROOT, "secrets.zsh"),
   binDir: join(HOME, "bin"),
   localBinDir: join(HOME, ".local/bin"),
   lanesConfig: join(CONFIG_HOME, "lanes/projects.json"),
@@ -75,7 +78,7 @@ const REMOTE_SKILLS_STATE_PATH = join(STATE_HOME, "my-setup/remote-skills.json")
 const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
-const REQUIRED_SECRETS = ["POSTHOG_PERSONAL_API_KEY", "HUGEICONS_TOKEN"] as const;
+const REQUIRED_SECRETS = ["POSTHOG_CLI_API_KEY", "HUGEICONS_TOKEN"] as const;
 const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [
@@ -87,6 +90,7 @@ const SHARED_BIN_COMMANDS = [
   { name: "plan", source: "plan.zsh" },
   { name: "knowledge", source: "knowledge.zsh" },
   { name: "lanes", source: "lanes.zsh" },
+  { name: "sentry-cli", source: "sentry-cli.zsh" },
 ];
 
 // =============================================================================
@@ -129,39 +133,35 @@ function copyCodexRules(): void {
   print.success(`Codex rules copied`);
 }
 
-function getManagedMcpServerNames(managedContent: string): Set<string> {
-  return new Set(
-    Array.from(managedContent.matchAll(/^\[mcp_servers\.([^\]]+)\]\s*$/gm), ([, name]) => name),
+function removeCodexMcpConfig(configToml: string): string {
+  const withoutManagedBlock = configToml.replace(
+    /^# >>> my-setup mcp >>>$[\s\S]*?^# <<< my-setup mcp <<<$\n?/gm,
+    "",
   );
-}
-
-function removeManagedMcpServers(configToml: string, managedServerNames: Set<string>): string {
-  if (managedServerNames.size === 0) {
-    return configToml;
-  }
-
-  const lines = configToml.split(/\r?\n/);
+  const lines = withoutManagedBlock.split(/\r?\n/);
   const cleanedLines: string[] = [];
+  let removingMcpSection = false;
 
-  for (let i = 0; i < lines.length; i++) {
-    const sectionMatch = lines[i].match(/^\[mcp_servers\.([^\]]+)\]\s*$/);
-    if (!sectionMatch || !managedServerNames.has(sectionMatch[1])) {
-      cleanedLines.push(lines[i]);
-      continue;
+  for (const line of lines) {
+    const sectionMatch = line.match(/^\s*\[([^\]]+)\]\s*$/);
+    if (sectionMatch) {
+      removingMcpSection =
+        sectionMatch[1] === "mcp_servers" || sectionMatch[1].startsWith("mcp_servers.");
+
+      if (removingMcpSection) {
+        while (cleanedLines.at(-1)?.trim() === "") {
+          cleanedLines.pop();
+        }
+        continue;
+      }
     }
 
-    while (cleanedLines.length > 0 && cleanedLines[cleanedLines.length - 1].trim() === "") {
-      cleanedLines.pop();
+    if (!removingMcpSection) {
+      cleanedLines.push(line);
     }
-
-    i++;
-    while (i < lines.length && !/^\[[^\]]+\]\s*$/.test(lines[i])) {
-      i++;
-    }
-    i--;
   }
 
-  return cleanedLines.join("\n");
+  return cleanedLines.join("\n").trimEnd();
 }
 
 async function assertThinUserZshrc(): Promise<void> {
@@ -226,6 +226,7 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
       print.warning("Failed to parse existing config, creating new file");
     }
   }
+  delete existingConfig.mcp;
   const merged = {
     ...existingConfig,
     model: settings.model,
@@ -243,7 +244,6 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
       ...(settings.agent as Record<string, unknown>),
     },
     plugin: settings.plugin,
-    mcp: settings.mcp,
   };
   await writeFile(OPENCODE_PATHS.config, JSON.stringify(merged, null, 2) + "\n");
   print.success("OpenCode config merged");
@@ -252,7 +252,25 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
 async function installCodex(): Promise<void> {
   copyCodexRules();
   await mergeCodexConfigAsync();
-  await mergeCodexMcpConfigAsync();
+  await removeCodexMcpConfigAsync();
+}
+
+function upsertTomlTopLevelKey(configToml: string, key: string, value: string): string {
+  const trimmed = configToml.trimEnd();
+  const lines = trimmed ? trimmed.split(/\r?\n/) : [];
+  const nextLine = `${key} = ${value}`;
+  const firstSectionIndex = lines.findIndex((line) => /^\s*\[/.test(line));
+  const topLevelEnd = firstSectionIndex === -1 ? lines.length : firstSectionIndex;
+
+  for (let i = 0; i < topLevelEnd; i++) {
+    if (new RegExp(`^\\s*${key}\\s*=`).test(lines[i])) {
+      lines[i] = nextLine;
+      return `${lines.join("\n")}\n`;
+    }
+  }
+
+  lines.splice(topLevelEnd, 0, nextLine);
+  return `${lines.join("\n")}\n`;
 }
 
 function upsertTomlSectionKey(
@@ -296,8 +314,13 @@ async function mergeCodexConfigAsync(): Promise<void> {
   const existing = existsSync(CODEX_PATHS.config)
     ? await readFile(CODEX_PATHS.config, "utf-8")
     : "";
-  const withAgents = upsertTomlSectionKey(
+  const withModelVerbosity = upsertTomlTopLevelKey(
     existing,
+    "model_verbosity",
+    JSON.stringify(CODEX_CONFIG.model_verbosity),
+  );
+  const withAgents = upsertTomlSectionKey(
+    withModelVerbosity,
     "agents",
     "max_threads",
     String(CODEX_CONFIG.agents.max_threads),
@@ -312,37 +335,15 @@ async function mergeCodexConfigAsync(): Promise<void> {
   print.success("Codex config merged");
 }
 
-async function mergeCodexMcpConfigAsync(): Promise<void> {
-  print.info(`Merging Codex MCP config into ${CODEX_PATHS.config}...`);
-  const sourceFile = join(ROOT_DIR, "output", "codex", "mcp-servers.toml");
-  if (!existsSync(sourceFile)) {
-    print.error("mcp-servers.toml not found. Run mise run install.");
-    return;
-  }
-  const managedContent = (await readFile(sourceFile, "utf-8")).trimEnd();
-  const startMarker = "# >>> my-setup mcp >>>";
-  const endMarker = "# <<< my-setup mcp <<<";
-  const managedBlock = `${startMarker}\n${managedContent}\n${endMarker}\n`;
+async function removeCodexMcpConfigAsync(): Promise<void> {
+  print.info(`Removing MCP config from ${CODEX_PATHS.config}...`);
   await ensureParentDir(CODEX_PATHS.config);
   const existing = existsSync(CODEX_PATHS.config)
     ? await readFile(CODEX_PATHS.config, "utf-8")
     : "";
-  const escapedStart = startMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const escapedEnd = endMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const managedPattern = new RegExp(`${escapedStart}[\\s\\S]*?${escapedEnd}\\n?`, "g");
-  const orphanMarkerPattern = new RegExp(`^(${escapedStart}|${escapedEnd})\\s*$\\n?`, "gm");
-  const previousManagedContent = Array.from(
-    existing.matchAll(managedPattern),
-    (match) => match[0],
-  ).join("\n");
-  const previousManagedServerNames = getManagedMcpServerNames(previousManagedContent);
-  const currentManagedServerNames = getManagedMcpServerNames(managedContent);
-  const managedServerNames = new Set([...previousManagedServerNames, ...currentManagedServerNames]);
-  const withoutManagedBlock = existing.replace(managedPattern, "").replace(orphanMarkerPattern, "");
-  const cleaned = removeManagedMcpServers(withoutManagedBlock, managedServerNames).trimEnd();
-  const merged = cleaned.length > 0 ? `${cleaned}\n\n${managedBlock}` : managedBlock;
-  await writeFile(CODEX_PATHS.config, merged);
-  print.success("Codex MCP config merged");
+  const cleaned = removeCodexMcpConfig(existing);
+  await writeFile(CODEX_PATHS.config, cleaned ? `${cleaned}\n` : "");
+  print.success("Codex MCP config removed");
 }
 
 async function installShared(): Promise<void> {
@@ -373,11 +374,28 @@ async function installShared(): Promise<void> {
   print.info(`Ensuring local command paths are in PATH via ${SHARED_PATHS.zshenv}...`);
   await ensureParentDir(SHARED_PATHS.zshenv);
   const pathLines = ['export PATH="$HOME/bin:$PATH"', 'export PATH="$HOME/.local/bin:$PATH"'];
+  const credentialsHomeLine = `export ${CREDENTIALS_HOME_ENV}="$HOME/${CREDENTIALS_ROOT}"`;
+  const secretsSourceLine = `[[ -f "$${CREDENTIALS_HOME_ENV}/secrets.zsh" ]] && source "$${CREDENTIALS_HOME_ENV}/secrets.zsh"`;
   const zshenvContent = existsSync(SHARED_PATHS.zshenv)
     ? await readFile(SHARED_PATHS.zshenv, "utf-8")
     : "";
   let nextContent = zshenvContent.trimEnd();
   let changed = false;
+
+  const credentialsHomePattern = new RegExp(`^export ${CREDENTIALS_HOME_ENV}=.*$`, "m");
+  if (credentialsHomePattern.test(nextContent)) {
+    const updatedContent = nextContent.replace(credentialsHomePattern, credentialsHomeLine);
+    changed ||= updatedContent !== nextContent;
+    nextContent = updatedContent;
+  } else {
+    nextContent = `${nextContent}\n${credentialsHomeLine}`;
+    changed = true;
+  }
+
+  if (!zshenvContent.includes(secretsSourceLine)) {
+    nextContent = `${nextContent}\n${secretsSourceLine}`;
+    changed = true;
+  }
 
   for (const pathLine of pathLines) {
     if (zshenvContent.includes(pathLine)) {
@@ -390,9 +408,9 @@ async function installShared(): Promise<void> {
 
   if (changed) {
     await writeFile(SHARED_PATHS.zshenv, `${nextContent}\n`);
-    print.success("Added local command PATH entries to .zshenv");
+    print.success("Updated managed shell environment entries in .zshenv");
   } else {
-    print.success("Local command PATH entries already present in .zshenv");
+    print.success("Managed shell environment entries already present in .zshenv");
   }
 }
 
@@ -440,7 +458,13 @@ async function installLocalSecrets(): Promise<void> {
     process.exit(1);
   }
 
-  await ensureParentDir(SHARED_PATHS.secrets);
+  const migration = await migrateManagedCredentials({ home: HOME });
+  for (const path of migration.moved) {
+    print.success(`Migrated credential file to ${path}`);
+  }
+  for (const path of migration.updated) {
+    print.success(`Updated credential paths in ${path}`);
+  }
 
   if (!existsSync(SHARED_PATHS.secrets)) {
     print.info(`Creating local secrets file at ${SHARED_PATHS.secrets}...`);
@@ -473,6 +497,7 @@ async function assertRequiredSecrets(): Promise<void> {
       ],
       {
         env: {
+          [CREDENTIALS_HOME_ENV]: SHARED_PATHS.credentials,
           MY_SETUP_SECRETS: SHARED_PATHS.secrets,
         },
       },

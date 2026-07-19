@@ -1,6 +1,6 @@
 ---
 name: dependency-upgrade
-description: Dependency upgrades across JavaScript, PHP, Laravel, and React projects, including package inventory, current release research, compatibility fixes, unused-package removal, verification, and per-package reporting.
+description: Dependency upgrades in JavaScript, PHP, Laravel, and React projects. Use when upgrading packages, removing unused dependencies, fixing upgrade breakage, or auditing dependency freshness.
 ---
 
 # Dependency Upgrade

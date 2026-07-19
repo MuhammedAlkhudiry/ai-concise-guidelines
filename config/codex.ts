@@ -3,6 +3,7 @@
  */
 
 export const CODEX_CONFIG = {
+  model_verbosity: "low",
   agents: {
     max_threads: 15,
   },

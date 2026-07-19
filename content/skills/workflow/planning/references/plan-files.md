@@ -46,76 +46,7 @@ Update `updated` whenever changing the plan body.
 
 ## New Plans
 
-New plans are intentionally short. They capture the current shared thinking without turning early planning into a detailed document.
-
-If a plan would require an `Open Questions` section, stop and ask the user first. Create the plan only after the blocking decisions are answered.
-
-Use the relevant sections from this shape. Every non-empty section uses bullets. Use emoji-prefixed headings for scanability, and omit sections that do not add signal. Do not add `🎯 Product Decisions` to a refactor or backend cleanup plan unless there is a real product or UX decision. Do not add `🔁 Migration Steps` just to say "none." Use `📝 Updates` only for later changes, decisions, or scope corrections.
-
-```md
-# Billing Upgrade
-
-## 🎯 Product Decisions
-
-### 👤 User Story
-
-- As a workspace owner, I want to upgrade my plan without contacting support so I can unlock paid features immediately.
-
-### ✨ UX
-
-- Keep plan selection inside the existing billing settings page.
-- Disable the currently active plan option.
-- Show the confirmed renewal date after the webhook updates subscription state.
-
-## 🛠️ Technical Decisions
-
-### 🗄️ Data Model
-
-- Represent plans with `workspace_billing.plan_code`, a non-null string enum backed by provider price IDs.
-- Store `workspace_billing.renews_at` as the provider subscription period end.
-- Enforce one active provider subscription per workspace with a unique `provider_subscription_id`.
-
-### 🧱 Architecture
-
-- Route checkout creation through `BillingService::createUpgradeCheckout(workspace, planCode)`.
-- Treat `provider.subscription.updated` as the source of truth for persisted subscription state.
-- Gate paid feature access on `workspace_billing.plan_code`, not checkout return params.
-
-## 🔁 Migration Steps
-
-- Backfill active paid workspaces from provider subscription metadata.
-- Set free workspaces to `plan_code = free` and keep subscription-specific fields null.
-- Add the unique subscription index only after duplicate legacy IDs are resolved.
-```
-
-Example `📝 Updates` entries:
-
-- `2026-07-06: Confirmed provider webhooks already include renewal period end.`
-- `2026-07-06: Dropped separate plan comparison page; billing settings is enough for v1.`
-
-Section intent:
-
-- `🎯 Product Decisions`: user story and UX choices.
-- `🛠️ Technical Decisions`: data model and architecture choices, not execution steps.
-- `🔁 Migration Steps`: ordered backfill, data movement, or compatibility steps.
-- `📝 Updates`: dated notes added after the plan is created.
-
-For technical-only work, keep the plan technical-only:
-
-```md
-# React Component Refactor
-
-## 🛠️ Technical Decisions
-
-### 🗄️ Data Model
-
-- No application data changes.
-
-### 🧱 Architecture
-
-- Split large mixed-behavior components into focused child components, hooks, and helpers.
-- Preserve current behavior and visual output unless a target component explicitly requires a UI change.
-```
+Use the same body structure as an in-chat plan from `plan-shape.md`. A persisted plan adds only the required frontmatter and its durable update history.
 
 If new information invalidates a plan, preserve useful content, prune stale detail, revise the wrong parts, and show the updated plan.
 

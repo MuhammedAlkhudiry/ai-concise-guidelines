@@ -1,4 +1,3 @@
-import { MCP_SERVERS } from "./mcp";
 import { MODELS } from "./models";
 
 export interface OpencodeConfig {
@@ -24,7 +23,6 @@ export interface OpencodeConfig {
       model: string;
     };
   };
-  mcp: typeof MCP_SERVERS;
 }
 
 export function createOpencodeConfig(homeDir: string): OpencodeConfig {
@@ -74,6 +72,5 @@ export function createOpencodeConfig(homeDir: string): OpencodeConfig {
         model: MODELS.smart,
       },
     },
-    mcp: MCP_SERVERS,
   };
 }

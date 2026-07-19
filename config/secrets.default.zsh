@@ -1,6 +1,8 @@
-# Local shell secrets. Copied to ~/.config/my-setup/secrets.zsh.
-export POSTHOG_PERSONAL_API_KEY=""
-export POSTHOG_HOST="https://us.posthog.com"
+# Local shell secrets. Copied to $SERVICE_CREDENTIALS_HOME/secrets.zsh.
+export POSTHOG_CLI_API_KEY=""
+export POSTHOG_CLI_HOST="https://us.posthog.com"
+export POSTHOG_CLI_ORGANIZATION_ID=""
+export POSTHOG_CLI_PROJECT_ID=""
 export HUGEICONS_TOKEN=""
 
 # Google Ads read-only reporting.

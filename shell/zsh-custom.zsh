@@ -174,11 +174,6 @@ ai() {
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# --- Local Secrets -----------------------------------------------------------
-# Sources machine-local secrets created from config/secrets.default.zsh by the
-# installer. The secrets file is intentionally outside the repo.
-[ -f "$HOME/.config/my-setup/secrets.zsh" ] && source "$HOME/.config/my-setup/secrets.zsh"
-
 # --- PATH Cleanup ------------------------------------------------------------
 # Deduplicates PATH after all sections have contributed their entries.
 typeset -U path PATH

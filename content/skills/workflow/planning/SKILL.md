@@ -5,16 +5,17 @@ description: Planning workflow for in-chat plans by default, plus saved plan cre
 
 ## Default Workflow
 
-1. Reply with the plan in the conversation.
-2. Keep it short: use compact bullets and include only details that define the intended change.
+1. Load `references/plan-shape.md` before writing a plan.
+2. Reply with the plan in the conversation.
 3. If the plan depends on blocking decisions, ask the user before finalizing it.
-4. Do not create or update a plan file unless the user explicitly asks to save, persist, or manage a plan.
+4. Before finalizing the plan, run $refactor-opportunities against the affected code. Add a prefactor step only for recommended refactors that should precede the main change; omit optional cleanup.
+5. Do not create or update a plan file unless the user explicitly asks to save, persist, or manage a plan.
 
 ## Persisted Plans
 
 Use this workflow only when the user explicitly asks to save or persist a plan, or to manage an existing saved plan.
 
-1. Load `references/plan-files.md` before creating, updating, archiving, or executing a persisted plan.
+1. Load `references/plan-shape.md` and `references/plan-files.md` before creating, updating, archiving, or executing a persisted plan.
 2. Load `references/plan-reconcile.md` before auditing, refreshing, reconciling, polishing, or comparing persisted plans with current code.
 3. Store plans under `~/plans/<project-name>/` unless the user explicitly asks for a repo-local file.
 4. If the plan depends on blocking decisions, ask the user first. Do not create or update the plan until those decisions are answered.

@@ -1,40 +1,26 @@
 ---
 name: product-health
-description: Product health reports covering bugs, Sentry cleanup, slow paths, infra, PostHog, AI usage, observability, and ops checks.
+description: Product health reports: bug and Sentry review with cleanup, slow paths and infra, PostHog and AI usage, observability gaps, and ops checks. Use when the user asks for a health check or product-health investigation.
 ---
 
 ## Workflow
 
-1. Check `PRODUCT_SETUP.md`; report missing or stale setup as a gap.
-2. Read durable repo context: README, deployment docs, manifests, app config, and env examples.
-3. Review recent git history before querying health sources; treat commits as leads, not proof.
-4. Detect health sources from code and docs, then record sources, adapters, access gaps, risks, and check playbooks:
-
-```bash
-bun "$HOME/.agents/skills/product-health/scripts/discover-health-sources.ts" /path/to/repo
-```
-
-5. Query configured sources with `references/source-adapters.md`. Prefer structured CLI/API JSON over dashboards.
-6. For Sentry issues, verify org/project context, read full issue details and representative events, then compare recent events against the checked window.
-7. Check product journeys, jobs/cron, data integrity, performance, monitoring gaps, AI usage, and cost/capacity where reliable signals exist.
-8. Report actual run results using the result style below.
-9. If the user requested setup maintenance, use $product-setup to record durable changes to what is monitored or how to check it.
-
-## Rules
-
-- Lead with findings and analysis, not raw dashboard stats.
-- Explain likely causes, severity, baseline change, user or business impact, suspicious changes, false alarms, and what can be ignored.
-- Compare current signals with the previous window and usual baseline before judging them; include commit context only when it improves diagnosis.
-- Rank findings by affected users, tenants, critical flows, revenue risk, or operational risk.
-- When naming opaque issue identifiers such as `APP-123`, render the identifier as a Markdown link when the source provides a URL.
-  Include the readable title inline: `[APP-123](https://issue-url) - issue description`.
-- Include Sentry cleanup results when issues were resolved: issue link, title, stale evidence, and why resolving it was safe.
-- For AI or agentic features, explain usage patterns, successful and failed outcomes, tool/action mix, confusing sessions, and drop-off points.
-  Include repeated user intents and evidence-backed product improvements.
-- Report blocked or missing observability as a finding.
-- Use numbers as evidence, not as the main result. Put pure stats in a table at the end.
-- Never print secrets, DSNs, API tokens, database passwords, private keys, or full connection URIs.
-- Use absolute times with timezone for external data windows.
-- When Sentry cleanup is requested, resolve only issues that are fixed, inactive, duplicated by a newer issue, or known noise after confirming org/project context and recent event evidence.
-  Do not archive, merge, delete, or bulk-change issues unless the user explicitly asks.
-- Production changes, long exports, destructive queries, and ambiguous targets are blockers, not health checks.
+1. Establish context before querying health sources:
+   - Check `PRODUCT_SETUP.md`; report missing or stale setup as a gap.
+   - Read the README, deployment docs, manifests, app config, env examples, and recent git history. Treat commits as leads, not proof.
+   - Detect relevant sources, adapters, access gaps, risks, and check playbooks from the code and docs.
+2. Query configured sources with `references/source-adapters.md`; prefer structured CLI or API JSON over dashboards.
+   Use absolute times with timezone and never expose secrets or full connection URIs.
+   Treat production changes, long exports, destructive queries, and ambiguous targets as blockers.
+3. Compare the current window with the previous window and usual baseline across journeys, jobs, data integrity, performance, observability, AI usage, and cost or capacity.
+4. Investigate findings deeply enough to support conclusions:
+   - For Sentry, verify org and project context, then read full issue details and representative events.
+   - Resolve only issues confirmed as fixed, inactive, superseded, or known noise. Do not archive, merge, delete, or bulk-change issues unless requested.
+   - For AI features, assess adoption, outcomes, tools and actions, confusing sessions, drop-off, repeated intents, and product improvements.
+5. Report findings and analysis before raw statistics:
+   - Explain cause, severity, baseline change, impact, suspicious changes, false alarms, and ignorable noise.
+   - Rank by affected users or tenants, critical flows, revenue risk, or operational risk. Include observability gaps.
+   - Use numbers as evidence; put pure statistics in a table at the end.
+   - Link opaque issue IDs and include their titles: `[APP-123](https://issue-url) - issue description`.
+   - For resolved Sentry issues, include the link, title, stale evidence, and why resolution was safe.
+6. If setup maintenance was requested, use $product-setup to record durable changes, not current run results.

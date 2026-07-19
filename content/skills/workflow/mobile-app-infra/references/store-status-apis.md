@@ -1,6 +1,6 @@
 # Store Status APIs
 
-Use store APIs for repeatable status checks. Never access App Store Connect through Chrome, browser automation, or computer control; report API-unsupported actions or ambiguous wording as manual blockers for the user. Use dashboards for other stores only when API access cannot handle auth prompts, agreements, policy forms, or ambiguous review-state wording.
+Use store APIs for repeatable status checks, following the store-access rule in [SKILL.md](../SKILL.md).
 
 ## Contents
 
@@ -17,7 +17,7 @@ Run the read-only skill script with project-specific params:
 rtk bun "$HOME/.agents/skills/mobile-app-infra/scripts/mobile-store-status.ts" \
   --project-root /path/to/project \
   --mobile-dir path/to/expo-app \
-  --env "$HOME/.config/<project>/mobile-release.env"
+  --env "$SERVICE_CREDENTIALS_HOME/environments/<name>/mobile-release.env"
 ```
 
 Useful options:
@@ -102,7 +102,7 @@ App Store Connect upload success is not the same as App Review submission. Verif
 
 ## Non-Apple Dashboard Fallback
 
-Do not use this fallback for App Store Connect. Use browser or computer control for another store only for:
+Use browser or computer control for a non-Apple store only for:
 
 - 2FA
 - Expired auth

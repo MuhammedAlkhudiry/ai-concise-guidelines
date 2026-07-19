@@ -1,6 +1,6 @@
 # Verification Toolkit
 
-Use these Awraq-tested tool categories when establishing verification in a new project. Pick only tools that match the repo's stack.
+Use these field-tested tool categories when establishing verification in a new project. Pick only tools that match the repo's stack.
 
 ## Command Orchestration
 
