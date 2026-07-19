@@ -11,7 +11,10 @@ Upgrade dependencies with proven coverage, controlled risk, and a clear per-pack
 
 1. Define the target set: all dependencies, direct dependencies, security-only, framework/runtime, dev tooling, named packages, or another explicit scope.
 2. Inventory manifests, lockfiles, package managers, workspace boundaries, runtime versions, scripts, checks, and related source/test surfaces before changing versions.
-3. Load only the relevant stack references: `references/php-composer.md`, `references/laravel.md`, `references/javascript.md`, and `references/react.md`.
+3. Derive current package commands and supported options from the selected package manager's help.
+   Use manifests, lockfiles, runtime metadata, current vendor upgrade guides, and advisories as the
+   dependency sources of truth; load $laravel or $react for stack-specific implementation
+   constraints.
 4. Research current official release notes, changelogs, upgrade guides, or advisories for direct dependencies with meaningful behavior changes, especially major upgrades.
 5. Classify each dependency by risk: low-risk tooling, leaf package, transitive/security-only, runtime/framework package, or cross-cutting application package.
 6. Upgrade in cohesive batches with the project's existing package manager and lockfile flow.

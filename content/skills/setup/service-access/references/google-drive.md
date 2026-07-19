@@ -1,3 +1,3 @@
 # Google Drive
 
-- use `rclone`
+- Use `rclone`; derive current commands from `rclone help`.

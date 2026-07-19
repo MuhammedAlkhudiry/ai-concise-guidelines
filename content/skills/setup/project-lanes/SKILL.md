@@ -7,19 +7,21 @@ Use `lanes` as the maintenance control plane. A lane is one persistent, independ
 clone and saved Codex project with a stable local environment. Never create a disposable worktree,
 use an active project's main clone as a lane, or edit the state registry directly.
 
+Run `lanes --help` and the relevant subcommand help for the current command interface. Use
+$project-environment for the project-owned provisioning contract.
+
 ## Start work
 
 1. Work in the lane selected as the current Codex project.
-2. Run `lanes status <project>` before editing.
+2. Use the current status subcommand to inspect the project before editing.
 3. Refuse work when that lane contains another task's branch, Git changes, or an in-progress Git operation.
 4. Create or switch task branches with Git and keep every process, URL, database, service, and simulator scoped to the current lane.
 
 ## Maintain lanes
 
-- `lanes setup [project]` creates missing clones and provisions all persistent backend and mobile resources.
-- `lanes verify [project]` verifies every idle lane and refreshes readiness evidence.
-- `lanes reset <project> <lane>` resets an idle, Git-empty lane without deleting its environment.
-- `lanes destroy <project> <lane> --confirm` removes an idle lane's resources and clone. Destruction is not task cleanup.
+Use the matching live subcommand for setup, verification, reset, or destruction. Before reset or
+destruction, resolve the exact project and lane from live status, require an idle Git-empty target,
+and preserve the distinction between resetting task data and removing lane-owned resources.
 
 Register every clone as its own Codex project and name it `<Emoji> <Project> · Lane <N>`, using one
 consistent project-specific emoji, the configured project name, and the one-based lane number. The

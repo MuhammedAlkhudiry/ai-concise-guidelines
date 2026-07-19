@@ -25,10 +25,6 @@ Lead with the recommendations, then give only the evidence needed to trust them.
 - `Fix Shape`: the smallest correct implementation direction, including verification.
 - `Other Candidates`: only stronger alternatives or close seconds, with why they lost.
 
-## Scripted Checks
-
-- Codex session context waste: run the analyzer script from the skill entry.
-
 ## Improve Agent Setup Lenses
 
 Use lenses to organize the audit. Run all lenses by default for a broad setup audit, and use one lens only when the user names a specific area.
@@ -39,7 +35,7 @@ Use for context bloat, token waste, compaction, noisy tool output, MCP/tool sche
 
 Primary checks:
 
-- Run `scripts/analyze-codex-sessions.ts`.
+- Run `scripts/analyze-codex-sessions.ts --help`, then use its current interface to analyze Codex session context waste.
 - Inspect always-loaded rule files and installed Codex/OpenCode instructions only when needed.
 - Recommend narrower commands, scripts, RTK rules, tool changes, or rule edits.
 
@@ -69,9 +65,9 @@ Use for `mise run install`, `doctor`, `system-tools.md`, shell sync, local secre
 
 Primary checks:
 
-- Inspect `src/commands/install.ts`, `src/cli.ts`, `shell/*`, `system-tools.md`, `mise.toml`, and `package.json`.
+- Discover the repository's current install, shell, tool, and generated-output sources from its instructions, manifests, CLI help, and source tree.
 - Compare source files with installed outputs only when drift is relevant.
-- Keep install behavior simple and personal-only.
+- Keep install behavior aligned with the repository's stated ownership model.
 
 ### Active-Project Lens
 
@@ -79,7 +75,7 @@ Use for active project inventory, cross-project setup, local environment setup, 
 
 Primary checks:
 
-- Inspect the installed lanes catalog and the current `lanes status --json` output.
+- Inspect the live project inventory and current lane status through the installed CLI.
 - Check project setup instructions and repo script behavior.
 - Verify project paths and contracts before recommending broad changes.
 
@@ -90,7 +86,7 @@ Use for finding or evaluating current tools that could reduce context, improve s
 Primary checks:
 
 - Search GitHub/web for current tools when recommendations depend on current ecosystem state.
-- Cover the user's real stack by default: Laravel/PHP, React, React Native, Herd/local environments, testing/QA, Sentry/PostHog/observability, databases/search, and AI-agent context/search workflows.
+- Derive the user's real stack from current project manifests, active-project inventory, project knowledge, and personal knowledge rather than keeping a static stack list here.
 - Prefer tools that cut work, reduce context, improve feedback loops, or remove repeated manual steps over dashboards that only report usage.
 - Rank tools by fit, maturity, local integration cost, and whether they reduce complexity.
 - Translate good tools into concrete setup actions: new skill, doctor check, shell helper, project convention, install/evaluation note, or no-op.

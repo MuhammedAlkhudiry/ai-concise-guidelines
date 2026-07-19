@@ -15,17 +15,10 @@ Import a production Laravel MySQL database into a local Laravel/Herd database wh
 - Use `--single-transaction --quick` for InnoDB-friendly dumps.
 - Disable GTID purging when the available `mysqldump` supports it.
 - Keep local production database dumps in `~/db-dumps`.
-- Run local migrations after import only when local code is ahead.
+- Local migrations run by default after import. Use `--no-migrate` when the user requests it or the project's current state makes migration inappropriate.
 
 ## Script
 
-```bash
-bun "$HOME/.agents/skills/prod-db-to-local/scripts/import-prod-db-to-local.ts" <ssh-target> <remote-laravel-dir> [local-laravel-dir]
-bun "$HOME/.agents/skills/prod-db-to-local/scripts/import-prod-db-to-local.ts" --dump=/path/local.sql.gz [local-laravel-dir]
-```
-
-## Example
-
-```bash
-bun "$HOME/.agents/skills/prod-db-to-local/scripts/import-prod-db-to-local.ts" forge@example.com /home/forge/app/current /path/to/local/project
-```
+Run `scripts/import-prod-db-to-local.ts --help` for the current invocation, options, and supported
+input modes. The script is the source of truth for its interface; this skill owns the production
+read-only and local destructive-safety contract.

@@ -9,7 +9,7 @@ Prepare the release around the current diff: what must happen outside the normal
 
 1. Inspect the diff, touched flows, migrations, jobs, commands, config, events, analytics, and product surfaces.
 2. Run or verify the checks that match the changed surface.
-3. Assume the deploy script already handles routine chores: schema migrations, cache/config clears, and usual restarts such as queues.
+3. Inspect the project's deploy/release source and treat only the actions it actually performs as covered. Use its own help or documentation when available.
 4. Identify only change-specific blockers, rollback constraints, and non-routine release actions.
 5. Translate the release into product effects: how users use it, how stored data changes, and what support, QA, analytics, or monitoring is needed after launch.
 6. Add scheduled cleanup only when the release creates temporary scaffolding.

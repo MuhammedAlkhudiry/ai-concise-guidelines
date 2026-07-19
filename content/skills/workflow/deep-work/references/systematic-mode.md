@@ -2,16 +2,6 @@
 
 Use this for broad-scope requests where the user expects every matching item to be found, checked, changed, listed, migrated, or made consistent.
 
-## Workflow
-
-1. Define the exact set the user asked about.
-2. Choose the strongest inventory method available for that set.
-3. Classify every discovered item as `in scope`, `out of scope`, or `unclear`.
-4. Work through the confirmed set intentionally, item by item or slice by slice.
-5. Re-check the inventory after changes.
-6. Verify only after the systematic pass is complete enough to trust.
-7. Report the coverage result.
-
 ## Inventory
 
 Prefer source-of-truth inventories: route maps, exported schemas, test discovery, package manifests, generated indexes, framework commands, database queries, or structured APIs.

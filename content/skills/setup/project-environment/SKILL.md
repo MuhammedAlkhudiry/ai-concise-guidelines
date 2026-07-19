@@ -17,7 +17,8 @@ clone lifecycle, readiness, state, and invocation; do not put project-specific p
 3. Define one stable lane identity and map every mutable local resource to it.
 4. Write `PROJECT-LANES.md` as the repository contract.
 5. Implement the Bun TypeScript entrypoints in a `project-lanes` subdirectory of the repository's
-   scripts directory. Use the shared runtime supplied by `lanes` for generic mechanics.
+   scripts directory. Inspect the module supplied by `PROJECT_LANES_RUNTIME_MODULE` and reuse its
+   current exports for generic mechanics.
 6. Run setup and verification in the current authorized lane. Exercise reset or destruction only
    when the user has authorized their data or resource effects.
 7. Remove superseded setup paths only after the project-owned suite covers them.
@@ -31,10 +32,9 @@ clone lifecycle, readiness, state, and invocation; do not put project-specific p
 - `reset.ts` resets task data while retaining the lane environment.
 - `destroy.ts` removes only lane-owned external resources; `$project-lanes` removes the clone.
 
-Keep a compact runtime adapter and project context under `lib/`. Use the shared runtime for command
-execution, environment editing, hashing, marked installs, Herd, databases, Solo, Mise, and simulator
-lifecycle. Put only project-specific provisioning operations under `steps/`; do not fork shared
-mechanics into the repository.
+Keep a compact runtime adapter and project context under `lib/`. Treat the supplied shared module as
+the source of truth for its helper surface; do not copy its implementation or helper catalog into
+the skill or repository. Put only project-specific provisioning operations under `steps/`.
 
 ## Contract rules
 

@@ -7,15 +7,7 @@ description: >-
 
 ## Gentleness Contract
 
-Gentleness governs structure, pace, and tone.
-
-- Give one orientation, one learning objective, and at most one action per turn. Never combine the full roadmap,
-  implementation explanation, file inventory, risks, and QA in one response.
-- Start with product behavior. Reveal deeper context only when useful now or requested.
-- Pause without pressure. Questions, uncertainty, stopping, skipping, revisiting, and changing depth are normal;
-  silence or a question is never approval to continue.
-- When the user seems overloaded, stop, simplify the current idea, shrink the next step, and ask what would help.
-- Match the user's pace and technical depth without requiring an up-front style choice.
+Read `references/part-template.md` before starting. It owns the final-answer shape, pacing, and gentleness constraints.
 
 ## Durable State
 
@@ -53,11 +45,4 @@ changes into parts, skips into part status, and retain only one blocker. Reconst
 
 ## Output
 
-- Use the template only in final answers, never in commentary or working updates.
-- Put no walkthrough prose outside the template in a final answer. Its first part reports whether state was created or
-  resumed; multiple matches require selection before continuing.
-- On startup or transition, preview only the current part, next part, and later-part count. Show more only when asked.
-- Report the environment or actionable blocker in one line when relevant.
-- After a part, summarize the outcome and any decision in two or three short lines, update state, then pause and offer
-  one next move without starting it.
-- Keep QA runnable and observable, but never replace the walkthrough with QA, route lists, files, or generic tests.
+Follow `references/part-template.md` for every final answer after creation or resume. Keep preparation in commentary and state; keep walkthrough output inside the template.

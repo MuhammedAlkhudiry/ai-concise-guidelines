@@ -2,16 +2,7 @@
 
 Use this when correctness depends on local meaning, human judgment, or per-item context.
 
-Manual mode still permits search, structured tooling, tests, type checks, formatters, browser or device inspection, and targeted commands when they prove coverage or verify the result.
-
-## Workflow
-
-1. Use search, structured tooling, or inspection to build the working set.
-2. Inspect each item before changing it.
-3. Classify each item as `change`, `skip`, or `unclear`.
-4. Do the work manually, one item or tight group at a time.
-5. Re-check the working set after editing.
-6. Report what changed, what was skipped, and what remains uncertain.
+Manual mode still permits search, structured tooling, tests, type checks, formatters, browser or device inspection, and targeted commands when they prove coverage or verify the result. Inspect and decide each item individually.
 
 ## Automation Constraint
 

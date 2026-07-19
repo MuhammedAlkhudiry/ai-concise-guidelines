@@ -1,135 +1,35 @@
 # Expo/EAS Store Release
 
-## Contents
-
-- Discovery, status words, and versioning
-- Release sequence and EAS caveats
-- Store blockers and review flows
-- Google Sign-In and Play signing
+Use the project as the source of truth for its release contract: agent instructions, release docs, package scripts, Expo config, `eas.json`, verification checklist, and store metadata. Use `eas --help` and the relevant subcommand help for installed CLI syntax. Use current store documentation, API schemas, and live account state for mutable policies, fields, and review flows.
 
 ## Discovery
 
-Before running a release, inspect:
+Before changing or submitting anything, establish:
 
-- Project release docs and agent instructions
-- `package.json` scripts
-- `app.json`, `app.config.js`, or `app.config.ts`
-- `eas.json`
-- Repo checklists for lint, typecheck, tests, and build verification
-- Local ignored env files and credential setup docs
-- Store metadata or release-note config such as EAS metadata files
+- target branch and local-change state;
+- user-facing version, native build numbers, configured version source, and bump rule;
+- build/submit profiles and the existing project release command;
+- Android package, Play track, iOS bundle ID, and App Store Connect app;
+- the artifact and signing identities users will actually receive;
+- required project verification and any release notes or metadata.
 
-Confirm:
+Use $service-access for missing EAS, Google Play, App Store Connect, Google Cloud, or Sign in with Apple access.
 
-- Target branch
-- Current app version and native build numbers
-- Version bump rule
-- Latest remote EAS app versions and native build numbers
-- EAS profile name
-- Production build and submit command
-- Android package name and Play track
-- iOS bundle ID and App Store Connect app ID
-- Native social sign-in provider config, especially Android OAuth clients and the signing fingerprints for the artifacts users will install
+## Release Contract
 
-## Status Words
+1. Run the project-owned verification and report skipped or inconclusive checks.
+2. Change versions only according to the discovered project strategy. Do not manually change remotely managed native build numbers.
+3. Use the existing project build/submission path and capture artifact IDs, native build numbers, submit IDs, links, and timestamps.
+4. Verify upload and review state from EAS and each store's live data. Do not create a duplicate submission merely to obtain status.
+5. If the artifact already exists in a store, promote or attach it through the supported store path rather than re-uploading the same native build.
+6. For signing-sensitive social-login failures, compare the installed artifact's signing fingerprint with the provider client registered for that package.
+7. Pause before irreversible review, rollout, or live-release actions unless the user has already authorized that exact scope.
 
-- `built`: EAS created a binary artifact.
-- `submitted`: EAS or a store API uploaded the binary to a store.
-- `in review`: the store accepted the release into review.
-- `live`: the store explicitly shows the release as available to users.
+Keep these states distinct:
 
-Do not infer `live` from EAS output alone.
+- `built`: a binary artifact exists;
+- `submitted`: the artifact was uploaded to a store;
+- `in review`: the store accepted the release into review;
+- `live`: the store explicitly reports availability to users.
 
-## Versioning
-
-Expo/EAS separates the store-visible app version from native build numbers.
-
-- `expo.version` is the user-facing store version.
-- Android `versionCode` and iOS `buildNumber` are native build numbers.
-- `appVersionSource: remote` with `autoIncrement` can manage native build numbers. User-facing version automation depends on the chosen local/remote version strategy and project config.
-
-Before bumping, check local config, `eas.json`, and the latest EAS builds. Follow the configured version source; if the local user-facing version is already represented remotely, advance it according to project rules.
-
-## Release Sequence
-
-1. Sync to the target branch and inspect local changes.
-2. Preserve unrelated branch or PR work before switching release branches.
-3. Run the project's relevant checks and report any checks that are skipped, killed, or inconclusive.
-4. Bump the app version according to project rules; do not manually bump remote-managed native build numbers.
-5. Commit and push the version/config change when the project workflow requires it.
-6. Run the existing production build-and-submit script.
-7. Capture EAS build IDs, native build numbers, submit IDs, artifact links, and timestamps.
-8. After EAS accepts the builds, wait three minutes without querying status; builds always need an initial processing window, so do not poll during it.
-9. Verify EAS submissions with supported commands or internal status queries before touching stores.
-10. Verify Android through Google Play status.
-11. Verify iOS through App Store Connect status.
-12. If native Google Sign-In is in scope, compare Google Play app-signing fingerprints against Android OAuth clients before calling the release healthy.
-13. Follow the store-access rule in [SKILL.md](../SKILL.md).
-14. Finish with exact per-platform state and any remaining store action.
-
-## EAS Submit Caveats
-
-- Check the installed EAS CLI help before assuming command names like `submit:list`.
-- Do not create duplicate submissions just to check status.
-- If EAS Android submit has no production track configured, it may upload to an internal track.
-- If a version code was already uploaded to one Play track, re-submitting the same artifact to another track can fail with a duplicate-version-code error.
-- In that case, promote or attach the already-uploaded bundle through Google Play Console or the Google Play Developer API instead of re-uploading.
-- Configure Android production submit explicitly before the next release when the project supports it.
-
-## Store Blockers
-
-Stop and report clearly for:
-
-- Version code/build number conflicts
-- Signing or provisioning failures
-- Missing required bundle artifacts
-- Code-policy rejection
-- Product decisions about rollout, compliance, pricing, privacy, or availability
-
-Handle directly when authorized:
-
-- Agreements already approved by the user
-- Missing review info
-- Release notes or rollout settings
-- Data safety or app-content declaration forms
-- Waiting for build processing
-
-## App Store Connect API Flow
-
-After EAS uploads an iOS build:
-
-1. Wait for Apple build processing to finish.
-2. Create the new App Store version when needed.
-3. Fill `What's New` or release notes.
-4. Attach the processed build.
-5. Save once and let App Store Connect reveal missing fields.
-6. Fill required review contact, demo account, export compliance, or review notes from project docs.
-7. Add the version for review.
-8. Submit the review bundle.
-9. Verify `Waiting for Review`, `In Review`, approved, or live.
-
-Perform this flow through App Store Connect API access per the store-access rule. If a required field or action is unavailable through the API, stop and hand that exact manual action to the user.
-
-## Google Play Console Flow
-
-When using the dashboard:
-
-1. Open the production track or Publishing overview for the app.
-2. Create or edit the production release.
-3. Add the already-uploaded app bundle from the artifact library when needed.
-4. Add release notes.
-5. Preview warnings and confirm they are informational before saving.
-6. Save the production change to Publishing overview.
-7. Send the pending change for review after final confirmation.
-8. Wait for Play quick checks to complete or expose a concrete blocker.
-9. Report `Changes in review`, rejected, approved, or live exactly as shown.
-
-## Google Sign-In And Play Signing
-
-Native Android Google Sign-In validates the installed app identity, not just the package name or web client ID.
-
-- Google Play-delivered builds are signed with the Play app-signing key, while EAS/uploaded artifacts are signed with the upload key before Play re-signs them.
-- An Android OAuth client registered only with the upload-key SHA-1 can still produce `DEVELOPER_ERROR` or error code `10` for production users because their installed APKs are signed by the Play app-signing key.
-- Keep separate Android OAuth clients when needed: one for upload/internal artifacts and one for Play app-signing production artifacts.
-- Create or update the Android OAuth client in the Google Cloud project that owns the client IDs embedded in the app, not merely in whichever Firebase project has a `google-services.json` file.
-- A provider-console-only OAuth fix can repair an already-shipped binary when the app already opens native Google Sign-In and fails before any backend request. Wait for provider propagation, then retest the same signed artifact and monitor Sentry by release/dist.
+Stop for rebuild requirements, signing/provisioning failures, version conflicts, policy rejection, or product decisions about rollout, compliance, pricing, privacy, or availability. Hand off the exact manual action when a required store operation is unavailable through authorized APIs.

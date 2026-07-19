@@ -2,18 +2,7 @@
 
 Use this when the answer depends on broad discovery, current facts, external prior art, niche details, or evidence spread across multiple source classes.
 
-Deep-search is not normal browsing. It is a coverage pass for knowledge.
-
-## Workflow
-
-1. Define the research question and the decision it supports.
-2. Identify the relevant source classes before searching.
-3. Search each source class with enough variation to expose contradictory or missing evidence.
-4. Prefer primary sources and current official sources when facts may have changed.
-5. Track what was searched well enough to explain the coverage.
-6. Separate verified facts, source-backed claims, inferences, stale evidence, and unknowns.
-7. Synthesize only after the source set is broad enough for the promised answer.
-8. Report the coverage limits and any uncertainty that affects the recommendation.
+Deep-search is a coverage pass for knowledge. Search each relevant source class with enough variation to expose contradictory or missing evidence, and track the search well enough to explain coverage.
 
 ## Source Classes
 
@@ -33,7 +22,3 @@ Use primary sources for claims that shape the decision. Use secondary sources fo
 Cross-check important claims across independent evidence when possible. When sources disagree, report the disagreement instead of smoothing it away.
 
 Do not treat search result snippets, outdated examples, generated docs, copied blog posts, or passing tests as final proof when stronger evidence should exist.
-
-## Synthesis
-
-End with the useful answer first, then the coverage basis. Include the sources or evidence classes used, what changed the conclusion, and what remains uncertain.

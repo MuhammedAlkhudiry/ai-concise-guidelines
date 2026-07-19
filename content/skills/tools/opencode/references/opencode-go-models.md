@@ -17,4 +17,8 @@ Source: `opencode models opencode-go --refresh --verbose`
 
 Reference sources:
 
-- OpenCode Data catalogs: [DeepSeek](https://opencode.ai/data/deepseek), [Zhipu](https://opencode.ai/data/zhipuai), [xAI](https://opencode.ai/data/xai), [Moonshot](https://opencode.ai/data/moonshot), [Xiaomi](https://opencode.ai/data/xiaomi), [MiniMax](https://opencode.ai/data/minimax), and [Qwen](https://opencode.ai/data/qwen)
+- OpenCode Data catalogs:
+  [DeepSeek](https://opencode.ai/data/deepseek),
+  [Zhipu](https://opencode.ai/data/zhipuai), [xAI](https://opencode.ai/data/xai),
+  [Moonshot](https://opencode.ai/data/moonshot), [Xiaomi](https://opencode.ai/data/xiaomi),
+  [MiniMax](https://opencode.ai/data/minimax), and [Qwen](https://opencode.ai/data/qwen)

@@ -20,6 +20,10 @@ for (let i = 2; i < Bun.argv.length; i++) {
     args.set("migrate", "0");
     continue;
   }
+  if (arg === "--help" || arg === "-h") {
+    args.set("help", true);
+    continue;
+  }
   if (arg.startsWith("--dump=")) {
     args.set("dump", arg.slice("--dump=".length));
     continue;
@@ -40,12 +44,19 @@ type DbConfig = {
   password: string;
 };
 
-function usage(): never {
-  console.error("Usage:");
-  console.error("  import-prod-db-to-local.ts --dump=/path/local.sql.gz [local-laravel-dir] [--confirm] [--no-migrate]");
-  console.error("  import-prod-db-to-local.ts <ssh-target> <remote-laravel-dir> [local-laravel-dir] [--confirm] [--no-migrate]");
-  process.exit(1);
+function usage(exitCode = 1): never {
+  const output = exitCode === 0 ? console.log : console.error;
+  output("Usage:");
+  output(
+    "  import-prod-db-to-local.ts --dump=/path/local.sql.gz [local-laravel-dir] [--confirm] [--no-migrate]",
+  );
+  output(
+    "  import-prod-db-to-local.ts <ssh-target> <remote-laravel-dir> [local-laravel-dir] [--confirm] [--no-migrate]",
+  );
+  process.exit(exitCode);
 }
+
+if (args.get("help") === true) usage(0);
 
 async function commandExists(command: string): Promise<boolean> {
   return (await $`command -v ${command}`.quiet().nothrow()).exitCode === 0;
@@ -54,7 +65,9 @@ async function commandExists(command: string): Promise<boolean> {
 async function confirm(): Promise<void> {
   if (args.get("confirm") === true || process.env.IMPORT_DB_CONFIRM === "1") return;
 
-  const answer = prompt("This replaces the LOCAL database from this project's .env. Type IMPORT to continue: ");
+  const answer = prompt(
+    "This replaces the LOCAL database from this project's .env. Type IMPORT to continue: ",
+  );
   if (answer === "IMPORT") return;
 
   console.error("Cancelled.");
@@ -131,10 +144,12 @@ async function importDump(path: string): Promise<void> {
     mysqlEnv(config),
   );
 
-  await $`bash -lc ${`gunzip -c "$DUMP_PATH" | mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" "$DB_DATABASE"`}`.env({
-    ...mysqlEnv(config),
-    DUMP_PATH: path,
-  });
+  await $`bash -lc ${`gunzip -c "$DUMP_PATH" | mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" "$DB_DATABASE"`}`.env(
+    {
+      ...mysqlEnv(config),
+      DUMP_PATH: path,
+    },
+  );
 
   if (migrate) {
     if (await commandExists("herd")) await $`herd php artisan migrate --force`.cwd(localDir);

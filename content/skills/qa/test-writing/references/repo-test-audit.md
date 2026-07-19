@@ -13,20 +13,6 @@ When the user explicitly grants approval to audit and repair the whole set, proc
 
 Passing tests, lint, typecheck, or build are verification signals only. They do not satisfy a repo test audit, because they prove the current assertions run, not that the test suite is valid, complete, maintainable, or well-shaped.
 
-## Deep Work Contract
-
-Treat $deep-work systematic mode as mandatory for broad test audits:
-
-1. Define the exact set the user asked about: whole repo, directory, package, suite, feature, test layer, or changed branch.
-2. Prove the inventory with commands or indexes that enumerate the target set. Search manually only to supplement, not replace, the inventory.
-3. Mark every discovered test file or case as `in scope`, `out of scope`, or `unclear` before changing broad areas.
-4. Classify every in-scope item with the statuses below. Do not skip green tests.
-5. Work through the confirmed set slice by slice until each item has a final disposition.
-6. Re-run inventory checks after moving, deleting, or renaming tests to catch missed files and stale references.
-7. Finish by reporting what was included, what was excluded, what stayed uncertain, and why the coverage is complete enough to trust.
-
-Do not sample a few files, run passing commands, and call it complete. If the full set cannot be proven, state the missing evidence and continue with the strongest proven inventory.
-
 ## Classification
 
 Track every test file or test case with one status:

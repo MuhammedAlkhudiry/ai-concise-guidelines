@@ -15,8 +15,8 @@ description: Planning workflow for in-chat plans by default, plus saved plan cre
 
 Use this workflow only when the user explicitly asks to save or persist a plan, or to manage an existing saved plan.
 
-1. Load `references/plan-shape.md` and `references/plan-files.md` before creating, updating, archiving, or executing a persisted plan.
-2. Load `references/plan-reconcile.md` before auditing, refreshing, reconciling, polishing, or comparing persisted plans with current code.
+1. Load `references/plan-shape.md` and run `plan --help` before creating, updating, archiving, or executing a persisted plan.
+2. When reconciling saved plans, list the relevant plans, compare their code-dependent assumptions with current code, update only what the user authorized, and refresh the index after material changes.
 3. Store plans under `~/plans/<project-name>/` unless the user explicitly asks for a repo-local file.
 4. If the plan depends on blocking decisions, ask the user first. Do not create or update the plan until those decisions are answered.
 5. Treat every plan change as a file mutation followed by readback: update the saved plan, then show the updated plan or changed section.

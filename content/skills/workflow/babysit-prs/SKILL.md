@@ -21,13 +21,9 @@ Ready means: checked in a fresh clone, on the latest base, conflict-free, requir
 
 ## Inventory And Workspace
 
-Prefer structured GitHub data. Use the GitHub connector when it has the fields; otherwise use `gh`.
+Prefer structured GitHub data. Use the GitHub connector when it exposes the needed live fields; otherwise inspect current `gh pr` and exit-code behavior through `gh help` before relying on it.
 
-For each repository, collect open PRs with fields equivalent to:
-
-```bash
-gh pr list --state open --limit 1000 --json number,title,url,author,isDraft,headRefName,headRepositoryOwner,baseRefName,mergeable,mergeStateStatus,statusCheckRollup,reviewDecision,updatedAt
-```
+For each repository, collect enough live PR, ruleset, review, mergeability, and check data to prove the readiness contract.
 
 Record total PR count per repository. Page or raise limits until complete.
 
@@ -39,11 +35,10 @@ Process PRs one by one there, resetting cleanly to latest base before each PR.
 
 For each PR, loop until ready or hard-blocked:
 
-1. Check out the PR in the fresh clone with `gh pr checkout <pr>`. If it fails, record the blocker and continue.
+1. Check out the PR in the fresh clone. If it fails, record the blocker and continue.
 2. Sync the PR branch with the latest base branch before judging readiness. Use `main` when it is the PR base; otherwise use `baseRefName`.
-3. Mergeability: use `mergeable` and `mergeStateStatus` from `gh pr view` or GraphQL. If stale or unknown, refresh and retry once.
-4. CI status: inspect required checks first with `gh pr checks <pr> --required --json name,state,bucket,link,description,startedAt,completedAt`.
-   Use the JSON `bucket` values, not exit code alone; `gh pr checks` uses a pending-specific exit code and can still need interpretation.
+3. Mergeability: use current structured GitHub data. If stale or unknown, refresh and retry once.
+4. CI status: inspect required checks first. Use structured check state rather than assuming a command exit code fully describes pending, skipped, or blocked checks.
 5. Optional checks: when required checks are absent or incomplete, inspect all checks or `statusCheckRollup`.
 6. Fix actionable blockers: update behind branches, resolve conflicts, repair failing CI, and rerun verification.
 7. Do not leave draft final when otherwise ready. Mark ready for review, or name the missing human decision.
@@ -53,7 +48,7 @@ For each PR, loop until ready or hard-blocked:
 
 Babysitting implies permission to update PR branches and push readiness fixes. Keep changes scoped to the current PR.
 
-1. Prefer `gh pr update-branch <pr>` to sync a PR branch with the latest base branch.
+1. Prefer the current GitHub-supported update-branch operation to sync a PR branch with the latest base branch.
 2. For conflicts, use the fresh clone's PR branch. Merge or rebase the base branch by repo convention, verify, then push.
 3. For failing CI, inspect logs before editing. Do not rerun checks instead of diagnosing deterministic failures.
 4. After any remote change, re-check mergeability and CI for that PR before moving on.

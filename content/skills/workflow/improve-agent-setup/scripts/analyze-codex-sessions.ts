@@ -40,6 +40,20 @@ type CommandSummary = {
 const home = process.env.HOME || "";
 const args = new Map<string, string>();
 
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(`Usage:
+  analyze-codex-sessions.ts [options]
+
+Options:
+  --root <path>         Session root. Default: ~/.codex/sessions.
+  --days <number>       Lookback window when --since is absent. Default: 14.
+  --limit <number>      Maximum ranked items per section. Default: 12.
+  --cwd <path>          Include only sessions for this working directory.
+  --since <date>        Include sessions modified on or after this date.
+  --since-mtime <time>  Include sessions modified after this epoch time.`);
+  process.exit(0);
+}
+
 for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i];
   if (!arg.startsWith("--")) continue;
@@ -239,7 +253,9 @@ for (const file of files) {
       summary.id = asString(asObject(payload).id) || summary.id;
       summary.cwd = asString(payload.cwd) || summary.cwd;
       if (!summary.baseInstructionBytes) {
-        summary.baseInstructionBytes = byteLength(asString(asObject(payload.base_instructions).text));
+        summary.baseInstructionBytes = byteLength(
+          asString(asObject(payload.base_instructions).text),
+        );
       }
     }
 
@@ -332,7 +348,9 @@ const imageBytes = sessions.reduce((sum, session) => sum + session.imageBytes, 0
 const execOutputs = sessions.reduce((sum, session) => sum + session.execOutputs, 0);
 const largeExecOutputs = sessions.reduce((sum, session) => sum + session.largeExecOutputs, 0);
 const truncatedOutputs = sessions.reduce((sum, session) => sum + session.truncatedOutputs, 0);
-const firstInputs = sessions.filter((session) => session.firstInput > 0).map((session) => session.firstInput);
+const firstInputs = sessions
+  .filter((session) => session.firstInput > 0)
+  .map((session) => session.firstInput);
 const averageFirstInput = firstInputs.length
   ? Math.round(firstInputs.reduce((sum, value) => sum + value, 0) / firstInputs.length)
   : 0;
@@ -340,7 +358,9 @@ const averageFirstInput = firstInputs.length
 console.log(`# Codex Session Context Audit\n`);
 console.log(
   `Window: ${
-    args.has("since") || args.has("since-mtime") ? `since ${new Date(since).toISOString()}` : `last ${days} days`
+    args.has("since") || args.has("since-mtime")
+      ? `since ${new Date(since).toISOString()}`
+      : `last ${days} days`
   }`,
 );
 if (cwdFilter) {
@@ -400,13 +420,16 @@ printTable(
     ["first input", (item) => item.firstInput.toLocaleString()],
     ["base", (item) => approxTokens(item.baseInstructionBytes).toLocaleString()],
     ["project", (item) => approxTokens(item.userInstructionBytes).toLocaleString()],
-    ["other", (item) =>
-      Math.max(
-        0,
-        item.firstInput -
-          approxTokens(item.baseInstructionBytes) -
-          approxTokens(item.userInstructionBytes),
-      ).toLocaleString()],
+    [
+      "other",
+      (item) =>
+        Math.max(
+          0,
+          item.firstInput -
+            approxTokens(item.baseInstructionBytes) -
+            approxTokens(item.userInstructionBytes),
+        ).toLocaleString(),
+    ],
     ["cwd", (item) => item.cwd.replace(home, "~")],
     ["file", (item) => item.file],
   ],
@@ -414,16 +437,24 @@ printTable(
 
 console.log(`\n## Suggested Follow-Ups\n`);
 if (truncatedOutputs || largeExecOutputs) {
-  console.log(`- Replace broad shell exploration with narrower commands, RTK, or purpose-built scripts.`);
+  console.log(
+    `- Replace broad shell exploration with narrower commands, RTK, or purpose-built scripts.`,
+  );
 }
 if (images) {
-  console.log(`- Prefer cropped screenshots, local image paths, or browser snapshots for visual QA.`);
+  console.log(
+    `- Prefer cropped screenshots, local image paths, or browser snapshots for visual QA.`,
+  );
 }
 if (averageFirstInput > 20_000) {
-  console.log(`- Review always-loaded rules, enabled tools, MCPs, and skill descriptions for startup bloat.`);
+  console.log(
+    `- Review always-loaded rules, enabled tools, MCPs, and skill descriptions for startup bloat.`,
+  );
 }
 if (compactions) {
-  console.log(`- Split long investigations sooner and preserve durable findings in source docs or memory.`);
+  console.log(
+    `- Split long investigations sooner and preserve durable findings in source docs or memory.`,
+  );
 }
 if (!truncatedOutputs && !largeExecOutputs && !images && !compactions) {
   console.log(`- No major context waste pattern detected in this window.`);

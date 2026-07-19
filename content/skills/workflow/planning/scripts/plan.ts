@@ -45,7 +45,23 @@ Commands:
 Options:
   --project=<name>       Project folder under ~/plans
   --plans-root=<path>    Plans root, defaults to ~/plans
-  --write                Rewrite INDEX.md with the active plan index`);
+  --write                Rewrite INDEX.md with the active plan index
+  -h, --help             Show this help
+
+Plan files:
+  The CLI finds, reads, indexes, and archives plans; author plan files directly.
+  Keep active plans under ~/plans/<project-name>/ and archived plans in archive/.
+  Use a Markdown file for a standalone plan, or <plan-name>/PLAN.md when it needs supporting files.
+  Keep INDEX.md as the active-plan entry point and refresh it with plan index --write.
+  Update the updated date whenever the plan body changes.
+
+Required frontmatter:
+  ---
+  created: YYYY-MM-DD
+  updated: YYYY-MM-DD
+  project: project-name
+  description: Short list-view summary
+  ---`);
 }
 
 function parseOptions(args: string[]): Options {
@@ -394,8 +410,11 @@ function indexPlans(options: Options): void {
 
 const [command = "list", ...rawOptions] = Bun.argv.slice(2);
 const options = parseOptions(rawOptions);
+const helpRequested = [command, ...rawOptions].some(
+  (arg) => arg === "help" || arg === "--help" || arg === "-h",
+);
 
-if (command === "help" || command === "--help" || command === "-h") {
+if (helpRequested) {
   usage();
 } else if (command === "list") {
   listPlans(options);
