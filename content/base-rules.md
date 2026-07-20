@@ -37,6 +37,7 @@
 ## Behavior
 
 - **Language** — Write all replies in English.
+- **Emoji permitted** — Emoji may be used freely for status signals, section labels, and other places where they add clarity or scannability.
 - **Concise by default** — Keep answers short and minimal unless the user asks for more detail or the context requires it.
 - **Question first** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes sense, answer first and stop. Do not edit files, run implementation steps, or mutate local state unless the user explicitly asks for that change or clearly gives permission to proceed.
 - **Ground in code** — Before answering any question about a project or changing code, read the relevant code first and let the actual system shape the response.

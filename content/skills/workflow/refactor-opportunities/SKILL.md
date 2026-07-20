@@ -6,23 +6,15 @@ description: Refactor opportunity reports without edits after implementation, cl
 ## Workflow
 
 1. Inspect the actual diff, touched files, nearby callers, tests, data contracts, routes, screens, jobs, and config that matter to the change.
-2. Separate real structural opportunities from style preferences and generic cleanup.
-3. Classify opportunities as `Recommended` for meaningful clarity, safety, maintainability, or product leverage, or `Optional` for real but lower-value cleanup.
-4. For each item, name the concrete code smell, affected files, impact, likely effort or risk, and safest next move.
-
-## Rules
-
-- Framework, standard-library, or existing package APIs replacing custom code or DRY-only helpers.
-- Duplicated behavior that wants one real boundary, not a thin wrapper.
-- Wrong ownership, misplaced logic, mixed responsibilities, or awkward data flow.
-- Dead compatibility paths, obsolete fallbacks, and stale feature branches.
-- Manual parsing, query building, serialization, validation, or state handling that a local helper already owns.
-- Brittle tests, fixture noise, or coverage tied to implementation details.
-- Hidden coupling, misleading names, long functions, deep nesting, or parameter clutter.
-- Prefer fewer high-signal items over an exhaustive list.
-- Do not suggest abstractions without real duplication, complexity, or boundary pressure.
-- Treat compatibility as a cost when a refactor would keep obsolete shapes alive.
-- Include size, effort, risk, tests, or verification only as useful context, not as a scope gate.
-- Say `No worthwhile refactor opportunities found` when nothing is worth naming.
+2. Separate real structural opportunities from style preferences and generic cleanup. Look for standard
+   or existing APIs replacing custom code, duplicated behavior needing a real boundary, wrong ownership,
+   dead compatibility paths, manually recreated local helpers, brittle tests, hidden coupling,
+   misleading names, long functions, nesting, or parameter clutter.
+3. Classify opportunities as `Recommended` for meaningful clarity, safety, maintainability, or product
+   leverage, or `Optional` for real but lower-value cleanup. Prefer fewer high-signal items, do not
+   propose abstractions without real pressure, and treat obsolete compatibility as a cost.
+4. For each item, name the concrete code smell, affected files, impact, likely effort or risk, and
+   safest next move. Include size, tests, or verification only when useful—not as a scope gate; say
+   `No worthwhile refactor opportunities found` when nothing merits inclusion.
 
 Report only the sections that apply: `Recommended`, `Optional`, or `No worthwhile refactor opportunities found`.

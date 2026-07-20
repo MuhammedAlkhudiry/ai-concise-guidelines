@@ -12,17 +12,14 @@ Use this when the task is done only if coverage is defensible. This is not extra
    - `references/systematic-mode.md` for repo-wide, set-wide, all-items, audit, migration, consistency, or broad update work.
    - `references/manual-mode.md` for hand review, one-by-one handling, careful repeated edits, or no scripting/automation.
    - `references/deep-search-mode.md` for broad unknown discovery, multi-source research, current external facts, prior art, or unclear evidence quality.
+   Combine modes deliberately when they overlap: deep-search discovers the surface, systematic mode proves the inventory, and manual mode constrains automation.
 3. Build an inventory, search map, or source set strong enough for the promised result.
-4. Classify every discovered item, source, or finding before broad edits or synthesis.
+4. Classify every discovered item, source, or finding as `in scope`, `out of scope`, or `unclear` before broad edits or synthesis.
 5. Work through the confirmed set intentionally, item by item, slice by slice, or source class by source class.
 6. Re-run discovery after changes or synthesis to catch missed, stale, renamed, generated, or contradictory items.
 7. Run relevant verification only after the coverage pass is complete enough to verify.
-8. Report what was included, excluded, handled, skipped, and still uncertain.
-
-## Rules
-
-- When modes overlap, combine them deliberately: deep-search discovers the surface, systematic mode proves the inventory, and manual mode constrains automation.
-- Do not claim completion while any in-scope item or trust-critical source remains unclassified or unresolved.
-- Use `in scope`, `out of scope`, and `unclear` while classifying.
-- Assign every in-scope item a final disposition such as `unchanged`, `changed`, `fixed`, `deleted`, `moved`, `merged`, `verified`, `synthesized`, or `blocked`.
-- Finish with coverage evidence: inventory or search method, scope boundaries, counts by status when useful, verification run, and skipped or uncertain work that affects trust.
+8. Assign every in-scope item a final disposition such as `unchanged`, `changed`, `fixed`, `deleted`,
+   `moved`, `merged`, `verified`, `synthesized`, or `blocked`. Do not claim completion while an
+   in-scope item or trust-critical source remains unclassified or unresolved; report coverage evidence,
+   including the inventory or search method, scope boundaries, useful counts, verification, and skipped
+   or uncertain work.

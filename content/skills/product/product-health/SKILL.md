@@ -8,22 +8,39 @@ description: >-
 
 ## Workflow
 
-1. Establish context before querying health sources:
-   - Check `PRODUCT_SETUP.md`; report missing or stale setup as a gap.
-   - Read the README, deployment docs, manifests, app config, env examples, and recent git history. Treat commits as leads, not proof.
-   - Detect relevant sources, adapters, access gaps, risks, and check playbooks from the code and docs.
-2. Query configured sources with `references/source-adapters.md`; prefer structured CLI or API JSON over dashboards.
-   Use absolute times with timezone and never expose secrets or full connection URIs.
-   Treat production changes, long exports, destructive queries, and ambiguous targets as blockers.
-3. Compare the current window with the previous window and usual baseline across journeys, jobs, data integrity, performance, observability, AI usage, and cost or capacity.
-4. Investigate findings deeply enough to support conclusions:
-   - For Sentry, verify org and project context, then read full issue details and representative events.
-   - Resolve only issues confirmed as fixed, inactive, superseded, or known noise. Do not archive, merge, delete, or bulk-change issues unless requested.
-   - For AI features, assess adoption, outcomes, tools and actions, confusing sessions, drop-off, repeated intents, and product improvements.
-5. Report findings and analysis before raw statistics:
-   - Explain cause, severity, baseline change, impact, suspicious changes, false alarms, and ignorable noise.
-   - Rank by affected users or tenants, critical flows, revenue risk, or operational risk. Include observability gaps.
-   - Use numbers as evidence; put pure statistics in a table at the end.
-   - Link opaque issue IDs and include their titles: `[APP-123](https://issue-url) - issue description`.
-   - For resolved Sentry issues, include the link, title, stale evidence, and why resolution was safe.
-6. If setup maintenance was requested, use $product-setup to record durable changes, not current run results.
+1. Establish the scope and comparison window from `PRODUCT_SETUP.md`, recent git history, project documentation, and available health sources.
+2. Apply the evaluation and source-routing rules below, then query only the sources relevant to the product and requested scope.
+3. Deliver the ranked health report after every relevant finding is supported, dismissed as noise, or recorded as an evidence gap.
+
+## Evaluation
+
+- Report missing or stale `PRODUCT_SETUP.md` context as an observability gap.
+- Compare the current window with both the previous window and usual baseline. Treat recent commits as investigation leads, not proof.
+- Assess only relevant product journeys, jobs, data integrity, performance, observability, AI usage, and cost or capacity.
+- Prefer structured CLI or API output over dashboards. Apart from the permitted Sentry cleanup below, stop on production mutations, destructive queries, long exports, or ambiguous targets.
+- Investigate each material signal until its cause, impact, baseline change, and confidence are supportable or the missing evidence is explicit.
+
+## Source routing
+
+- **Sentry:** Use $sentry-cli and its current help. Verify the organization and project, then inspect full issue details and representative events.
+- **PostHog:** Use $posthog-cli for source access, $investigate-metric for material metric changes, and $diagnosing-sdk-health for SDK health.
+- **Queues, schedulers, and servers:** Discover deployed surfaces from code and configuration. Use documented read-only application commands, $laravel-forge-cli, or SSH as applicable.
+  Measure live backlog, age, retries, failures, execution, services, and capacity.
+- **Databases and managed services:** Use $service-access, the provider's current CLI or API help, and live schema or telemetry. Keep queries read-only and never report credentials.
+- **Redis:** Determine whether it serves cache, sessions, queues, or another role from project configuration before querying relevant read-only telemetry.
+- **AI features:** Locate the product's conversation, run, step, usage, tool-call, credit, proposal, and safety evidence.
+  Assess adoption, repeat use, outcomes, latency, unresolved sessions, action follow-through, cost pressure, safety blocks, and user friction.
+- **Search:** Discover the active provider and integration before querying its current read-only health, metrics, and index state.
+
+## Sentry cleanup
+
+- Resolve an issue during the report only after evidence confirms it is fixed, inactive, superseded, or known noise.
+- Do not bulk-resolve or change active or ambiguous issues.
+- Record every resolved issue with a green status emoji, linked identifier, title, stale evidence, and why resolution was safe.
+
+## Report contract
+
+- Lead with findings and analysis; place pure statistics in a table at the end.
+- Rank findings by affected users or tenants, critical-flow impact, revenue risk, and operational risk. Use colored status emojis and include observability gaps.
+- For each finding, state cause, severity, baseline change, impact, confidence, suspicious evidence, and any false alarm or ignorable noise.
+- Link opaque identifiers with their titles: `[APP-123](https://issue-url) - issue description`.

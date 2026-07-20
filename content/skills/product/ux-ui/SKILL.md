@@ -3,28 +3,39 @@ name: ux-ui
 description: Interface design, implementation, and review for product flows, screens, and components. Use when planning UX, building or changing UI, or reviewing interface quality.
 ---
 
-# UX/UI
-
 ## Workflow
 
-1. Identify the user's starting context, goal, constraints, expected outcome, next action, and recovery or exit path.
-2. Trace the current flow, hierarchy, controls, states, platform conventions, and design-system patterns.
-3. Read [references/foundations.md](references/foundations.md), then load the chapters the task needs:
-   - [references/interaction-components.md](references/interaction-components.md): controls, forms, navigation, overlays, data-heavy interfaces, gestures, and progress.
-   - [references/visual-responsive.md](references/visual-responsive.md): layout, typography, color, icons, imagery, surfaces, responsive behavior, and localization.
-   - [references/motion-accessibility.md](references/motion-accessibility.md): motion, direct manipulation, perceived performance, and accessibility.
-   - [references/content-systems-review.md](references/content-systems-review.md): UX writing, design systems, implementation, reviews, and completion checks.
-4. Read every chapter for broad design, redesign, implementation, or full-interface review.
-5. When planning or preparing UI creation or editing, use an available image-generation tool to show a raster visual proposal instead of describing the intended appearance only.
-   Keep deterministic UI, simple wireframes, existing vector assets, and design-system elements code-native.
-6. Resolve issues in this order: blocked or unsafe flow, lost work or missing recovery, missing states, accessibility, hierarchy and wording, interaction feedback, visual coherence, then delight.
-7. Evaluate with realistic content, viewports, inputs, text sizes, accessibility preferences, and interaction speeds.
+1. Establish the user's goal and inspect the existing flow, platform conventions, and design system.
+2. Apply the constraints below and verify the result against the completion standard.
 
-## Rules
+## Product fit
 
-- Treat product behavior, interaction, content, visual design, accessibility, responsiveness, and motion as one system; the interface is done when they work together.
-- Prefer the simplest complete experience, not the fewest visible elements.
-- Design the common path first, disclose advanced capability progressively, and keep expert use fast.
-- Use the existing design system when it serves the intended behavior; extend it only when a needed behavior or visual language is missing.
-- Treat accessibility failures as functional defects.
-- Distinguish evidence, inference, and aesthetic preference. Explain important choices through their effect on the user experience.
+- Derive the interface from the product's tasks, content, platform, existing system, and intended character.
+- When comparing directions, vary workflow, hierarchy, density, state handling, responsiveness, or interaction—not merely color and radius. Recommend one direction from the user's goal and constraints.
+
+## Design-system boundary
+
+- Follow the established design system, including its components, patterns, semantic tokens, typography, iconography, density, and motion.
+- Treat deviations and extensions as exceptions. Explain the unmet need and get explicit user approval before introducing a new component, token, pattern, or visual language.
+- When an existing component cannot support the intended behavior, propose a system-level extension instead of forcing a poor interaction or adding a one-off substitute.
+
+## User preferences
+
+- Prefer icons paired with text labels.
+
+## Review protocol
+
+Report concrete issues in descending user impact:
+
+1. Blocked, unsafe, destructive, or unrecoverable flows
+2. Missing states, broken responsiveness, or inaccessible interaction
+3. Unclear hierarchy, navigation, wording, or action priority
+4. Missing, delayed, misleading, or excessive feedback
+5. Inconsistent visual or interaction language
+6. Polish opportunities that improve trust, personality, or delight
+
+For each issue, identify the affected user goal, current behavior, recommended behavior, and reason. Distinguish evidence, inference, and aesthetic preference.
+
+## Completion standard
+
+Do not call the work complete until the primary task, relevant failure and recovery paths, accessibility behavior, realistic content, and relevant viewport and input modes work as one coherent experience.

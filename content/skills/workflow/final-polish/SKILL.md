@@ -7,28 +7,22 @@ Use this flow after an approved implementation plan when the change spans many f
 
 ## Workflow
 
-1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions.
+1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions. The main agent owns implementation, synthesis, triage, integration, and final reporting.
 2. When the diff crosses a producer-consumer contract, inventory both sides and compare shape, naming, requiredness, nullability, values, defaults, authorization, errors, versioning, and transforms.
    Classify each unit as `aligned`, `breaking`, `unsafe`, `stale`, or `ambiguous`; fix or report every non-aligned unit.
-3. Run $code-simplifier as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed.
+3. Run $code-simplifier as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed; only these subagents may edit.
 4. Run $test-writing to audit coverage and close approved worthwhile behavior gaps.
-5. Run $code-review as a Standards review in a fresh subagent.
+5. Run $code-review as a Standards review in a fresh subagent. Delegate every review or opportunity
+   pass to fresh-context subagents, running independent passes in parallel where possible; if
+   subagents are unavailable, report missing passes rather than simulating them.
 6. Triage and report every review finding without fixing it. Treat findings as proposed next work; any blocker prevents the readiness gate.
 7. Run $verification as the final verification and fix loop.
 8. Run one final fresh reviewer gate in a subagent and report its findings without fixing them.
 9. Run $refactor-opportunities as a final suggestion pass in a fresh subagent.
-10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made outside review passes, review findings, deferred items, and human review focus.
-
-## Rules
-
-- Delegate $code-simplifier, $refactor-opportunities, $code-review, and every review gate to fresh-context subagents.
-- If subagents are unavailable, report the missing passes instead of simulating them.
-- Only $code-simplifier subagents may edit; review and opportunity subagents are read-only.
-- The main agent owns implementation, synthesis, triage, integration, final reporting, and whether another simplifier pass is needed.
-- Run independent subagent reviews, inspections, or disjoint edit scopes in parallel whenever possible.
-- Present $code-review, final reviewer gate, and $refactor-opportunities findings to the user after the implementation is complete. Treat them as proposed next work, not as work to silently perform.
-
-- Finish with this shape:
+10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made
+    outside review passes, review findings, deferred items, and human review focus. Present
+    $code-review, final reviewer-gate, and $refactor-opportunities findings as proposed follow-up,
+    not silent implementation; omit empty sections and use this shape:
 
 ```text
 READY FOR HUMAN REVIEW
@@ -57,5 +51,3 @@ Refactor opportunities:
 Human review focus:
 - <areas where human judgment is useful>
 ```
-
-- Omit empty sections.

@@ -6,6 +6,7 @@ description: AI agent skill creation and maintenance, including updates, renames
 ## Content
 
 - Assume the agent is already capable. Keep only task-specific knowledge.
+- Remove textbook material and general model knowledge unless it is necessary task-specific context.
 - Put trigger guidance in the description, not the body. The description is the invocation contract.
 - Minimal means low interpretation cost, not lowest word count.
 - Omit empty sections and extra headings unless they make repeated execution clearer.
@@ -25,6 +26,7 @@ description: AI agent skill creation and maintenance, including updates, renames
 - Use YAML frontmatter with `name` and `description`.
 - `name`: lowercase, hyphenated, and matches the folder name exactly.
 - `description`: start with the leading domain or action, say what the skill does, and list only distinct trigger branches.
+- If a reference would be loaded on every invocation, inline it into `SKILL.md`; reserve references for conditional branches.
 - Reference another skill with the `$name` form so renames, removals, and typos are validated.
 - Prefer clear examples over abstract explanation.
 - Co-locate each concept's rule, caveat, and completion signal under one heading instead of scattering them.
