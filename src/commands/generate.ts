@@ -10,6 +10,11 @@ import { join } from "path";
 import { CODEX_CONFIG } from "../../config/codex";
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir } from "../lib/fs";
+import { compactOutput } from "../lib/print";
+
+function log(message = ""): void {
+  if (!compactOutput) console.log(message);
+}
 
 // =============================================================================
 // Paths
@@ -28,13 +33,13 @@ const CODEX_DIR = join(OUTPUT_DIR, "codex");
 // =============================================================================
 
 async function generateOpencodeConfig(): Promise<void> {
-  console.log("  [OpenCode] Generating config...");
+  log("  [OpenCode] Generating config...");
 
   await writeFile(
     join(OPENCODE_DIR, "opencode-config.json"),
     JSON.stringify(createOpencodeConfig("<home>"), null, 2) + "\n",
   );
-  console.log("    Generated opencode-config.json");
+  log("    Generated opencode-config.json");
 }
 
 // =============================================================================
@@ -42,7 +47,7 @@ async function generateOpencodeConfig(): Promise<void> {
 // =============================================================================
 
 async function generateCodexConfig(): Promise<void> {
-  console.log("  [Codex] Generating config...");
+  log("  [Codex] Generating config...");
 
   const lines: string[] = [
     "# Managed by my-setup. Do not edit by hand.",
@@ -59,11 +64,11 @@ async function generateCodexConfig(): Promise<void> {
   ];
 
   await writeFile(join(CODEX_DIR, "config.toml"), lines.join("\n"));
-  console.log("    Generated config.toml");
+  log("    Generated config.toml");
 }
 
 export async function generate(): Promise<void> {
-  console.log("\nGenerating files for OpenCode and Codex...\n");
+  log("\nGenerating files for OpenCode and Codex...\n");
 
   if (!existsSync(CONTENT_DIR)) {
     console.error(`ERROR: Content directory not found: ${CONTENT_DIR}`);
@@ -80,24 +85,24 @@ export async function generate(): Promise<void> {
   await ensureDir(OPENCODE_DIR);
 
   // Generate OpenCode
-  console.log("OpenCode:");
+  log("OpenCode:");
   await generateOpencodeConfig();
 
-  console.log();
+  log();
 
   // Generate Codex
-  console.log("Codex:");
+  log("Codex:");
   await generateCodexConfig();
 
-  console.log("\n" + "=".repeat(50));
-  console.log("Generation complete!");
-  console.log("=".repeat(50));
-  console.log(`\nOutput directories:`);
-  console.log(`  OpenCode:    ${OPENCODE_DIR}/`);
-  console.log(`  Codex:       ${CODEX_DIR}/`);
-  console.log(`\nSummary:`);
-  console.log(`  OpenCode:    config`);
-  console.log(`  Codex:       config`);
+  log("\n" + "=".repeat(50));
+  log("Generation complete!");
+  log("=".repeat(50));
+  log(`\nOutput directories:`);
+  log(`  OpenCode:    ${OPENCODE_DIR}/`);
+  log(`  Codex:       ${CODEX_DIR}/`);
+  log(`\nSummary:`);
+  log(`  OpenCode:    config`);
+  log(`  Codex:       config`);
 }
 
 if (import.meta.main) {

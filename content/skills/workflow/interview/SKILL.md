@@ -1,53 +1,29 @@
 ---
 name: interview
-description: >-
-  Structured multi-turn interviewing for goals, experiences, requirements, decisions, constraints,
-  and understanding before downstream work. Use automatically when multiple dependent, high-impact
-  unknowns require sustained user input, when the user asks to be interviewed, or when another
-  workflow delegates an interview; do not use for one-off clarification or discoverable facts.
+description: Structured interviewing when requested or when multiple dependent, high-impact unknowns require sustained user input.
 ---
 
-## Entry
+## Workflow
 
-1. Start an interview only when all are true:
-   - Multiple dependent unknowns remain.
-   - Guessing could materially change the outcome.
-   - Available code, documents, tools, or research cannot answer them.
-   - One focused clarification would not resolve them.
-2. Inspect available evidence before asking the user anything it can answer.
-3. Announce the interview, name the uncertainty that triggered it, explain that questions will come one at a time, and say the original workflow will resume after confirmation.
-4. Let the user skip the interview, stop it, or delegate decisions to the agent.
-5. Establish the interview objective and track topics as `resolved`, `open`, `assumed`, or `deferred`.
+1. Inspect available evidence first. Begin only when the user requests or another workflow delegates an interview, or when multiple dependent, high-impact unknowns remain and one clarification cannot resolve them.
+2. Ask the user to choose the interview depth before any other question:
+   - `Brief`: cover only the highest-impact unknowns.
+   - `Standard`: cover every material decision and constraint.
+   - `Exhaustive`: build a thorough topic map, probe edge cases, and challenge consequential assumptions.
+3. State the objective and uncertainty, then track each topic as `resolved`, `open`, `assumed`, or `deferred`.
+4. Ask up to three questions together when they are independent and none requires an earlier
+   answer. Ask dependent questions one at a time. For decisions, offer a few distinct options with
+   consequential trade-offs and signal them as 🟢 recommended, 🟡 viable with meaningful trade-offs,
+   or 🔴 discouraged.
+5. Follow answers that can change the outcome at the selected depth. Challenge consequential assumptions with evidence, explain why the tension matters, then ask the next question. Stop probing harmless uncertainty.
+6. Finish when every material topic required by the selected depth is resolved, assumed, or deferred. Synthesize the interview then persist it using the contract below, and resume the calling workflow. 
+7. If the user stops, return the partial topic map immediately without persisting it.
 
-## Interview
+## Persistence
 
-1. Ask one focused question per turn and wait for the answer. Use an available question or user-input tool whenever it can represent the question; otherwise ask in a normal reply.
-2. For experiences or facts, use open, neutral questions and probe for concrete past examples.
-3. For decisions or preferences, offer a small set of distinct options when useful; explain the consequential trade-off and recommend one when it clearly wins.
-   Prefix each option with a recommendation signal: 🟢 recommended, 🟡 viable with meaningful trade-offs, or 🔴 discouraged. Use at most one 🟢 unless the options are genuinely tied.
-4. Follow meaningful answers instead of walking a rigid checklist. Close the current topic before moving to an unrelated branch unless the answer changes the interview structure.
-5. Update the topic map after every answer. Summarize when a branch closes, the conversation drifts, or the user needs orientation.
-6. Do not prolong the interview to eliminate harmless uncertainty. Continue only while the next answer could change the downstream outcome.
-
-## Challenge and Teach
-
-- Actively challenge consequential assumptions, contradictions, vague abstractions, premature solutions, and avoided trade-offs.
-- Challenge by stating the evidence or tension, explaining why it matters, then asking one focused question.
-- Teach only the context needed for an informed answer. Give practical alternatives, their trade-offs, and an opinionated recommendation before returning to the question.
-- Do not manufacture objections, turn every answer into a debate, overwhelm the user with a lecture, or decide user-owned values without permission.
-- Increase the intensity only when the user explicitly asks to be grilled or stress-tested.
-
-## Completion and Handoff
-
-1. Finish when the interview objective is covered and every material topic is resolved, explicitly assumed, or deferred.
-2. Present a concise synthesis containing only applicable fields:
-   - Objective
-   - Key decisions
-   - Constraints
-   - Non-goals
-   - Assumptions
-   - Deferred or unresolved items
-3. Ask the user to confirm that the synthesis is accurate. Fold corrections back into it until confirmation is explicit.
-4. After confirmation, return the synthesis to the calling workflow and resume the original task automatically.
-5. Do not create a spec, plan, file, or other persistent artifact unless the user or calling workflow requested it.
-6. If the user stops or cancels, stop immediately and return the partial topic map without pressing for confirmation or continuing downstream work.
+- Save completed interviews under `~/interviews/<project-name>/` as
+  `<YYYY-MM-DD>-<objective-slug>.md`.
+- Include `created`, `updated`, `project`, `depth`, and `description` frontmatter, followed by the
+  confirmed synthesis.
+- Refresh `INDEX.md` with active interviews ordered by most recently updated.
+- Do not create a spec or plan from the interview; downstream workflows own those artifacts.

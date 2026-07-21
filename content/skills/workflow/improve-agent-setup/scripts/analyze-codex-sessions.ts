@@ -2,6 +2,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { Database } from "bun:sqlite";
 
 type JsonObject = Record<string, unknown>;
 
@@ -22,6 +23,7 @@ type SessionSummary = {
   totalOutput: number;
   baseInstructionBytes: number;
   userInstructionBytes: number;
+  firstUserMessage: string;
   imageMessages: number;
   imageBytes: number;
   execOutputs: number;
@@ -37,6 +39,18 @@ type CommandSummary = {
   truncated: number;
 };
 
+type TaskTreeSummary = {
+  rootId: string;
+  title: string;
+  cwd: string;
+  sessions: number;
+  descendants: number;
+  maxDepth: number;
+  totalInput: number;
+  repeatedRootRequest: number;
+  highStartupDescendants: number;
+};
+
 const home = process.env.HOME || "";
 const args = new Map<string, string>();
 
@@ -50,7 +64,8 @@ Options:
   --limit <number>      Maximum ranked items per section. Default: 12.
   --cwd <path>          Include only sessions for this working directory.
   --since <date>        Include sessions modified on or after this date.
-  --since-mtime <time>  Include sessions modified after this epoch time.`);
+  --since-mtime <time>  Include sessions modified after this epoch time.
+  --state-db <path>     Codex state database. Default: ~/.codex/state_5.sqlite.`);
   process.exit(0);
 }
 
@@ -69,6 +84,7 @@ const root = args.get("root") || join(home, ".codex", "sessions");
 const days = Number(args.get("days") || 14);
 const limit = Number(args.get("limit") || 12);
 const cwdFilter = args.get("cwd");
+const stateDbPath = args.get("state-db") || join(home, ".codex", "state_5.sqlite");
 const since = resolveSince();
 
 function resolveSince(): number {
@@ -123,12 +139,31 @@ function asNumber(value: unknown): number {
   return typeof value === "number" ? value : 0;
 }
 
+function messageText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (!Array.isArray(value)) return "";
+
+  return value
+    .map((item) => {
+      const content = asObject(item);
+      return asString(content.text) || asString(content.input_text);
+    })
+    .filter(Boolean)
+    .join("\n")
+    .trim();
+}
+
 function byteLength(value: string): number {
   return Buffer.byteLength(value);
 }
 
 function approxTokens(bytes: number): number {
   return Math.round(bytes / 4);
+}
+
+function shortText(value: string, limit = 72): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  return normalized.length > limit ? `${normalized.slice(0, limit - 1)}…` : normalized;
 }
 
 function normalizePath(path: string): string {
@@ -192,6 +227,72 @@ function printTable<T>(items: T[], columns: Array<[string, (item: T) => string |
   }
 }
 
+function loadTaskTrees(sessions: SessionSummary[]): TaskTreeSummary[] {
+  if (!existsSync(stateDbPath) || sessions.length === 0) return [];
+
+  const database = new Database(stateDbPath, { readonly: true });
+  try {
+    const threads = database
+      .query("SELECT id, title, cwd, first_user_message FROM threads")
+      .all() as Array<{ id: string; title: string; cwd: string; first_user_message: string }>;
+    const edges = database
+      .query("SELECT parent_thread_id, child_thread_id FROM thread_spawn_edges")
+      .all() as Array<{ parent_thread_id: string; child_thread_id: string }>;
+    const threadById = new Map(threads.map((thread) => [thread.id, thread]));
+    const parentByChild = new Map(
+      edges.map(({ parent_thread_id, child_thread_id }) => [child_thread_id, parent_thread_id]),
+    );
+    const sessionById = new Map(
+      sessions.filter(({ id }) => id).map((session) => [session.id, session]),
+    );
+    const groups = new Map<
+      string,
+      Array<{ session: SessionSummary; depth: number; request: string }>
+    >();
+
+    for (const session of sessionById.values()) {
+      let rootId = session.id;
+      let depth = 0;
+      const visited = new Set<string>();
+
+      while (parentByChild.has(rootId) && !visited.has(rootId)) {
+        visited.add(rootId);
+        rootId = parentByChild.get(rootId) || rootId;
+        depth++;
+      }
+
+      const request = threadById.get(session.id)?.first_user_message || session.firstUserMessage;
+      const members = groups.get(rootId) || [];
+      members.push({ session, depth, request });
+      groups.set(rootId, members);
+    }
+
+    return Array.from(groups.entries())
+      .map(([rootId, members]): TaskTreeSummary => {
+        const rootThread = threadById.get(rootId);
+        const rootRequest =
+          rootThread?.first_user_message || members.find(({ depth }) => depth === 0)?.request || "";
+        const descendants = members.filter(({ depth }) => depth > 0);
+        return {
+          rootId,
+          title: rootThread?.title || rootRequest || rootId,
+          cwd: rootThread?.cwd || members[0]?.session.cwd || "",
+          sessions: members.length,
+          descendants: descendants.length,
+          maxDepth: Math.max(...members.map(({ depth }) => depth)),
+          totalInput: members.reduce((sum, { session }) => sum + session.totalInput, 0),
+          repeatedRootRequest: descendants.filter(({ request }) => request === rootRequest).length,
+          highStartupDescendants: descendants.filter(({ session }) => session.firstInput >= 50_000)
+            .length,
+        };
+      })
+      .filter(({ descendants }) => descendants > 0)
+      .sort((a, b) => b.totalInput - a.totalInput);
+  } finally {
+    database.close();
+  }
+}
+
 if (!existsSync(root)) {
   console.error(`Codex sessions directory not found: ${root}`);
   process.exit(1);
@@ -221,6 +322,7 @@ for (const file of files) {
     totalOutput: 0,
     baseInstructionBytes: 0,
     userInstructionBytes: 0,
+    firstUserMessage: "",
     imageMessages: 0,
     imageBytes: 0,
     execOutputs: 0,
@@ -284,6 +386,9 @@ for (const file of files) {
     }
 
     if (type === "response_item" && payload.type === "message" && payload.role === "user") {
+      if (!summary.firstUserMessage) {
+        summary.firstUserMessage = messageText(payload.content);
+      }
       const content = JSON.stringify(payload.content || "");
 
       if (content.includes("data:image")) {
@@ -354,6 +459,13 @@ const firstInputs = sessions
 const averageFirstInput = firstInputs.length
   ? Math.round(firstInputs.reduce((sum, value) => sum + value, 0) / firstInputs.length)
   : 0;
+let taskTrees: TaskTreeSummary[] = [];
+let taskTreeError = "";
+try {
+  taskTrees = loadTaskTrees(sessions);
+} catch (error) {
+  taskTreeError = error instanceof Error ? error.message : String(error);
+}
 
 console.log(`# Codex Session Context Audit\n`);
 console.log(
@@ -379,7 +491,25 @@ console.log(
 );
 console.log(`Image messages: ${images} (~${approxTokens(imageBytes).toLocaleString()} tokens)\n`);
 
-console.log(`## Largest Sessions\n`);
+console.log(`## Largest Task Trees\n`);
+if (taskTrees.length > 0) {
+  printTable(taskTrees.slice(0, limit), [
+    ["input", (item) => item.totalInput.toLocaleString()],
+    ["sessions", (item) => item.sessions],
+    ["desc", (item) => item.descendants],
+    ["depth", (item) => item.maxDepth],
+    ["repeat request", (item) => item.repeatedRootRequest],
+    ["50k+ startup", (item) => item.highStartupDescendants],
+    ["cwd", (item) => item.cwd.replace(home, "~")],
+    ["root", (item) => shortText(item.title)],
+  ]);
+} else if (taskTreeError) {
+  console.log(`Task-tree diagnostics unavailable: ${taskTreeError}`);
+} else {
+  console.log(`No multi-task trees detected in this window.`);
+}
+
+console.log(`\n## Largest Sessions\n`);
 printTable(
   sessions
     .slice()
@@ -420,14 +550,16 @@ printTable(
     ["first input", (item) => item.firstInput.toLocaleString()],
     ["base", (item) => approxTokens(item.baseInstructionBytes).toLocaleString()],
     ["project", (item) => approxTokens(item.userInstructionBytes).toLocaleString()],
+    ["request", (item) => approxTokens(byteLength(item.firstUserMessage)).toLocaleString()],
     [
-      "other",
+      "runtime/history",
       (item) =>
         Math.max(
           0,
           item.firstInput -
             approxTokens(item.baseInstructionBytes) -
-            approxTokens(item.userInstructionBytes),
+            approxTokens(item.userInstructionBytes) -
+            approxTokens(byteLength(item.firstUserMessage)),
         ).toLocaleString(),
     ],
     ["cwd", (item) => item.cwd.replace(home, "~")],
@@ -449,6 +581,11 @@ if (images) {
 if (averageFirstInput > 20_000) {
   console.log(
     `- Review always-loaded rules, enabled tools, MCPs, and skill descriptions for startup bloat.`,
+  );
+}
+if (taskTrees.some(({ highStartupDescendants }) => highStartupDescendants > 0)) {
+  console.log(
+    `- Give independent subagents no inherited turns and pass only the smallest explicit context needed.`,
   );
 }
 if (compactions) {

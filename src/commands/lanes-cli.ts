@@ -3,16 +3,38 @@
 import { cac } from "cac";
 
 import {
+  projectLaneSimulatorsApply,
+  projectLaneSimulatorsRestore,
+  projectLaneSimulatorsStatus,
   projectLanesDestroy,
+  projectLanesAudit,
   projectLanesReset,
   projectLanesSetup,
   projectLanesStatus,
   projectLanesVerify,
 } from "./project-lanes";
 
+interface SimulatorOptions {
+  json?: boolean;
+  mode?: "project" | "full";
+}
+
+interface CompactOptions {
+  compact?: boolean;
+}
+
+interface AuditOptions extends CompactOptions {
+  mobile?: boolean;
+}
+
 const cli = cac("lanes");
 
-cli.command("setup [project]", "Create and provision missing lanes").action(projectLanesSetup);
+cli
+  .command("setup [project]", "Create and provision missing lanes")
+  .option("--compact", "Print only the final result and failures")
+  .action((project: string | undefined, options: CompactOptions) =>
+    projectLanesSetup(project, options.compact),
+  );
 
 cli
   .command("status [project]", "Show lane readiness")
@@ -21,7 +43,44 @@ cli
     projectLanesStatus(project, options.json);
   });
 
-cli.command("verify [project]", "Verify lane environments").action(projectLanesVerify);
+cli
+  .command("verify [project] [lane]", "Verify the current or explicitly named lane")
+  .option("--compact", "Print only the final result and failures")
+  .action((project: string | undefined, lane: string | undefined, options: CompactOptions) =>
+    projectLanesVerify(project, lane, options.compact),
+  );
+
+cli
+  .command("audit [project]", "Audit every configured lane environment")
+  .option("--mobile", "Include mobile-development verification for every lane")
+  .option("--compact", "Print only the final result and failures")
+  .action((project: string | undefined, options: AuditOptions) =>
+    projectLanesAudit(project, options.mobile, options.compact),
+  );
+
+cli
+  .command(
+    "simulators <operation> [project]",
+    "Manage SimSlim profiles (status, apply, or restore)",
+  )
+  .option("--mode <mode>", "Profile to apply or verify: project or full", {
+    default: "project",
+  })
+  .option("--json", "Print machine-readable status")
+  .action(
+    (operation: string, project: string | undefined, options: SimulatorOptions): Promise<void> => {
+      if (operation === "status") {
+        return projectLaneSimulatorsStatus(project, options.mode, options.json);
+      }
+      if (operation === "apply") {
+        return projectLaneSimulatorsApply(project, options.mode, options.json);
+      }
+      if (operation === "restore") {
+        return projectLaneSimulatorsRestore(project, options.json);
+      }
+      throw new Error(`Unknown simulator operation: ${operation}`);
+    },
+  );
 
 cli.command("reset <project> <lane>", "Reset one idle lane").action(projectLanesReset);
 

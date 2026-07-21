@@ -19,6 +19,8 @@ mise run tools:update:plan
 
 After running update commands, run `mise run install` again. Some installers may append shell setup directly to `~/.zshrc`; if the install fails the thin-`.zshrc` check, move any new shell setup into `shell/zsh-custom.zsh`, restore `~/.zshrc` to only source `~/.config/zsh-sync/custom.zsh`, then rerun `mise run install`.
 
+Use `mise run install -- --compact` in agent workflows to keep successful installation output to one line while preserving warnings and failures.
+
 ## Core Repo Tools
 
 These are the commands the repo itself relies on for install and day-to-day local use.
@@ -33,7 +35,7 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, `solo`, and `jq` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, `simslim`, `solo`, and `jq` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
 
 | Tool            | Why this repo assumes it                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,6 +44,7 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `opencode`      | `ai` launcher and OpenCode workflows use it.                                                                                           |
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
+| `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
 | `rtk`           | Reduces noisy command output before it reaches AI agent context.                                                                       |
 | `solo`          | Controls Solo projects, processes, dev servers, logs, todos, and scratchpads through the Solo HTTP control plane.                      |
 | `jq`            | Reads Solo's local HTTP API discovery file for raw API fallback workflows.                                                             |
@@ -55,6 +58,20 @@ These are referenced by synced shell config, helper commands, or installed workf
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer.
 Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
 Install `agent-device` with `npm install -g agent-device`.
+Install SimSlim 0.2.0 or newer with `brew install mobai-app/tap/simslim`.
+
+## Persistent Lane Simulator Profiles
+
+Each active project can declare a safe SimSlim profile in `config/active-projects.ts`. Lane setup applies that profile after installing the Herd certificate, and lane verification requires the exact expected service set.
+
+```bash
+lanes simulators status [project]
+lanes simulators apply [project]
+lanes simulators apply [project] --mode full
+lanes simulators restore [project]
+```
+
+Commands operate sequentially, preserve each simulator's original boot state, and report every lane failure together. Project mode is the default; full mode is explicit because it can disable capabilities used by the app.
 
 ## Observability CLIs
 

@@ -1,23 +1,25 @@
 ---
 name: planning
-description: Planning workflow for in-chat plans by default, plus saved plan creation, updates, execution handoffs, review, reconciliation, and archiving only when the user explicitly asks to persist or manage a plan.
+description: Implementation planning and saved-plan management.
 ---
 
-## Default Workflow
+## Workflow
 
-1. Load `references/plan-shape.md` before writing a plan.
-2. Reply with the plan in the conversation.
-3. If the plan depends on blocking decisions, ask the user before finalizing it.
-4. Before finalizing the plan, run $refactor-opportunities against the affected code. Add a prefactor step only for recommended refactors that should precede the main change; omit optional cleanup.
-5. Do not create or update a plan file unless the user explicitly asks to save, persist, or manage a plan.
+1. Inspect the affected code and resolve blocking decisions before finalizing the plan. When questions are required, ask them without outputting a plan.
+2. Run $refactor-opportunities against the affected code. Add a prefactor step only when a recommended refactor should precede the main change; omit optional cleanup.
+3. Write the plan in the conversation using the shape below.
+4. When the user explicitly asks to persist or manage a plan, run `plan --help` and follow its current storage, frontmatter, indexing, and archiving contract.
 
-## Persisted Plans
+## Plan Shape
 
-Use this workflow only when the user explicitly asks to save or persist a plan, or to manage an existing saved plan.
-
-1. Load `references/plan-shape.md` and run `plan --help` before creating, updating, archiving, or executing a persisted plan.
-2. When reconciling saved plans, list the relevant plans, compare their code-dependent assumptions with current code, update only what the user authorized, and refresh the index after material changes.
-3. Store plans under `~/plans/<project-name>/` unless the user explicitly asks for a repo-local file.
-4. If the plan depends on blocking decisions, ask the user first. Do not create or update the plan until those decisions are answered.
-5. Treat every plan change as a file mutation followed by readback: update the saved plan, then show the updated plan or changed section.
-6. If a saved plan becomes wrong, preserve useful content, prune stale detail, revise the incorrect parts, and show the updated plan.
+- Keep plans short; expand only when a detailed plan is requested.
+- Include only work explicitly or implicitly agreed upon. Put uncommitted ideas in `✨ Extras`; they are outside the plan until the user selects them.
+- Use bullets for decisions and numbered lists for steps.
+- Use only relevant sections:
+  - `🎯 Product Decisions`: user story and UX decisions.
+  - `🛠️ Technical Decisions`: data model and architecture decisions.
+  - `🧭 Implementation Steps`: one dense line per step, including relevant technical details and symbol names.
+  - `✅ QA/Verification Steps`: manual flows and relevant automated or structural checks.
+  - `🔁 Migration Steps`: ordered backfill, data movement, or compatibility work.
+  - `📝 Updates`: later decisions or scope changes.
+  - `✨ Extras`: list of uncommitted nice-to-haves.

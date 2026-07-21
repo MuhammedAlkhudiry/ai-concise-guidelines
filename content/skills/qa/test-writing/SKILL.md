@@ -1,12 +1,12 @@
 ---
 name: test-writing
-description: Test coverage audits and test writing, review, or updates for a named behavior, feature, bug, or broad test surface.
+description: Test coverage audits, writing, and review.
 ---
 
 ## Workflow
 
 1. Classify the request as audit or review versus writing or updating, then trace the named behavior and its existing tests.
-2. Apply the test-quality rules below. For a repo, directory, suite, or other broad surface, also use $deep-work systematic mode and the repository-audit workflow.
+2. Apply the test-quality rules below. For a repo, directory, suite, or other broad surface, also use $systematic-work and the repository-audit workflow.
 3. For audit or review requests, report findings without editing. For writing or update requests, run the official focused test command and report coverage, changes, results, and remaining risk.
 
 ## Test quality

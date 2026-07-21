@@ -275,6 +275,7 @@ main() {
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool agent-browser required "Default AI-agent browser automation CLI."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."
+  check_tool simslim required "Install with brew install mobai-app/tap/simslim for persistent lane simulator slimming."
   check_tool rtk optional "Used to reduce noisy command output before it reaches AI agent context."
   check_tool fzf optional "Used by project pickers and interactive hosts/plan deletion."
   check_tool sg optional "Install ast-grep for AST-shaped code search."

@@ -161,6 +161,20 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "simslim",
+        level: "required",
+        why: "Applies and verifies the memory-saving service profile for persistent lane simulators.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "mobai-app/tap/simslim",
+        },
+        update: {
+          commands: ["brew upgrade mobai-app/tap/simslim"],
+          note: "Install with brew install mobai-app/tap/simslim. Persistent lanes require SimSlim 0.2.0 or newer.",
+        },
+      },
+      {
         name: "rtk",
         level: "optional",
         why: "Used to reduce noisy command output before it reaches AI agent context.",

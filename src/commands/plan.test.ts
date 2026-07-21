@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 
 import { describe, expect, test } from "bun:test";
 
-const script = join(dirname(fileURLToPath(import.meta.url)), "plan.ts");
+const script = join(dirname(fileURLToPath(import.meta.url)), "plan-cli.ts");
 
 function writePlan(root: string, project: string, file: string, title: string): void {
   const projectRoot = join(root, project);

@@ -1,4 +1,4 @@
-import { existsSync, readlinkSync, symlinkSync, unlinkSync } from "node:fs";
+import { existsSync, readFileSync, readlinkSync, symlinkSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 
@@ -19,6 +19,52 @@ export function artisanOutput(
   return output(context, step, context.phpCommand, [...context.phpArgsPrefix, "artisan", ...args], {
     cwd: context.backendDir,
   });
+}
+
+export function ensureLaravelAppKey(context: ProjectEnvironmentContext): void {
+  const envPath = resolve(context.backendDir, ".env");
+  if (!/^APP_KEY=base64:.+/m.test(readFileSync(envPath, "utf8"))) {
+    artisan(context, "app-key", ["key:generate", "--force"]);
+  }
+}
+
+export function reindexLaravelScoutModels(context: ProjectEnvironmentContext): void {
+  const script = [
+    "config(['scout.queue' => false]);",
+    "$models = collect(Illuminate\\Support\\Facades\\File::allFiles(app_path('Models')))",
+    "    ->map(function ($file) {",
+    "        $relative = str_replace(DIRECTORY_SEPARATOR, '\\\\', $file->getRelativePath());",
+    "        return app()->getNamespace().'Models\\\\'.($relative ? $relative.'\\\\' : '').$file->getFilenameWithoutExtension();",
+    "    })",
+    "    ->filter(fn ($model) => class_exists($model)",
+    "        && is_subclass_of($model, Illuminate\\Database\\Eloquent\\Model::class)",
+    "        && ! (new ReflectionClass($model))->isAbstract()",
+    "        && in_array(Laravel\\Scout\\Searchable::class, class_uses_recursive($model), true));",
+    "foreach ($models as $model) {",
+    '    echo "Importing {$model}\\n";',
+    "    $model::makeAllSearchable();",
+    "}",
+  ].join("\n");
+  artisan(context, "search", ["tinker", "--execute", script]);
+}
+
+export function deleteLaravelS3Bucket(
+  context: ProjectEnvironmentContext,
+  options: { allowFailure?: boolean } = {},
+): void {
+  run(
+    context,
+    "clean:storage",
+    context.phpCommand,
+    [
+      ...context.phpArgsPrefix,
+      "artisan",
+      "tinker",
+      "--execute",
+      "$disk = Storage::disk('s3'); foreach ($disk->allFiles() as $file) { $disk->delete($file); } try { $disk->getClient()->deleteBucket(['Bucket' => config('filesystems.disks.s3.bucket')]); } catch (Throwable $exception) { report($exception); }",
+    ],
+    { cwd: context.backendDir, allowFailure: options.allowFailure },
+  );
 }
 
 export function trustMise(context: ProjectEnvironmentContext): void {

@@ -1,22 +1,25 @@
-# Mobile Store Release
+# Store Release
 
-Use this for Expo/EAS releases, submission checks, readiness, and store API credentials.
+Use project instructions, release scripts, Expo config, `eas.json`, verification requirements, current
+CLI help, provider documentation, API schemas, and live account state as the release contract.
 
 ## Workflow
 
-1. Run the discovery and confirmation pass from [store-expo-eas-release.md](store-expo-eas-release.md).
-2. Use $service-access when store access or credentials are missing.
-3. Use [store-expo-eas-release.md](store-expo-eas-release.md) for the release sequence.
-4. Use [store-status-apis.md](store-status-apis.md) for Google Play and App Store Connect status checks.
-5. Run `scripts/mobile-store-status.ts --help` before using the read-only status script.
-6. For releases or incidents involving native social sign-in, verify store signing identity against provider OAuth clients before assuming app-code failure.
-7. Pause before final review/live actions unless the user already explicitly confirmed the full release.
-8. Report exact states per platform. Do not call a release live from build or upload output alone.
+1. Resolve the target branch, local changes, version strategy, native build numbers, build and submit
+   profiles, app identifiers, store targets, signed artifact identity, verification, and release metadata.
+2. Use $service-access for EAS, Google Play, App Store Connect, Google Cloud, or Sign in with Apple access.
+3. Run project-owned verification. Change versions only through the discovered version strategy and
+   use the established build and submission path.
+4. Capture artifact IDs, signing identity, native versions, submission IDs, links, timestamps, and the
+   exact live state from EAS and each store.
+5. Promote or attach an artifact already present in a store instead of rebuilding or uploading it only
+   to obtain status.
+6. Continue through every available release step until each app is waiting for review or reaches the
+   store's equivalent state. Do not stop at an intermediate status or ask for another confirmation.
 
-## Boundaries
+Keep `built`, `submitted`, `waiting for review`, `in review`, `rolling out`, and `live` distinct. Stop
+only for rebuild requirements, signing or provisioning failures, version conflicts, policy rejection,
+or unresolved product decisions about rollout, compliance, pricing, privacy, or availability. When an
+authorized API cannot perform a required action, hand off that exact manual step.
 
-- Keep project-specific app IDs, credential paths, package names, release notes, and commands in the project repo or local config.
-- Do not make screenshots part of the default release path.
-- Prefer existing project scripts for builds and submissions.
-- Keep project release-status command wrappers optional; do not require project build/check tools to include release tasks.
-- Stop for bundle, signing, versioning, or policy issues that require a rebuild or product decision.
+Never automate App Store Connect through a browser. Use its API and report unsupported actions as manual blockers.

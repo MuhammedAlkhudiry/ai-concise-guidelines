@@ -1,7 +1,12 @@
 import { homedir } from "node:os";
-import { basename, resolve } from "node:path";
+import { resolve } from "node:path";
 
 import type { ProjectEnvironmentContext, ProjectEnvironmentDefinition } from "./types";
+
+function commaSeparatedEnvironmentValue(name: string): string[] {
+  const value = process.env[name];
+  return value ? value.split(",").filter(Boolean) : [];
+}
 
 export function createProjectEnvironmentContext(
   definition: ProjectEnvironmentDefinition,
@@ -14,11 +19,14 @@ export function createProjectEnvironmentContext(
     );
   }
   const root = resolve(definitionRoot ?? configuredRoot ?? definition.defaultRoot);
-  const match = /(?:^|-)lane-(\d+)$/.exec(basename(root));
-  if (!match) throw new Error(`${root} is not a configured lane path`);
-
-  const laneNumber = Number(match[1]);
-  const lane = `lane-${laneNumber}`;
+  const lane = process.env.PROJECT_LANE_ID;
+  const laneNumber = Number(process.env.PROJECT_LANE_NUMBER);
+  if (!lane || !Number.isSafeInteger(laneNumber) || laneNumber < 1) {
+    throw new Error("PROJECT_LANE_ID and a positive PROJECT_LANE_NUMBER are required");
+  }
+  if (lane !== `lane-${laneNumber}`) {
+    throw new Error(`Lane identity mismatch: ${lane} does not match lane number ${laneNumber}`);
+  }
   const site = `${definition.id}-${lane}`;
   const prefix = site.replace(/[^a-zA-Z0-9]+/g, "_").toLowerCase();
   const bucket = site;
@@ -42,6 +50,7 @@ export function createProjectEnvironmentContext(
     simulatorName: `${definition.name} Lane ${laneNumber}`,
     soloProjectName: site,
     herdBin,
+    herdCertificateAuthority: resolve(herdBin, "../config/valet/CA/LaravelValetCASelfSigned.pem"),
     herdCommand: process.env.HERD_COMMAND ?? resolve(herdBin, "herd"),
     phpCommand: process.env.PHP_BIN ?? resolve(herdBin, "herd"),
     phpArgsPrefix: process.env.PHP_BIN ? [] : ["php"],
@@ -49,5 +58,14 @@ export function createProjectEnvironmentContext(
     composerArgsPrefix: process.env.COMPOSER_BIN ? [] : ["composer"],
     mysqlCommand: process.env.MYSQL_BIN ?? resolve(herdBin, "mysql"),
     phpVersion: definition.phpVersion ?? "8.4",
+    simulatorSlimming:
+      process.env.PROJECT_LANE_SIMSLIM_ENABLED === "1"
+        ? {
+            exceptCategories: commaSeparatedEnvironmentValue(
+              "PROJECT_LANE_SIMSLIM_EXCEPT_CATEGORIES",
+            ),
+            keepServices: commaSeparatedEnvironmentValue("PROJECT_LANE_SIMSLIM_KEEP_SERVICES"),
+          }
+        : undefined,
   };
 }

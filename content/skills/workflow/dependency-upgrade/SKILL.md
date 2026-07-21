@@ -1,46 +1,29 @@
 ---
 name: dependency-upgrade
-description: Dependency upgrades in JavaScript, PHP, Laravel, and React projects. Use when upgrading packages, removing unused dependencies, fixing upgrade breakage, or auditing dependency freshness.
+description: Dependency upgrades, freshness audits, and unused-package cleanup.
 ---
-
-# Dependency Upgrade
-
-Upgrade dependencies with proven coverage, controlled risk, and a clear per-package report.
 
 ## Workflow
 
-1. Define the target set: all dependencies, direct dependencies, security-only, framework/runtime, dev tooling, named packages, or another explicit scope.
-2. Inventory manifests, lockfiles, package managers, workspace boundaries, runtime versions, scripts, checks, and related source/test surfaces before changing versions.
-3. Derive current package commands and supported options from the selected package manager's help.
-   Use manifests, lockfiles, runtime metadata, current vendor upgrade guides, and advisories as the
-   dependency sources of truth; load $laravel or $react for stack-specific implementation
-   constraints.
-4. Research current official release notes, changelogs, upgrade guides, or advisories for direct dependencies with meaningful behavior changes, especially major upgrades.
-5. Classify each dependency by risk: low-risk tooling, leaf package, transitive/security-only, runtime/framework package, or cross-cutting application package.
-6. Upgrade in cohesive batches with the project's existing package manager and lockfile flow.
-7. Apply straightforward compatibility fixes directly, including renamed imports, option changes, config updates, simple callsite changes, type fixes, and related test updates.
-8. Skip and ask for approval before broad migrations, architecture changes, many-file API rewrites, unclear behavior changes, native rebuilds, or test-suite rewrites.
-9. Run the relevant checks after each risky batch and at the end.
-10. Re-check the inventory so every in-scope dependency is upgraded, intentionally skipped, or still blocked with a reason.
+1. Define the exact dependency scope and create the durable report before changing versions.
+2. Establish the package manager, workspace and runtime boundaries, official project checks, and every in-scope dependency from manifests and lockfiles.
+3. Use current package-manager help, manifests, lockfiles, runtime metadata, vendor release notes, upgrade guides, and advisories as sources of truth. Load $laravel or $react when applicable.
+4. Upgrade with the project's package manager and apply straightforward compatibility fixes. Ask before broad migrations, architecture changes, many-file rewrites, unclear behavior changes, native rebuilds, or test-suite rewrites.
+5. Verify risky batches and the final state. Finish only when every in-scope dependency is upgraded, removed, intentionally skipped, or blocked with a recorded reason.
 
-## Unused Packages
+## Unused packages
 
-- Search manifests, imports, config, scripts, service providers, tests, build tooling, and runtime integration before calling a package unused.
-- Remove clearly unused packages with the package manager, update the lockfile, and verify affected checks.
-- Ask approval before removing packages with unclear dynamic, framework, plugin, or production-only usage.
-- Report removed, kept, and unclear unused-package candidates with evidence.
+- Require evidence from manifests, imports, configuration, scripts, providers, tests, build tooling, and runtime integration before declaring a package unused.
+- Remove only clearly unused packages. Ask before removing anything with unclear dynamic, framework, plugin, or production-only usage.
+- Record removed, retained, and unclear candidates with evidence.
 
 ## Patching
 
-- Do not patch dependencies, vendor files, installed dependency directories, generated package output, or lockfile internals as a permanent fix.
-- Use temporary patches only to diagnose or unblock verification, then remove them before finishing.
-- Ask approval before keeping temporary patches or adding permanent patches, forks, aliases, Composer patches, `patch-package`, or monkey patches.
-- If an upgrade needs a permanent patch to work, skip it and report the approval request with cleaner alternatives.
+- Do not permanently modify vendor files, installed dependencies, generated package output, or lockfile internals.
+- Remove diagnostic patches before finishing. If an upgrade requires a patch, fork, alias, Composer patch, `patch-package`, or monkey patch, skip it and request approval with cleaner alternatives.
 
 ## Report
 
-Create a durable report file before changing versions. Keep it outside source control unless the user asks for a repo doc, share its path early, and update it after each dependency or batch.
-On resume, read the report before continuing. Final answers must link the report and include the latest status; never substitute a summary for the report.
-Create an entry for every in-scope dependency, including packages that were not upgraded.
-
-Each dependency entry includes package, ecosystem, old version, new version, upgrade reason, scan marker, dependency type, links used, notable changes, code/config/test changes, checks, patch status, and final status.
+- Create the report outside source control. Share its path early and update it after every dependency or batch.
+- On resume, read the report before continuing. Link it with the latest status in every final answer; a summary does not replace it.
+- Include every in-scope dependency, even when unchanged: package, ecosystem, old and new versions, reason, scan marker, dependency type, sources, notable changes, code/config/test changes, checks, patch status, and final status.

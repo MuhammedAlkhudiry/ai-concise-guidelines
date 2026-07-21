@@ -1,6 +1,0 @@
-interface:
-  display_name: "Task to PR"
-  short_description: "Carry an isolated task through draft PR"
-  default_prompt: "Use $task-to-pr to implement this task in an isolated workspace and open a verified draft pull request."
-policy:
-  allow_implicit_invocation: false

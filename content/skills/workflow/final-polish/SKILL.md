@@ -1,53 +1,45 @@
 ---
 name: final-polish
-description: Post-implementation hardening for broad approved changes before human review, especially before saying READY FOR HUMAN REVIEW.
+description: Post-implementation hardening before human review.
 ---
-
-Use this flow after an approved implementation plan when the change spans many files, behaviors, or review surfaces. Minor edits and small features do not need the full flow.
 
 ## Workflow
 
 1. Self-review the diff for scope creep, accidental churn, unjustified tests, meaningful missing coverage, and obvious regressions. The main agent owns implementation, synthesis, triage, integration, and final reporting.
 2. When the diff crosses a producer-consumer contract, inventory both sides and compare shape, naming, requiredness, nullability, values, defaults, authorization, errors, versioning, and transforms.
    Classify each unit as `aligned`, `breaking`, `unsafe`, `stale`, or `ambiguous`; fix or report every non-aligned unit.
-3. Run $code-simplifier as fresh-context subagent edit passes. After each pass, evaluate the result and decide whether another pass is needed; only these subagents may edit.
+3. Run $code-simplifier in self-contained subagents with no inherited turns. Pass the exact scope, diff target, and constraints. Evaluate each pass before starting another; only these subagents may edit.
 4. Run $test-writing to audit coverage and close approved worthwhile behavior gaps.
-5. Run $code-review as a Standards review in a fresh subagent. Delegate every review or opportunity
-   pass to fresh-context subagents, running independent passes in parallel where possible; if
+5. Run $code-review as a Standards review in a self-contained subagent with no inherited turns. Give every review or opportunity pass its exact target and requirements, running independent passes in parallel where possible; if
    subagents are unavailable, report missing passes rather than simulating them.
 6. Triage and report every review finding without fixing it. Treat findings as proposed next work; any blocker prevents the readiness gate.
 7. Run $verification as the final verification and fix loop.
-8. Run one final fresh reviewer gate in a subagent and report its findings without fixing them.
-9. Run $refactor-opportunities as a final suggestion pass in a fresh subagent.
-10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain, with checks run, fixes made
-    outside review passes, review findings, deferred items, and human review focus. Present
-    $code-review, final reviewer-gate, and $refactor-opportunities findings as proposed follow-up,
-    not silent implementation; omit empty sections and use this shape:
+8. Run one final self-contained reviewer gate in a subagent with no inherited conversation turns and report its findings without fixing them.
+9. Run $refactor-opportunities as a final self-contained suggestion pass with no inherited conversation turns.
+10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain. Present $code-review,
+    final reviewer-gate, and $refactor-opportunities findings as proposed follow-up, not silent
+    implementation. Give every pass its own section and state empty results explicitly:
 
-```text
-READY FOR HUMAN REVIEW
+```md
+# READY FOR HUMAN REVIEW
 
-Implemented:
-- <summary>
+## Code simplifier
 
-Subagent passes:
-- code-simplifier: <passes and result>
-- refactor-opportunities: <count and headline>
-- code-review: <count and headline, or none>
-- final reviewer gate: <count and headline, or clear>
+- <passes and result>
 
-Verification:
+## Refactor opportunities
+
+- <count, headline, and proposed items, or none>
+
+## Code review
+
+- <count, headline, and proposed findings, or none>
+
+## Final reviewer gate
+
+- <count, headline, and proposed findings, or clear>
+
+## Verification
+
 - <checks and results>
-
-Review findings:
-- <proposed follow-up items>
-
-Deferred:
-- <known non-blockers, skipped checks, or none>
-
-Refactor opportunities:
-- <recommended or optional items, or "No worthwhile refactor opportunities found">
-
-Human review focus:
-- <areas where human judgment is useful>
 ```

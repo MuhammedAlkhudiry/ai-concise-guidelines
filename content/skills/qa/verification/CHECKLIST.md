@@ -1,35 +1,18 @@
-# Verification Checklist Template
+# Verification Checklist
 
-Repo-root `CHECKLIST.md` should be a plain command list.
+Repo-root `CHECKLIST.md` is a plain command list:
 
 ```text
-# single repo
-composer rector:check
-composer phpstan
-bun run typecheck
-bun run lint
-bun run format:check
-php artisan test --parallel
-# optional when browser flows change: bun run test:e2e
+# app
+bun run check
 
-# apps/web
-bun --cwd apps/web run typecheck
-bun --cwd apps/web run lint
-
-# apps/api
-bun --cwd apps/api run test
-
-# packages/shared
-bun --cwd packages/shared run typecheck
+# api
+composer verify
 ```
 
-Rules:
-
-- One runnable verification command per line.
-- Keep only stable project-wide commands the agent should actually run.
-- Prefer the built-in parallel form when the tool supports it, such as `php artisan test --parallel`.
-- Use `#` comments only for useful notes or repo headers.
-- In monorepos, group commands under clear repo headers.
-- Include non-linting verification commands too, such as `rector`, `phpstan`, type-checkers, framework health checks, schema checks, or other required validators.
-- Do not include `build` commands unless build is explicitly part of the repo's required verification gate.
-- Replace the example commands with repo-specific commands.
+- Put one stable, runnable project-wide verification command on each line.
+- Use `#` comments for useful notes, conditional commands, or monorepo section labels.
+- Prefer a tool's built-in parallel form.
+- Include every required verification category, not only tests and lint.
+- Include builds only when the project treats them as part of its verification gate.
+- Replace every example with commands confirmed from the project and installed tool help.

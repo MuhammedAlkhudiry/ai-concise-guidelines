@@ -1,9 +1,6 @@
 ---
 name: product-health
-description: >-
-  Product health reports covering bugs, Sentry cleanup, slow paths,
-  infrastructure, PostHog and AI usage, observability gaps, and operations.
-  Use for product health checks and investigations.
+description: Product health checks, investigations, and reports.
 ---
 
 ## Workflow

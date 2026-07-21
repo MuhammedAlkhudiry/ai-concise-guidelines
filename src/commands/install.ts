@@ -32,7 +32,7 @@ import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { createLanesConfig } from "../lib/lanes-config";
 import { migrateManagedCredentials } from "../lib/credentials";
-import { colors, print, printBox, printSeparator } from "../lib/print";
+import { colors, compactOutput, print, printBox, printSeparator } from "../lib/print";
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
@@ -752,43 +752,49 @@ async function normalizeRemoteSkillName(skillPath: string, skillName: string): P
 // =============================================================================
 
 export async function install(): Promise<void> {
-  console.log();
-  printBox("My Setup - Installer");
-  console.log();
-  printSeparator();
-  console.log(colors.blue("Installing from local repo"));
-  console.log();
-  console.log(colors.blue("  OpenCode:"));
-  console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
-  console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
-  console.log();
-  console.log(colors.blue("  Codex:"));
-  console.log(`    Rules:    ${CODEX_PATHS.rules}`);
-  console.log(`    Config:   ${CODEX_PATHS.config} (managed merge)`);
-  console.log();
-  console.log(colors.yellow("  Shared:"));
-  console.log(
-    `    Skills:   ${SHARED_PATHS.skills} (managed sync, prune invalid, preserve valid custom)`,
-  );
-  console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
-  console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
-  console.log(`    Secrets:  ${SHARED_PATHS.secrets}`);
-  console.log(
-    `    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`,
-  );
-  printSeparator();
-  console.log();
+  if (!compactOutput) {
+    console.log();
+    printBox("My Setup - Installer");
+    console.log();
+    printSeparator();
+    console.log(colors.blue("Installing from local repo"));
+    console.log();
+    console.log(colors.blue("  OpenCode:"));
+    console.log(`    Rules:    ${OPENCODE_PATHS.rules}`);
+    console.log(`    Config:   ${OPENCODE_PATHS.config} (merge)`);
+    console.log();
+    console.log(colors.blue("  Codex:"));
+    console.log(`    Rules:    ${CODEX_PATHS.rules}`);
+    console.log(`    Config:   ${CODEX_PATHS.config} (managed merge)`);
+    console.log();
+    console.log(colors.yellow("  Shared:"));
+    console.log(
+      `    Skills:   ${SHARED_PATHS.skills} (managed sync, prune invalid, preserve valid custom)`,
+    );
+    console.log(`    Zsh:      ${SHARED_PATHS.zsh}`);
+    console.log(`    Zshenv:   ${SHARED_PATHS.zshenv}`);
+    console.log(`    Secrets:  ${SHARED_PATHS.secrets}`);
+    console.log(
+      `    Bin:      ${SHARED_PATHS.binDir} (${SHARED_BIN_COMMANDS.map((command) => command.name).join(", ")})`,
+    );
+    printSeparator();
+    console.log();
+  }
 
   await assertThinUserZshrc();
   await configureRepoGitHooks();
 
-  console.log();
-  console.log(colors.blue("Installing in parallel..."));
+  if (!compactOutput) {
+    console.log();
+    console.log(colors.blue("Installing in parallel..."));
+  }
   await Promise.all([installSharedSkills(), installOpencode(), installCodex(), installShared()]);
 
-  console.log();
-  printBox("Installation completed successfully!", "green");
-  console.log();
+  if (!compactOutput) {
+    console.log();
+    printBox("Installation completed successfully!", "green");
+    console.log();
+  }
 }
 
 if (import.meta.main) {

@@ -1,15 +1,29 @@
 ---
 name: translation
-description: Translation, localization, and UX copy for user-facing text, missing translations, Arabic fusha, tone, microcopy, and copy review.
+description: Translation, localization, Arabic UX copy, and copy review.
 ---
 
 ## Workflow
 
-1. Check the product voice, existing locale files, placeholders, pluralization, and UI context; preserve placeholders, interpolation, variables, tags, links, product names, and formatting tokens.
-2. Add missing translations when changing user-facing copy, keeping the copy concise while preserving meaning, trust, and recovery guidance.
-3. For Arabic UX/UI copy, read [references/arabic-ux-copy.md](references/arabic-ux-copy.md).
-4. For large reviews, read [references/review.md](references/review.md).
-5. Finish with improved final copy or a review finding—not only a complaint—checking completeness,
-   quality, context, and technical correctness. Write for the surface and help the user act,
-   understand state, recover, or decide; call out repeated patterns once, then reference them. Name
-   any locale, placeholder, pluralization, or UI-context uncertainty that remains.
+1. Inspect the product voice, locale files, UI context, placeholders, and plural rules.
+2. Update every affected locale while preserving interpolation, variables, tags, links, product names, and formatting tokens.
+3. Read [references/arabic-ux-copy.md](references/arabic-ux-copy.md) for Arabic interface copy.
+4. Return improved final copy or actionable findings, and identify any unresolved locale, context, placeholder, or pluralization uncertainty.
+
+## Review
+
+For persisted review progress, keep `.translations-review/<feature-or-file>/translation-review.md` with files
+and languages, progress, issues by severity, and approved patterns. Read and update it on every
+continuation.
+
+Report each finding as:
+
+```text
+`translation.key`
+Current: "..."
+Suggested: "..."
+Issue: missing | literal | unnatural | tone | context | technical
+Reason: ...
+```
+
+Group repeated patterns once and reference them from affected keys.

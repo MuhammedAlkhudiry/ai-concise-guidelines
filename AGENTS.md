@@ -18,7 +18,7 @@
 
 - **ACTIVE-PROJECTS** — Active projects and their fixed clone lanes are declared in `config/active-projects.ts`; installation writes the standalone `lanes` catalog to `~/.config/lanes/projects.json`.
 - **MAIN-ONLY** — Work directly on `main`; do not create branches unless explicitly requested.
-- **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior.
+- **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior. Agents should use `mise run install -- --compact` so successful runs emit only the final result while warnings and failures remain visible.
 - **THIN-ZSHRC** — If user `~/.zshrc` contains anything beyond the managed `shell/zsh-custom.zsh` import, repair it directly instead of leaving installation blocked.
   Preserve custom shell code by migrating it into `shell/zsh-custom.zsh`, then restore the thin `~/.zshrc` and rerun installation.
 - **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep `doctor` in sync with that list.
@@ -31,6 +31,6 @@
 - **SKILL-GLOBAL** — Skill instructions are global capabilities; do not mention any project, repo, product, client, or local workspace by name.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **MY-SETUP-CLI** — Supported local commands are `my-setup install`, `my-setup doctor`, `my-setup tools status`, and `my-setup tools update-plan`.
-- **LANES-CLI** — Use the standalone `lanes <setup|status|verify|reset|destroy>` command for persistent clone-lane maintenance.
+- **LANES-CLI** — Use the standalone `lanes <setup|status|verify|reset|destroy|simulators>` command for persistent clone-lane maintenance.
 - **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.

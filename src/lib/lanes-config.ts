@@ -2,17 +2,37 @@ import { readFileSync } from "node:fs";
 
 import { z } from "zod";
 
-const activeProjectSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  remoteUrl: z.string().url(),
-  baseBranch: z.string().min(1),
-  lanePaths: z.array(z.string().min(1)).min(1),
-  environmentVariable: z.string().min(1),
+const laneDefinitionSchema = z.object({
+  number: z.number().int().positive(),
+  path: z.string().min(1),
 });
 
+const simulatorSlimmingProfileSchema = z.object({
+  exceptCategories: z.array(z.string().min(1)),
+  keepServices: z.array(z.string().min(1)).optional(),
+});
+
+const activeProjectSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    remoteUrl: z.string().url(),
+    baseBranch: z.string().min(1),
+    lanes: z.array(laneDefinitionSchema).min(1),
+    environmentVariable: z.string().min(1),
+    simulatorSlimming: simulatorSlimmingProfileSchema.optional(),
+  })
+  .superRefine(({ lanes }, context) => {
+    if (new Set(lanes.map(({ number }) => number)).size !== lanes.length) {
+      context.addIssue({ code: "custom", message: "Lane numbers must be unique" });
+    }
+    if (new Set(lanes.map(({ path }) => path)).size !== lanes.length) {
+      context.addIssue({ code: "custom", message: "Lane paths must be unique" });
+    }
+  });
+
 const lanesConfigSchema = z.object({
-  version: z.literal(1),
+  version: z.literal(2),
   projects: z.array(activeProjectSchema),
 });
 
@@ -21,17 +41,28 @@ export interface ActiveProject {
   name: string;
   remoteUrl: string;
   baseBranch: string;
-  lanePaths: string[];
+  lanes: LaneDefinition[];
   environmentVariable: string;
+  simulatorSlimming?: SimulatorSlimmingProfile;
+}
+
+export interface SimulatorSlimmingProfile {
+  exceptCategories: string[];
+  keepServices?: string[];
+}
+
+export interface LaneDefinition {
+  number: number;
+  path: string;
 }
 
 export interface LanesConfig {
-  version: 1;
+  version: 2;
   projects: ActiveProject[];
 }
 
 export function createLanesConfig(projects: ActiveProject[]): LanesConfig {
-  return lanesConfigSchema.parse({ version: 1, projects });
+  return lanesConfigSchema.parse({ version: 2, projects });
 }
 
 export function readLanesConfig(path: string): LanesConfig {

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
-script="$MY_SETUP_ROOT/content/skills/workflow/planning/scripts/plan.ts"
+script="$MY_SETUP_ROOT/src/commands/plan-cli.ts"
 
 if [[ ! -f "$script" ]]; then
   echo "plan script not found at $script"

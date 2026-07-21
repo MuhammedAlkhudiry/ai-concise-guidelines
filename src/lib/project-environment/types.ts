@@ -27,6 +27,7 @@ export interface ProjectEnvironmentContext {
   simulatorName: string;
   soloProjectName: string;
   herdBin: string;
+  herdCertificateAuthority: string;
   herdCommand: string;
   phpCommand: string;
   phpArgsPrefix: string[];
@@ -34,6 +35,12 @@ export interface ProjectEnvironmentContext {
   composerArgsPrefix: string[];
   mysqlCommand: string;
   phpVersion: string;
+  simulatorSlimming?: SimulatorSlimmingProfile;
+}
+
+export interface SimulatorSlimmingProfile {
+  exceptCategories: string[];
+  keepServices: string[];
 }
 
 export interface RunOptions {

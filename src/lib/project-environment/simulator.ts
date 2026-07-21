@@ -1,10 +1,14 @@
+import { existsSync } from "node:fs";
+
 import { log, output, run } from "./command";
+import { applySimulatorSlimming, verifySimulatorSlimming } from "./simslim";
 import type { ProjectEnvironmentContext } from "./types";
 
-interface SimulatorDevice {
+export interface SimulatorDevice {
   name: string;
   udid?: string;
   state?: string;
+  isAvailable?: boolean;
 }
 
 interface SimulatorRuntime {
@@ -25,6 +29,19 @@ interface SimulatorList {
   devices: Record<string, SimulatorDevice[]>;
 }
 
+export function findSimulator(
+  state: Pick<SimulatorList, "devices">,
+  name: string,
+): SimulatorDevice | undefined {
+  const matches = Object.values(state.devices)
+    .flat()
+    .filter((device) => device.name === name && device.isAvailable !== false);
+  if (matches.length > 1) {
+    throw new Error(`Multiple available iOS simulators are named ${name}`);
+  }
+  return matches[0];
+}
+
 function simulatorList(context: ProjectEnvironmentContext): SimulatorList {
   return JSON.parse(
     output(
@@ -38,9 +55,7 @@ function simulatorList(context: ProjectEnvironmentContext): SimulatorList {
 }
 
 function simulatorDevice(context: ProjectEnvironmentContext): SimulatorDevice | undefined {
-  return Object.values(simulatorList(context).devices)
-    .flat()
-    .find((device) => device.name === context.simulatorName);
+  return findSimulator(simulatorList(context), context.simulatorName);
 }
 
 export function setupSimulator(context: ProjectEnvironmentContext): void {
@@ -74,13 +89,26 @@ export function setupSimulator(context: ProjectEnvironmentContext): void {
     cwd: context.root,
     allowFailure: true,
   });
+  if (!existsSync(context.herdCertificateAuthority)) {
+    throw new Error(`Herd certificate authority is missing at ${context.herdCertificateAuthority}`);
+  }
+  run(
+    context,
+    "simulator",
+    "xcrun",
+    ["simctl", "keychain", udid, "add-root-cert", context.herdCertificateAuthority],
+    { cwd: context.root },
+  );
+  applySimulatorSlimming(context, udid);
   run(context, "simulator", "open", ["-a", "Simulator"], { cwd: context.root });
 }
 
 export function verifySimulator(context: ProjectEnvironmentContext): void {
-  if (simulatorDevice(context)?.state !== "Booted") {
+  const simulator = simulatorDevice(context);
+  if (simulator?.state !== "Booted" || !simulator.udid) {
     throw new Error(`${context.simulatorName} is not booted`);
   }
+  verifySimulatorSlimming(context, simulator.udid);
 }
 
 export function cleanSimulator(context: ProjectEnvironmentContext): void {

@@ -1,24 +1,24 @@
 ---
 name: workshop
-description: Stress-test ideas before building: brainstorm, compare options, or think through trade-offs, scope, or risks. For explaining existing things, use $teach; for concrete UI variants, use $ui-options.
+description: Idea stress-testing, brainstorming, and option comparison.
 ---
 
 ## Workflow
 
-1. Use Decision Surface mode when the user asks directly for options, alternatives, approaches, paths, choices, or trade-offs. If the idea contains multiple independent systems, stop and decompose it before discussing details.
-2. Use Workshop mode when the user is shaping, stress-testing, or scoping an idea before implementation. Treat every user statement as a claim to examine rather than a premise to endorse; critique the idea, not the user.
-3. For Decision Surface mode, read `references/decision-surface.md`, identify the real decision,
-   constraints, stakes, and recommendation criteria, then recommend one clear path. Push back when
-   another path is simpler, safer, or more coherent.
-4. For Workshop mode, research the product, codebase, docs, and prior art before reacting.
-5. Restate the idea clearly.
-6. Choose one primary branch from `references/branches.md`: Code Architecture, UX/UI, or Product; mention cross-branch concerns only when they materially change the recommendation.
-7. For open-ended, high-impact decisions, run a bounded divergence pass from `references/branches.md`, clustering ideas by underlying angle before converging.
-8. Name the strongest objection to the idea before improving it.
-9. Surface assumptions and ask only the questions that change direction. Before finalizing, check for contradictions, vague scope, missing constraints, and untested assumptions.
-10. For implementation workshops, identify whether the current shape of the code, UX, or product should change first so the requested outcome becomes straightforward.
-11. When Workshop mode reveals meaningfully different paths, read `references/decision-surface.md` before comparing them.
-12. Take a position and explore alternatives only when they change the recommendation. Say plainly
-    when an idea is over-scoped, under-evidenced, structurally awkward, or solving the wrong problem;
-    assume one-go delivery unless the user asks for phases. Finish when one recommendation has an
-    explicit winning trade-off, or hand back the blocking questions.
+1. Research the product, codebase, documentation, and prior art before reacting.
+2. Treat the user's statements as claims to examine and assume they are partial to the idea, not neutral. Ask only questions that could change direction; when questions are needed, respond with only those questions.
+3. Use $interview when the workshop exposes multiple dependent, high-impact unknowns that require
+   sustained user input, then resume with its confirmed synthesis.
+4. Use options when requested or when meaningfully different paths are available.
+5. Take a position. Say when an idea is over-scoped, under-evidenced, structurally awkward, or solves the wrong problem.
+
+## Options
+
+1. Use the requested option count. Otherwise use 2-3 options for tactical choices or this ladder for open-ended decisions:
+   - 🛡️ **Smallest Safe Move:** lowest-risk useful action.
+   - ⚖️ **Balanced Bet:** meaningful improvement with contained cost.
+   - 🚀 **Bigger Strategic Move:** higher upside with more migration or coordination.
+   - ✨ **Ideal Version:** clean target state with unconstrained time and resources.
+2. Use distinct strategic paths when choices are not naturally a size ladder.
+3. Include a smaller or do-nothing path when genuinely viable, and flag attractive-but-bad paths rather than presenting them equally.
+4. Recommend one option and explain why it wins.
