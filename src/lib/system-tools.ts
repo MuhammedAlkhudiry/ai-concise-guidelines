@@ -95,6 +95,15 @@ export const SYSTEM_TOOL_GROUPS = [
           note: "Usually updated by macOS or the package manager that owns the shell.",
         },
       },
+      {
+        name: "swift",
+        level: "required",
+        why: "Builds the native Lanes menu-bar app during installation.",
+        versionArgs: ["--version"],
+        update: {
+          note: "Update through Xcode or Xcode Command Line Tools.",
+        },
+      },
     ],
   },
   {
@@ -172,19 +181,6 @@ export const SYSTEM_TOOL_GROUPS = [
         update: {
           commands: ["brew upgrade mobai-app/tap/simslim"],
           note: "Install with brew install mobai-app/tap/simslim. Persistent lanes require SimSlim 0.2.0 or newer.",
-        },
-      },
-      {
-        name: "rtk",
-        level: "optional",
-        why: "Used to reduce noisy command output before it reaches AI agent context.",
-        versionArgs: ["--version"],
-        latest: {
-          type: "homebrew",
-          formula: "rtk",
-        },
-        update: {
-          commands: ["brew upgrade rtk"],
         },
       },
       {

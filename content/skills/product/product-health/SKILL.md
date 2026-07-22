@@ -38,6 +38,7 @@ description: Product health checks, investigations, and reports.
 ## Report contract
 
 - Lead with findings and analysis; place pure statistics in a table at the end.
+- Prefix every statistics table row with exactly one interpretation marker: 🟢 for healthy or improved, 🟡 for warning, uncertain, or worth watching, and 🔴 for failed, severely regressed, or requiring action.
 - Rank findings by affected users or tenants, critical-flow impact, revenue risk, and operational risk. Use colored status emojis and include observability gaps.
 - For each finding, state cause, severity, baseline change, impact, confidence, suspicious evidence, and any false alarm or ignorable noise.
 - Link opaque identifiers with their titles: `[APP-123](https://issue-url) - issue description`.

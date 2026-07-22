@@ -12,8 +12,8 @@ description: Post-implementation hardening before human review.
 4. Run $test-writing to audit coverage and close approved worthwhile behavior gaps.
 5. Run $code-review as a Standards review in a self-contained subagent with no inherited turns. Give every review or opportunity pass its exact target and requirements, running independent passes in parallel where possible; if
    subagents are unavailable, report missing passes rather than simulating them.
-6. Triage and report every review finding without fixing it. Treat findings as proposed next work; any blocker prevents the readiness gate.
-7. Run $verification as the final verification and fix loop.
+6. Report every code-review and reviewer-gate finding without fixing it. Treat findings as proposed work; any blocker prevents readiness.
+7. Run $verification as the final fix loop. Fix task-related failures and report only `PASS`, `FAIL`, or `BLOCKED`—not review findings.
 8. Run one final self-contained reviewer gate in a subagent with no inherited conversation turns and report its findings without fixing them.
 9. Run $refactor-opportunities as a final self-contained suggestion pass with no inherited conversation turns.
 10. Report `READY FOR HUMAN REVIEW` only when no known blockers remain. Present $code-review,

@@ -268,6 +268,7 @@ main() {
   check_tool mise required "Needed for the supported local task workflow and global runtime management."
   check_tool node required "Needed by the oxfmt CLI used in repo format checks."
   check_tool zsh required "Needed by all installed shared shell commands."
+  check_tool swift required "Builds the native Lanes menu-bar app during installation."
 
   print_header "Shell and helper integrations"
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
@@ -276,7 +277,6 @@ main() {
   check_tool agent-browser required "Default AI-agent browser automation CLI."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."
   check_tool simslim required "Install with brew install mobai-app/tap/simslim for persistent lane simulator slimming."
-  check_tool rtk optional "Used to reduce noisy command output before it reaches AI agent context."
   check_tool fzf optional "Used by project pickers and interactive hosts/plan deletion."
   check_tool sg optional "Install ast-grep for AST-shaped code search."
   check_tool wacli optional "Used to read and export WhatsApp data for authorized personal knowledge workflows."

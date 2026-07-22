@@ -569,9 +569,7 @@ printTable(
 
 console.log(`\n## Suggested Follow-Ups\n`);
 if (truncatedOutputs || largeExecOutputs) {
-  console.log(
-    `- Replace broad shell exploration with narrower commands, RTK, or purpose-built scripts.`,
-  );
+  console.log(`- Replace broad shell exploration with narrower commands or purpose-built scripts.`);
 }
 if (images) {
   console.log(

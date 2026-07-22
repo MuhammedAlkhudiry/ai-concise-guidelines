@@ -25,13 +25,14 @@ Use `mise run install -- --compact` in agent workflows to keep successful instal
 
 These are the commands the repo itself relies on for install and day-to-day local use.
 
-| Tool   | Why this repo assumes it                                                             |
-| ------ | ------------------------------------------------------------------------------------ |
-| `bun`  | Runtime used internally by `mise run install`.                                       |
-| `git`  | Used for remote skill checkout, hook setup, and shared git helpers.                  |
-| `mise` | Powers the supported local task workflow and manages global runtimes instead of NVM. |
-| `node` | Runs the Oxfmt CLI used by repo format checks.                                       |
-| `zsh`  | All shared shell commands are shipped as Zsh scripts.                                |
+| Tool    | Why this repo assumes it                                                             |
+| ------- | ------------------------------------------------------------------------------------ |
+| `bun`   | Runtime used internally by `mise run install`.                                       |
+| `git`   | Used for remote skill checkout, hook setup, and shared git helpers.                  |
+| `mise`  | Powers the supported local task workflow and manages global runtimes instead of NVM. |
+| `node`  | Runs the Oxfmt CLI used by repo format checks.                                       |
+| `zsh`   | All shared shell commands are shipped as Zsh scripts.                                |
+| `swift` | Builds the native Lanes menu-bar app during installation.                            |
 
 ## Shell And Helper Integrations
 
@@ -45,7 +46,6 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
-| `rtk`           | Reduces noisy command output before it reaches AI agent context.                                                                       |
 | `solo`          | Controls Solo projects, processes, dev servers, logs, todos, and scratchpads through the Solo HTTP control plane.                      |
 | `jq`            | Reads Solo's local HTTP API discovery file for raw API fallback workflows.                                                             |
 | `fzf`           | Used by project pickers and interactive hosts/plan deletion.                                                                           |

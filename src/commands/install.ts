@@ -4,7 +4,7 @@
  * Internal local installer used by `mise run install`.
  */
 
-import { existsSync, copyFileSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, copyFileSync } from "fs";
 import {
   readFile,
   writeFile,
@@ -36,6 +36,7 @@ import { colors, compactOutput, print, printBox, printSeparator } from "../lib/p
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
+import { installLanesMenu } from "../apps/lanes-menu/install";
 
 // =============================================================================
 // Constants
@@ -115,21 +116,13 @@ function copyCodexRules(): void {
   print.info(`Copying Codex rules to ${CODEX_PATHS.rules}...`);
 
   const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
-  const rtkRulesFile = join(ROOT_DIR, "content", "rtk-rules.md");
   if (!existsSync(sourceFile)) {
     print.error("Base rules file not found");
     return;
   }
-  if (!existsSync(rtkRulesFile)) {
-    print.error("RTK rules file not found");
-    return;
-  }
 
   ensureParentDirSync(CODEX_PATHS.rules);
-  writeFileSync(
-    CODEX_PATHS.rules,
-    `${readFileSync(sourceFile, "utf-8")}\n\n${readFileSync(rtkRulesFile, "utf-8")}`,
-  );
+  copyFileSync(sourceFile, CODEX_PATHS.rules);
   print.success(`Codex rules copied`);
 }
 
@@ -370,6 +363,8 @@ async function installShared(): Promise<void> {
     await installManagedSymlink(sourcePath, destinationPath, `${command.name} command`);
     await chmod(sourcePath, 0o755);
   }
+
+  await installLanesMenu();
 
   print.info(`Ensuring local command paths are in PATH via ${SHARED_PATHS.zshenv}...`);
   await ensureParentDir(SHARED_PATHS.zshenv);
