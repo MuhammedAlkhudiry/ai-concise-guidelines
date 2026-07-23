@@ -4,14 +4,12 @@ A native macOS menu-bar launcher for persistent project lanes.
 
 ## Boundary
 
-This module reads the installed `~/bin/lanes status --json` contract, checks lane URLs directly for
-Site health, and reads `~/.local/bin/solo processes list --json` for every lane command service. It
-does not export code to the lanes or Solo runtimes or require app-specific fields in their data.
-Editor, browser, and Simulator launches are implemented inside the app.
+This module is a thin native client for the installed `~/bin/lanes` JSON contracts. Lane status,
+Site health, service lifecycle, logs, and editor/browser/Simulator actions are all owned by the CLI.
+The widget contains no independent process manager or project-specific service discovery.
 
-Frontend and Metro development commands are also independent from Solo. The app discovers their
-package directories from each lane, runs only `bun dev`, records its own process IDs under
-`~/Library/Application Support/Lanes/dev-commands`, and stops only processes it started.
+Frontend, Metro, and Horizon services use the project catalog installed by `my-setup`. Hovering a
+service shows the CLI-managed log as selectable text.
 
 The main installer integrates the app through one import and one `installLanesMenu()` call. The
 module owns its Swift package, bundle metadata, build, installation, code signing, and login launch

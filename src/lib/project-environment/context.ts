@@ -48,7 +48,6 @@ export function createProjectEnvironmentContext(
     assetUrl: definition.assetUrl?.(bucket),
     metroPort: String(definition.metroPortBase + laneNumber),
     simulatorName: `${definition.name} Lane ${laneNumber}`,
-    soloProjectName: site,
     herdBin,
     herdCertificateAuthority: resolve(herdBin, "../config/valet/CA/LaravelValetCASelfSigned.pem"),
     herdCommand: process.env.HERD_COMMAND ?? resolve(herdBin, "herd"),

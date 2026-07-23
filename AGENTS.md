@@ -10,7 +10,7 @@
 - `src/cli.ts` — `my-setup` CLI entrypoint.
 - `src/commands/generate.ts` — Generator for files under `output/`.
 - `src/commands/install.ts` — Local installer that syncs rules, config, skills, shell helpers, secrets, and shared bin commands.
-- `src/commands/lanes-cli.ts` and `src/lib/project-lanes.ts` — Standalone `lanes` command and persistent clone-lane runtime.
+- `src/commands/lanes-cli.ts`, `src/lib/project-lanes.ts`, and `src/lib/lane-services.ts` — Standalone `lanes` command, persistent clone-lane runtime, and service control plane.
 - `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
 - `system-tools.md` — Human-readable list of expected system tools; keep it aligned with `doctor`.
 - `config/active-projects.ts` — Active projects and their fixed clone lanes (see ACTIVE-PROJECTS).
@@ -31,6 +31,6 @@
 - **SKILL-GLOBAL** — Skill instructions are global capabilities; do not mention any project, repo, product, client, or local workspace by name.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **MY-SETUP-CLI** — Supported local commands are `my-setup install`, `my-setup doctor`, `my-setup tools status`, and `my-setup tools update-plan`.
-- **LANES-CLI** — Use the standalone `lanes <setup|status|verify|reset|destroy|simulators>` command for persistent clone-lane maintenance.
+- **LANES-CLI** — Use the standalone `lanes <setup|status|verify|audit|services|open|reset|destroy|simulators>` command for persistent clone-lane maintenance and service control.
 - **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the repo's voice.

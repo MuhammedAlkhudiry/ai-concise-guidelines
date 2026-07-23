@@ -15,6 +15,26 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
       path: join(projectsRoot, `awraq-lane-${number}`),
     })),
     environmentVariable: "AWRAQ_LANE_ROOT",
+    services: [
+      {
+        id: "frontend",
+        name: "Frontend",
+        directory: "family-tree",
+        runner: { type: "bun-script", script: "dev" },
+      },
+      {
+        id: "metro",
+        name: "Metro",
+        directory: "awraq-mobile-app",
+        runner: { type: "bun-script", script: "start" },
+      },
+      {
+        id: "horizon",
+        name: "Horizon",
+        directory: "family-tree",
+        runner: { type: "artisan", command: "horizon" },
+      },
+    ],
     simulatorSlimming: {
       exceptCategories: ["icloud", "store", "web", "pim", "photos"],
     },
@@ -29,6 +49,26 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
       path: join(projectsRoot, `harium-lane-${number}`),
     })),
     environmentVariable: "HARIUM_LANE_ROOT",
+    services: [
+      {
+        id: "frontend",
+        name: "Frontend",
+        directory: "harium",
+        runner: { type: "bun-script", script: "dev" },
+      },
+      {
+        id: "metro",
+        name: "Metro",
+        directory: "harium-app",
+        runner: { type: "bun-script", script: "start" },
+      },
+      {
+        id: "horizon",
+        name: "Horizon",
+        directory: "harium",
+        runner: { type: "artisan", command: "horizon" },
+      },
+    ],
     simulatorSlimming: {
       exceptCategories: ["icloud", "store"],
     },

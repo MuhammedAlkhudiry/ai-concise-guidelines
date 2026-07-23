@@ -6,6 +6,8 @@ import {
   projectLaneSimulatorsApply,
   projectLaneSimulatorsRestore,
   projectLaneSimulatorsStatus,
+  projectLaneOpen,
+  projectLaneServices,
   projectLanesDestroy,
   projectLanesAudit,
   projectLanesReset,
@@ -25,6 +27,13 @@ interface CompactOptions {
 
 interface AuditOptions extends CompactOptions {
   mobile?: boolean;
+}
+
+interface ServiceOptions {
+  json?: boolean;
+  lines?: string;
+  follow?: boolean;
+  raw?: boolean;
 }
 
 const cli = cac("lanes");
@@ -57,6 +66,29 @@ cli
   .action((project: string | undefined, options: AuditOptions) =>
     projectLanesAudit(project, options.mobile, options.compact),
   );
+
+cli
+  .command(
+    "services <operation> [project] [lane] [service]",
+    "Manage lane services (status, start, stop, restart, or logs)",
+  )
+  .option("--json", "Print machine-readable output")
+  .option("--lines <lines>", "Number of recent log lines", { default: "30" })
+  .option("--follow", "Follow service logs")
+  .option("--raw", "Print raw log text")
+  .action(
+    (
+      operation: string,
+      project: string | undefined,
+      lane: string | undefined,
+      service: string | undefined,
+      options: ServiceOptions,
+    ) => projectLaneServices(operation, project, lane, service, options),
+  );
+
+cli
+  .command("open <project> <lane> <target>", "Open a lane in PhpStorm, Simulator, or Browser")
+  .action(projectLaneOpen);
 
 cli
   .command(

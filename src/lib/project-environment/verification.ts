@@ -6,7 +6,6 @@ import { expoEnvironmentValues, laravelEnvironmentValues } from "./environment";
 import { readEnv } from "./files";
 import { artisan, verifyDatabase, verifyHerd } from "./resources";
 import { verifySimulator } from "./simulator";
-import { verifySolo } from "./solo";
 import type { ExpoEnvironmentOptions, LaravelEnvironmentOptions } from "./environment";
 import type { ProjectEnvironmentContext } from "./types";
 
@@ -52,7 +51,6 @@ export function verifyLaneInfrastructure(context: ProjectEnvironmentContext): vo
     existsSync(context.herdCertificateAuthority),
     `Herd certificate authority is missing at ${context.herdCertificateAuthority}`,
   );
-  verifySolo(context);
   verifyHerd(context);
   verifyDatabase(context);
 }

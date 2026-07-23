@@ -2,7 +2,7 @@
 
 This repo assumes a small set of non-default tools on top of a normal macOS shell environment.
 
-`doctor` checks command presence, Solo control-plane readiness, managed helper links, and installed skill drift. It does not verify login state, credentials, local project state, editor/terminal preferences, or full runtime access.
+`doctor` checks command presence, managed helper links, and installed skill drift. It does not verify login state, credentials, local project state, editor/terminal preferences, or full runtime access.
 
 Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and similar are intentionally not listed here.
 
@@ -36,7 +36,7 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, `simslim`, `solo`, and `jq` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, and `simslim` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
 
 | Tool            | Why this repo assumes it                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -46,8 +46,6 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
-| `solo`          | Controls Solo projects, processes, dev servers, logs, todos, and scratchpads through the Solo HTTP control plane.                      |
-| `jq`            | Reads Solo's local HTTP API discovery file for raw API fallback workflows.                                                             |
 | `fzf`           | Used by project pickers and interactive hosts/plan deletion.                                                                           |
 | `sg`            | Optional AST-shaped code search through ast-grep when text search is too loose.                                                        |
 | `wacli`         | Reads and exports WhatsApp data for authorized personal knowledge workflows.                                                           |

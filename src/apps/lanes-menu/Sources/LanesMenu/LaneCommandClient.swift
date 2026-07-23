@@ -2,48 +2,17 @@ import Foundation
 
 struct LaneCommandClient: Sendable {
   private let lanesExecutable: URL
-  private let soloExecutable: URL
 
   init(homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser) {
     lanesExecutable = homeDirectory.appending(path: "bin/lanes")
-    soloExecutable = homeDirectory.appending(path: ".local/bin/solo")
   }
 
-  func loadServiceStatuses(for projects: [LaneProject]) async -> [String: [LaneService]] {
-    let soloServices = await loadSoloServices()
-    var statuses: [String: [LaneService]] = [:]
-    for project in projects {
-      let catalog = serviceCatalog(
-        project.lanes.flatMap { soloServices[$0.soloProjectName] ?? [] }
-      )
-      for lane in project.lanes {
-        let laneServices = Dictionary(
-          (soloServices[lane.soloProjectName] ?? []).map { ($0.name, $0) },
-          uniquingKeysWith: { first, _ in first }
-        )
-        statuses[lane.serviceKey] =
-          [LaneService(id: "site", name: "Site", state: .checking)]
-          + catalog.map { name in
-            laneServices[name]
-              ?? LaneService(id: "missing-\(name)", name: name, state: .unavailable)
-          }
-      }
-    }
-
-    await withTaskGroup(of: (String, LaneServiceState).self) { group in
-      for lane in projects.flatMap(\.lanes) {
-        group.addTask {
-          (lane.serviceKey, await webState(for: lane.appURL))
-        }
-      }
-      for await (key, state) in group {
-        guard let siteIndex = statuses[key]?.firstIndex(where: { $0.id == "site" }) else {
-          continue
-        }
-        statuses[key]?[siteIndex].state = state
-      }
-    }
-    return statuses
+  func loadServiceStatuses() async throws -> [String: [LaneService]] {
+    let executable = lanesExecutable
+    return try await Task.detached(priority: .utility) {
+      let data = try run(executable, arguments: ["services", "status", "--json"])
+      return try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
+    }.value
   }
 
   func loadProjects() async throws -> [LaneProject] {
@@ -58,80 +27,41 @@ struct LaneCommandClient: Sendable {
   }
 
   func perform(_ action: LaneAction, on lane: LaneItem) async throws {
+    let executable = lanesExecutable
     try await Task.detached(priority: .userInitiated) {
-      switch action {
-      case .editor:
-        _ = try run("/usr/bin/open", arguments: ["-a", "PhpStorm", lane.path])
-      case .browser:
-        _ = try run("/usr/bin/open", arguments: [lane.appURL.absoluteString])
-      case .simulator:
-        try openSimulator(named: lane.simulatorName)
-      }
+      _ = try run(
+        executable,
+        arguments: ["open", lane.projectID, lane.laneID, action.cliTarget]
+      )
     }.value
   }
 
-  private func loadSoloServices() async -> [String: [LaneService]] {
-    let executable = soloExecutable
+  func setService(_ service: LaneService, running: Bool, on lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    _ = try await Task.detached(priority: .userInitiated) {
+      try run(
+        executable,
+        arguments: [
+          "services", running ? "start" : "stop", lane.projectID, lane.laneID, service.id, "--json",
+        ]
+      )
+    }.value
+  }
+
+  func latestLogs(for service: LaneService, on lane: LaneItem) async -> String {
+    let executable = lanesExecutable
     return await Task.detached(priority: .utility) {
-      guard FileManager.default.isExecutableFile(atPath: executable.path) else { return [:] }
       guard
         let data = try? run(
           executable,
-          arguments: ["processes", "list", "--json", "--limit", "500"]
-        ),
-        let document = try? JSONDecoder().decode(SoloProcessDocument.self, from: data)
-      else {
-        return [:]
-      }
-      return document.servicesByProject()
+          arguments: [
+            "services", "logs", lane.projectID, lane.laneID, service.id, "--lines", "200", "--raw",
+          ]
+        )
+      else { return "Could not load service logs." }
+      return String(decoding: data, as: UTF8.self)
     }.value
   }
-}
-
-private func serviceCatalog(_ services: [LaneService]) -> [String] {
-  let names = Set(services.map(\.name))
-  let preferred = ["Web", "Queues", "Mobile"].filter(names.contains)
-  return preferred + names.subtracting(preferred).sorted()
-}
-
-private func webState(for url: URL) async -> LaneServiceState {
-  var request = URLRequest(url: url, timeoutInterval: 3)
-  request.httpMethod = "HEAD"
-  do {
-    let (_, response) = try await URLSession.shared.data(for: request)
-    guard let response = response as? HTTPURLResponse else { return .failed }
-    return (200..<400).contains(response.statusCode) ? .running : .failed
-  } catch {
-    return .failed
-  }
-}
-
-private func openSimulator(named name: String) throws {
-  let data = try run("/usr/bin/xcrun", arguments: ["simctl", "list", "devices", "-j"])
-  let document = try JSONDecoder().decode(SimulatorDocument.self, from: data)
-  let matchingDevices = document.devices.values
-    .flatMap { $0 }
-    .filter { $0.name == name && $0.isAvailable != false }
-  guard let device = matchingDevices.first(where: { $0.state == "Booted" }) ?? matchingDevices.first
-  else {
-    throw LaneMenuError.message("Simulator “\(name)” is missing.")
-  }
-
-  if device.state != "Booted" {
-    _ = try run("/usr/bin/xcrun", arguments: ["simctl", "boot", device.udid])
-  }
-  _ = try run("/usr/bin/open", arguments: ["-a", "Simulator"])
-}
-
-private struct SimulatorDocument: Decodable {
-  let devices: [String: [SimulatorDevice]]
-}
-
-private struct SimulatorDevice: Decodable {
-  let name: String
-  let udid: String
-  let state: String
-  let isAvailable: Bool?
 }
 
 @discardableResult

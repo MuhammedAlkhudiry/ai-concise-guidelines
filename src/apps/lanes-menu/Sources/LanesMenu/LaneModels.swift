@@ -7,7 +7,7 @@ struct LaneProject: Identifiable, Sendable {
 }
 
 struct LaneItem: Identifiable, Sendable {
-  let id: String
+  let laneID: String
   let number: Int
   let path: String
   let projectID: String
@@ -17,7 +17,7 @@ struct LaneItem: Identifiable, Sendable {
   let detail: String?
 
   var appURL: URL {
-    URL(string: "https://\(projectID)-\(id).test")!
+    URL(string: "https://\(projectID)-\(laneID).test")!
   }
 
   var simulatorName: String {
@@ -29,68 +29,39 @@ struct LaneItem: Identifiable, Sendable {
   }
 
   var serviceKey: String {
-    "\(projectID)/\(id)"
+    "\(projectID)/\(laneID)"
   }
 
-  var soloProjectName: String {
-    "\(projectID)-\(id)"
-  }
+  var id: String { serviceKey }
 }
 
 struct LaneService: Identifiable, Sendable, Equatable {
   let id: String
   let name: String
+  let manageable: Bool
+  let managed: Bool
+  let command: String?
+  let detail: String?
   var state: LaneServiceState
-}
 
-struct LaneDevCommand: Identifiable, Sendable, Equatable {
-  let id: String
-  let laneKey: String
-  let kind: LaneDevCommandKind
-  let directory: URL?
-  let supportsDev: Bool
-  let state: LaneDevCommandState
-
-  func withState(_ state: LaneDevCommandState) -> LaneDevCommand {
-    LaneDevCommand(
+  func withState(_ state: LaneServiceState) -> LaneService {
+    LaneService(
       id: id,
-      laneKey: laneKey,
-      kind: kind,
-      directory: directory,
-      supportsDev: supportsDev,
+      name: name,
+      manageable: manageable,
+      managed: managed,
+      command: command,
+      detail: detail,
       state: state
     )
   }
 }
 
-enum LaneDevCommandKind: String, CaseIterable, Sendable {
-  case frontend
-  case metro
-
-  var title: String {
-    rawValue.capitalized
-  }
-}
-
-enum LaneDevCommandState: String, Sendable, Equatable {
-  case starting
-  case running
-  case stopping
-  case stopped
-  case unavailable
-
-  var title: String {
-    switch self {
-    case .unavailable: "Missing dev script"
-    default: rawValue.capitalized
-    }
-  }
-}
-
-enum LaneServiceState: String, Sendable, Equatable {
+enum LaneServiceState: String, Sendable, Equatable, Decodable {
   case checking
   case running
   case starting
+  case stopping
   case stopped
   case failed
   case unavailable
@@ -98,53 +69,47 @@ enum LaneServiceState: String, Sendable, Equatable {
   var title: String {
     rawValue.capitalized
   }
-
-  fileprivate init(soloStatus: String) {
-    switch soloStatus {
-    case "running": self = .running
-    case "starting": self = .starting
-    case "stopped", "stopping": self = .stopped
-    case "failed", "exited": self = .failed
-    default: self = .unavailable
-    }
-  }
 }
 
-struct SoloProcessDocument: Decodable {
-  let data: SoloProcessData
+struct LaneServicesDocument: Decodable {
+  let lanes: [LaneServicesRecord]
 
-  func servicesByProject() -> [String: [LaneService]] {
-    data.processes.reduce(into: [:]) { services, process in
-      guard process.kind == "command" else { return }
-      services[process.projectName, default: []].append(
-        LaneService(
-          id: "solo-\(process.id)",
-          name: process.displayName,
-          state: LaneServiceState(soloStatus: process.status)
+  func servicesByLane() -> [String: [LaneService]] {
+    Dictionary(
+      uniqueKeysWithValues: lanes.map { lane in
+        (
+          "\(lane.project)/\(lane.lane)",
+          lane.services.map { service in
+            LaneService(
+              id: service.id,
+              name: service.name,
+              manageable: service.manageable,
+              managed: service.managed,
+              command: service.command,
+              detail: service.detail,
+              state: service.state
+            )
+          }
         )
-      )
-    }
+      }
+    )
   }
 }
 
-struct SoloProcessData: Decodable {
-  let processes: [SoloProcessRecord]
+struct LaneServicesRecord: Decodable {
+  let project: String
+  let lane: String
+  let services: [LaneServiceRecord]
 }
 
-struct SoloProcessRecord: Decodable {
-  let id: Int
+struct LaneServiceRecord: Decodable {
+  let id: String
   let name: String
-  let kind: String
-  let status: String
-  let projectName: String
-
-  var displayName: String {
-    let normalized = name.lowercased()
-    if normalized.contains("queue") { return "Queues" }
-    if normalized.contains("mobile") { return "Mobile" }
-    if normalized.contains("web") { return "Web" }
-    return name.hasPrefix("Bun ") ? String(name.dropFirst(4)) : name
-  }
+  let state: LaneServiceState
+  let manageable: Bool
+  let managed: Bool
+  let command: String?
+  let detail: String?
 }
 
 struct LaneStatusDocument: Decodable {
@@ -183,7 +148,7 @@ struct LaneStatusRecord: Decodable {
 
   var item: LaneItem {
     LaneItem(
-      id: lane.id,
+      laneID: lane.id,
       number: lane.number,
       path: lane.path,
       projectID: lane.project.id,
@@ -216,7 +181,7 @@ struct ProjectRecord: Decodable {
   let name: String
 }
 
-enum LaneAction: String, Sendable {
+enum LaneAction: String, CaseIterable, Sendable {
   case editor
   case simulator
   case browser
@@ -234,6 +199,14 @@ enum LaneAction: String, Sendable {
     case .editor: "chevron.left.forwardslash.chevron.right"
     case .simulator: "iphone"
     case .browser: "globe"
+    }
+  }
+
+  var cliTarget: String {
+    switch self {
+    case .editor: "phpstorm"
+    case .simulator: "simulator"
+    case .browser: "browser"
     }
   }
 }

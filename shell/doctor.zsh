@@ -55,13 +55,13 @@ print_summary() {
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "required:")" "$required_ok" "$required_missing"
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "optional:")" "$optional_ok" "$optional_missing"
     printf '  %s ok=%d missing=%d\n' "$("$GUM_BIN" style --foreground 252 "links:")" "$link_ok" "$link_missing"
-    printf '  %s\n' "$("$GUM_BIN" style --foreground 244 "note: this checks command presence plus Solo control-plane readiness, not auth, credentials, or full runtime access.")"
+    printf '  %s\n' "$("$GUM_BIN" style --foreground 244 "note: this checks command presence and managed local setup, not auth, credentials, or full runtime access.")"
   else
     printf 'Summary\n'
     printf '  required: ok=%d missing=%d\n' "$required_ok" "$required_missing"
     printf '  optional: ok=%d missing=%d\n' "$optional_ok" "$optional_missing"
     printf '  links: ok=%d missing=%d\n' "$link_ok" "$link_missing"
-    printf '  note: this checks command presence plus Solo control-plane readiness, not auth, credentials, or full runtime access.\n'
+    printf '  note: this checks command presence and managed local setup, not auth, credentials, or full runtime access.\n'
   fi
 }
 
@@ -222,45 +222,6 @@ check_credentials_home() {
   (( required_ok++ ))
 }
 
-check_solo_discovery() {
-  local discovery="$HOME/.config/soloterm/http-api.json"
-
-  check_file solo-api "$discovery" "Solo HTTP API discovery file is missing"
-
-  if ! command -v jq >/dev/null 2>&1 || [[ ! -f "$discovery" ]]; then
-    return 1
-  fi
-
-  if jq -e '.baseUrl and .token' "$discovery" >/dev/null 2>&1; then
-    print_ok solo-api "discovery has baseUrl and token"
-    (( required_ok++ ))
-    return 0
-  fi
-
-  print_missing "required" solo-api "discovery file is missing baseUrl or token"
-  (( required_missing++ ))
-  return 1
-}
-
-check_solo_control_plane() {
-  local output
-
-  if ! command -v solo >/dev/null 2>&1; then
-    return 1
-  fi
-
-  if output="$(solo doctor --json 2>&1)"; then
-    print_ok solo "HTTP control plane ready"
-    (( required_ok++ ))
-    return 0
-  fi
-
-  print_missing "required" solo "solo doctor --json failed"
-  printf '%s\n' "$output" | sed 's/^/    - /'
-  (( required_missing++ ))
-  return 1
-}
-
 main() {
   print_header "Core repo tools"
   check_tool bun required "Runtime used internally by mise run install."
@@ -287,12 +248,6 @@ main() {
   check_tool posthog-cli required "Install the CLI for PostHog access without MCP."
   check_tool sentry required "Install the agent-oriented Sentry CLI for access without MCP."
   check_tool sentry-cli optional "Used by legacy Sentry SDK and CI build integrations."
-
-  print_header "Solo control plane"
-  check_tool solo required "Link the Solo app CLI into PATH with mise run install."
-  check_tool jq required "Used for raw Solo HTTP API fallback workflows."
-  check_solo_discovery
-  check_solo_control_plane
 
   print_header "Credential storage"
   check_credentials_home

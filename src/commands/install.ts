@@ -80,7 +80,6 @@ const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
 const REQUIRED_SECRETS = ["POSTHOG_CLI_API_KEY", "HUGEICONS_TOKEN"] as const;
-const SOLO_CLI_SOURCE = "/Applications/Solo.app/Contents/MacOS/solo-cli";
 
 const SHARED_BIN_COMMANDS = [
   { name: "my-setup", source: "my-setup.zsh" },
@@ -341,7 +340,6 @@ async function removeCodexMcpConfigAsync(): Promise<void> {
 
 async function installShared(): Promise<void> {
   await installLocalSecrets();
-  await installSoloCli();
   await installLanesConfig();
 
   const zshSource = join(ROOT_DIR, "shell", "zsh-custom.zsh");
@@ -424,17 +422,6 @@ async function installLanesConfig(): Promise<void> {
     { mode: 0o600 },
   );
   print.success(`Installed lanes config to ${SHARED_PATHS.lanesConfig}`);
-}
-
-async function installSoloCli(): Promise<void> {
-  const destinationPath = join(SHARED_PATHS.localBinDir, "solo");
-
-  if (!existsSync(SOLO_CLI_SOURCE)) {
-    print.warning(`Solo CLI source not found at ${SOLO_CLI_SOURCE}`);
-    return;
-  }
-
-  await installManagedSymlink(SOLO_CLI_SOURCE, destinationPath, "solo command");
 }
 
 async function installManagedSymlink(src: string, dest: string, label: string): Promise<void> {

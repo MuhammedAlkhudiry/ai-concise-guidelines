@@ -65,7 +65,6 @@ test("derives shared resources from the explicit lane identity", () => {
     assetUrl: "https://assets.test/example-lane-2",
     metroPort: "7002",
     simulatorName: "Example Lane 2",
-    soloProjectName: "example-lane-2",
     herdCertificateAuthority: expect.stringContaining(
       "Herd/config/valet/CA/LaravelValetCASelfSigned.pem",
     ),

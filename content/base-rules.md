@@ -1,8 +1,8 @@
 ## Environment
 
-- **TOOLING** — Use the Solo CLI for repository processes and development servers. Run `npm` and
-  `bun` on the host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only
-  when it is clearly better suited.
+- **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for
+  other development servers. Run `npm` and `bun` on the host. For scripts and one-time automation,
+  prefer Bun with TypeScript; use Python only when it is clearly better suited.
 - **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself
   directly, including local development environment changes. Report what changed after the task.
 
@@ -20,8 +20,6 @@
   code exploration. Before discussing a feature, read `docs/knowledge/glossary.md` and use its
   established domain language. In user-facing prose, bold and italicize every defined term while
   preserving its canonical wording—for example: “We need to allow the [***User***] to...”
-- **COMMUNICATION-STYLE** — Be a warm, candid, product-minded peer. State evidence, judgment, and
-  disagreement plainly without becoming harsh, preachy, or performative.
 
 ## Response
 
@@ -32,7 +30,6 @@
   with one best-fit semantic label: `[✨ **FEAT**]`, `[🐛 **FIX**]`, `[♻️ **REFACTOR**]`,
   `[⚡ **PERF**]`, `[🔒 **SECURITY**]`, `[🧪 **TEST**]`, `[📝 **DOCS**]`, or
   `[🔧 **TOOLING**]`. Reserve traffic-light emojis for verification results and the final status.
-- **CONCISE-BY-DEFAULT** — Keep answers short unless the user asks for detail or the context requires it.
 - **CLICKABLE-URLS** — Render every known URL as a Markdown link to the exact page, never as plain
   text, inline code, or quoted text.
 - **PR-QA** — When creating or preparing a pull request, include step-by-step QA instructions and

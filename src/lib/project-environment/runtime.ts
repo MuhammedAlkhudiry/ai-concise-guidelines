@@ -8,7 +8,6 @@ export * from "./resources";
 export * from "./secrets";
 export * from "./simslim";
 export * from "./simulator";
-export * from "./solo";
 export * from "./types";
 export * from "./typesense";
 export * from "./verification";

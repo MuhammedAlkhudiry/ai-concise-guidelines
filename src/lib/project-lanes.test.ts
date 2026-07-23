@@ -12,6 +12,14 @@ const project = {
     { number: 2, path: "/projects/project-lane-2" },
   ],
   environmentVariable: "PROJECT_LANE_ROOT",
+  services: [
+    {
+      id: "frontend",
+      name: "Frontend",
+      directory: "app",
+      runner: { type: "bun-script" as const, script: "dev" },
+    },
+  ],
 };
 
 test("uses each configured lane path directly", () => {
@@ -26,6 +34,7 @@ test("uses each configured lane path directly", () => {
     baseBranch: "main",
     lanes: configuredLanes,
     environmentVariable: "PROJECT_LANE_ROOT",
+    services: project.services,
   });
 
   expect(lanes.map(({ id }) => id)).toEqual(["lane-3", "lane-1"]);

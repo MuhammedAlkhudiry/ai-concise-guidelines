@@ -13,7 +13,7 @@ doctor
 - `mise run install` generates previews, syncs local agent configuration and skills, installs shell helpers, and finishes with the doctor checks.
 - `mise run install -- --compact` preserves warnings and failures while reducing successful agent output to one line.
 - `mise run check` runs formatting, linting, TypeScript checks, and tests.
-- `doctor` checks required tools, Solo readiness, managed links, and installed skill drift.
+- `doctor` checks required tools, managed links, and installed skill drift.
 
 After pulling changes, rerun `mise run install` if the managed hooks did not complete successfully. Use `doctor` to identify any remaining local drift.
 

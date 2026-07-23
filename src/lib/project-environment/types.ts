@@ -25,7 +25,6 @@ export interface ProjectEnvironmentContext {
   assetUrl?: string;
   metroPort: string;
   simulatorName: string;
-  soloProjectName: string;
   herdBin: string;
   herdCertificateAuthority: string;
   herdCommand: string;

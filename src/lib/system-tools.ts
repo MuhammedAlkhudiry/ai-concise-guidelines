@@ -184,24 +184,6 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
-        name: "solo",
-        level: "required",
-        why: "Controls Solo projects, processes, dev servers, logs, todos, and scratchpads.",
-        versionArgs: ["--version"],
-        update: {
-          note: "App-owned CLI: update Solo.app, then run mise run install to refresh the managed symlink.",
-        },
-      },
-      {
-        name: "jq",
-        level: "required",
-        why: "Reads Solo's local HTTP API discovery file for raw API fallback workflows.",
-        versionArgs: ["--version"],
-        update: {
-          note: "This machine uses Apple's jq; update it through macOS updates, or intentionally switch to Homebrew jq.",
-        },
-      },
-      {
         name: "fzf",
         level: "optional",
         why: "Used by project pickers and interactive hosts/plan deletion.",

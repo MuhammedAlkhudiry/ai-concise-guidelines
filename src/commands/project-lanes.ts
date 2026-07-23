@@ -13,6 +13,18 @@ import {
   type SimulatorFleetReport,
   type SimulatorSlimmingMode,
 } from "../lib/project-lanes";
+import {
+  laneServiceLogPath,
+  listLaneServiceStatuses,
+  openLaneTarget,
+  readLaneServiceLogs,
+  restartLaneService,
+  startLaneService,
+  stopLaneService,
+  type LaneServicesStatus,
+  verifyLaneServiceDefinitions,
+} from "../lib/lane-services";
+import { execa } from "execa";
 
 function printSimulatorFleetReport(report: SimulatorFleetReport, json: boolean): void {
   if (json) {
@@ -43,6 +55,7 @@ function slimmingMode(value: string | undefined): SimulatorSlimmingMode {
 
 export async function projectLanesSetup(project?: string, compact = false): Promise<void> {
   await setupProjectLanes(project, compact);
+  verifyLaneServiceDefinitions(project);
   if (compact) console.log(`lanes setup${project ? ` ${project}` : ""}: ok`);
 }
 
@@ -66,6 +79,7 @@ export async function projectLanesVerify(
   compact = false,
 ): Promise<void> {
   const verified = await verifyProjectLane(project, lane, { compact });
+  verifyLaneServiceDefinitions(verified.project.id, verified.id);
   console.log(`${verified.project.id}/${verified.id}\tVERIFIED`);
 }
 
@@ -99,6 +113,7 @@ export async function projectLaneSimulatorsRestore(project?: string, json = fals
 }
 
 export async function projectLanesReset(project: string, lane: string): Promise<void> {
+  await stopLaneService(project, lane, "all");
   await resetProjectLane(project, lane);
 }
 
@@ -107,5 +122,74 @@ export async function projectLanesDestroy(
   lane: string,
   confirm = false,
 ): Promise<void> {
+  await stopLaneService(project, lane, "all");
   await destroyProjectLane(project, lane, confirm);
+}
+
+function printServiceStatuses(statuses: LaneServicesStatus[], json: boolean): void {
+  if (json) {
+    console.log(JSON.stringify({ lanes: statuses }, null, 2));
+    return;
+  }
+  for (const lane of statuses) {
+    for (const service of lane.services) {
+      const ownership = service.manageable ? (service.managed ? "managed" : "external") : "health";
+      console.log(
+        `${lane.project}/${lane.lane}\t${service.name}\t${service.state.toUpperCase()}\t${ownership}`,
+      );
+    }
+  }
+}
+
+export async function projectLaneServices(
+  operation: string,
+  project?: string,
+  lane?: string,
+  service?: string,
+  options: { json?: boolean; lines?: string; follow?: boolean; raw?: boolean } = {},
+): Promise<void> {
+  if (operation === "status") {
+    printServiceStatuses(await listLaneServiceStatuses(project, lane), Boolean(options.json));
+    return;
+  }
+  if (!project || !lane || !service) {
+    throw new Error(`lanes services ${operation} requires project, lane, and service`);
+  }
+  if (operation === "start" || operation === "stop" || operation === "restart") {
+    const status =
+      operation === "start"
+        ? await startLaneService(project, lane, service)
+        : operation === "stop"
+          ? await stopLaneService(project, lane, service)
+          : await restartLaneService(project, lane, service);
+    printServiceStatuses([status], Boolean(options.json));
+    return;
+  }
+  if (operation === "logs") {
+    const lines = Number(options.lines ?? "30");
+    if (!Number.isSafeInteger(lines) || lines < 1) throw new Error("--lines must be positive");
+    if (options.follow) {
+      if (options.json) throw new Error("--follow and --json cannot be combined");
+      const path = laneServiceLogPath(project, lane, service);
+      await execa("tail", ["-n", String(lines), "-f", path], { stdio: "inherit" });
+      return;
+    }
+    const output = readLaneServiceLogs(project, lane, service, lines);
+    console.log(
+      options.json ? JSON.stringify({ project, lane, service, output }, null, 2) : output,
+    );
+    return;
+  }
+  throw new Error(`Unknown services operation: ${operation}`);
+}
+
+export async function projectLaneOpen(
+  project: string,
+  lane: string,
+  target: string,
+): Promise<void> {
+  if (target !== "phpstorm" && target !== "simulator" && target !== "browser") {
+    throw new Error(`Unknown lane target: ${target}`);
+  }
+  await openLaneTarget(project, lane, target);
 }
