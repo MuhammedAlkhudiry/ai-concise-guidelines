@@ -5,7 +5,8 @@ description: Production-to-local Laravel MySQL imports.
 
 ## Safety Rules
 
-- Keep production read-only: run only `php` config reads, optional `mysql SELECT`, and `mysqldump`; never run migrations, seeders, imports, deletes, updates, or Artisan write commands.
+- Keep production read-only: run only `php` config reads, optional `mysql SELECT`, and `mysqldump`; never run migrations, seeders, imports, deletes,
+  updates, or Artisan write commands.
 - Treat local import as destructive: it replaces the local database named by the local `.env`.
 
 ## Script

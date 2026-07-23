@@ -17,8 +17,10 @@ Run `knowledge --help` for the knowledge CLI.
 ## Creating or Refreshing
 
 1. Inspect local evidence before asking informed product or business questions. Ask only what the project cannot answer reliably.
-2. Capture product meaning, domain language, core workflows, invariants, and durable history. Link implementation through `key_files` instead of rewriting it.
+2. Capture product meaning, domain language, core workflows, invariants, and durable history. Link implementation through `key_files` instead of
+   rewriting it.
 3. Add durable cross-feature terms to `docs/knowledge/glossary.md`.
 4. Keep only high-signal `key_files`, useful aliases, and relevant learning links.
-5. Keep history only when it explains current behavior or a durable constraint; exclude routine changes, temporary bugs, incidents, and implementation chores.
+5. Keep history only when it explains current behavior or a durable constraint; exclude routine changes, temporary bugs, incidents, and implementation
+   chores.
 6. Support every claim with code, tests, runtime evidence, or durable documentation before setting `last_verified` to the current date.

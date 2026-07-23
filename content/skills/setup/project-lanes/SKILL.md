@@ -5,9 +5,8 @@ description: Persistent clone-lane setup, status, verification, reset, and destr
 
 A lane is a persistent, independent Git clone and saved Codex project with an isolated local environment.
 
-Run `lanes --help` and the relevant subcommand help for the authoritative interface. Lane status
-reports availability (`available` or `occupied`) separately from environment health (`ready`,
-`drifted`, or `broken`).
+Run `lanes --help` and the relevant subcommand help for the authoritative interface. Lane status reports availability (`available` or `occupied`)
+separately from environment health (`ready`, `drifted`, or `broken`).
 
 ## Workflow
 
@@ -18,10 +17,11 @@ reports availability (`available` or `occupied`) separately from environment hea
 5. Use the matching `lanes` command to set up, inspect, reset, or destroy lanes.
 6. Use $project-environment when the repository-owned lane contract is missing or broken.
 
-Register each clone as its own Codex project named `<Emoji> <Project> · Lane <N>`. Use one
-project-specific emoji consistently; it identifies the project, not lane readiness.
+Register each clone as its own Codex project named `<Emoji> <Project> · Lane <N>`. Use one project-specific emoji consistently; it identifies the
+project, not lane readiness.
 
 ## Completion
 
 - Current-lane repair is complete when `lanes verify` passes for that lane.
-- Fleet setup or shared-runtime repair is complete when `lanes audit <project>` passes for every configured lane. Add `--mobile` only when every lane's mobile environment is intentionally active.
+- Fleet setup or shared-runtime repair is complete when `lanes audit <project>` passes for every configured lane. Add `--mobile` only when every
+  lane's mobile environment is intentionally active.

@@ -156,13 +156,21 @@ export async function projectLaneServices(
     throw new Error(`lanes services ${operation} requires project, lane, and service`);
   }
   if (operation === "start" || operation === "stop" || operation === "restart") {
-    const status =
-      operation === "start"
-        ? await startLaneService(project, lane, service)
-        : operation === "stop"
-          ? await stopLaneService(project, lane, service)
-          : await restartLaneService(project, lane, service);
-    printServiceStatuses([status], Boolean(options.json));
+    const laneIDs =
+      lane === "all"
+        ? (await listLaneServiceStatuses(project)).map(({ lane: laneID }) => laneID)
+        : [lane];
+    const statuses: LaneServicesStatus[] = [];
+    for (const laneID of laneIDs) {
+      statuses.push(
+        operation === "start"
+          ? await startLaneService(project, laneID, service)
+          : operation === "stop"
+            ? await stopLaneService(project, laneID, service)
+            : await restartLaneService(project, laneID, service),
+      );
+    }
+    printServiceStatuses(statuses, Boolean(options.json));
     return;
   }
   if (operation === "logs") {

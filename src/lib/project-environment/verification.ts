@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -20,11 +21,13 @@ export async function verifyFetch(
   trustedCa?: string,
 ): Promise<void> {
   log("verify", `fetch ${label}: ${url}`);
-  const response = await fetch(url, {
-    headers,
-    ...(trustedCa ? { tls: { ca: trustedCa } } : {}),
-  });
-  assertEnvironment(response.ok, `${label} returned HTTP ${response.status}`);
+  const args = ["--silent", "--show-error", "--output", "/dev/null", "--write-out", "%{http_code}"];
+  if (trustedCa) args.push("--cacert", trustedCa);
+  for (const [name, value] of Object.entries(headers)) args.push("--header", `${name}: ${value}`);
+  const response = spawnSync("curl", [...args, url], { encoding: "utf8" });
+  if (response.error) throw response.error;
+  assertEnvironment(response.status === 0, `${label} request failed: ${response.stderr.trim()}`);
+  assertEnvironment(/^2\d\d$/.test(response.stdout), `${label} returned HTTP ${response.stdout}`);
 }
 
 export async function waitForFile(path: string, timeoutMs = 15_000): Promise<void> {
@@ -70,8 +73,7 @@ export function verifyLaravelEnvironment(
 export async function verifyViteDevelopmentServer(
   context: ProjectEnvironmentContext,
 ): Promise<void> {
-  const certificateAuthority = readFileSync(context.herdCertificateAuthority, "utf8");
-  await verifyFetch(context.appUrl, "Herd HTTPS site", {}, certificateAuthority);
+  await verifyFetch(context.appUrl, "Herd HTTPS site", {}, context.herdCertificateAuthority);
 
   const hotPath = resolve(context.backendDir, "public/hot");
   await waitForFile(hotPath);
@@ -83,7 +85,7 @@ export async function verifyViteDevelopmentServer(
     new URL("/@vite/client", viteOrigin).toString(),
     "Vite client",
     {},
-    certificateAuthority,
+    context.herdCertificateAuthority,
   );
 }
 

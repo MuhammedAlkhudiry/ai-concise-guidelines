@@ -15,11 +15,10 @@ Follow stronger established project patterns.
 
 ## HTTP
 
-Prefer: route → controller → Form Request → typed data object → service or invokable action →
-JSON Resource or resource collection.
+Prefer: route → controller → Form Request → typed data object → service or invokable action → JSON Resource or resource collection.
 
 ## Eloquent
 
-- Before adding `$fillable` or `$guarded`, check for global `Model::unguarded()` or
-  `Model::unguard()`. Do not add mass-assignment properties when global unguarding is active.
+- Before adding `$fillable` or `$guarded`, check for global `Model::unguarded()` or `Model::unguard()`. Do not add mass-assignment properties when
+  global unguarding is active.
 - Avoid hardcoded table names in queries. Migrations may use them because they are frozen snapshots.

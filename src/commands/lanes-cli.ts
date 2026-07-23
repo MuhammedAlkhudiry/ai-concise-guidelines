@@ -70,7 +70,7 @@ cli
 cli
   .command(
     "services <operation> [project] [lane] [service]",
-    "Manage lane services (status, start, stop, restart, or logs)",
+    "Manage lane services; use all for every lane or service",
   )
   .option("--json", "Print machine-readable output")
   .option("--lines <lines>", "Number of recent log lines", { default: "30" })

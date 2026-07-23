@@ -102,6 +102,73 @@ final class LaneStore: ObservableObject {
     }
   }
 
+  func restart(_ service: LaneService, on lane: LaneItem) {
+    guard service.manageable, service.state == .running, activeService == nil else { return }
+    activeService = "\(lane.serviceKey)/\(service.id)"
+    replaceService(service.withState(.starting), on: lane)
+    Task {
+      defer { activeService = nil }
+      do {
+        try await client.restartService(service, on: lane)
+        serviceStatuses = try await client.loadServiceStatuses()
+        errorMessage = nil
+      } catch {
+        serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func hasRunningServices(on lane: LaneItem) -> Bool {
+    services(for: lane).contains {
+      $0.manageable && ($0.state == .running || $0.state == .starting)
+    }
+  }
+
+  func hasRunningServices(in project: LaneProject) -> Bool {
+    project.lanes.contains(where: hasRunningServices)
+  }
+
+  func canControlServices(on lane: LaneItem) -> Bool {
+    services(for: lane).contains { $0.manageable && $0.state != .unavailable }
+  }
+
+  func setLaneServices(running: Bool, on lane: LaneItem) {
+    guard canControlServices(on: lane), activeService == nil else { return }
+    activeService = "\(lane.serviceKey)/all"
+    replaceManageableServices(on: lane, with: running ? .starting : .stopping)
+    Task {
+      defer { activeService = nil }
+      do {
+        try await client.setLaneServices(running: running, on: lane)
+        serviceStatuses = try await client.loadServiceStatuses()
+        errorMessage = nil
+      } catch {
+        serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func setProjectServices(running: Bool, in project: LaneProject) {
+    guard project.lanes.contains(where: canControlServices), activeService == nil else { return }
+    activeService = "\(project.id)/all/all"
+    for lane in project.lanes {
+      replaceManageableServices(on: lane, with: running ? .starting : .stopping)
+    }
+    Task {
+      defer { activeService = nil }
+      do {
+        try await client.setProjectServices(running: running, projectID: project.id)
+        serviceStatuses = try await client.loadServiceStatuses()
+        errorMessage = nil
+      } catch {
+        serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
   func latestLogs(for service: LaneService, on lane: LaneItem) async -> String {
     if !service.manageable {
       return service.detail ?? "\(service.name) health check is \(service.state.title.lowercased())."
@@ -114,5 +181,11 @@ final class LaneStore: ObservableObject {
       let index = serviceStatuses[lane.serviceKey]?.firstIndex(where: { $0.id == service.id })
     else { return }
     serviceStatuses[lane.serviceKey]?[index] = service
+  }
+
+  private func replaceManageableServices(on lane: LaneItem, with state: LaneServiceState) {
+    serviceStatuses[lane.serviceKey] = serviceStatuses[lane.serviceKey]?.map { service in
+      service.manageable && service.state != .unavailable ? service.withState(state) : service
+    }
   }
 }

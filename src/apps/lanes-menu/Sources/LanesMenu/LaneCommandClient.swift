@@ -37,12 +37,56 @@ struct LaneCommandClient: Sendable {
   }
 
   func setService(_ service: LaneService, running: Bool, on lane: LaneItem) async throws {
+    try await setServices(
+      running: running,
+      projectID: lane.projectID,
+      laneID: lane.laneID,
+      serviceID: service.id
+    )
+  }
+
+  func setLaneServices(running: Bool, on lane: LaneItem) async throws {
+    try await setServices(
+      running: running,
+      projectID: lane.projectID,
+      laneID: lane.laneID,
+      serviceID: "all"
+    )
+  }
+
+  func setProjectServices(running: Bool, projectID: String) async throws {
+    try await setServices(
+      running: running,
+      projectID: projectID,
+      laneID: "all",
+      serviceID: "all"
+    )
+  }
+
+  private func setServices(
+    running: Bool,
+    projectID: String,
+    laneID: String,
+    serviceID: String
+  ) async throws {
     let executable = lanesExecutable
     _ = try await Task.detached(priority: .userInitiated) {
       try run(
         executable,
         arguments: [
-          "services", running ? "start" : "stop", lane.projectID, lane.laneID, service.id, "--json",
+          "services", running ? "start" : "stop", projectID, laneID, serviceID, "--json",
+        ]
+      )
+    }.value
+  }
+
+  func restartService(_ service: LaneService, on lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    _ = try await Task.detached(priority: .userInitiated) {
+      try run(
+        executable,
+        arguments: [
+          "services", "restart", lane.projectID, lane.laneID, service.id, "--json",
         ]
       )
     }.value

@@ -35,6 +35,7 @@ struct LaneServiceRow: View {
   let service: LaneService
   let isBusy: Bool
   let onToggle: () -> Void
+  let onRestart: () -> Void
   let loadLogs: () async -> String
 
   @State private var isShowingLogs = false
@@ -56,22 +57,37 @@ struct LaneServiceRow: View {
       }
       Spacer()
       if service.manageable {
-        Button(action: onToggle) {
-          if service.state == .starting || service.state == .stopping {
-            ProgressView()
-              .controlSize(.mini)
-              .frame(width: 14, height: 14)
-          } else {
-            Image(systemName: service.state == .running ? "stop.fill" : "play.fill")
-              .font(.system(size: 10, weight: .bold))
-              .frame(width: 14, height: 14)
+        HStack(spacing: 8) {
+          if service.state == .running {
+            Button(action: onRestart) {
+              Image(systemName: "arrow.clockwise")
+                .font(.system(size: 11, weight: .bold))
+                .frame(width: 14, height: 14)
+            }
+            .buttonStyle(.plain)
+            .disabled(isBusy)
+            .help("Restart \(service.command ?? service.name)")
+            .accessibilityLabel("Restart \(service.command ?? service.name)")
           }
+
+          Button(action: onToggle) {
+            if service.state == .starting || service.state == .stopping {
+              ProgressView()
+                .controlSize(.mini)
+                .frame(width: 14, height: 14)
+            } else {
+              Image(systemName: service.state == .running ? "stop.fill" : "play.fill")
+                .font(.system(size: 10, weight: .bold))
+                .frame(width: 14, height: 14)
+            }
+          }
+          .buttonStyle(.plain)
+          .disabled(service.state == .unavailable || isBusy)
+          .help("\(service.state == .running ? "Stop" : "Start") \(service.command ?? service.name)")
+          .accessibilityLabel(
+            "\(service.state == .running ? "Stop" : "Start") \(service.command ?? service.name)"
+          )
         }
-        .buttonStyle(.plain)
-        .disabled(service.state == .unavailable || isBusy)
-        .accessibilityLabel(
-          "\(service.state == .running ? "Stop" : "Start") \(service.command ?? service.name)"
-        )
       }
     }
     .padding(.horizontal, 8)

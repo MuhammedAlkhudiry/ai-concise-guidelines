@@ -1,2 +1,1 @@
-mise run install
-mise run check
+mise run install mise run check

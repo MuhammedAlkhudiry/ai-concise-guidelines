@@ -2,7 +2,8 @@
 
 This repo assumes a small set of non-default tools on top of a normal macOS shell environment.
 
-`doctor` checks command presence, managed helper links, and installed skill drift. It does not verify login state, credentials, local project state, editor/terminal preferences, or full runtime access.
+`doctor` checks command presence, managed helper links, and installed skill drift. It does not verify login state, credentials, local project state,
+editor/terminal preferences, or full runtime access.
 
 Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and similar are intentionally not listed here.
 
@@ -15,9 +16,12 @@ mise run tools:status
 mise run tools:update:plan
 ```
 
-`tools:status` prints installed paths, current versions, latest known versions, and freshness labels. `tools:update:plan` prints the same version comparison plus reviewable update commands and notes, but does not change anything.
+`tools:status` prints installed paths, current versions, latest known versions, and freshness labels. `tools:update:plan` prints the same version
+comparison plus reviewable update commands and notes, but does not change anything.
 
-After running update commands, run `mise run install` again. Some installers may append shell setup directly to `~/.zshrc`; if the install fails the thin-`.zshrc` check, move any new shell setup into `shell/zsh-custom.zsh`, restore `~/.zshrc` to only source `~/.config/zsh-sync/custom.zsh`, then rerun `mise run install`.
+After running update commands, run `mise run install` again. Some installers may append shell setup directly to `~/.zshrc`; if the install fails the
+thin-`.zshrc` check, move any new shell setup into `shell/zsh-custom.zsh`, restore `~/.zshrc` to only source `~/.config/zsh-sync/custom.zsh`, then
+rerun `mise run install`.
 
 Use `mise run install -- --compact` in agent workflows to keep successful installation output to one line while preserving warnings and failures.
 
@@ -36,7 +40,8 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, and `simslim` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, and `simslim` are required by
+`doctor`; the rest are optional, but the repo assumes them when those workflows are used.
 
 | Tool            | Why this repo assumes it                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -53,14 +58,14 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `gcloud`        | Supports Google Cloud project, API, service account, and IAM workflows.                                                                |
 | `gum`           | Optional styled output for `doctor`.                                                                                                   |
 
-The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer.
-Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed.
-Install `agent-device` with `npm install -g agent-device`.
-Install SimSlim 0.2.0 or newer with `brew install mobai-app/tap/simslim`.
+The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer. Install
+`agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed. Install
+`agent-device` with `npm install -g agent-device`. Install SimSlim 0.2.0 or newer with `brew install mobai-app/tap/simslim`.
 
 ## Persistent Lane Simulator Profiles
 
-Each active project can declare a safe SimSlim profile in `config/active-projects.ts`. Lane setup applies that profile after installing the Herd certificate, and lane verification requires the exact expected service set.
+Each active project can declare a safe SimSlim profile in `config/active-projects.ts`. Lane setup applies that profile after installing the Herd
+certificate, and lane verification requires the exact expected service set.
 
 ```bash
 lanes simulators status [project]
@@ -69,7 +74,8 @@ lanes simulators apply [project] --mode full
 lanes simulators restore [project]
 ```
 
-Commands operate sequentially, preserve each simulator's original boot state, and report every lane failure together. Project mode is the default; full mode is explicit because it can disable capabilities used by the app.
+Commands operate sequentially, preserve each simulator's original boot state, and report every lane failure together. Project mode is the default;
+full mode is explicit because it can disable capabilities used by the app.
 
 ## Observability CLIs
 

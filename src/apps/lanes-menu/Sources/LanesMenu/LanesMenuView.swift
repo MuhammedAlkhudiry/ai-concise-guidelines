@@ -110,44 +110,94 @@ struct LanesMenuView: View {
     ScrollView {
       LazyVStack(spacing: 0) {
         ForEach(store.projects) { project in
-          HStack {
+          let isProjectRunning = store.hasRunningServices(in: project)
+          HStack(spacing: 6) {
             Text(project.name.uppercased())
               .font(.caption2.weight(.bold))
               .tracking(0.6)
               .foregroundStyle(.secondary)
             Spacer()
+            Button {
+              store.setProjectServices(running: !isProjectRunning, in: project)
+            } label: {
+              if store.activeService == "\(project.id)/all/all" {
+                ProgressView()
+                  .controlSize(.mini)
+                  .frame(width: 12, height: 12)
+              } else {
+                Image(systemName: isProjectRunning ? "stop.fill" : "play.fill")
+                  .font(.system(size: 9, weight: .bold))
+                  .frame(width: 12, height: 12)
+              }
+            }
+            .buttonStyle(.plain)
+            .disabled(
+              store.activeService != nil
+                || !project.lanes.contains(where: store.canControlServices)
+            )
+            .help(
+              "\(isProjectRunning ? "Stop" : "Start") all commands in \(project.name)"
+            )
+            .accessibilityLabel(
+              "\(isProjectRunning ? "Stop" : "Start") all \(project.name) lanes"
+            )
           }
           .padding(.horizontal, 10)
           .padding(.top, 8)
           .padding(.bottom, 4)
 
           ForEach(project.lanes) { lane in
-            Button {
-              selectedLaneID = lane.id
-            } label: {
-              HStack(spacing: 6) {
-                Circle()
-                  .fill(laneHealthColor(lane.health))
-                  .frame(width: 6, height: 6)
-                Text(lane.displayName)
-                  .font(.caption.weight(selectedLaneID == lane.id ? .semibold : .regular))
-                  .monospaced()
-                Spacer()
+            let isLaneRunning = store.hasRunningServices(on: lane)
+            HStack(spacing: 6) {
+              Button {
+                selectedLaneID = lane.id
+              } label: {
+                HStack(spacing: 6) {
+                  Circle()
+                    .fill(laneHealthColor(lane.health))
+                    .frame(width: 6, height: 6)
+                  Text(lane.displayName)
+                    .font(.caption.weight(selectedLaneID == lane.id ? .semibold : .regular))
+                    .monospaced()
+                  Spacer()
+                }
+                .contentShape(Rectangle())
               }
-              .padding(.horizontal, 10)
-              .padding(.vertical, 5)
-              .background(
-                selectedLaneID == lane.id ? Color.accentColor.opacity(0.15) : .clear,
-                in: RoundedRectangle(cornerRadius: 4)
+              .buttonStyle(.plain)
+              .accessibilityLabel(
+                "\(lane.projectName) \(lane.displayName), \(lane.health)"
               )
-              .contentShape(Rectangle())
+              .help(
+                "\(lane.projectName) \(lane.displayName) environment: \(lane.health.capitalized)"
+              )
+
+              Button {
+                store.setLaneServices(running: !isLaneRunning, on: lane)
+              } label: {
+                if store.activeService == "\(lane.serviceKey)/all" {
+                  ProgressView()
+                    .controlSize(.mini)
+                    .frame(width: 12, height: 12)
+                } else {
+                  Image(systemName: isLaneRunning ? "stop.fill" : "play.fill")
+                    .font(.system(size: 9, weight: .bold))
+                    .frame(width: 12, height: 12)
+                }
+              }
+              .buttonStyle(.plain)
+              .disabled(store.activeService != nil || !store.canControlServices(on: lane))
+              .help(
+                "\(isLaneRunning ? "Stop" : "Start") all commands in \(lane.projectName) \(lane.displayName)"
+              )
+              .accessibilityLabel(
+                "\(isLaneRunning ? "Stop" : "Start") \(lane.projectName) \(lane.displayName)"
+              )
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(
-              "\(lane.projectName) \(lane.displayName), \(lane.health)"
-            )
-            .help(
-              "\(lane.projectName) \(lane.displayName) environment: \(lane.health.capitalized)"
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+              selectedLaneID == lane.id ? Color.accentColor.opacity(0.15) : .clear,
+              in: RoundedRectangle(cornerRadius: 4)
             )
           }
         }
@@ -225,6 +275,7 @@ struct LanesMenuView: View {
               service: service,
               isBusy: store.activeService != nil,
               onToggle: { store.toggle(service, on: lane) },
+              onRestart: { store.restart(service, on: lane) },
               loadLogs: { await store.latestLogs(for: service, on: lane) }
             )
           }

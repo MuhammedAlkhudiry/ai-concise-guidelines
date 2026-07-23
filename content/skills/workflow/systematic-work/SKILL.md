@@ -12,8 +12,8 @@ description: Systematic exhaustive coverage and manual item-by-item work.
 5. Resolve every in-scope item, rerun discovery to catch omissions, then run relevant verification.
 6. Give every in-scope item a final disposition and report the coverage method, boundaries, counts, verification, uncertainty, and blockers.
 
-“All” means the full discovered set, never examples, changed files, convenient subsets, or passing items. Verification proves only what it checks; it never proves inventory coverage.
+“All” means the full discovered set, never examples, changed files, convenient subsets, or passing items. Verification proves only what it checks; it
+never proves inventory coverage.
 
-When the user asks for manual work, inspect, judge, and edit every item individually. Use search and
-structured tools for discovery and verification, but never scripts, codemods, generated edits, bulk
-transformations, or delegated edit sweeps. Repetition never relaxes individual judgment.
+When the user asks for manual work, inspect, judge, and edit every item individually. Use search and structured tools for discovery and verification,
+but never scripts, codemods, generated edits, bulk transformations, or delegated edit sweeps. Repetition never relaxes individual judgment.

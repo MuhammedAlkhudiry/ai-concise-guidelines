@@ -6,7 +6,8 @@ description: Gentle walkthroughs of implemented work.
 ## Durable State
 
 1. Resolve the canonical repo root and current branch or PR identity.
-2. Under `${XDG_STATE_HOME:-~/.local/state}/implementation-walkthroughs/`, derive a deterministic safe filename from the repo root and PR number, falling back to the branch name.
+2. Under `${XDG_STATE_HOME:-~/.local/state}/implementation-walkthroughs/`, derive a deterministic safe filename from the repo root and PR number,
+   falling back to the branch name.
 3. Before analysis or writes, resume that file or create it automatically.
 4. Reconcile changes in place and mark only affected parts stale; change never justifies new state.
 
@@ -30,18 +31,19 @@ Persist this shape, omitting `pr` when no PR exists, and reconstruct broader con
 
 ## Prepare Quietly
 
-1. Reconstruct purpose, flows, impact, risks, dependencies, and non-scope from state, branch or PR context, diffs,
-   commits, changed files, migrations, config, docs, tests, and notes.
+1. Reconstruct purpose, flows, impact, risks, dependencies, and non-scope from state, branch or PR context, diffs, commits, changed files, migrations,
+   config, docs, tests, and notes.
 2. Split work into coherent behaviors or implementation slices.
-3. Environment work is preparation, never a part. Verify a responding target URL in Chrome for web, or the built and
-   launched target screen on a device for mobile. Keep preparation invisible unless it needs the user's attention.
+3. Environment work is preparation, never a part. Verify a responding target URL in Chrome for web, or the built and launched target screen on a
+   device for mobile. Keep preparation invisible unless it needs the user's attention.
 
 ## Walkthrough Loop
 
 1. Use warm, calm, gentle language and the final-answer shape below for walkthrough turns.
 2. Present only the current part and wait for the user's response before continuing.
 3. After each walkthrough turn, persist the cursor and each part's `pending`, `completed`, `skipped`, or `stale` status.
-4. When the user requests a change, pause the walkthrough and handle the work normally, regardless of size. Remain in the detour until the user explicitly asks for the next part, then reconcile affected parts before resuming.
+4. When the user requests a change, pause the walkthrough and handle the work normally, regardless of size. Remain in the detour until the user
+   explicitly asks for the next part, then reconcile affected parts before resuming.
 
 ## Final-answer shape
 

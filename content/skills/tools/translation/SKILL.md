@@ -12,9 +12,8 @@ description: Translation, localization, Arabic UX copy, and copy review.
 
 ## Review
 
-For persisted review progress, keep `.translations-review/<feature-or-file>/translation-review.md` with files
-and languages, progress, issues by severity, and approved patterns. Read and update it on every
-continuation.
+For persisted review progress, keep `.translations-review/<feature-or-file>/translation-review.md` with files and languages, progress, issues by
+severity, and approved patterns. Read and update it on every continuation.
 
 Report each finding as:
 

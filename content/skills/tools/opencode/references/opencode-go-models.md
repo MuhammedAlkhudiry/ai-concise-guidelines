@@ -12,13 +12,13 @@ Source: `opencode models opencode-go --refresh --verbose`
 - `opencode-go/mimo-v2.5` - Xiaomi low-cost multimodal model with 1M context; useful for broad, cheap agent runs over text, images, audio, or video.
 - `opencode-go/mimo-v2.5-pro` - Xiaomi Pro text-only model with 1M context; use for heavier coding or reasoning than base MiMo.
 - `opencode-go/minimax-m3` - MiniMax multimodal model with 1M context; a balanced agent-worker option for text, image, and video inputs.
-- `opencode-go/qwen3.7-max` - Alibaba's stronger Qwen3.7 agent model with 1M text-only context; use for harder planning, coding, and tool-use reasoning.
-- `opencode-go/qwen3.7-plus` - Cost-effective Qwen3.7 model with text and image input; use for everyday coding, productivity, and vision-language tasks.
+- `opencode-go/qwen3.7-max` - Alibaba's stronger Qwen3.7 agent model with 1M text-only context; use for harder planning, coding, and tool-use
+  reasoning.
+- `opencode-go/qwen3.7-plus` - Cost-effective Qwen3.7 model with text and image input; use for everyday coding, productivity, and vision-language
+  tasks.
 
 Reference sources:
 
-- OpenCode Data catalogs:
-  [DeepSeek](https://opencode.ai/data/deepseek),
-  [Zhipu](https://opencode.ai/data/zhipuai), [xAI](https://opencode.ai/data/xai),
-  [Moonshot](https://opencode.ai/data/moonshot), [Xiaomi](https://opencode.ai/data/xiaomi),
+- OpenCode Data catalogs: [DeepSeek](https://opencode.ai/data/deepseek), [Zhipu](https://opencode.ai/data/zhipuai),
+  [xAI](https://opencode.ai/data/xai), [Moonshot](https://opencode.ai/data/moonshot), [Xiaomi](https://opencode.ai/data/xiaomi),
   [MiniMax](https://opencode.ai/data/minimax), and [Qwen](https://opencode.ai/data/qwen)

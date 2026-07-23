@@ -9,7 +9,8 @@ description: PRODUCT_SETUP.md creation and maintenance.
 2. Create it when setup maintenance is requested. Refresh it only when durable context has changed.
 3. Inspect authoritative product, code, data, deployment, and observability sources.
 4. Keep `PRODUCT_SETUP.md` as the sole setup document. Retain history only when it explains a recurring risk, product constraint, or future check.
-5. Keep commands and API calls reproducible and production access read-only. Exclude secrets and private connection values; treat writes, destructive queries, schema changes, long exports, and ambiguous targets as blockers.
+5. Keep commands and API calls reproducible and production access read-only. Exclude secrets and private connection values; treat writes, destructive
+   queries, schema changes, long exports, and ambiguous targets as blockers.
 
 ## Content
 
