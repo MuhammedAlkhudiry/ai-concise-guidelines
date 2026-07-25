@@ -40,7 +40,10 @@ description: Product health checks, investigations, and reports.
 
 ## Report contract
 
-- Lead with findings and analysis; place pure statistics in a table at the end.
+- Lead with findings and analysis, then place pure statistics in a table.
+- End with a ranked **Action items** section as the final substantive section. Map every material finding or observability gap to a concrete next
+  action, its urgency, and the evidence that will confirm completion. Distinguish required fixes from recommended follow-up and monitoring. If no
+  action is warranted, state that explicitly and give the condition that would trigger action.
 - Prefix every statistics table row with exactly one interpretation marker: 🟢 for healthy or improved, 🟡 for warning, uncertain, or worth watching,
   and 🔴 for failed, severely regressed, or requiring action.
 - Rank findings by affected users or tenants, critical-flow impact, revenue risk, and operational risk. Use colored status emojis and include

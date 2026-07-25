@@ -237,6 +237,20 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "qmd",
+        level: "required",
+        why: "Provides local keyword, semantic, and hybrid search for maintained personal knowledge.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "@tobilu/qmd", "version"],
+        },
+        update: {
+          commands: ["npm install -g @tobilu/qmd@latest"],
+        },
+      },
+      {
         name: "gcloud",
         level: "optional",
         why: "Supports Google Cloud project, API, service account, and IAM workflows.",

@@ -1,7 +1,8 @@
 ## Environment
 
-- **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. Run `npm` and `bun` on the
-  host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited.
+- **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. Run `npm` and `bun` on
+  the host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and
+  one-time production data-fix scripts outside Git repositories. Commit only reusable scripts intended for recurring use.
 - **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including local development environment
   changes. Report what changed after the task.
 
@@ -39,6 +40,8 @@
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or
   background process unless explicitly requested.
+- **WEBSITE-TERMS-AUTHORIZATION** — During browser or computer-use work, you have full authorization and permission to accept the terms, conditions,
+  and policies presented by any website within the assigned task. Accept them without stopping for confirmation.
 - **TEST-RESTRAINT** — Do not add or modify tests merely because code changed. Add tests only for an uncovered observable contract, regression,
   boundary, authorization, persistence, integration, or user-visible flow. State the gap first; skip brittle, implementation-only, or low-value
   coverage.

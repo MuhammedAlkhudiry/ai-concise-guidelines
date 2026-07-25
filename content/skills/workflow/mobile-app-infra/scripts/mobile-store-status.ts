@@ -107,11 +107,20 @@ if (platform === "ios" || platform === "all") {
 finish();
 
 function getEasStatus(): StatusSection {
-  const whoami = run(["bunx", "eas", "whoami", "--non-interactive"]);
-  const builds = run(["bunx", "eas", "build:list", "--limit", "4", "--json", "--non-interactive"]);
+  const easCliPackage = getEasCliPackage();
+  const whoami = run(["bunx", easCliPackage, "whoami", "--non-interactive"]);
+  const builds = run([
+    "bunx",
+    easCliPackage,
+    "build:list",
+    "--limit",
+    "4",
+    "--json",
+    "--non-interactive",
+  ]);
 
   return {
-    status: whoami.ok || builds.ok ? "ok" : "error",
+    status: whoami.ok && builds.ok ? "ok" : "error",
     details: {
       whoami: commandDetail(whoami),
       latestBuilds: summarizeBuilds(parseJsonCommand(builds)),
@@ -119,6 +128,12 @@ function getEasStatus(): StatusSection {
         "Some EAS CLI versions do not expose submit history; use store APIs for final submission state.",
     },
   };
+}
+
+function getEasCliPackage() {
+  const configuredVersion = easJson.cli?.version?.match(/\d+\.\d+\.\d+/)?.[0];
+
+  return `eas-cli@${configuredVersion ?? "latest"}`;
 }
 
 async function getGooglePlayStatus(
@@ -140,19 +155,22 @@ async function getGooglePlayStatus(
     const base = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}`;
     const edit = await googleFetch(`${base}/edits`, token, { method: "POST" });
     const editId = edit.id;
-    const trackStatus = await googleFetch(`${base}/edits/${editId}/tracks/${track}`, token);
 
-    await googleFetch(`${base}/edits/${editId}`, token, { method: "DELETE" }).catch(() => null);
+    try {
+      const trackStatus = await googleFetch(`${base}/edits/${editId}/tracks/${track}`, token);
 
-    return {
-      status: "ok",
-      details: {
-        packageName,
-        track,
-        releases: trackStatus.releases ?? [],
-        note: "Uses a temporary uncommitted Google Play edit for read access, then deletes it.",
-      },
-    };
+      return {
+        status: "ok",
+        details: {
+          packageName,
+          track,
+          releases: trackStatus.releases ?? [],
+          note: "Uses a temporary uncommitted Google Play edit for read access, then deletes it.",
+        },
+      };
+    } finally {
+      await googleFetch(`${base}/edits/${editId}`, token, { method: "DELETE" });
+    }
   } catch (error) {
     return errored(error);
   }
@@ -453,10 +471,9 @@ function loadEnvFile(envPath: string) {
     const value = trimmed
       .slice(separator + 1)
       .trim()
-      .replace(/^['"]|['"]$/g, "")
-      .replace(/^\$HOME(?=\/)/, process.env.HOME ?? "");
+      .replace(/^['"]|['"]$/g, "");
 
-    process.env[key] ??= value;
+    process.env[key] ??= expandEnvVariables(value);
   }
 }
 
@@ -507,9 +524,13 @@ function getPlatform(value: string): Platform {
 }
 
 function resolvePath(path: string) {
-  return path
-    .replace(/^\$HOME(?=\/)/, process.env.HOME ?? "")
-    .replace(/^~(?=\/)/, process.env.HOME ?? "");
+  return expandEnvVariables(path).replace(/^~(?=\/)/, process.env.HOME ?? "");
+}
+
+function expandEnvVariables(value: string) {
+  return value.replace(/\$(?:\{([A-Z0-9_]+)\}|([A-Z0-9_]+))/g, (match, braced, bare) => {
+    return process.env[braced ?? bare] ?? match;
+  });
 }
 
 function readJson<T>(path: string): T {
@@ -540,13 +561,18 @@ function errored(error: unknown): StatusSection {
 function finish() {
   if (jsonOutput) {
     console.log(JSON.stringify(report, null, 2));
-    return;
+  } else {
+    for (const [name, section] of Object.entries(report)) {
+      console.log(`\n# ${name} [${section.status}]`);
+      console.log(JSON.stringify(section.details, null, 2));
+    }
   }
 
-  for (const [name, section] of Object.entries(report)) {
-    console.log(`\n# ${name} [${section.status}]`);
-    console.log(JSON.stringify(section.details, null, 2));
-  }
+  process.exitCode = Object.values(report).some(
+    (section) => section.status === "missing" || section.status === "error",
+  )
+    ? 1
+    : 0;
 }
 
 function printHelpAndExit(code = 0): never {

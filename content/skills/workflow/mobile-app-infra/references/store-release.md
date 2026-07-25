@@ -18,4 +18,16 @@ Keep `built`, `submitted`, `waiting for review`, `in review`, `rolling out`, and
 provisioning failures, version conflicts, policy rejection, or unresolved product decisions about rollout, compliance, pricing, privacy, or
 availability. When an authorized API cannot perform a required action, hand off that exact manual step.
 
-Never automate App Store Connect through a browser. Use its API and report unsupported actions as manual blockers.
+Routine store releases are API/CLI-only: use EAS for builds and submissions and provider APIs for status, rollout, listings, and other supported
+release operations. Never automate App Store Connect or Google Play Console through a browser. Treat API-unsupported account, policy, legal, payment,
+and review tasks as explicit manual blockers requiring fresh user intent.
+
+## App Store Version Preparation
+
+Use the bundled `scripts/mobile-app-store-release.ts`, resolved relative to this skill directory rather than the target repository. Run it with
+`--help`, then pass the project root, mobile directory, and provider environment discovered through $service-access.
+
+- `prepare` requires an explicit processed build number and localized release notes. It creates the version when needed, preserves localization and
+  review details from the previous version, updates the selected localization, and attaches the build.
+- `submit` sends the prepared version through Apple's review-submission API and reuses an active submission when one already exists.
+- Use `scripts/mobile-store-status.ts` for all read-only release inspection. Do not use preparation or submission as a status check.

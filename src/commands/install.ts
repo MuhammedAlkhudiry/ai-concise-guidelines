@@ -89,6 +89,7 @@ const SHARED_BIN_COMMANDS = [
   { name: "doctor", source: "doctor.zsh" },
   { name: "plan", source: "plan.zsh" },
   { name: "knowledge", source: "knowledge.zsh" },
+  { name: "pk", source: "pk.zsh" },
   { name: "lanes", source: "lanes.zsh" },
   { name: "sentry-cli", source: "sentry-cli.zsh" },
 ];

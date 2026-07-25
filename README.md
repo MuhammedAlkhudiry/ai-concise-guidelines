@@ -22,7 +22,7 @@ drift.
 
 - `content/` — shared agent rules, local skills, and active-project references.
 - `config/` — Codex, OpenCode, MCP, remote-skill, model, and secret-template configuration.
-- `src/` — generator, installer, doctor support, knowledge commands, and tool-status logic.
+- `src/` — generator, installer, doctor support, project and personal knowledge commands, and tool-status logic.
 - `shell/` — synced Zsh configuration and installed helper commands.
 - `output/` — generated previews; never edit these files directly.
 - `system-tools.md` — required and optional host tools plus update guidance.

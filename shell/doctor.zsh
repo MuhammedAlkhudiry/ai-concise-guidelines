@@ -242,6 +242,7 @@ main() {
   check_tool sg optional "Install ast-grep for AST-shaped code search."
   check_tool wacli optional "Used to read and export WhatsApp data for authorized personal knowledge workflows."
   check_tool imsg optional "Used to read and export local SMS and iMessage data for authorized personal knowledge workflows."
+  check_tool qmd required "Provides local keyword, semantic, and hybrid search for maintained personal knowledge."
   check_tool gcloud optional "Used for Google Cloud project, API, service account, and IAM workflows."
 
   print_header "Observability CLIs"
@@ -265,6 +266,7 @@ main() {
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
   check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"
   check_link knowledge "$HOME/bin/knowledge" "$MY_SETUP_ROOT/shell/knowledge.zsh"
+  check_link pk "$HOME/bin/pk" "$MY_SETUP_ROOT/shell/pk.zsh"
   check_link sentry-cli "$HOME/bin/sentry-cli" "$MY_SETUP_ROOT/shell/sentry-cli.zsh"
 
   print_header "Managed skills"

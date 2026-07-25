@@ -5,6 +5,13 @@ description: Configured service access and credential repair.
 
 Load only the matching provider reference. If none exists, stop using this router.
 
+## References
+
+- Advertising platforms: [references/ads.md](references/ads.md)
+- Apple services: [references/apple.md](references/apple.md)
+- Google services other than Google Ads: [references/google.md](references/google.md)
+- Remaining configured providers: [references/others.md](references/others.md)
+
 ## Workflow
 
 1. Discover connected apps, native authentication, authorized runtimes, and `$SERVICE_CREDENTIALS_HOME` before requesting credentials.

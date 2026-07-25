@@ -40,8 +40,8 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, and `simslim` are required by
-`doctor`; the rest are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, `simslim`, and `qmd` are
+required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
 
 | Tool            | Why this repo assumes it                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -55,12 +55,14 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `sg`            | Optional AST-shaped code search through ast-grep when text search is too loose.                                                        |
 | `wacli`         | Reads and exports WhatsApp data for authorized personal knowledge workflows.                                                           |
 | `imsg`          | Reads and exports local SMS and iMessage data for authorized personal knowledge workflows; reading Messages requires Full Disk Access. |
+| `qmd`           | Provides local keyword, semantic, and hybrid search for maintained personal knowledge through `pk`.                                    |
 | `gcloud`        | Supports Google Cloud project, API, service account, and IAM workflows.                                                                |
 | `gum`           | Optional styled output for `doctor`.                                                                                                   |
 
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer. Install
 `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed. Install
-`agent-device` with `npm install -g agent-device`. Install SimSlim 0.2.0 or newer with `brew install mobai-app/tap/simslim`.
+`agent-device` with `npm install -g agent-device`. Install SimSlim 0.2.0 or newer with `brew install mobai-app/tap/simslim`. Install qmd with
+`npm install -g @tobilu/qmd`; `pk setup` creates its isolated personal-knowledge index.
 
 ## Persistent Lane Simulator Profiles
 
