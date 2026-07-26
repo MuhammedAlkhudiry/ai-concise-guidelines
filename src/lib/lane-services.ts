@@ -286,27 +286,42 @@ function serviceContext(
     "-",
   );
   const label = `com.muhammed.lanes.${safeKey}`;
-  const executable =
-    definition.runner.type === "bun-script"
-      ? findExecutable([
+  const executable = (() => {
+    if (definition.runner.type === "bun-script") {
+      return findExecutable([
           join(homedir(), ".bun/bin/bun"),
           "/opt/homebrew/bin/bun",
           "/usr/local/bin/bun",
-        ])
-      : findExecutable([
-          join(homedir(), "Library/Application Support/Herd/bin/php"),
-          "/opt/homebrew/bin/php",
-          "/usr/local/bin/php",
-          "/usr/bin/php",
-        ]);
-  const args =
-    definition.runner.type === "bun-script"
-      ? [definition.runner.script, ...scriptArguments]
-      : ["artisan", definition.runner.command];
-  const command =
-    definition.runner.type === "bun-script"
-      ? `bun ${[definition.runner.script, ...scriptArguments].join(" ")}`
-      : `php artisan ${definition.runner.command}`;
+      ]);
+    }
+    if (definition.runner.type === "npm-script") {
+      return findExecutable([
+        join(homedir(), ".local/share/mise/installs/node/latest/bin/npm"),
+        "/opt/homebrew/bin/npm",
+        "/usr/local/bin/npm",
+      ]);
+    }
+    return findExecutable([
+      join(homedir(), "Library/Application Support/Herd/bin/php"),
+      "/opt/homebrew/bin/php",
+      "/usr/local/bin/php",
+      "/usr/bin/php",
+    ]);
+  })();
+  const args = (() => {
+    if (definition.runner.type === "bun-script") {
+      return [definition.runner.script, ...scriptArguments];
+    }
+    if (definition.runner.type === "npm-script") {
+      return ["run", definition.runner.script, ...(scriptArguments.length ? ["--", ...scriptArguments] : [])];
+    }
+    return ["artisan", definition.runner.command];
+  })();
+  const command = (() => {
+    if (definition.runner.type === "artisan") return `php artisan ${definition.runner.command}`;
+    const runtime = definition.runner.type === "npm-script" ? "npm run" : "bun";
+    return `${runtime} ${[definition.runner.script, ...scriptArguments].join(" ")}`;
+  })();
   return {
     lane,
     definition,
@@ -510,7 +525,7 @@ function processSnapshot(): ObservedProcess[] {
     .map((line) => line.trim().match(/^(\d+)\s+(\d+)\s+(.+)$/))
     .filter((match): match is RegExpMatchArray => Boolean(match))
     .filter((match) =>
-      /\bbun\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(
+      /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(
         match[3]!.toLowerCase(),
       ),
     )
@@ -562,9 +577,10 @@ function matchingProcesses(
       );
     }
     const script = context.definition.runner.script.toLowerCase();
+    const runtime = context.definition.runner.type === "npm-script" ? "npm" : "bun";
     return (
-      process.command.includes(`bun ${script}`) ||
-      process.command.includes(`bun run ${script}`)
+      process.command.includes(`${runtime} ${script}`) ||
+      process.command.includes(`${runtime} run ${script}`)
     );
   });
 }
@@ -603,6 +619,7 @@ function childPids(pid: number): number[] {
 
 function launchAgentPlist(context: ServiceContext): string {
   const path = [
+    join(homedir(), ".local/share/mise/installs/node/latest/bin"),
     join(homedir(), ".bun/bin"),
     join(homedir(), ".local/bin"),
     join(homedir(), "Library/Application Support/Herd/bin"),

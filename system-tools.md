@@ -53,6 +53,7 @@ required by `doctor`; the rest are optional, but the repo assumes them when thos
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
 | `fzf`           | Used by project pickers and interactive hosts/plan deletion.                                                                           |
 | `sg`            | Optional AST-shaped code search through ast-grep when text search is too loose.                                                        |
+| `magick`        | Inspects and measures raster UI references for screenshot-led implementation.                                                          |
 | `wacli`         | Reads and exports WhatsApp data for authorized personal knowledge workflows.                                                           |
 | `imsg`          | Reads and exports local SMS and iMessage data for authorized personal knowledge workflows; reading Messages requires Full Disk Access. |
 | `qmd`           | Provides local keyword, semantic, and hybrid search for maintained personal knowledge through `pk`.                                    |

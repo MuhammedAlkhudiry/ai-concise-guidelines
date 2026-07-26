@@ -9,11 +9,15 @@ description: AI agent skill creation and maintenance.
   instructions or authoritative sources.
 - Remove textbook material, generic advice, copied global rules, duplication, mood, decorative examples, stale guidance, and no-op steps before adding
   anything.
-- Route to authoritative CLI help, schemas, metadata, documentation, live catalogs, or another skill instead of copying them.
+- For CLI-backed skills, require the agent to read the narrowest relevant live help before acting. Never copy, summarize, explain, or maintain CLI
+  commands, options, syntax, installation steps, or behavior that help exposes. Keep only task-specific workflow, decisions, safety boundaries, and
+  completion contracts that the CLI cannot provide.
+- Route to authoritative schemas, metadata, documentation, live catalogs, or another skill instead of copying them.
 - Bundle source material only when it is unavailable at execution time, prohibitively expensive to retrieve, or needs a stable task-specific
   interpretation.
 - State the intended rule or boundary directly instead of layering exception clauses.
-- Keep exact command shapes, file structures, and output templates only when they prevent guessing.
+- Keep exact command shapes only when live help cannot determine the task-specific invocation. Keep file structures and output templates only when
+  they prevent guessing.
 - Give workflow steps checkable completion conditions when done would otherwise be ambiguous.
 
 ## Structure

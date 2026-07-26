@@ -18,6 +18,7 @@ const laneServiceSchema = z.object({
   directory: z.string().min(1),
   runner: z.discriminatedUnion("type", [
     z.object({ type: z.literal("bun-script"), script: z.string().min(1) }),
+    z.object({ type: z.literal("npm-script"), script: z.string().min(1) }),
     z.object({ type: z.literal("artisan"), command: z.string().min(1) }),
   ]),
 });
@@ -65,7 +66,10 @@ export interface LaneServiceDefinition {
   id: string;
   name: string;
   directory: string;
-  runner: { type: "bun-script"; script: string } | { type: "artisan"; command: string };
+  runner:
+    | { type: "bun-script"; script: string }
+    | { type: "npm-script"; script: string }
+    | { type: "artisan"; command: string };
 }
 
 export interface SimulatorSlimmingProfile {

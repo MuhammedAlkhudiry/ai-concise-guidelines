@@ -10,7 +10,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     name: "Awraq",
     remoteUrl: "https://github.com/MuhammedAlkhudiry/awraq-project.git",
     baseBranch: "main",
-    lanes: [1, 2, 3].map((number) => ({
+    lanes: [1, 2, 3, 4].map((number) => ({
       number,
       path: join(projectsRoot, `awraq-lane-${number}`),
     })),
@@ -20,7 +20,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
         id: "frontend",
         name: "Frontend",
         directory: "family-tree",
-        runner: { type: "bun-script", script: "dev" },
+        runner: { type: "npm-script", script: "dev" },
       },
       {
         id: "metro",

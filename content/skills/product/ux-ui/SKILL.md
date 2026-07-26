@@ -7,6 +7,7 @@ description: UX/UI discovery, prototyping, implementation, options, and review.
 
 - For a new interface, redesign, or meaningful flow change, use the interview and prototype loop below.
 - For a review, audit, or small scoped change, inspect the existing interface and proceed directly without forcing the discovery loop.
+- When implementing or refining an interface from a raster reference, use $visual-matching before implementation.
 
 ## Interview and prototype loop
 

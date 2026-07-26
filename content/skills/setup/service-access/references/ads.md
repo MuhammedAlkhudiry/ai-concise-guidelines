@@ -18,9 +18,9 @@ OAuth, 2FA, CAPTCHA, or missing permissions. Request approval before every accou
 
 - Open [Apple Ads Advanced](https://app-ads.apple.com/cm/app/) in Chrome and select the exact organization or campaign group for the task.
 - Verify browser access from the Campaigns dashboard and report the organization name and ID, campaign group, currency, timezone, and user role.
-- Prefer the Apple Ads Campaign Management API when `$SERVICE_CREDENTIALS_HOME/apple-ads/oauth.json` and its referenced private key exist. Use API
-  v5 and verify access with `GET /api/v5/acls`; the returned `orgId` is the Apple Ads account identifier. Request only the least-privileged API Read
-  Only role for reporting unless an approved task requires mutations.
+- Prefer the Apple Ads Campaign Management API when `$SERVICE_CREDENTIALS_HOME/apple-ads/oauth.json` and its referenced private key exist. Use API v5
+  and verify access with `GET /api/v5/acls`; the returned `orgId` is the Apple Ads account identifier. Request only the least-privileged API Read Only
+  role for reporting unless an approved task requires mutations.
 - Keep the Apple Account, Apple Ads organization, campaign group, App Store Connect account, promoted app, API user, OAuth client, and AdServices
   attribution integration distinct. Store `clientId`, `teamId`, `keyId`, the private-key path, and any selected `orgId` in the credential file; create
   access tokens at runtime and never persist them.

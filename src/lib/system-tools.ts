@@ -210,6 +210,19 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "magick",
+        level: "optional",
+        why: "Inspects and measures raster UI references for screenshot-led implementation.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "imagemagick",
+        },
+        update: {
+          commands: ["brew upgrade imagemagick"],
+        },
+      },
+      {
         name: "wacli",
         level: "optional",
         why: "Reads and exports WhatsApp data for authorized personal knowledge workflows.",

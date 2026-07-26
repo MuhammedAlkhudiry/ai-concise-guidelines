@@ -14,7 +14,8 @@ description: Structured interviewing when requested or when multiple dependent, 
 3. State the objective and uncertainty, then track each topic as `resolved`, `open`, `assumed`, or `deferred`.
 4. Ask up to three questions together when they are independent and none requires an earlier answer. Ask dependent questions one at a time. For
    decisions, offer a few distinct options with consequential trade-offs and signal them as 🟢 recommended, 🟡 viable with meaningful trade-offs, or
-   🔴 discouraged.
+   🔴 discouraged. When an example would help the user answer, give it in the surrounding reply before the question tool; keep examples out of the
+   tool's questions and options.
 5. Follow answers that can change the outcome at the selected depth. Challenge consequential assumptions with evidence, explain why the tension
    matters, then ask the next question. Stop probing harmless uncertainty.
 6. Finish when every material topic required by the selected depth is resolved, assumed, or deferred. Synthesize the interview then persist it using
