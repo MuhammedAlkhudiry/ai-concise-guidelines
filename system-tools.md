@@ -48,6 +48,7 @@ required by `doctor`; the rest are optional, but the repo assumes them when thos
 | `phpstorm`      | Default editor command in `shell/zsh-custom.zsh`.                                                                                      |
 | `herd`          | Laravel aliases and local PHP workflows use it.                                                                                        |
 | `opencode`      | `ai` launcher and OpenCode workflows use it.                                                                                           |
+| `claude`        | Claude Code workflows and the configured Claude agent target use it.                                                                   |
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |

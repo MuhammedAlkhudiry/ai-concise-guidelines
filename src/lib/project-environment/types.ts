@@ -19,6 +19,7 @@ export interface ProjectEnvironmentContext {
   site: string;
   appUrl: string;
   database: string;
+  testingDatabase: string;
   prefix: string;
   sessionCookie: string;
   bucket: string;
@@ -27,6 +28,8 @@ export interface ProjectEnvironmentContext {
   simulatorName: string;
   herdBin: string;
   herdCertificateAuthority: string;
+  herdCertificate: string;
+  herdKey: string;
   herdCommand: string;
   phpCommand: string;
   phpArgsPrefix: string[];

@@ -18,8 +18,23 @@ export function readEnv(path: string): Record<string, string> {
       .split(/\r?\n/)
       .map((line) => /^([A-Z0-9_]+)=(.*)$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
-      .map((match) => [match[1], match[2]]),
+      .map((match) => [match[1], parseEnvValue(match[2])]),
   );
+}
+
+function parseEnvValue(value: string): string {
+  if (value.startsWith('"') && value.endsWith('"')) {
+    try {
+      return JSON.parse(value) as string;
+    } catch {
+      return value.slice(1, -1);
+    }
+  }
+  return value;
+}
+
+function serializeEnvValue(value: string): string {
+  return /\s/.test(value) ? JSON.stringify(value) : value;
 }
 
 export function upsertEnvValues(path: string, values: Record<string, string>): void {
@@ -28,11 +43,11 @@ export function upsertEnvValues(path: string, values: Record<string, string>): v
   const updated = lines.map((line) => {
     const match = /^([A-Z0-9_]+)=/.exec(line);
     if (!match || !pending.has(match[1])) return line;
-    const value = `${match[1]}=${pending.get(match[1])}`;
+    const value = `${match[1]}=${serializeEnvValue(pending.get(match[1])!)}`;
     pending.delete(match[1]);
     return value;
   });
-  for (const [key, value] of pending) updated.push(`${key}=${value}`);
+  for (const [key, value] of pending) updated.push(`${key}=${serializeEnvValue(value)}`);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${updated.join("\n").replace(/\n+$/, "")}\n`);
 }

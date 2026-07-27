@@ -61,6 +61,11 @@ const CODEX_PATHS = {
   config: join(HOME, ".codex/config.toml"),
 };
 
+const CLAUDE_PATHS = {
+  rules: join(HOME, ".claude/CLAUDE.md"),
+  skills: join(HOME, ".claude/skills"),
+};
+
 const SHARED_PATHS = {
   skills: join(HOME, ".agents/skills"),
   zsh: join(HOME, ".config/zsh-sync/custom.zsh"),
@@ -124,6 +129,20 @@ function copyCodexRules(): void {
   ensureParentDirSync(CODEX_PATHS.rules);
   copyFileSync(sourceFile, CODEX_PATHS.rules);
   print.success(`Codex rules copied`);
+}
+
+function copyClaudeRules(): void {
+  print.info(`Copying Claude Code rules to ${CLAUDE_PATHS.rules}...`);
+
+  const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
+  if (!existsSync(sourceFile)) {
+    print.error("Base rules file not found");
+    return;
+  }
+
+  ensureParentDirSync(CLAUDE_PATHS.rules);
+  copyFileSync(sourceFile, CLAUDE_PATHS.rules);
+  print.success(`Claude Code rules copied`);
 }
 
 function removeCodexMcpConfig(configToml: string): string {
@@ -246,6 +265,11 @@ async function installCodex(): Promise<void> {
   copyCodexRules();
   await mergeCodexConfigAsync();
   await removeCodexMcpConfigAsync();
+}
+
+async function installClaude(): Promise<void> {
+  copyClaudeRules();
+  await installManagedSymlink(SHARED_PATHS.skills, CLAUDE_PATHS.skills, "Claude Code skills");
 }
 
 function upsertTomlTopLevelKey(configToml: string, key: string, value: string): string {
@@ -750,6 +774,10 @@ export async function install(): Promise<void> {
     console.log(`    Rules:    ${CODEX_PATHS.rules}`);
     console.log(`    Config:   ${CODEX_PATHS.config} (managed merge)`);
     console.log();
+    console.log(colors.blue("  Claude Code:"));
+    console.log(`    Rules:    ${CLAUDE_PATHS.rules}`);
+    console.log(`    Skills:   ${CLAUDE_PATHS.skills} -> ${SHARED_PATHS.skills}`);
+    console.log();
     console.log(colors.yellow("  Shared:"));
     console.log(
       `    Skills:   ${SHARED_PATHS.skills} (managed sync, prune invalid, preserve valid custom)`,
@@ -771,7 +799,13 @@ export async function install(): Promise<void> {
     console.log();
     console.log(colors.blue("Installing in parallel..."));
   }
-  await Promise.all([installSharedSkills(), installOpencode(), installCodex(), installShared()]);
+  await Promise.all([
+    installSharedSkills(),
+    installOpencode(),
+    installCodex(),
+    installClaude(),
+    installShared(),
+  ]);
 
   if (!compactOutput) {
     console.log();

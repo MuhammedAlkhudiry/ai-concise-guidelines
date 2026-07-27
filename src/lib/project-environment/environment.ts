@@ -31,6 +31,8 @@ export function laravelEnvironmentValues(
     CACHE_PREFIX: `${context.prefix}_cache`,
     SESSION_COOKIE: context.sessionCookie,
     HORIZON_PREFIX: `${context.prefix}_horizon:`,
+    VITE_DEV_SERVER_CERT: context.herdCertificate,
+    VITE_DEV_SERVER_KEY: context.herdKey,
     AWS_ACCESS_KEY_ID: "herd",
     AWS_SECRET_ACCESS_KEY: "secretkey",
     AWS_BUCKET: context.bucket,
@@ -38,6 +40,19 @@ export function laravelEnvironmentValues(
     AWS_ENDPOINT: "http://127.0.0.1:9000",
     AWS_USE_PATH_STYLE_ENDPOINT: "true",
     ...options.values,
+  };
+}
+
+export function laravelTestingEnvironmentValues(
+  context: ProjectEnvironmentContext,
+): Record<string, string> {
+  return {
+    APP_ENV: "testing",
+    DB_HOST: "127.0.0.1",
+    DB_PORT: "3306",
+    DB_DATABASE: context.testingDatabase,
+    DB_USERNAME: "root",
+    DB_PASSWORD: "",
   };
 }
 
@@ -76,7 +91,15 @@ export function setupLaravelEnvironment(
     resolve(context.backendDir, ".env"),
     laravelEnvironmentValues(context, options),
   );
+  upsertEnvValues(
+    resolve(context.backendDir, ".env.testing"),
+    laravelTestingEnvironmentValues(context),
+  );
   log("backend-env", `configured ${context.backendDir}/.env for ${context.site}`);
+  log(
+    "testing-env",
+    `configured ${context.backendDir}/.env.testing for ${context.testingDatabase}`,
+  );
 }
 
 export function setupExpoEnvironment(
@@ -94,5 +117,6 @@ export function setupExpoEnvironment(
 
 export function removeProjectEnvironmentFiles(context: ProjectEnvironmentContext): void {
   rmSync(resolve(context.backendDir, ".env"), { force: true });
+  rmSync(resolve(context.backendDir, ".env.testing"), { force: true });
   rmSync(resolve(context.mobileDir, ".env.local"), { force: true });
 }

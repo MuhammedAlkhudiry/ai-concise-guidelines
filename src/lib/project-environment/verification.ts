@@ -3,7 +3,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { log } from "./command";
-import { expoEnvironmentValues, laravelEnvironmentValues } from "./environment";
+import {
+  expoEnvironmentValues,
+  laravelEnvironmentValues,
+  laravelTestingEnvironmentValues,
+} from "./environment";
 import { readEnv } from "./files";
 import { artisan, verifyDatabase, verifyHerd } from "./resources";
 import { verifySimulator } from "./simulator";
@@ -65,6 +69,10 @@ export function verifyLaravelEnvironment(
   verifyEnvironmentFile(
     resolve(context.backendDir, ".env"),
     laravelEnvironmentValues(context, options),
+  );
+  verifyEnvironmentFile(
+    resolve(context.backendDir, ".env.testing"),
+    laravelTestingEnvironmentValues(context),
   );
   artisan(context, "verify", ["about", "--only=environment"]);
   artisan(context, "verify", ["migrate:status"]);

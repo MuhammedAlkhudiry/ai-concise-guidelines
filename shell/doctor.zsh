@@ -235,6 +235,7 @@ main() {
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
   check_tool herd optional "Used by Laravel aliases in the synced zsh config."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
+  check_tool claude optional "Used by Claude Code workflows and as a configured agent target."
   check_tool agent-browser required "Default AI-agent browser automation CLI."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."
   check_tool simslim required "Install with brew install mobai-app/tap/simslim for persistent lane simulator slimming."
@@ -269,6 +270,7 @@ main() {
   check_link knowledge "$HOME/bin/knowledge" "$MY_SETUP_ROOT/shell/knowledge.zsh"
   check_link pk "$HOME/bin/pk" "$MY_SETUP_ROOT/shell/pk.zsh"
   check_link sentry-cli "$HOME/bin/sentry-cli" "$MY_SETUP_ROOT/shell/sentry-cli.zsh"
+  check_link claude-skills "$HOME/.claude/skills" "$HOME/.agents/skills"
 
   print_header "Managed skills"
   check_installed_skills

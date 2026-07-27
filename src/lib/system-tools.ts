@@ -141,6 +141,20 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "claude",
+        level: "optional",
+        why: "Used by Claude Code workflows and as a configured agent target.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "@anthropic-ai/claude-code", "version"],
+        },
+        update: {
+          commands: ["claude update"],
+        },
+      },
+      {
         name: "agent-browser",
         level: "required",
         why: "Default AI-agent browser automation CLI.",

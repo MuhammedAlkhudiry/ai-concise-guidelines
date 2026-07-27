@@ -32,6 +32,7 @@ export function createProjectEnvironmentContext(
   const bucket = site;
   const herdBin =
     process.env.HERD_BIN ?? resolve(homedir(), "Library/Application Support/Herd/bin");
+  const herdConfig = resolve(herdBin, "../config/valet");
 
   return {
     root,
@@ -42,6 +43,7 @@ export function createProjectEnvironmentContext(
     site,
     appUrl: `https://${site}.test`,
     database: prefix,
+    testingDatabase: `${prefix}_testing`,
     prefix,
     sessionCookie: `${prefix}_session`,
     bucket,
@@ -49,7 +51,9 @@ export function createProjectEnvironmentContext(
     metroPort: String(definition.metroPortBase + laneNumber),
     simulatorName: `${definition.name} Lane ${laneNumber}`,
     herdBin,
-    herdCertificateAuthority: resolve(herdBin, "../config/valet/CA/LaravelValetCASelfSigned.pem"),
+    herdCertificateAuthority: resolve(herdConfig, "CA/LaravelValetCASelfSigned.pem"),
+    herdCertificate: resolve(herdConfig, `Certificates/${site}.test.crt`),
+    herdKey: resolve(herdConfig, `Certificates/${site}.test.key`),
     herdCommand: process.env.HERD_COMMAND ?? resolve(herdBin, "herd"),
     phpCommand: process.env.PHP_BIN ?? resolve(herdBin, "herd"),
     phpArgsPrefix: process.env.PHP_BIN ? [] : ["php"],

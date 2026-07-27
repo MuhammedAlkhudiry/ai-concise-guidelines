@@ -87,6 +87,7 @@ export function setupHerd(context: ProjectEnvironmentContext): void {
   run(context, "herd", context.herdCommand, ["secure", context.site, "--no-interaction"], {
     cwd: context.backendDir,
   });
+  verifyHerdCertificateFiles(context);
   run(
     context,
     "herd",
@@ -107,6 +108,16 @@ export function verifyHerd(context: ProjectEnvironmentContext): void {
   if (target !== context.backendDir) {
     throw new Error(`Herd site ${context.site} points to ${target}, not ${context.backendDir}`);
   }
+  verifyHerdCertificateFiles(context);
+}
+
+function verifyHerdCertificateFiles(context: ProjectEnvironmentContext): void {
+  if (!existsSync(context.herdCertificate)) {
+    throw new Error(`Herd certificate ${context.herdCertificate} is missing`);
+  }
+  if (!existsSync(context.herdKey)) {
+    throw new Error(`Herd key ${context.herdKey} is missing`);
+  }
 }
 
 function herdSitePath(context: ProjectEnvironmentContext): string {
@@ -122,22 +133,23 @@ export function cleanHerd(context: ProjectEnvironmentContext): void {
     cwd: context.backendDir,
     allowFailure: true,
   });
-  const certificateRoot = resolve(
-    homedir(),
-    "Library/Application Support/Herd/config/valet/Certificates",
-  );
-  for (const extension of ["crt", "key", "csr", "conf"]) {
-    const path = resolve(certificateRoot, `${context.site}.test.${extension}`);
+  for (const path of [
+    context.herdCertificate,
+    context.herdKey,
+    context.herdCertificate.replace(/\.crt$/, ".csr"),
+    context.herdCertificate.replace(/\.crt$/, ".conf"),
+  ]) {
     if (existsSync(path)) unlinkSync(path);
   }
 }
 
-function databaseIdentifier(context: ProjectEnvironmentContext): string {
-  if (!/^[a-z0-9_]+$/.test(context.database)) throw new Error("Unsafe database name");
-  return context.database;
+function databaseIdentifier(database: string): string {
+  if (!/^[a-z0-9_]+$/.test(database)) throw new Error("Unsafe database name");
+  return database;
 }
 
-export function setupDatabase(context: ProjectEnvironmentContext): void {
+function createDatabase(context: ProjectEnvironmentContext, database: string): void {
+  const identifier = databaseIdentifier(database);
   run(
     context,
     "database",
@@ -146,13 +158,19 @@ export function setupDatabase(context: ProjectEnvironmentContext): void {
       "-h127.0.0.1",
       "-uroot",
       "-e",
-      `CREATE DATABASE IF NOT EXISTS \`${databaseIdentifier(context)}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+      `CREATE DATABASE IF NOT EXISTS \`${identifier}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
     ],
     { cwd: context.root },
   );
 }
 
+export function setupDatabase(context: ProjectEnvironmentContext): void {
+  createDatabase(context, context.database);
+  createDatabase(context, context.testingDatabase);
+}
+
 export function verifyDatabase(context: ProjectEnvironmentContext): void {
+  const databases = [context.database, context.testingDatabase].map(databaseIdentifier);
   const value = output(
     context,
     "verify:database",
@@ -161,19 +179,51 @@ export function verifyDatabase(context: ProjectEnvironmentContext): void {
       "-h127.0.0.1",
       "-uroot",
       "-Nse",
-      `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${databaseIdentifier(context)}'`,
+      `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME IN ('${databases.join("','")}') ORDER BY SCHEMA_NAME`,
     ],
     { cwd: context.root },
   );
-  if (value.trim() !== context.database) throw new Error(`Database ${context.database} is missing`);
+  const existing = new Set(value.trim().split(/\s+/).filter(Boolean));
+  for (const database of databases) {
+    if (!existing.has(database)) throw new Error(`Database ${database} is missing`);
+  }
 }
 
-export function cleanDatabase(context: ProjectEnvironmentContext): void {
+function dropDatabase(context: ProjectEnvironmentContext, database: string): void {
+  const identifier = databaseIdentifier(database);
   run(
     context,
     "clean:database",
     context.mysqlCommand,
-    ["-h127.0.0.1", "-uroot", "-e", `DROP DATABASE IF EXISTS \`${databaseIdentifier(context)}\``],
+    ["-h127.0.0.1", "-uroot", "-e", `DROP DATABASE IF EXISTS \`${identifier}\``],
     { cwd: context.root },
   );
+}
+
+export function cleanTestingDatabases(context: ProjectEnvironmentContext): void {
+  const testingDatabase = databaseIdentifier(context.testingDatabase);
+  const parallelPrefix = `${testingDatabase}_test_`;
+  const value = output(
+    context,
+    "clean:testing-databases",
+    context.mysqlCommand,
+    [
+      "-h127.0.0.1",
+      "-uroot",
+      "-Nse",
+      `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${testingDatabase}' OR LEFT(SCHEMA_NAME, ${parallelPrefix.length})='${parallelPrefix}' ORDER BY SCHEMA_NAME`,
+    ],
+    { cwd: context.root },
+  );
+  for (const database of value.trim().split(/\s+/).filter(Boolean)) {
+    if (database !== testingDatabase && !database.startsWith(parallelPrefix)) {
+      throw new Error(`Database ${database} does not belong to ${context.lane}`);
+    }
+    dropDatabase(context, database);
+  }
+}
+
+export function cleanDatabase(context: ProjectEnvironmentContext): void {
+  cleanTestingDatabases(context);
+  dropDatabase(context, context.database);
 }

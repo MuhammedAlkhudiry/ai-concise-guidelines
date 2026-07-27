@@ -1,6 +1,6 @@
 # My Setup
 
-Personal source of truth for my Codex and OpenCode rules, skills, and shell helpers.
+Personal source of truth for my Claude Code, Codex, and OpenCode rules, skills, and shell helpers.
 
 ## Workflow
 

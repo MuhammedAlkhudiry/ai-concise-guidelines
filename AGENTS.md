@@ -1,4 +1,4 @@
-- **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for OpenCode and Codex.
+- **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for Claude Code, Codex, and OpenCode.
 - **PERSONAL-ONLY** — Treat this repo as personal infrastructure for its owner only; do not design for sharing, multi-user setup, or user-configurable
   distribution.
 - **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.

@@ -59,6 +59,7 @@ test("derives shared resources from the explicit lane identity", () => {
     site: "example-lane-2",
     appUrl: "https://example-lane-2.test",
     database: "example_lane_2",
+    testingDatabase: "example_lane_2_testing",
     prefix: "example_lane_2",
     sessionCookie: "example_lane_2_session",
     bucket: "example-lane-2",
@@ -68,6 +69,10 @@ test("derives shared resources from the explicit lane identity", () => {
     herdCertificateAuthority: expect.stringContaining(
       "Herd/config/valet/CA/LaravelValetCASelfSigned.pem",
     ),
+    herdCertificate: expect.stringContaining(
+      "Herd/config/valet/Certificates/example-lane-2.test.crt",
+    ),
+    herdKey: expect.stringContaining("Herd/config/valet/Certificates/example-lane-2.test.key"),
   });
 });
 
