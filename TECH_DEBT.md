@@ -24,11 +24,16 @@
 - [ ] Restart or invalidate Metro after lane dependency changes. Lane 4's managed Metro process started before the newly installed Skia package and
       retained a stale resolver map, producing a false “module could not be found” redbox until the lane-owned Metro service was restarted.
 - [ ] Route documented Laravel lane commands through Herd PHP (or expose one project-owned wrapper). Lane 4's documented large-tree seeder failed
-      under the host Homebrew PHP because `ext-redis` was absent, while the same command passed immediately under `herd php`.
+      under the host Homebrew PHP because `ext-redis` was absent, and the App Store screenshot tenant seeder failed the same way; both commands passed
+      immediately under `herd php`.
+- [ ] Provision every fixture advertised by local quick-login controls during lane setup, or hide its shortcut until it exists. Lane 4 displayed the
+      App Store screenshot login, but the endpoint returned 422 until `AppStoreScreenshotTenantSeeder` was run manually through Herd PHP.
 - [ ] Recreate or schema-verify Laravel parallel test databases before lane test runs. Lane 4 retained `testing_test_1` through `testing_test_14`
       without the base `nodes` table; `mise run family-tree:pest` and Pest's `--recreate-databases` both tried to apply later migrations to the
-      incomplete schemas, causing every test to fail before setup. The lane reset/setup path should remove stale parallel databases or validate and
-      rebuild them from `testing`.
+      incomplete schemas, causing every test to fail before setup. The base `awraq_lane_4_testing` database was also empty. Repairing it required an
+      explicit MySQL connection plus `CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync`; `.env.testing` omits `DB_CONNECTION`, so a plain
+      `artisan migrate:fresh --env=testing` instead created a stray SQLite file and then failed on the partial migration history. The lane reset/setup
+      path should generate a complete test environment, remove stale parallel databases, and validate/rebuild the base schema before verification.
 - [ ] Make lane QA seed commands independent of unavailable Redis services. Lane 4's large-tree seeder still reached Redis after setting array cache
       and sessions because the queue connection remained Redis; the reliable local invocation required
       `CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync herd php artisan db:seed --class=LargeTreeTenantSeeder`. Add this environment to

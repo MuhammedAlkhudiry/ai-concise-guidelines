@@ -18,11 +18,13 @@ import { z } from "zod";
 
 import { readLanesConfig, type ActiveProject } from "./lanes-config";
 import {
+  assertAlwaysEnabledServices,
   assertSimSlimProfile,
   assertSupportedSimSlimVersion,
   disabledLabels,
   expectedDisabledLabels,
   parseSimSlimCategories,
+  parseDisabledLaunchdLabels,
   parseSimSlimStatus,
   SIMSLIM_INSTALL_COMMAND,
   simSlimOffArgs,
@@ -350,6 +352,15 @@ async function inspectSimulatorProfile(
     let matchesProfile = true;
     try {
       assertSimSlimProfile(categories, status, profile);
+      const launchd = await execa("xcrun", [
+        "simctl",
+        "spawn",
+        simulator.udid!,
+        "launchctl",
+        "print-disabled",
+        "system",
+      ]);
+      assertAlwaysEnabledServices(categories, parseDisabledLaunchdLabels(launchd.stdout));
     } catch {
       matchesProfile = false;
     }

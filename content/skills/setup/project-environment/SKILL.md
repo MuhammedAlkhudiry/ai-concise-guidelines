@@ -37,6 +37,8 @@ invocation; never edit its state directly.
 - Treat the lane's Herd certificate and key as required resources. Supply their paths to the project environment and fail verification when either is
   missing.
 - Keep secrets out of tracked files and logs; use the project's established secret source.
+- Preserve every simulator service required by the project's user-visible system integrations. Treat services marked always enabled by SimSlim as
+  mandatory and verify they are not left disabled by an older profile.
 
 Finish only when repeated setup is safe and `verify.ts --mobile-development` passes for the lane without borrowing another lane's URL, process,
 service, data, port, or simulator.

@@ -3,12 +3,18 @@ import { z } from "zod";
 import { output, run } from "./command";
 import type { ProjectEnvironmentContext, SimulatorSlimmingProfile } from "./types";
 
-export const SIMSLIM_MINIMUM_VERSION = "0.2.0";
+export const SIMSLIM_MINIMUM_VERSION = "0.4.0";
 export const SIMSLIM_INSTALL_COMMAND = "brew install mobai-app/tap/simslim";
+
+const alwaysEnabledServiceSchema = z.object({
+  label: z.string(),
+  reason: z.string(),
+});
 
 const categorySchema = z.object({
   id: z.string(),
   labels: z.array(z.string()),
+  alwaysEnabled: z.array(alwaysEnabledServiceSchema).optional(),
 });
 
 const statusSchema = z.object({
@@ -105,6 +111,35 @@ export function disabledLabels(status: SimSlimStatus): string[] {
   return [...new Set(status.dropped.flatMap(({ labels }) => labels))].sort();
 }
 
+export function alwaysEnabledLabels(categories: SimSlimCategory[]): string[] {
+  return [
+    ...new Set(
+      categories.flatMap(({ alwaysEnabled = [] }) => alwaysEnabled.map(({ label }) => label)),
+    ),
+  ].sort();
+}
+
+export function parseDisabledLaunchdLabels(value: string): string[] {
+  return value
+    .split(/\r?\n/)
+    .flatMap((line) => {
+      const match = /^\s*"([^"]+)"\s*=>\s*(?:disabled|true)\s*$/.exec(line);
+      return match ? [match[1]] : [];
+    })
+    .sort();
+}
+
+export function assertAlwaysEnabledServices(
+  categories: SimSlimCategory[],
+  disabled: string[],
+): void {
+  const required = new Set(alwaysEnabledLabels(categories));
+  const unexpectedlyDisabled = disabled.filter((label) => required.has(label));
+  if (unexpectedlyDisabled.length > 0) {
+    throw new Error(`Required SimSlim services disabled: ${unexpectedlyDisabled.join(", ")}`);
+  }
+}
+
 export function assertSimSlimProfile(
   categories: SimSlimCategory[],
   status: SimSlimStatus,
@@ -165,4 +200,14 @@ export function verifySimulatorSlimming(context: ProjectEnvironmentContext, udid
     simSlimOutput(context, ["status", udid, "--dropped", "--json"]),
   );
   assertSimSlimProfile(categories, status, profile);
+  const disabled = parseDisabledLaunchdLabels(
+    output(
+      context,
+      "simslim:required-services",
+      "xcrun",
+      ["simctl", "spawn", udid, "launchctl", "print-disabled", "system"],
+      { cwd: context.root },
+    ),
+  );
+  assertAlwaysEnabledServices(categories, disabled);
 }

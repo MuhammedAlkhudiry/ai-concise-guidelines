@@ -10,7 +10,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     name: "Awraq",
     remoteUrl: "https://github.com/MuhammedAlkhudiry/awraq-project.git",
     baseBranch: "main",
-    lanes: [1, 2, 3, 4].map((number) => ({
+    lanes: [1, 2, 3, 4, 5, 6].map((number) => ({
       number,
       path: join(projectsRoot, `awraq-lane-${number}`),
     })),
@@ -36,7 +36,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
       },
     ],
     simulatorSlimming: {
-      exceptCategories: ["icloud", "store", "web", "pim", "photos"],
+      exceptCategories: ["icloud", "store", "web", "pim", "photos", "connectivity"],
     },
   },
   {
@@ -70,7 +70,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
       },
     ],
     simulatorSlimming: {
-      exceptCategories: ["icloud", "store"],
+      exceptCategories: ["icloud", "store", "connectivity"],
     },
   },
 ];

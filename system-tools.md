@@ -63,7 +63,7 @@ required by `doctor`; the rest are optional, but the repo assumes them when thos
 
 The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer. Install
 `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed. Install
-`agent-device` with `npm install -g agent-device`. Install SimSlim 0.2.0 or newer with `brew install mobai-app/tap/simslim`. Install qmd with
+`agent-device` with `npm install -g agent-device`. Install SimSlim 0.4.0 or newer with `brew install mobai-app/tap/simslim`. Install qmd with
 `npm install -g @tobilu/qmd`; `pk setup` creates its isolated personal-knowledge index.
 
 ## Persistent Lane Simulator Profiles
