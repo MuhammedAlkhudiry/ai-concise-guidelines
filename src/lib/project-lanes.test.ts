@@ -1,6 +1,11 @@
 import { expect, test } from "bun:test";
 
-import { getProjectLanes, selectProjectLane, simulatorFleetFailures } from "./project-lanes";
+import {
+  getProjectLanes,
+  laneOccupancy,
+  selectProjectLane,
+  simulatorFleetFailures,
+} from "./project-lanes";
 
 const project = {
   id: "project",
@@ -91,4 +96,18 @@ test("reports every simulator error and profile mismatch", () => {
   });
 
   expect(failures.map(({ lane }) => lane)).toEqual(["lane-2", "lane-3"]);
+});
+
+test("keeps a clean base branch available", () => {
+  expect(laneOccupancy("main", "main", "", undefined)).toEqual({
+    availability: "available",
+    occupancyReason: undefined,
+  });
+});
+
+test("keeps task branches occupied", () => {
+  expect(laneOccupancy("main", "agent/task", "", undefined)).toEqual({
+    availability: "occupied",
+    occupancyReason: "task branch checked out",
+  });
 });

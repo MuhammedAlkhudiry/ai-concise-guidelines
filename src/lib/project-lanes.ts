@@ -74,6 +74,26 @@ export interface LaneStatus {
   healthReason?: string;
 }
 
+export function laneOccupancy(
+  baseBranch: string,
+  branch: string | undefined,
+  changes: string,
+  operation: string | undefined,
+): Pick<LaneStatus, "availability" | "occupancyReason"> {
+  const taskBranch = branch && branch !== baseBranch;
+
+  return {
+    availability: operation || changes || taskBranch ? "occupied" : "available",
+    occupancyReason: operation
+      ? `Git ${operation} in progress`
+      : changes
+        ? "Git changes present"
+        : taskBranch
+          ? "task branch checked out"
+          : undefined,
+  };
+}
+
 export type SimulatorSlimmingMode = "project" | "full";
 
 export interface LaneSimulatorSlimmingStatus {
@@ -484,14 +504,12 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
     return resolved && existsSync(resolve(lane.path, resolved));
   });
 
-  const availability: LaneAvailability = operation || changes || branch ? "occupied" : "available";
-  const occupancyReason = operation
-    ? `Git ${operation} in progress`
-    : changes
-      ? "Git changes present"
-      : branch
-        ? "task branch checked out"
-        : undefined;
+  const { availability, occupancyReason } = laneOccupancy(
+    lane.project.baseBranch,
+    branch,
+    changes,
+    operation,
+  );
   const missingScript = requiredEnvironmentScripts.find(
     (script) => !existsSync(join(lane.path, "scripts/project-lanes", `${script}.ts`)),
   );
