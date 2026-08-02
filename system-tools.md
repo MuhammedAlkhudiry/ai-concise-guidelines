@@ -12,12 +12,12 @@ Built-in macOS shell commands such as `awk`, `sed`, `grep`, `cp`, `rm`, and simi
 Use these commands for periodic CLI upkeep:
 
 ```bash
-mise run tools:status
-mise run tools:update:plan
+system-tools status
+system-tools update-plan
 ```
 
-`tools:status` prints installed paths, current versions, latest known versions, and freshness labels. `tools:update:plan` prints the same version
-comparison plus reviewable update commands and notes, but does not change anything.
+`system-tools status` prints installed paths, current versions, latest known versions, and freshness labels. `system-tools update-plan` prints the
+same version comparison plus reviewable update commands and notes, but does not change anything.
 
 After running update commands, run `mise run install` again. Some installers may append shell setup directly to `~/.zshrc`; if the install fails the
 thin-`.zshrc` check, move any new shell setup into `shell/zsh-custom.zsh`, restore `~/.zshrc` to only source `~/.config/zsh-sync/custom.zsh`, then
@@ -36,12 +36,12 @@ These are the commands the repo itself relies on for install and day-to-day loca
 | `mise`  | Powers the supported local task workflow and manages global runtimes instead of NVM. |
 | `node`  | Runs the Oxfmt CLI used by repo format checks.                                       |
 | `zsh`   | All shared shell commands are shipped as Zsh scripts.                                |
-| `swift` | Builds the native Lanes menu-bar app during installation.                            |
+| `swift` | Builds the native Lanes and Ads menu-bar apps during installation.                   |
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `agent-device`, `simslim`, and `qmd` are
-required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `playwriter`, `agent-device`, `simslim`, and
+`qmd` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
 
 | Tool            | Why this repo assumes it                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -50,9 +50,10 @@ required by `doctor`; the rest are optional, but the repo assumes them when thos
 | `opencode`      | `ai` launcher and OpenCode workflows use it.                                                                                           |
 | `claude`        | Claude Code workflows and the configured Claude agent target use it.                                                                   |
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
+| `playwriter`    | Controls the owner's existing signed-in Chrome tabs through the Playwriter extension and Playwright CLI.                               |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
-| `fzf`           | Used by project pickers and interactive hosts/plan deletion.                                                                           |
+| `fzf`           | Used by project pickers and interactive saved-plan archiving.                                                                          |
 | `sg`            | Optional AST-shaped code search through ast-grep when text search is too loose.                                                        |
 | `magick`        | Inspects and measures raster UI references for screenshot-led implementation.                                                          |
 | `wacli`         | Reads and exports WhatsApp data for authorized personal knowledge workflows.                                                           |
@@ -61,8 +62,8 @@ required by `doctor`; the rest are optional, but the repo assumes them when thos
 | `gcloud`        | Supports Google Cloud project, API, service account, and IAM workflows.                                                                |
 | `gum`           | Optional styled output for `doctor`.                                                                                                   |
 
-The installed `context-health` helper audits recent Codex session context waste through the local `improve-agent-setup` analyzer. Install
-`agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed. Install
+Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed. Install
+Playwriter with `npm install -g playwriter`, then install its Chrome extension and enable it on each tab the agent should control. Install
 `agent-device` with `npm install -g agent-device`. Install SimSlim 0.4.0 or newer with `brew install mobai-app/tap/simslim`. Install qmd with
 `npm install -g @tobilu/qmd`; `pk setup` creates its isolated personal-knowledge index.
 

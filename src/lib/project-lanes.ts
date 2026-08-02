@@ -16,7 +16,13 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { execa } from "execa";
 import { z } from "zod";
 
-import { readLanesConfig, type ActiveProject } from "./lanes-config";
+import {
+  addLaneDefinition,
+  readLanesConfig,
+  removeLaneDefinition,
+  writeLanesConfig,
+  type ActiveProject,
+} from "./lanes-config";
 import {
   assertAlwaysEnabledServices,
   assertSimSlimProfile,
@@ -70,8 +76,53 @@ export interface LaneStatus {
   health: LaneHealth;
   branch?: string;
   head?: string;
+  baseBranchAhead?: number;
+  baseBranchBehind?: number;
+  gitDiff?: LaneGitDiff;
   occupancyReason?: string;
   healthReason?: string;
+}
+
+export interface LaneGitDiff {
+  additions: number;
+  deletions: number;
+  untrackedFiles: number;
+}
+
+export interface GitDivergence {
+  ahead: number;
+  behind: number;
+}
+
+export function parseGitDivergence(value: string): GitDivergence | undefined {
+  const [ahead, behind] = value.trim().split(/\s+/);
+  if (!/^\d+$/.test(ahead) || !/^\d+$/.test(behind)) return undefined;
+  return { ahead: Number(ahead), behind: Number(behind) };
+}
+
+interface LaneOccupancyInput {
+  operation?: string;
+  hasChanges: boolean;
+  branch?: string;
+  baseBranch: string;
+  baseBranchAhead?: number;
+}
+
+export function laneOccupancyReason({
+  operation,
+  hasChanges,
+  branch,
+  baseBranch,
+  baseBranchAhead,
+}: LaneOccupancyInput): string | undefined {
+  if (operation) return `Git ${operation} in progress`;
+  if (hasChanges) return "Git changes present";
+  if (branch && branch !== baseBranch) return "task branch checked out";
+  if (baseBranchAhead === 0) return undefined;
+  if (baseBranchAhead === undefined) {
+    return `could not compare ${baseBranch} with origin/${baseBranch}`;
+  }
+  return `${baseBranchAhead} local commit${baseBranchAhead === 1 ? "" : "s"} outside origin/${baseBranch}`;
 }
 
 export type SimulatorSlimmingMode = "project" | "full";
@@ -157,7 +208,9 @@ function readRegistry(): Registry {
 function writeRegistry(registry: Registry): void {
   mkdirSync(dirname(LANES_STATE_PATH), { recursive: true, mode: 0o700 });
   const temporaryPath = `${LANES_STATE_PATH}.${process.pid}.tmp`;
-  writeFileSync(temporaryPath, `${JSON.stringify(registry, null, 2)}\n`, { mode: 0o600 });
+  writeFileSync(temporaryPath, `${JSON.stringify(registry, null, 2)}\n`, {
+    mode: 0o600,
+  });
   renameSync(temporaryPath, LANES_STATE_PATH);
 }
 
@@ -341,7 +394,9 @@ async function inspectSimulatorProfile(
   const wasBooted = initialState === "Booted";
   try {
     if (!wasBooted) {
-      await execa("xcrun", ["simctl", "boot", simulator.udid!], { env: process.env });
+      await execa("xcrun", ["simctl", "boot", simulator.udid!], {
+        env: process.env,
+      });
       await execa("xcrun", ["simctl", "bootstatus", simulator.udid!, "-b"], {
         env: process.env,
       });
@@ -377,7 +432,9 @@ async function inspectSimulatorProfile(
     };
   } finally {
     if (!wasBooted) {
-      await execa("xcrun", ["simctl", "shutdown", simulator.udid!], { env: process.env });
+      await execa("xcrun", ["simctl", "shutdown", simulator.udid!], {
+        env: process.env,
+      });
     }
   }
 }
@@ -458,6 +515,32 @@ function stateFor(registry: Registry, lane: Lane): LaneState {
   return registry.projects[lane.project.id][lane.id];
 }
 
+function reprovisionSafetyError(lane: Lane): string {
+  return `${lane.project.id}/${lane.id} is not safe to reprovision`;
+}
+
+function laneHealthError(lane: Lane, state: LaneState): string | undefined {
+  return state.lastError === reprovisionSafetyError(lane) ? undefined : state.lastError;
+}
+
+function inspectGitDiff(cwd: string, changes: string): LaneGitDiff | undefined {
+  if (!changes) return undefined;
+
+  let additions = 0;
+  let deletions = 0;
+  for (const line of git(cwd, ["diff", "--numstat", "HEAD", "--"], true).split("\n")) {
+    const [added, deleted] = line.split("\t");
+    if (/^\d+$/.test(added)) additions += Number(added);
+    if (/^\d+$/.test(deleted)) deletions += Number(deleted);
+  }
+
+  return {
+    additions,
+    deletions,
+    untrackedFiles: changes.split("\n").filter((line) => line.startsWith("?? ")).length,
+  };
+}
+
 function inspectLane(lane: Lane, state: LaneState): LaneStatus {
   if (!existsSync(lane.path)) {
     return {
@@ -484,14 +567,24 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
     return resolved && existsSync(resolve(lane.path, resolved));
   });
 
-  const availability: LaneAvailability = operation || changes || branch ? "occupied" : "available";
-  const occupancyReason = operation
-    ? `Git ${operation} in progress`
-    : changes
-      ? "Git changes present"
-      : branch
-        ? "task branch checked out"
-        : undefined;
+  const baseBranchDivergence = parseGitDivergence(
+    git(
+      lane.path,
+      ["rev-list", "--left-right", "--count", `HEAD...origin/${lane.project.baseBranch}`],
+      true,
+    ),
+  );
+  const baseBranchAhead = baseBranchDivergence?.ahead;
+  const baseBranchBehind = baseBranchDivergence?.behind;
+  const occupancyReason = laneOccupancyReason({
+    operation,
+    hasChanges: Boolean(changes),
+    branch,
+    baseBranch: lane.project.baseBranch,
+    baseBranchAhead,
+  });
+  const availability: LaneAvailability = occupancyReason ? "occupied" : "available";
+  const gitDiff = inspectGitDiff(lane.path, changes);
   const missingScript = requiredEnvironmentScripts.find(
     (script) => !existsSync(join(lane.path, "scripts/project-lanes", `${script}.ts`)),
   );
@@ -503,11 +596,15 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
       health: "broken",
       branch,
       head,
+      baseBranchAhead,
+      baseBranchBehind,
+      gitDiff,
       occupancyReason,
       healthReason: `missing project environment entrypoint: ${missingScript}.ts`,
     };
   }
-  if (state.lastError) {
+  const healthError = laneHealthError(lane, state);
+  if (healthError) {
     return {
       lane,
       state,
@@ -515,8 +612,11 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
       health: "broken",
       branch,
       head,
+      baseBranchAhead,
+      baseBranchBehind,
+      gitDiff,
       occupancyReason,
-      healthReason: state.lastError,
+      healthReason: healthError,
     };
   }
   if (state.lastVerifiedRuntimeHash !== projectEnvironmentRuntimeHash()) {
@@ -527,6 +627,9 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
       health: "drifted",
       branch,
       head,
+      baseBranchAhead,
+      baseBranchBehind,
+      gitDiff,
       occupancyReason,
       healthReason: "shared project environment runtime changed",
     };
@@ -539,12 +642,26 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
       health: "drifted",
       branch,
       head,
+      baseBranchAhead,
+      baseBranchBehind,
+      gitDiff,
       occupancyReason,
       healthReason: "environment verification required",
     };
   }
 
-  return { lane, state, availability, health: "ready", branch, head, occupancyReason };
+  return {
+    lane,
+    state,
+    availability,
+    health: "ready",
+    branch,
+    head,
+    baseBranchAhead,
+    baseBranchBehind,
+    gitDiff,
+    occupancyReason,
+  };
 }
 
 async function runEnvironmentCommand(
@@ -552,6 +669,7 @@ async function runEnvironmentCommand(
   script: "setup" | "mobile-development" | "verify" | "reset" | "destroy",
   extraArgs: string[] = [],
   compact = false,
+  environment: Record<string, string> = {},
 ): Promise<void> {
   const scriptPath = join(lane.path, "scripts/project-lanes", `${script}.ts`);
   if (!existsSync(scriptPath)) throw new Error(`Missing project lane script: ${scriptPath}`);
@@ -569,6 +687,7 @@ async function runEnvironmentCommand(
       PROJECT_LANE_SIMSLIM_KEEP_SERVICES:
         lane.project.simulatorSlimming?.keepServices?.join(",") ?? "",
       [lane.project.environmentVariable]: lane.path,
+      ...environment,
     },
     stdio: compact ? "pipe" : "inherit",
   });
@@ -577,17 +696,23 @@ async function runEnvironmentCommand(
 async function verifyLane(
   lane: Lane,
   state: LaneState,
-  options: { mobile?: boolean; compact?: boolean } = {},
+  options: { mobile?: boolean; compact?: boolean; liveServices?: boolean } = {},
 ): Promise<void> {
-  const { mobile = true, compact = false } = options;
-  await runEnvironmentCommand(lane, "verify", mobile ? ["--mobile-development"] : [], compact);
+  const { mobile = false, compact = false, liveServices = true } = options;
+  await runEnvironmentCommand(lane, "verify", mobile ? ["--mobile-development"] : [], compact, {
+    PROJECT_LANE_VERIFY_LIVE_SERVICES: liveServices ? "1" : "0",
+  });
   state.lastVerifiedAt = new Date().toISOString();
   state.lastVerifiedHead = git(lane.path, ["rev-parse", "HEAD"]);
   state.lastVerifiedRuntimeHash = projectEnvironmentRuntimeHash();
   delete state.lastError;
 }
 
-export async function setupProjectLanes(projectId?: string, compact = false): Promise<void> {
+export async function setupProjectLanes(
+  projectId?: string,
+  options: { mobile?: boolean; compact?: boolean } = {},
+): Promise<void> {
+  const { mobile = false, compact = false } = options;
   const projects = projectId ? [getActiveProject(projectId)] : getActiveProjects();
   const failures: string[] = [];
   await withRegistryLock(async (registry) => {
@@ -596,26 +721,7 @@ export async function setupProjectLanes(projectId?: string, compact = false): Pr
         mkdirSync(dirname(lane.path), { recursive: true });
         const state = stateFor(registry, lane);
         try {
-          if (!existsSync(lane.path)) {
-            git(dirname(lane.path), [
-              "clone",
-              "--no-local",
-              "--branch",
-              project.baseBranch,
-              project.remoteUrl,
-              lane.path,
-            ]);
-          } else {
-            const current = inspectLane(lane, state);
-            if (current.availability === "occupied") {
-              throw new Error(`${project.id}/${lane.id} is not safe to reprovision`);
-            }
-          }
-          git(lane.path, ["fetch", "origin", project.baseBranch]);
-          git(lane.path, ["switch", "--detach", `origin/${project.baseBranch}`]);
-          await runEnvironmentCommand(lane, "setup", [], compact);
-          await runEnvironmentCommand(lane, "mobile-development", [], compact);
-          await verifyLane(lane, state, { compact });
+          await provisionLane(lane, state, { mobile, compact });
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           state.lastError = message;
@@ -629,6 +735,149 @@ export async function setupProjectLanes(projectId?: string, compact = false): Pr
   }
 }
 
+export async function addProjectLane(
+  projectId: string,
+  requestedNumber?: number,
+  options: { mobile?: boolean; compact?: boolean } = {},
+): Promise<Lane> {
+  const { mobile = false, compact = false } = options;
+  let addedLane: Lane | undefined;
+  let failure: unknown;
+  await withRegistryLock(async (registry) => {
+    const currentConfig = readLanesConfig(LANES_CONFIG_PATH);
+    const addition = addLaneDefinition(currentConfig, projectId, requestedNumber);
+    if (existsSync(addition.lane.path)) {
+      throw new Error(`Lane path already exists: ${addition.lane.path}`);
+    }
+    writeLanesConfig(LANES_CONFIG_PATH, addition.config);
+
+    const project = getActiveProject(projectId);
+    addedLane = getProjectLanes(project).find(({ number }) => number === addition.lane.number);
+    if (!addedLane) throw new Error(`Could not register ${projectId}/lane-${addition.lane.number}`);
+    const state = stateFor(registry, addedLane);
+    try {
+      await provisionLane(addedLane, state, { mobile, compact });
+    } catch (error) {
+      state.lastError = error instanceof Error ? error.message : String(error);
+      failure = error;
+    }
+  });
+  if (failure) throw failure;
+  if (!addedLane) throw new Error(`Could not add a lane for ${projectId}`);
+  return addedLane;
+}
+
+async function provisionLane(
+  lane: Lane,
+  state: LaneState,
+  options: { mobile: boolean; compact: boolean },
+): Promise<void> {
+  const { mobile, compact } = options;
+  if (existsSync(lane.path)) {
+    const current = inspectLane(lane, state);
+    if (current.availability === "occupied" || (current.health === "ready" && !mobile)) return;
+  } else {
+    mkdirSync(dirname(lane.path), { recursive: true });
+    git(dirname(lane.path), [
+      "clone",
+      "--no-local",
+      "--branch",
+      lane.project.baseBranch,
+      lane.project.remoteUrl,
+      lane.path,
+    ]);
+  }
+  git(lane.path, ["fetch", "origin", lane.project.baseBranch]);
+  git(lane.path, ["switch", "--detach", `origin/${lane.project.baseBranch}`]);
+  await runEnvironmentCommand(lane, "setup", [], compact);
+  if (mobile) await runEnvironmentCommand(lane, "mobile-development", [], compact);
+  await verifyLane(lane, state, { mobile, compact });
+}
+
+export function releaseLaneGit(lane: Lane): void {
+  for (const operation of [
+    ["rebase", "--abort"],
+    ["merge", "--abort"],
+    ["cherry-pick", "--abort"],
+    ["revert", "--abort"],
+    ["bisect", "reset"],
+  ]) {
+    git(lane.path, operation, true);
+  }
+  git(lane.path, ["fetch", "origin", lane.project.baseBranch]);
+  git(lane.path, ["switch", "--detach", "--discard-changes", `origin/${lane.project.baseBranch}`]);
+  git(lane.path, ["reset", "--hard", `origin/${lane.project.baseBranch}`]);
+  git(lane.path, ["clean", "-ffd"]);
+}
+
+export function syncLaneGit(lane: Lane): void {
+  const branch = git(lane.path, ["branch", "--show-current"], true);
+  if (branch && branch !== lane.project.baseBranch) {
+    throw new Error(
+      `${lane.project.id}/${lane.id} must be on ${lane.project.baseBranch} or detached to sync`,
+    );
+  }
+  git(lane.path, ["fetch", "origin", lane.project.baseBranch]);
+  if (branch === lane.project.baseBranch) {
+    git(lane.path, ["merge", "--ff-only", `origin/${lane.project.baseBranch}`]);
+  } else {
+    git(lane.path, ["switch", "--detach", `origin/${lane.project.baseBranch}`]);
+  }
+}
+
+export async function syncProjectLane(projectId: string, laneId: string): Promise<void> {
+  await withRegistryLock(async (registry) => {
+    const project = getActiveProject(projectId);
+    const lane = getProjectLanes(project).find(({ id }) => id === laneId);
+    if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
+    const state = stateFor(registry, lane);
+    const status = inspectLane(lane, state);
+    if (status.availability !== "available") {
+      throw new Error(`${projectId}/${laneId} must be clean and available to sync`);
+    }
+    syncLaneGit(lane);
+    const synced = inspectLane(lane, state);
+    if (synced.availability !== "available" || synced.baseBranchBehind !== 0) {
+      throw new Error(`${projectId}/${laneId} did not sync to origin/${project.baseBranch}`);
+    }
+  });
+}
+
+export async function releaseProjectLane(
+  projectId: string,
+  laneId: string,
+  confirmed: boolean,
+  options: { mobile?: boolean; compact?: boolean } = {},
+): Promise<void> {
+  const { mobile = false, compact = false } = options;
+  if (!confirmed) throw new Error("Pass --confirm to discard lane work and make it available");
+  let failure: unknown;
+  await withRegistryLock(async (registry) => {
+    const project = getActiveProject(projectId);
+    const lane = getProjectLanes(project).find(({ id }) => id === laneId);
+    if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
+    if (!existsSync(lane.path)) throw new Error(`Lane clone is missing: ${lane.path}`);
+    const state = stateFor(registry, lane);
+    try {
+      releaseLaneGit(lane);
+      await runEnvironmentCommand(lane, "setup", [], compact);
+      await runEnvironmentCommand(lane, "reset", [], compact);
+      if (mobile) await runEnvironmentCommand(lane, "mobile-development", [], compact);
+      await verifyLane(lane, state, { mobile, compact, liveServices: false });
+      const status = inspectLane(lane, state);
+      if (status.availability !== "available" || status.health !== "ready") {
+        throw new Error(
+          `${projectId}/${laneId} was not released: ${status.occupancyReason || status.healthReason}`,
+        );
+      }
+    } catch (error) {
+      state.lastError = error instanceof Error ? error.message : String(error);
+      failure = error;
+    }
+  });
+  if (failure) throw failure;
+}
+
 export function listProjectLaneStatuses(projectId?: string): LaneStatus[] {
   const registry = readRegistry();
   const projects = projectId ? [getActiveProject(projectId)] : getActiveProjects();
@@ -640,14 +889,21 @@ export function listProjectLaneStatuses(projectId?: string): LaneStatus[] {
 export async function verifyProjectLane(
   projectId?: string,
   laneId?: string,
-  options: { cwd?: string; compact?: boolean } = {},
+  options: { cwd?: string; mobile?: boolean; compact?: boolean } = {},
 ): Promise<Lane> {
-  const lane = selectProjectLane(getActiveProjects(), { projectId, laneId, cwd: options.cwd });
+  const lane = selectProjectLane(getActiveProjects(), {
+    projectId,
+    laneId,
+    cwd: options.cwd,
+  });
   let failure: unknown;
   await withRegistryLock(async (registry) => {
     const state = stateFor(registry, lane);
     try {
-      await verifyLane(lane, state, { compact: options.compact });
+      await verifyLane(lane, state, {
+        mobile: options.mobile,
+        compact: options.compact,
+      });
     } catch (error) {
       state.lastError = error instanceof Error ? error.message : String(error);
       failure = error;
@@ -664,18 +920,19 @@ export async function auditProjectLanes(
   const projects = projectId ? [getActiveProject(projectId)] : getActiveProjects();
   const failures: string[] = [];
   await withRegistryLock(async (registry) => {
-    for (const project of projects) {
-      for (const lane of getProjectLanes(project)) {
+    const lanes = projects.flatMap(getProjectLanes);
+    await Promise.all(
+      lanes.map(async (lane) => {
         const state = stateFor(registry, lane);
         try {
           await verifyLane(lane, state, options);
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           state.lastError = message;
-          failures.push(`${project.id}/${lane.id}: ${message}`);
+          failures.push(`${lane.project.id}/${lane.id}: ${message}`);
         }
-      }
-    }
+      }),
+    );
   });
   if (failures.length > 0) {
     throw new Error(`Project lane audit failed:\n${failures.join("\n")}`);
@@ -717,5 +974,9 @@ export async function destroyProjectLane(
     await runEnvironmentCommand(lane, "destroy");
     rmSync(lane.path, { recursive: true });
     delete registry.projects[project.id]?.[lane.id];
+    writeLanesConfig(
+      LANES_CONFIG_PATH,
+      removeLaneDefinition(readLanesConfig(LANES_CONFIG_PATH), projectId, laneId),
+    );
   });
 }

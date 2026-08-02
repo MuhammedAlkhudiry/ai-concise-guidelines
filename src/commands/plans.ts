@@ -4,13 +4,16 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   renameSync,
   statSync,
   writeFileSync,
 } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { basename, join, resolve } from "node:path";
+import { basename, join, resolve, sep } from "node:path";
+
+import { getActiveProjects, getProjectLanes, LANES_CONFIG_PATH } from "../lib/project-lanes";
 
 type Plan = {
   name: string;
@@ -24,7 +27,6 @@ type Plan = {
 
 type Options = {
   project: string;
-  projectExplicit: boolean;
   plansRoot: string;
   query: string;
   write: boolean;
@@ -32,48 +34,25 @@ type Options = {
 
 const home = process.env.HOME || "";
 
-function usage(): void {
-  console.log(`Usage: plan <command> [query] [options]
-
-Commands:
-  list      List active plan files for the current project
-  show      Print the latest plan, or the plan matching query
-  path      Print the file path for the latest plan, or the plan matching query
-  archive   Move a plan into archive/
-  index     Print or rewrite the active plan index
-
-Options:
-  --project=<name>       Project folder under ~/plans
-  --plans-root=<path>    Plans root, defaults to ~/plans
-  --write                Rewrite INDEX.md with the active plan index
-  -h, --help             Show this help
-
-Plan files:
-  The CLI finds, reads, indexes, and archives plans; author plan files directly.
-  Keep active plans under ~/plans/<project-name>/ and archived plans in archive/.
-  Use a Markdown file for a standalone plan, or <plan-name>/PLAN.md when it needs supporting files.
-  Keep INDEX.md as the active-plan entry point and refresh it with plan index --write.
-  Update the updated date whenever the plan body changes.
-
-Required frontmatter:
-  ---
-  created: YYYY-MM-DD
-  updated: YYYY-MM-DD
-  project: project-name
-  description: Short list-view summary
-  ---`);
-}
-
 function parseOptions(args: string[]): Options {
+  const resolvedCwd = realpathSync(process.cwd());
+  let laneProject: string | undefined;
+  if (existsSync(LANES_CONFIG_PATH)) {
+    laneProject = getActiveProjects().find((project) =>
+      getProjectLanes(project).some((lane) => {
+        const lanePath = existsSync(lane.path) ? realpathSync(lane.path) : resolve(lane.path);
+        return resolvedCwd === lanePath || resolvedCwd.startsWith(`${lanePath}${sep}`);
+      }),
+    )?.id;
+  }
   const remote = spawnSync("git", ["remote", "get-url", "origin"], {
     cwd: process.cwd(),
     encoding: "utf8",
   }).stdout.trim();
   const remoteProject = remote.match(/([^/:]+?)(?:\.git)?$/)?.[1];
-  const cwdProject = remoteProject || basename(process.cwd().replace(/\/$/, ""));
+  const cwdProject = laneProject || remoteProject || basename(process.cwd().replace(/\/$/, ""));
   const query: string[] = [];
   let project = cwdProject;
-  let projectExplicit = false;
   let plansRoot = join(home, "plans");
   let write = false;
 
@@ -87,7 +66,6 @@ function parseOptions(args: string[]): Options {
 
     if (arg.startsWith("--project=")) {
       project = arg.slice("--project=".length);
-      projectExplicit = true;
       continue;
     }
 
@@ -101,7 +79,6 @@ function parseOptions(args: string[]): Options {
 
   return {
     project,
-    projectExplicit,
     plansRoot: resolve(plansRoot.replace(/^~/, home)),
     query: query.join(" ").trim(),
     write,
@@ -408,31 +385,25 @@ function indexPlans(options: Options): void {
   }
 }
 
-const [command = "list", ...rawOptions] = Bun.argv.slice(2);
-const options = parseOptions(rawOptions);
-const helpRequested = [command, ...rawOptions].some(
-  (arg) => arg === "help" || arg === "--help" || arg === "-h",
-);
+export function runPlansCommand(command: string, rawOptions: string[]): void {
+  const options = parseOptions(rawOptions);
 
-if (helpRequested) {
-  usage();
-} else if (command === "list") {
-  listPlans(options);
-} else if (command === "show" || command === "latest") {
-  showPlan(options);
-} else if (command === "path") {
-  showPath(options);
-} else if (
-  command === "archive" ||
-  command === "delete" ||
-  command === "remove" ||
-  command === "rm"
-) {
-  archivePlan(options);
-} else if (command === "index") {
-  indexPlans(options);
-} else {
-  console.error(`Unknown command: ${command}`);
-  usage();
-  process.exit(1);
+  if (command === "list") {
+    listPlans(options);
+  } else if (command === "show" || command === "latest") {
+    showPlan(options);
+  } else if (command === "path") {
+    showPath(options);
+  } else if (
+    command === "archive" ||
+    command === "delete" ||
+    command === "remove" ||
+    command === "rm"
+  ) {
+    archivePlan(options);
+  } else if (command === "index") {
+    indexPlans(options);
+  } else {
+    throw new Error(`Unknown plans operation: ${command}`);
+  }
 }

@@ -10,8 +10,8 @@ description: Implementation planning and saved-plan management.
 2. Run $refactor-opportunities against the affected code. Add a prefactor step only when a recommended refactor should precede the main change; omit
    optional cleanup.
 3. Write the plan in the conversation using the shape below.
-4. When the user explicitly asks to persist or manage a plan, run `plan --help` and follow its current storage, frontmatter, indexing, and archiving
-   contract.
+4. When the user explicitly asks to persist or manage a plan, run `lanes plans --help` and follow its current storage, frontmatter, indexing, and
+   archiving contract.
 
 ## Plan Shape
 

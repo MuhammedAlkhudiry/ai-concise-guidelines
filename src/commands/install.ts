@@ -15,6 +15,7 @@ import {
   symlink,
   readdir,
   rename,
+  readlink,
 } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -30,12 +31,13 @@ import { ACTIVE_PROJECTS } from "../../config/active-projects";
 import { CREDENTIALS_HOME_ENV, CREDENTIALS_ROOT } from "../../config/credentials";
 import { createOpencodeConfig } from "../../config/opencode";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
-import { createLanesConfig } from "../lib/lanes-config";
+import { createLanesConfig, readLanesConfig } from "../lib/lanes-config";
 import { migrateManagedCredentials } from "../lib/credentials";
 import { colors, compactOutput, print, printBox, printSeparator } from "../lib/print";
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
+import { installAdsMenu } from "../apps/ads-menu/install";
 import { installLanesMenu } from "../apps/lanes-menu/install";
 
 // =============================================================================
@@ -88,13 +90,12 @@ const REQUIRED_SECRETS = ["POSTHOG_CLI_API_KEY", "HUGEICONS_TOKEN"] as const;
 
 const SHARED_BIN_COMMANDS = [
   { name: "my-setup", source: "my-setup.zsh" },
-  { name: "context-health", source: "context-health.zsh" },
+  { name: "system-tools", source: "system-tools.zsh" },
   { name: "hugeicons", source: "hugeicons.zsh" },
-  { name: "hosts", source: "hosts.zsh" },
   { name: "doctor", source: "doctor.zsh" },
-  { name: "plan", source: "plan.zsh" },
   { name: "knowledge", source: "knowledge.zsh" },
   { name: "pk", source: "pk.zsh" },
+  { name: "ads", source: "ads.zsh" },
   { name: "lanes", source: "lanes.zsh" },
   { name: "sentry-cli", source: "sentry-cli.zsh" },
 ];
@@ -374,6 +375,30 @@ async function installShared(): Promise<void> {
     print.error("zsh-custom.zsh not found");
   }
 
+  const legacyPlanCommand = join(SHARED_PATHS.binDir, "plan");
+  try {
+    const legacyPlanTarget = await readlink(legacyPlanCommand);
+    if (legacyPlanTarget === join(ROOT_DIR, "shell", "plan.zsh")) {
+      await rm(legacyPlanCommand, { force: true });
+      print.success(`Removed legacy plan command; use lanes plans`);
+    }
+  } catch {
+    // Preserve missing commands and user-owned files.
+  }
+
+  for (const command of ["context-health", "hosts"]) {
+    const legacyCommand = join(SHARED_PATHS.binDir, command);
+    try {
+      const legacyTarget = await readlink(legacyCommand);
+      if (legacyTarget === join(ROOT_DIR, "shell", `${command}.zsh`)) {
+        await rm(legacyCommand, { force: true });
+        print.success(`Removed retired ${command} command`);
+      }
+    } catch {
+      // Preserve missing commands and user-owned files.
+    }
+  }
+
   for (const command of SHARED_BIN_COMMANDS) {
     const sourcePath = join(ROOT_DIR, "shell", command.source);
     const destinationPath = join(SHARED_PATHS.binDir, command.name);
@@ -388,6 +413,7 @@ async function installShared(): Promise<void> {
   }
 
   await installLanesMenu();
+  await installAdsMenu();
 
   print.info(`Ensuring local command paths are in PATH via ${SHARED_PATHS.zshenv}...`);
   await ensureParentDir(SHARED_PATHS.zshenv);
@@ -441,9 +467,12 @@ async function installLanesConfig(): Promise<void> {
   }
 
   await ensureParentDir(SHARED_PATHS.lanesConfig);
+  const installed = existsSync(SHARED_PATHS.lanesConfig)
+    ? readLanesConfig(SHARED_PATHS.lanesConfig)
+    : undefined;
   await writeFile(
     SHARED_PATHS.lanesConfig,
-    `${JSON.stringify(createLanesConfig(ACTIVE_PROJECTS), null, 2)}\n`,
+    `${JSON.stringify(createLanesConfig(ACTIVE_PROJECTS, installed), null, 2)}\n`,
     { mode: 0o600 },
   );
   print.success(`Installed lanes config to ${SHARED_PATHS.lanesConfig}`);

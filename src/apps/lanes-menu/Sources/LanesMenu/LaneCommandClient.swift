@@ -15,6 +15,32 @@ struct LaneCommandClient: Sendable {
     }.value
   }
 
+  func loadServices(for lane: LaneItem) async throws -> [LaneService] {
+    let executable = lanesExecutable
+    return try await Task.detached(priority: .utility) {
+      let data = try run(
+        executable,
+        arguments: ["services", "status", lane.projectID, lane.laneID, "--json"]
+      )
+      let services = try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
+      guard let laneServices = services[lane.serviceKey] else {
+        throw LaneMenuError.message("No service status returned for \(lane.serviceKey).")
+      }
+      return laneServices
+    }.value
+  }
+
+  func loadCiStatuses(for project: LaneProject) async throws -> [String: LaneCiStatus] {
+    let executable = lanesExecutable
+    return try await Task.detached(priority: .utility) {
+      let data = try run(
+        executable,
+        arguments: ["ci", "status", project.id, "--json"]
+      )
+      return try JSONDecoder().decode(LaneCiDocument.self, from: data).statusesByLane()
+    }.value
+  }
+
   func loadProjects() async throws -> [LaneProject] {
     let executable = lanesExecutable
     return try await Task.detached(priority: .userInitiated) {
@@ -32,6 +58,86 @@ struct LaneCommandClient: Sendable {
       _ = try run(
         executable,
         arguments: ["open", lane.projectID, lane.laneID, action.cliTarget]
+      )
+    }.value
+  }
+
+  func openBranch(on lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    try await Task.detached(priority: .userInitiated) {
+      _ = try run(
+        executable,
+        arguments: ["open", lane.projectID, lane.laneID, "branch"]
+      )
+    }.value
+  }
+
+  func openGitHubBranch(on lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    try await Task.detached(priority: .userInitiated) {
+      _ = try run(
+        executable,
+        arguments: ["open", lane.projectID, lane.laneID, "github-branch"]
+      )
+    }.value
+  }
+
+  func createPullRequest(
+    on lane: LaneItem,
+    progress: @escaping @MainActor @Sendable (PullRequestCreationStage) -> Void
+  ) async throws -> URL {
+    let process = Process()
+    let standardOutput = Pipe()
+    let standardError = Pipe()
+    process.executableURL = lanesExecutable
+    process.arguments = ["pr", "create", lane.projectID, lane.laneID, "--json"]
+    process.standardOutput = standardOutput
+    process.standardError = standardError
+
+    try process.run()
+    async let errorData = collectData(from: standardError.fileHandleForReading)
+    var createdURL: URL?
+    for try await line in standardOutput.fileHandleForReading.bytes.lines {
+      guard let data = line.data(using: .utf8) else { continue }
+      let event = try JSONDecoder().decode(PullRequestCreationEvent.self, from: data)
+      if let stage = event.stage {
+        await progress(stage)
+      }
+      if event.type == "complete" {
+        createdURL = event.url
+      }
+    }
+    process.waitUntilExit()
+    let error = try await errorData
+    guard process.terminationStatus == 0 else {
+      let message = String(decoding: error, as: UTF8.self)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+      throw LaneMenuError.message(message.isEmpty ? "Pull-request creation failed" : message)
+    }
+    guard let createdURL else {
+      throw LaneMenuError.message("Pull-request creation completed without a URL")
+    }
+    return createdURL
+  }
+
+  func release(_ lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    try await Task.detached(priority: .userInitiated) {
+      _ = try run(
+        executable,
+        arguments: [
+          "release", lane.projectID, lane.laneID, "--confirm", "--compact",
+        ]
+      )
+    }.value
+  }
+
+  func sync(_ lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    try await Task.detached(priority: .userInitiated) {
+      _ = try run(
+        executable,
+        arguments: ["sync", lane.projectID, lane.laneID]
       )
     }.value
   }
@@ -106,6 +212,14 @@ struct LaneCommandClient: Sendable {
       return String(decoding: data, as: UTF8.self)
     }.value
   }
+}
+
+private func collectData(from handle: FileHandle) async throws -> Data {
+  var data = Data()
+  for try await byte in handle.bytes {
+    data.append(byte)
+  }
+  return data
 }
 
 @discardableResult

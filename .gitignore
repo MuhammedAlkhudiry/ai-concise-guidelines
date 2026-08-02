@@ -12,3 +12,6 @@ gen
 
 # JavaScript dependencies
 node_modules
+
+# Swift Package Manager build artifacts
+.build/

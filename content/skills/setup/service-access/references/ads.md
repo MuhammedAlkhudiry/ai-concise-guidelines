@@ -40,16 +40,6 @@ OAuth, 2FA, CAPTCHA, or missing permissions. Request approval before every accou
 - If the account is absent, repair access through the owning business portfolio or the ad account's roles without requesting or sharing another
   person's login credentials.
 
-## X Ads
-
-- Open [X Ads](https://ads.x.com/) in Chrome while signed in to the X account or delegated user associated with the ad account.
-- Verify access from Ads Manager, not the public X for Business landing page, and report the selected ad account name and ID.
-- Use `$SERVICE_CREDENTIALS_HOME/x-ads/oauth.json` for the X Ads API only after X has approved Ads API access for the application. A working standard
-  X API token does not prove Ads API access.
-- Verify Ads API readiness with the smallest read-only account request. Treat `UNAUTHORIZED_CLIENT_APPLICATION` as pending or missing X Ads API
-  approval, then use Chrome for supported work. Request application access through [X Ads Help](https://ads.x.com/help).
-- If the account is absent, repair access through X Ads multi-user access rather than sharing the brand account's credentials.
-
 ## Snapchat Ads
 
 - Open [Snapchat Ads Manager](https://ads.snapchat.com/) in Chrome.

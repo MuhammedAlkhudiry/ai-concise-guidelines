@@ -17,6 +17,7 @@ export async function installLanesMenu(): Promise<void> {
   await execa("swift", ["build", "-c", "release", "--package-path", SOURCE_ROOT], {
     stdio: "pipe",
   });
+  const signingIdentity = await findAppleDevelopmentIdentity();
 
   const stagingRoot = await mkdtemp(join(tmpdir(), "lanes-menu-"));
   const stagedApp = join(stagingRoot, APP_NAME);
@@ -28,7 +29,11 @@ export async function installLanesMenu(): Promise<void> {
     );
     await copyFile(join(SOURCE_ROOT, "Info.plist"), join(stagedApp, "Contents", "Info.plist"));
     await chmod(join(stagedApp, "Contents", "MacOS", "LanesMenu"), 0o755);
-    await execa("/usr/bin/codesign", ["--force", "--sign", "-", stagedApp], { stdio: "pipe" });
+    await execa(
+      "/usr/bin/codesign",
+      ["--force", "--sign", signingIdentity, "--timestamp=none", stagedApp],
+      { stdio: "pipe" },
+    );
 
     await mkdir(join(home, "Applications"), { recursive: true });
     await rm(appPath, { recursive: true, force: true });
@@ -37,7 +42,7 @@ export async function installLanesMenu(): Promise<void> {
     await rm(stagingRoot, { recursive: true, force: true });
   }
 
-  const launchAgent = createLaunchAgent(executablePath);
+  const launchAgent = createLaunchAgent(executablePath, home);
   await mkdir(join(home, "Library", "LaunchAgents"), { recursive: true });
   await writeFile(launchAgentPath, launchAgent);
 
@@ -53,8 +58,34 @@ export async function installLanesMenu(): Promise<void> {
   await execa("/bin/launchctl", ["bootstrap", domain, launchAgentPath], { stdio: "pipe" });
 }
 
-function createLaunchAgent(executablePath: string): string {
+async function findAppleDevelopmentIdentity(): Promise<string> {
+  const { stdout } = await execa(
+    "/usr/bin/security",
+    ["find-identity", "-v", "-p", "codesigning"],
+    { stdio: "pipe" },
+  );
+  const identity = stdout.match(/^\s*\d+\)\s+([A-F0-9]{40})\s+"Apple Development:/m)?.[1];
+  if (!identity) {
+    throw new Error("A valid Apple Development signing identity is required to install Lanes.");
+  }
+  return identity;
+}
+
+function createLaunchAgent(executablePath: string, home: string): string {
   const escapedExecutablePath = escapeXml(executablePath);
+  const executableSearchPath = [
+    join(home, ".local/share/mise/installs/node/latest/bin"),
+    join(home, ".bun/bin"),
+    join(home, ".local/bin"),
+    join(home, "bin"),
+    join(home, "Library/Application Support/Herd/bin"),
+    "/opt/homebrew/bin",
+    "/usr/local/bin",
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+  ].join(":");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -67,6 +98,13 @@ function createLaunchAgent(executablePath: string): string {
   </array>
   <key>ProcessType</key>
   <string>Interactive</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>${escapeXml(home)}</string>
+    <key>PATH</key>
+    <string>${escapeXml(executableSearchPath)}</string>
+  </dict>
   <key>RunAtLoad</key>
   <true/>
 </dict>

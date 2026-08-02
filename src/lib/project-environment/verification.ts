@@ -81,6 +81,10 @@ export function verifyLaravelEnvironment(
 export async function verifyViteDevelopmentServer(
   context: ProjectEnvironmentContext,
 ): Promise<void> {
+  if (!shouldVerifyLiveServices()) {
+    log("verify", "skipping live Vite verification for an available lane");
+    return;
+  }
   await verifyFetch(context.appUrl, "Herd HTTPS site", {}, context.herdCertificateAuthority);
 
   const hotPath = resolve(context.backendDir, "public/hot");
@@ -95,6 +99,10 @@ export async function verifyViteDevelopmentServer(
     {},
     context.herdCertificateAuthority,
   );
+}
+
+export function shouldVerifyLiveServices(environment: NodeJS.ProcessEnv = process.env): boolean {
+  return environment.PROJECT_LANE_VERIFY_LIVE_SERVICES !== "0";
 }
 
 export function verifyExpoEnvironment(

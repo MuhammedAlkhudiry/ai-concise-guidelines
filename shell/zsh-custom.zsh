@@ -134,19 +134,8 @@ p() {
     cd "$target_dir"
 }
 
-# --- Hosts -------------------------------------------------------------------
-# Delegates host-file management to the installed script, keeping the interactive
-# shell config as a thin command surface rather than duplicating script logic.
-hosts() {
-    _run_installed_command hosts "$@"
-}
-
 doctor() {
     _run_installed_command doctor "$@"
-}
-
-plan() {
-    _run_installed_command plan "$@"
 }
 
 # --- OpenCode ----------------------------------------------------------------

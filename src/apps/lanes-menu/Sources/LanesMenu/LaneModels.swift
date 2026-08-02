@@ -4,6 +4,10 @@ struct LaneProject: Identifiable, Sendable {
   let id: String
   let name: String
   let lanes: [LaneItem]
+
+  var availableLanes: [LaneItem] {
+    lanes.filter { $0.availability == "available" }
+  }
 }
 
 struct LaneItem: Identifiable, Sendable {
@@ -12,9 +16,12 @@ struct LaneItem: Identifiable, Sendable {
   let path: String
   let projectID: String
   let projectName: String
+  let baseBranch: String
   let availability: String
-  let health: String
-  let detail: String?
+  let branch: String?
+  let baseBranchAhead: Int?
+  let baseBranchBehind: Int?
+  let gitDiff: LaneGitDiff?
 
   var appURL: URL {
     URL(string: "https://\(projectID)-\(laneID).test")!
@@ -32,7 +39,174 @@ struct LaneItem: Identifiable, Sendable {
     "\(projectID)/\(laneID)"
   }
 
+  var branchName: String {
+    branch ?? (availability == "available" ? baseBranch : "detached")
+  }
+
+  var baseSyncState: LaneBaseSyncState {
+    guard availability == "available", let baseBranchBehind else { return .unavailable }
+    return baseBranchBehind == 0 ? .latest : .behind(baseBranchBehind)
+  }
+
+  var needsBaseUpdate: Bool {
+    if case .behind = baseSyncState { return true }
+    return false
+  }
+
+  var hasWorkingTreeChanges: Bool {
+    guard let gitDiff else { return false }
+    return gitDiff.additions > 0 || gitDiff.deletions > 0 || gitDiff.untrackedFiles > 0
+  }
+
+  var hasProposableChanges: Bool {
+    hasWorkingTreeChanges || (baseBranchAhead ?? 0) > 0
+  }
+
   var id: String { serviceKey }
+}
+
+enum LaneBaseSyncState: Equatable, Sendable {
+  case latest
+  case behind(Int)
+  case unavailable
+
+  var title: String {
+    switch self {
+    case .latest: "Latest"
+    case .behind(let count): "Behind \(count)"
+    case .unavailable: "Unknown"
+    }
+  }
+}
+
+struct LaneGitDiff: Decodable, Sendable {
+  let additions: Int
+  let deletions: Int
+  let untrackedFiles: Int
+
+  static let clean = LaneGitDiff(additions: 0, deletions: 0, untrackedFiles: 0)
+}
+
+struct LaneCiStatus: Decodable, Sendable {
+  let project: String
+  let lane: String
+  let branch: String
+  let state: LaneCiState
+  let url: URL?
+  let number: Int?
+  let checks: Int
+
+  static func checking(for lane: LaneItem) -> LaneCiStatus {
+    LaneCiStatus(
+      project: lane.projectID,
+      lane: lane.laneID,
+      branch: lane.branchName,
+      state: .checking,
+      url: nil,
+      number: nil,
+      checks: 0
+    )
+  }
+
+  static func unavailable(for lane: LaneItem) -> LaneCiStatus {
+    LaneCiStatus(
+      project: lane.projectID,
+      lane: lane.laneID,
+      branch: lane.branchName,
+      state: .unavailable,
+      url: nil,
+      number: nil,
+      checks: 0
+    )
+  }
+}
+
+struct LaneCiDocument: Decodable, Sendable {
+  let lanes: [LaneCiStatus]
+
+  func statusesByLane() -> [String: LaneCiStatus] {
+    Dictionary(uniqueKeysWithValues: lanes.map { ("\($0.project)/\($0.lane)", $0) })
+  }
+}
+
+struct CreatedPullRequest: Decodable, Sendable {
+  let project: String
+  let lane: String
+  let branch: String
+  let url: URL
+}
+
+enum PullRequestCreationStage: String, Decodable, Sendable {
+  case inspecting
+  case generating
+  case committing
+  case pushing
+  case creating
+
+  var title: String {
+    switch self {
+    case .inspecting: "Inspecting changes…"
+    case .generating: "Generating commit and PR copy…"
+    case .committing: "Committing changes…"
+    case .pushing: "Pushing branch…"
+    case .creating: "Creating pull request…"
+    }
+  }
+}
+
+struct PullRequestCreationEvent: Decodable, Sendable {
+  let type: String
+  let stage: PullRequestCreationStage?
+  let url: URL?
+}
+
+enum LaneCiState: String, Decodable, Sendable {
+  case checking
+  case passing
+  case running
+  case failed
+  case none
+  case merged
+  case closed
+  case noPR = "no-pr"
+  case unavailable
+
+  var title: String {
+    switch self {
+    case .checking: "CI…"
+    case .passing: "CI passing"
+    case .running: "CI running"
+    case .failed: "CI failed"
+    case .none: "No checks"
+    case .merged: "Merged"
+    case .closed: "Closed"
+    case .noPR: "No PR"
+    case .unavailable: "CI unavailable"
+    }
+  }
+}
+
+enum LaneServiceSummary: String, Sendable {
+  case checking
+  case running
+  case changing
+  case partial
+  case stopped
+  case failed
+  case unavailable
+
+  var title: String { rawValue.capitalized }
+
+  static func summarize(_ services: [LaneService]) -> LaneServiceSummary {
+    let states = services.map(\.state)
+    if states.contains(.failed) { return .failed }
+    if states.contains(.unavailable) { return .unavailable }
+    if states.contains(.starting) || states.contains(.stopping) { return .changing }
+    if states.contains(.checking) || states.isEmpty { return .checking }
+    if states.allSatisfy({ $0 == .running }) { return .running }
+    if states.allSatisfy({ $0 == .stopped }) { return .stopped }
+    return .partial
+  }
 }
 
 struct LaneService: Identifiable, Sendable, Equatable {
@@ -142,9 +316,10 @@ struct LaneStatusDocument: Decodable {
 struct LaneStatusRecord: Decodable {
   let lane: LaneRecord
   let availability: String
-  let health: String
-  let occupancyReason: String?
-  let healthReason: String?
+  let branch: String?
+  let baseBranchAhead: Int?
+  let baseBranchBehind: Int?
+  let gitDiff: LaneGitDiff?
 
   var item: LaneItem {
     LaneItem(
@@ -153,19 +328,13 @@ struct LaneStatusRecord: Decodable {
       path: lane.path,
       projectID: lane.project.id,
       projectName: lane.project.name,
+      baseBranch: lane.project.baseBranch,
       availability: availability,
-      health: health,
-      detail: conciseDetail
+      branch: branch,
+      baseBranchAhead: baseBranchAhead,
+      baseBranchBehind: baseBranchBehind,
+      gitDiff: gitDiff
     )
-  }
-
-  private var conciseDetail: String? {
-    let detail = healthReason ?? occupancyReason
-    guard let firstLine = detail?.split(separator: "\n", maxSplits: 1).first else {
-      return nil
-    }
-    let value = String(firstLine)
-    return value.count > 110 ? "\(value.prefix(107))…" : value
   }
 }
 
@@ -179,16 +348,19 @@ struct LaneRecord: Decodable {
 struct ProjectRecord: Decodable {
   let id: String
   let name: String
+  let baseBranch: String
 }
 
 enum LaneAction: String, CaseIterable, Sendable {
   case editor
+  case finder
   case simulator
   case browser
 
   var title: String {
     switch self {
     case .editor: "PhpStorm"
+    case .finder: "Finder"
     case .simulator: "Simulator"
     case .browser: "Browser"
     }
@@ -197,6 +369,7 @@ enum LaneAction: String, CaseIterable, Sendable {
   var systemImage: String {
     switch self {
     case .editor: "chevron.left.forwardslash.chevron.right"
+    case .finder: "folder"
     case .simulator: "iphone"
     case .browser: "globe"
     }
@@ -205,6 +378,7 @@ enum LaneAction: String, CaseIterable, Sendable {
   var cliTarget: String {
     switch self {
     case .editor: "phpstorm"
+    case .finder: "finder"
     case .simulator: "simulator"
     case .browser: "browser"
     }

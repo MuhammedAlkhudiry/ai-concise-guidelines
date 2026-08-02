@@ -1,10 +1,14 @@
+import AppKit
 import SwiftUI
 
-func laneHealthColor(_ health: String) -> Color {
-  switch health {
-  case "ready": .green
-  case "drifted": .yellow
-  default: .red
+func laneServiceSummaryColor(_ summary: LaneServiceSummary) -> Color {
+  switch summary {
+  case .running: .green
+  case .changing, .partial: .yellow
+  case .failed: .red
+  case .stopped: .secondary
+  case .checking: .blue
+  case .unavailable: .gray
   }
 }
 
@@ -19,15 +23,207 @@ func laneServiceColor(_ state: LaneServiceState) -> Color {
   }
 }
 
-struct LaneHealthBadge: View {
-  let health: String
+func laneCiColor(_ state: LaneCiState) -> Color {
+  switch state {
+  case .passing: .green
+  case .running: .yellow
+  case .failed: .red
+  case .checking: .blue
+  case .merged: .purple
+  case .closed: .secondary
+  case .none, .noPR: .secondary
+  case .unavailable: .gray
+  }
+}
+
+struct LaneBaseSyncLabel: View {
+  let state: LaneBaseSyncState
+  let isSyncing: Bool
+  let isEnabled: Bool
+  let sync: () -> Void
+
+  private var color: Color {
+    switch state {
+    case .latest: .green
+    case .behind: .orange
+    case .unavailable: .secondary
+    }
+  }
+
+  private var systemImage: String {
+    switch state {
+    case .latest: "checkmark.circle.fill"
+    case .behind: "arrow.down.circle.fill"
+    case .unavailable: "questionmark.circle.fill"
+    }
+  }
+
+  @ViewBuilder
   var body: some View {
-    Text(health.capitalized)
+    if case .behind = state {
+      Button(action: sync) {
+        label
+      }
+      .buttonStyle(.plain)
+      .disabled(isSyncing || !isEnabled)
+      .help(isSyncing ? "Fetching the latest base branch" : "Fetch and update this lane")
+      .accessibilityLabel(isSyncing ? "Fetching the latest base branch" : "Fetch latest")
+    } else {
+      label
+    }
+  }
+
+  private var label: some View {
+    Group {
+      if isSyncing {
+        HStack(spacing: 3) {
+          ProgressView()
+            .controlSize(.mini)
+          Text("Fetching…")
+        }
+      } else {
+        Label(state.title, systemImage: systemImage)
+      }
+    }
+    .font(.caption2.weight(.semibold))
+    .foregroundStyle(color)
+    .fixedSize()
+    .help("Base branch status: \(state.title.lowercased())")
+  }
+}
+
+struct LaneCiLabel: View {
+  let status: LaneCiStatus
+
+  private var systemImage: String {
+    switch status.state {
+    case .passing: "checkmark.circle.fill"
+    case .running: "clock.fill"
+    case .failed: "xmark.circle.fill"
+    case .checking: "ellipsis.circle.fill"
+    case .none: "minus.circle.fill"
+    case .merged: "arrow.triangle.merge"
+    case .closed: "xmark.circle.fill"
+    case .noPR: "arrow.triangle.pull"
+    case .unavailable: "questionmark.circle.fill"
+    }
+  }
+
+  var body: some View {
+    Label(status.state.title, systemImage: systemImage)
+      .foregroundStyle(laneCiColor(status.state))
+      .help(status.checks > 0 ? "\(status.checks) pull-request checks" : status.state.title)
+      .accessibilityLabel(
+        status.checks > 0 ? "\(status.state.title), \(status.checks) checks" : status.state.title
+      )
+  }
+}
+
+struct LaneServiceSummaryBadge: View {
+  let summary: LaneServiceSummary
+
+  private var systemImage: String {
+    switch summary {
+    case .running: "checkmark.circle.fill"
+    case .changing: "arrow.triangle.2.circlepath"
+    case .partial: "circle.lefthalf.filled"
+    case .stopped: "stop.circle.fill"
+    case .failed: "exclamationmark.triangle.fill"
+    case .checking: "ellipsis.circle.fill"
+    case .unavailable: "questionmark.circle.fill"
+    }
+  }
+
+  var body: some View {
+    Label(summary.title, systemImage: systemImage)
       .font(.caption2.weight(.semibold))
-      .foregroundStyle(laneHealthColor(health))
+      .foregroundStyle(laneServiceSummaryColor(summary))
       .padding(.horizontal, 6)
       .padding(.vertical, 2)
-      .background(laneHealthColor(health).opacity(0.12), in: Capsule())
+      .background(laneServiceSummaryColor(summary).opacity(0.12), in: Capsule())
+  }
+}
+
+struct LaneBranchBadge: View {
+  let branch: String
+  let status: LaneCiStatus
+  let isOpening: Bool
+  let open: () -> Void
+  let openGitHubBranch: () -> Void
+
+  var body: some View {
+    Group {
+      if status.url != nil {
+        Button(action: open) {
+          label
+        }
+        .buttonStyle(.plain)
+        .disabled(isOpening)
+        .help("Open pull request\(status.number.map { " #\($0)" } ?? "") on GitHub")
+        .accessibilityLabel(
+          "Open pull request\(status.number.map { " \($0)" } ?? "") for branch \(branch) on GitHub"
+        )
+      } else {
+        label
+          .help("Branch \(branch)")
+          .accessibilityLabel("Branch \(branch)")
+      }
+    }
+    .contextMenu {
+      if status.url != nil {
+        Button(action: open) {
+          Label("Open PR", systemImage: "arrow.up.right.square")
+        }
+      }
+      Button(action: openGitHubBranch) {
+        Label("Open Branch on GitHub", systemImage: "arrow.triangle.branch")
+      }
+      Divider()
+      if let url = status.url {
+        Button {
+          copy(url.absoluteString)
+        } label: {
+          Label("Copy PR URL", systemImage: "link")
+        }
+      }
+      Button {
+        copy(branch)
+      } label: {
+        Label("Copy Branch Name", systemImage: "doc.on.doc")
+      }
+    }
+  }
+
+  private var label: some View {
+    HStack(spacing: 3) {
+      if isOpening {
+        ProgressView()
+          .controlSize(.mini)
+      } else {
+        Image(systemName: "arrow.triangle.branch")
+      }
+      Text(branch)
+        .lineLimit(1)
+        .truncationMode(.middle)
+      if let number = status.number {
+        Text("· #\(number)")
+        if status.state == .merged || status.state == .closed {
+          Text("· \(status.state.title)")
+            .foregroundStyle(status.state == .merged ? Color.purple : Color.secondary)
+        }
+      }
+    }
+    .font(.caption2.weight(.semibold))
+    .foregroundStyle(.secondary)
+    .padding(.horizontal, 6)
+    .padding(.vertical, 2)
+    .background(Color.secondary.opacity(0.12), in: Capsule())
+    .frame(maxWidth: 300, alignment: .leading)
+  }
+
+  private func copy(_ value: String) {
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(value, forType: .string)
   }
 }
 

@@ -40,6 +40,7 @@
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or
   background process unless explicitly requested.
+- **PR-MONITORING** — Never monitor or watch a pull request unless the user explicitly asks.
 - **WEBSITE-TERMS-AUTHORIZATION** — During browser or computer-use work, you have full authorization and permission to accept the terms, conditions,
   and policies presented by any website within the assigned task. Accept them without stopping for confirmation.
 - **TEST-RESTRAINT** — Do not add or modify tests merely because code changed. Add tests only for an uncovered observable contract, regression,

@@ -57,6 +57,16 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
     ],
   },
   {
+    repository: "https://github.com/remorses/playwriter.git",
+    ref: "main",
+    skills: [
+      {
+        name: "playwriter",
+        sourcePath: "skills/playwriter",
+      },
+    ],
+  },
+  {
     repository: "https://github.com/PostHog/ai-plugin.git",
     ref: "main",
     skills: [
@@ -81,16 +91,6 @@ export const REMOTE_SKILL_SOURCES: RemoteSkillSource[] = [
       {
         name: "sentry-cli",
         sourcePath: "plugins/sentry-cli/skills/sentry-cli",
-      },
-    ],
-  },
-  {
-    repository: "https://github.com/getsentry/plugin-codex.git",
-    ref: "main",
-    skills: [
-      {
-        name: "sentry-sdk-upgrade",
-        sourcePath: "plugins/sentry/skills/sentry-sdk-upgrade",
       },
     ],
   },

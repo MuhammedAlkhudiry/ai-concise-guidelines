@@ -1,6 +1,6 @@
 ---
 name: manage-ad-accounts
-description: Advertising account reporting and approved mutations across Apple, Google, Meta, X, Snapchat, and TikTok, including lead generation.
+description: Advertising account reporting and approved mutations across Apple, Google, Meta, Snapchat, and TikTok, including lead generation.
 ---
 
 Use `$service-access` for platform routes, `$ads-setup` for project inventory, and `$audit-ad-performance` for performance audits.

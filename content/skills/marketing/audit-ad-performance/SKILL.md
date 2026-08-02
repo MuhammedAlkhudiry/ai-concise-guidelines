@@ -1,6 +1,6 @@
 ---
 name: audit-ad-performance
-description: Advertising performance audits and prioritized improvement plans across Apple, Google, Meta, X, Snapchat, and TikTok.
+description: Advertising performance audits and prioritized improvement plans across Apple, Google, Meta, Snapchat, and TikTok.
 ---
 
 Use `$ads-setup` when `ADS.md` is missing or stale, `$service-access` for platform access, and `$manage-ad-accounts` for approved mutations.

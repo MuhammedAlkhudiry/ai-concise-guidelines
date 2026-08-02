@@ -7,7 +7,6 @@ import { execa } from "execa";
 
 import { generate } from "./commands/generate";
 import { install } from "./commands/install";
-import { toolsStatus, toolsUpdatePlan } from "./commands/tools";
 
 const ROOT_DIR = join(import.meta.dir, "..");
 
@@ -36,27 +35,6 @@ cli
     await install();
     await runScript("zsh", [join(ROOT_DIR, "shell", "doctor.zsh")], options.compact);
     if (options.compact) console.log("my-setup install: ok");
-  });
-
-cli
-  .command("doctor", "Run the local tool and integration checks")
-  .allowUnknownOptions()
-  .action(async (_options: unknown, ...args: string[]) => {
-    await runScript("zsh", [join(ROOT_DIR, "shell", "doctor.zsh"), ...args]);
-  });
-
-cli
-  .command("tools <action>", "Inspect external CLI tool status and update plans")
-  .action(async (action: string) => {
-    if (action === "status") {
-      await toolsStatus();
-      return;
-    }
-    if (action === "update-plan") {
-      await toolsUpdatePlan();
-      return;
-    }
-    throw new Error(`Unknown tools action: ${action}`);
   });
 
 cli.help();

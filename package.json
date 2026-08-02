@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "install:local": "bun src/cli.ts install",
-    "doctor": "bun src/cli.ts doctor",
-    "tools:status": "bun src/cli.ts tools status",
-    "tools:update:plan": "bun src/cli.ts tools update-plan",
+    "doctor": "zsh shell/doctor.zsh",
+    "tools:status": "bun src/commands/system-tools-cli.ts status",
+    "tools:update:plan": "bun src/commands/system-tools-cli.ts update-plan",
     "lanes:status": "bun src/commands/lanes-cli.ts status",
     "format": "node node_modules/oxfmt/dist/cli.js src/cli.ts src/commands src/lib config '**/*.md' package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
     "format:check": "node node_modules/oxfmt/dist/cli.js --check src/cli.ts src/commands src/lib config '**/*.md' package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",

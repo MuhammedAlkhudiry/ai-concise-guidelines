@@ -98,7 +98,7 @@ export const SYSTEM_TOOL_GROUPS = [
       {
         name: "swift",
         level: "required",
-        why: "Builds the native Lanes menu-bar app during installation.",
+        why: "Builds the native Lanes and Ads menu-bar apps during installation.",
         versionArgs: ["--version"],
         update: {
           note: "Update through Xcode or Xcode Command Line Tools.",
@@ -170,6 +170,21 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "playwriter",
+        level: "required",
+        why: "Controls the owner's signed-in Chrome tabs through the Playwriter extension.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "command",
+          command: "npm",
+          args: ["view", "playwriter", "version"],
+        },
+        update: {
+          commands: ["npm install -g playwriter@latest"],
+          note: "The Chrome extension must also be installed and enabled on each tab Playwriter should control.",
+        },
+      },
+      {
         name: "agent-device",
         level: "required",
         why: "Default AI-agent mobile and device automation CLI.",
@@ -200,7 +215,7 @@ export const SYSTEM_TOOL_GROUPS = [
       {
         name: "fzf",
         level: "optional",
-        why: "Used by project pickers and interactive hosts/plan deletion.",
+        why: "Used by project pickers and interactive saved-plan archiving.",
         versionArgs: ["--version"],
         latest: {
           type: "homebrew",

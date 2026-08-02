@@ -13,13 +13,18 @@ description: Idea stress-testing, brainstorming, and option comparison.
 4. Use options when requested or when meaningfully different paths are available.
 5. Take a position. Say when an idea is over-scoped, under-evidenced, structurally awkward, or solves the wrong problem.
 
-## Options
+## Response
 
-1. Use the requested option count. Otherwise use 2-3 options for tactical choices or this ladder for open-ended decisions:
+Keep the initial response short and high-level. Expand only when requested. Use this order, omitting sections that do not help:
+
+1. **Verdict:** the position in 1-2 sentences.
+2. **Why:** up to three decisive observations.
+3. **Options:** distinct paths in one line each. Use the requested count, 2-3 tactical options, or this ladder for open-ended decisions:
    - 🛡️ **Smallest Safe Move:** lowest-risk useful action.
    - ⚖️ **Balanced Bet:** meaningful improvement with contained cost.
    - 🚀 **Bigger Strategic Move:** higher upside with more migration or coordination.
    - ✨ **Ideal Version:** clean target state with unconstrained time and resources.
-2. Use distinct strategic paths when choices are not naturally a size ladder.
-3. Include a smaller or do-nothing path when genuinely viable, and flag attractive-but-bad paths rather than presenting them equally.
-4. Recommend one option and explain why it wins.
+4. **Recommendation:** the preferred path and its main trade-off.
+5. **Question:** only one whose answer could change the direction.
+
+Omit implementation detail and edge cases unless they change the decision. Do not end with a generic offer to expand.

@@ -7,14 +7,20 @@ import {
   projectLaneSimulatorsRestore,
   projectLaneSimulatorsStatus,
   projectLaneOpen,
+  projectLanePullRequest,
+  projectLaneCi,
   projectLaneServices,
+  projectLanesAdd,
   projectLanesDestroy,
   projectLanesAudit,
+  projectLanesRelease,
   projectLanesReset,
   projectLanesSetup,
   projectLanesStatus,
+  projectLanesSync,
   projectLanesVerify,
 } from "./project-lanes";
+import { runPlansCommand } from "./plans";
 
 interface SimulatorOptions {
   json?: boolean;
@@ -25,7 +31,7 @@ interface CompactOptions {
   compact?: boolean;
 }
 
-interface AuditOptions extends CompactOptions {
+interface MobileOptions extends CompactOptions {
   mobile?: boolean;
 }
 
@@ -36,13 +42,28 @@ interface ServiceOptions {
   raw?: boolean;
 }
 
+interface PlanOptions {
+  project?: string;
+  plansRoot?: string;
+  write?: boolean;
+}
+
 const cli = cac("lanes");
 
 cli
   .command("setup [project]", "Create and provision missing lanes")
+  .option("--mobile", "Provision mobile dependencies and the lane simulator")
   .option("--compact", "Print only the final result and failures")
-  .action((project: string | undefined, options: CompactOptions) =>
-    projectLanesSetup(project, options.compact),
+  .action((project: string | undefined, options: MobileOptions) =>
+    projectLanesSetup(project, options.mobile, options.compact),
+  );
+
+cli
+  .command("add <project> [number]", "Register and provision a new local lane")
+  .option("--mobile", "Provision mobile dependencies and the lane simulator")
+  .option("--compact", "Print only the final result and failures")
+  .action((project: string, number: string | undefined, options: MobileOptions) =>
+    projectLanesAdd(project, number, options.mobile, options.compact),
   );
 
 cli
@@ -53,17 +74,22 @@ cli
   });
 
 cli
+  .command("sync <project> <lane>", "Fetch and fast-forward one clean available lane")
+  .action((project: string, lane: string) => projectLanesSync(project, lane));
+
+cli
   .command("verify [project] [lane]", "Verify the current or explicitly named lane")
+  .option("--mobile", "Include mobile environment and lane simulator verification")
   .option("--compact", "Print only the final result and failures")
-  .action((project: string | undefined, lane: string | undefined, options: CompactOptions) =>
-    projectLanesVerify(project, lane, options.compact),
+  .action((project: string | undefined, lane: string | undefined, options: MobileOptions) =>
+    projectLanesVerify(project, lane, options.mobile, options.compact),
   );
 
 cli
   .command("audit [project]", "Audit every configured lane environment")
   .option("--mobile", "Include mobile-development verification for every lane")
   .option("--compact", "Print only the final result and failures")
-  .action((project: string | undefined, options: AuditOptions) =>
+  .action((project: string | undefined, options: MobileOptions) =>
     projectLanesAudit(project, options.mobile, options.compact),
   );
 
@@ -87,7 +113,43 @@ cli
   );
 
 cli
-  .command("open <project> <lane> <target>", "Open a lane in PhpStorm, Simulator, or Browser")
+  .command("ci <operation> <project> [lane]", "Show pull-request CI status by project or lane")
+  .option("--json", "Print machine-readable status")
+  .action(
+    (operation: string, project: string, lane: string | undefined, options: { json?: boolean }) =>
+      projectLaneCi(operation, project, lane, Boolean(options.json)),
+  );
+
+cli
+  .command("pr <operation> <project> <lane>", "Create a pull request for a lane")
+  .option("--json", "Print machine-readable output")
+  .action((operation: string, project: string, lane: string, options: { json?: boolean }) =>
+    projectLanePullRequest(operation, project, lane, Boolean(options.json)),
+  );
+
+cli
+  .command("plans <operation> [...query]", "List, show, locate, archive, or index saved plans")
+  .usage("plans <list|show|path|archive|index> [query] [options]")
+  .option("--project <project>", "Use a specific project plan folder")
+  .option("--plans-root <path>", "Plans root", { default: "~/plans" })
+  .option("--write", "Rewrite INDEX.md when indexing")
+  .example("lanes plans list")
+  .example("lanes plans show billing")
+  .example("lanes plans archive billing")
+  .example("lanes plans index --write")
+  .action((operation: string, query: string[], options: PlanOptions) => {
+    const args = [...query];
+    if (options.project) args.push(`--project=${options.project}`);
+    if (options.plansRoot) args.push(`--plans-root=${options.plansRoot}`);
+    if (options.write) args.push("--write");
+    runPlansCommand(operation, args);
+  });
+
+cli
+  .command(
+    "open <project> <lane> <target>",
+    "Open a lane in PhpStorm, Finder, Simulator, Browser, or on GitHub",
+  )
   .action(projectLaneOpen);
 
 cli
@@ -117,15 +179,43 @@ cli
 cli.command("reset <project> <lane>", "Reset one idle lane").action(projectLanesReset);
 
 cli
+  .command("release <project> <lane>", "Discard lane work and return it to the available pool")
+  .option("--confirm", "Confirm destructive Git and task-data cleanup")
+  .option("--mobile", "Provision mobile dependencies and the lane simulator")
+  .option("--compact", "Print only the final result and failures")
+  .action(
+    (
+      project: string,
+      lane: string,
+      options: { confirm?: boolean; mobile?: boolean; compact?: boolean },
+    ) => projectLanesRelease(project, lane, options.confirm, options.mobile, options.compact),
+  );
+
+cli
   .command("destroy <project> <lane>", "Destroy one idle lane")
   .option("--confirm", "Confirm destructive removal")
   .action((project: string, lane: string, options: { confirm?: boolean }) => {
     return projectLanesDestroy(project, lane, options.confirm);
   });
 
-cli.help();
+cli.help((sections) => {
+  if (cli.matchedCommand?.name !== "plans") return sections;
+  return [
+    ...sections,
+    {
+      title: "Plan files",
+      body: [
+        "Keep active plans under ~/plans/<project-id>/ and archived plans in archive/.",
+        "Use <name>.md, or <name>/PLAN.md when a plan needs supporting files.",
+        "Required frontmatter: created, updated, project, and description.",
+        "Author plans directly; this command finds, reads, indexes, and archives them.",
+      ].join("\n"),
+    },
+  ];
+});
 cli.addEventListener("command:*", () => {
   console.error(`Unknown command: ${cli.args.join(" ")}`);
   process.exitCode = 1;
 });
-cli.parse();
+cli.parse(process.argv, { run: false });
+await cli.runMatchedCommand();

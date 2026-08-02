@@ -71,7 +71,13 @@ test("controls and reads logs for a launchd-backed lane service", () => {
   } finally {
     const stopped = run(["services", "stop", "service-test", "lane-1", "frontend", "--json"]);
     expect(stopped.exitCode).toBe(0);
-    expect(JSON.parse(stopped.stdout.toString()).lanes[0].services[1].state).toBe("stopped");
+    const services = JSON.parse(stopped.stdout.toString()).lanes[0].services;
+    expect(services[0]).toMatchObject({
+      id: "site",
+      state: "stopped",
+      detail: "Frontend is stopped",
+    });
+    expect(services[1].state).toBe("stopped");
   }
 }, 20_000);
 

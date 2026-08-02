@@ -10,11 +10,15 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     name: "Awraq",
     remoteUrl: "https://github.com/MuhammedAlkhudiry/awraq-project.git",
     baseBranch: "main",
+    lanePathPattern: join(projectsRoot, "awraq-lane-{number}"),
     lanes: [1, 2, 3, 4, 5, 6].map((number) => ({
       number,
       path: join(projectsRoot, `awraq-lane-${number}`),
     })),
     environmentVariable: "AWRAQ_LANE_ROOT",
+    pullRequest: {
+      model: "gpt-5.6-terra",
+    },
     services: [
       {
         id: "frontend",
@@ -44,11 +48,15 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     name: "Harium",
     remoteUrl: "https://github.com/MuhammedAlkhudiry/harium-project.git",
     baseBranch: "main",
+    lanePathPattern: join(projectsRoot, "harium-lane-{number}"),
     lanes: [1, 2, 3].map((number) => ({
       number,
       path: join(projectsRoot, `harium-lane-${number}`),
     })),
     environmentVariable: "HARIUM_LANE_ROOT",
+    pullRequest: {
+      model: "gpt-5.6-terra",
+    },
     services: [
       {
         id: "frontend",

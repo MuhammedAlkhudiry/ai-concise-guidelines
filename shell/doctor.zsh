@@ -147,20 +147,6 @@ check_installed_skills() {
   return 1
 }
 
-check_context_health() {
-  local script="$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
-
-  if [[ -f "$script" ]]; then
-    print_ok "context-health" "$script"
-    (( required_ok++ ))
-    return 0
-  fi
-
-  print_missing "required" "context-health" "analyzer missing; run mise run install"
-  (( required_missing++ ))
-  return 1
-}
-
 check_file() {
   local name="$1"
   local path="$2"
@@ -229,7 +215,7 @@ main() {
   check_tool mise required "Needed for the supported local task workflow and global runtime management."
   check_tool node required "Needed by the oxfmt CLI used in repo format checks."
   check_tool zsh required "Needed by all installed shared shell commands."
-  check_tool swift required "Builds the native Lanes menu-bar app during installation."
+  check_tool swift required "Builds the native Lanes and Ads menu-bar apps during installation."
 
   print_header "Shell and helper integrations"
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
@@ -237,9 +223,10 @@ main() {
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool claude optional "Used by Claude Code workflows and as a configured agent target."
   check_tool agent-browser required "Default AI-agent browser automation CLI."
+  check_tool playwriter required "Controls signed-in Chrome tabs through the Playwriter extension."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."
   check_tool simslim required "Install with brew install mobai-app/tap/simslim for persistent lane simulator slimming."
-  check_tool fzf optional "Used by project pickers and interactive hosts/plan deletion."
+  check_tool fzf optional "Used by project pickers and interactive saved-plan archiving."
   check_tool sg optional "Install ast-grep for AST-shaped code search."
   check_tool magick optional "Used to inspect and measure raster UI references."
   check_tool wacli optional "Used to read and export WhatsApp data for authorized personal knowledge workflows."
@@ -261,12 +248,10 @@ main() {
 
   print_header "My Setup links"
   check_link zsh "$HOME/.config/zsh-sync/custom.zsh" "$MY_SETUP_ROOT/shell/zsh-custom.zsh"
-  check_link context-health "$HOME/bin/context-health" "$MY_SETUP_ROOT/shell/context-health.zsh"
   check_link my-setup "$HOME/bin/my-setup" "$MY_SETUP_ROOT/shell/my-setup.zsh"
+  check_link system-tools "$HOME/bin/system-tools" "$MY_SETUP_ROOT/shell/system-tools.zsh"
   check_link hugeicons "$HOME/bin/hugeicons" "$MY_SETUP_ROOT/shell/hugeicons.zsh"
-  check_link hosts "$HOME/bin/hosts" "$MY_SETUP_ROOT/shell/hosts.zsh"
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
-  check_link plan "$HOME/bin/plan" "$MY_SETUP_ROOT/shell/plan.zsh"
   check_link knowledge "$HOME/bin/knowledge" "$MY_SETUP_ROOT/shell/knowledge.zsh"
   check_link pk "$HOME/bin/pk" "$MY_SETUP_ROOT/shell/pk.zsh"
   check_link sentry-cli "$HOME/bin/sentry-cli" "$MY_SETUP_ROOT/shell/sentry-cli.zsh"
@@ -274,7 +259,6 @@ main() {
 
   print_header "Managed skills"
   check_installed_skills
-  check_context_health
 
   print_summary
 

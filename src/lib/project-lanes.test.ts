@@ -1,12 +1,26 @@
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import { expect, test } from "bun:test";
 
-import { getProjectLanes, selectProjectLane, simulatorFleetFailures } from "./project-lanes";
+import {
+  getProjectLanes,
+  laneOccupancyReason,
+  parseGitDivergence,
+  releaseLaneGit,
+  selectProjectLane,
+  simulatorFleetFailures,
+  syncLaneGit,
+} from "./project-lanes";
 
 const project = {
   id: "project",
   name: "Project",
   remoteUrl: "https://example.com/project.git",
   baseBranch: "main",
+  lanePathPattern: "/projects/project-lane-{number}",
   lanes: [
     { number: 1, path: "/projects/project-lane-1" },
     { number: 2, path: "/projects/project-lane-2" },
@@ -32,6 +46,7 @@ test("uses each configured lane path directly", () => {
     name: "Project",
     remoteUrl: "https://example.com/project.git",
     baseBranch: "main",
+    lanePathPattern: "/projects/project-lane-{number}",
     lanes: configuredLanes,
     environmentVariable: "PROJECT_LANE_ROOT",
     services: project.services,
@@ -91,4 +106,138 @@ test("reports every simulator error and profile mismatch", () => {
   });
 
   expect(failures.map(({ lane }) => lane)).toEqual(["lane-2", "lane-3"]);
+});
+
+test("classifies clean base branches without local commits as available", () => {
+  expect(
+    laneOccupancyReason({
+      hasChanges: false,
+      branch: "main",
+      baseBranch: "main",
+      baseBranchAhead: 0,
+    }),
+  ).toBeUndefined();
+  expect(
+    laneOccupancyReason({
+      hasChanges: false,
+      baseBranch: "main",
+      baseBranchAhead: 0,
+    }),
+  ).toBeUndefined();
+});
+
+test("keeps Git work occupied", () => {
+  expect(
+    laneOccupancyReason({
+      hasChanges: false,
+      branch: "main",
+      baseBranch: "main",
+      baseBranchAhead: 1,
+    }),
+  ).toBe("1 local commit outside origin/main");
+  expect(
+    laneOccupancyReason({
+      hasChanges: false,
+      branch: "task/example",
+      baseBranch: "main",
+    }),
+  ).toBe("task branch checked out");
+  expect(
+    laneOccupancyReason({
+      hasChanges: true,
+      branch: "main",
+      baseBranch: "main",
+      baseBranchAhead: 0,
+    }),
+  ).toBe("Git changes present");
+});
+
+test("parses base branch divergence", () => {
+  expect(parseGitDivergence("0\t2")).toEqual({ ahead: 0, behind: 2 });
+  expect(parseGitDivergence("unavailable")).toBeUndefined();
+});
+
+test("releases Git work at the latest remote base commit", () => {
+  const root = mkdtempSync(join(tmpdir(), "lanes-release-"));
+  const remote = join(root, "remote.git");
+  const source = join(root, "source");
+  const lanePath = join(root, "lane");
+  const runGit = (cwd: string, args: string[]) =>
+    execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+
+  try {
+    execFileSync("git", ["init", "--bare", remote]);
+    execFileSync("git", ["clone", remote, source]);
+    runGit(source, ["config", "user.name", "Lanes Test"]);
+    runGit(source, ["config", "user.email", "lanes@example.test"]);
+    writeFileSync(join(source, "tracked.txt"), "first\n");
+    runGit(source, ["add", "tracked.txt"]);
+    runGit(source, ["commit", "-m", "first"]);
+    runGit(source, ["branch", "-M", "main"]);
+    runGit(source, ["push", "-u", "origin", "main"]);
+    execFileSync("git", ["clone", "--branch", "main", remote, lanePath]);
+    runGit(lanePath, ["switch", "-c", "task"]);
+    writeFileSync(join(lanePath, "tracked.txt"), "task work\n");
+    writeFileSync(join(lanePath, "untracked.txt"), "discard me\n");
+
+    writeFileSync(join(source, "tracked.txt"), "latest\n");
+    runGit(source, ["commit", "-am", "latest"]);
+    runGit(source, ["push"]);
+
+    releaseLaneGit({
+      id: "lane-1",
+      number: 1,
+      path: lanePath,
+      project: { ...project, lanes: [{ number: 1, path: lanePath }], remoteUrl: remote },
+    });
+
+    expect(runGit(lanePath, ["branch", "--show-current"])).toBe("");
+    expect(runGit(lanePath, ["rev-parse", "HEAD"])).toBe(
+      runGit(lanePath, ["rev-parse", "origin/main"]),
+    );
+    expect(runGit(lanePath, ["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("fast-forwards a clean lane to the latest remote base commit", () => {
+  const root = mkdtempSync(join(tmpdir(), "lanes-sync-"));
+  const remote = join(root, "remote.git");
+  const source = join(root, "source");
+  const lanePath = join(root, "lane");
+  const runGit = (cwd: string, args: string[]) =>
+    execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+
+  try {
+    execFileSync("git", ["init", "--bare", remote]);
+    execFileSync("git", ["clone", remote, source]);
+    runGit(source, ["config", "user.name", "Lanes Test"]);
+    runGit(source, ["config", "user.email", "lanes@example.test"]);
+    writeFileSync(join(source, "tracked.txt"), "first\n");
+    runGit(source, ["add", "tracked.txt"]);
+    runGit(source, ["commit", "-m", "first"]);
+    runGit(source, ["branch", "-M", "main"]);
+    runGit(source, ["push", "-u", "origin", "main"]);
+    execFileSync("git", ["clone", "--branch", "main", remote, lanePath]);
+
+    writeFileSync(join(source, "tracked.txt"), "latest\n");
+    runGit(source, ["commit", "-am", "latest"]);
+    runGit(source, ["push"]);
+
+    syncLaneGit({
+      id: "lane-1",
+      number: 1,
+      path: lanePath,
+      project: { ...project, lanes: [{ number: 1, path: lanePath }], remoteUrl: remote },
+    });
+
+    expect(runGit(lanePath, ["branch", "--show-current"])).toBe("main");
+    expect(runGit(lanePath, ["rev-parse", "HEAD"])).toBe(
+      runGit(lanePath, ["rev-parse", "origin/main"]),
+    );
+    expect(runGit(lanePath, ["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-script="$HOME/.agents/skills/improve-agent-setup/scripts/analyze-codex-sessions.ts"
 MY_SETUP_ROOT="${MY_SETUP_ROOT:-${0:A:h:h}}"
+script="$MY_SETUP_ROOT/src/commands/system-tools-cli.ts"
 
 if [[ ! -f "$script" ]]; then
-  echo "context-health script not found at $script"
+  echo "system-tools script not found at $script"
   echo "Run mise run install from $MY_SETUP_ROOT"
   exit 1
 fi

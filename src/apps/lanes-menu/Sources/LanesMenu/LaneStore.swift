@@ -1,3 +1,4 @@
+import AppKit
 import Combine
 import Foundation
 
@@ -8,9 +9,13 @@ final class LaneStore: ObservableObject {
   @Published private(set) var activeAction: String?
   @Published private(set) var activeService: String?
   @Published private(set) var serviceStatuses: [String: [LaneService]] = [:]
+  @Published private(set) var ciStatuses: [String: LaneCiStatus] = [:]
+  @Published private(set) var pullRequestCreationStages: [String: PullRequestCreationStage] = [:]
   @Published var errorMessage: String?
 
   private let client: LaneCommandClient
+  private var ciLoadedAt: [String: Date] = [:]
+  private let ciCacheLifetime: TimeInterval = 60
 
   init(client: LaneCommandClient = LaneCommandClient()) {
     self.client = client
@@ -23,8 +28,9 @@ final class LaneStore: ObservableObject {
       defer { isRefreshing = false }
       do {
         projects = try await client.loadProjects()
+        let lanes = projects.flatMap(\.lanes)
         serviceStatuses = Dictionary(
-          uniqueKeysWithValues: projects.flatMap(\.lanes).map { lane in
+          uniqueKeysWithValues: lanes.map { lane in
             (
               lane.serviceKey,
               [
@@ -41,8 +47,27 @@ final class LaneStore: ObservableObject {
             )
           }
         )
-        serviceStatuses = try await client.loadServiceStatuses()
-        errorMessage = nil
+        ciStatuses = Dictionary(
+          uniqueKeysWithValues: lanes.map { lane in
+            (lane.serviceKey, ciStatuses[lane.serviceKey] ?? .checking(for: lane))
+          }
+        )
+        let now = Date()
+        let staleCiProjects = projects.filter { project in
+          guard
+            let loadedAt = ciLoadedAt[project.id],
+            now.timeIntervalSince(loadedAt) < ciCacheLifetime
+          else { return true }
+          return !project.lanes.allSatisfy { lane in
+            ciStatuses[lane.serviceKey]?.branch == lane.branchName
+          }
+        }
+        for project in staleCiProjects {
+          for lane in project.lanes {
+            ciStatuses[lane.serviceKey] = .checking(for: lane)
+          }
+        }
+        await refreshLiveStatuses(for: lanes, ciProjects: staleCiProjects)
       } catch {
         errorMessage = error.localizedDescription
       }
@@ -80,6 +105,119 @@ final class LaneStore: ObservableObject {
         state: .checking
       )
     ]
+  }
+
+  func serviceSummary(for lane: LaneItem) -> LaneServiceSummary {
+    LaneServiceSummary.summarize(services(for: lane))
+  }
+
+  func ciStatus(for lane: LaneItem) -> LaneCiStatus {
+    ciStatuses[lane.serviceKey] ?? .checking(for: lane)
+  }
+
+  func openBranch(for lane: LaneItem) {
+    let actionID = "\(lane.id)/branch"
+    guard activeAction == nil else { return }
+    activeAction = actionID
+    Task {
+      defer { activeAction = nil }
+      do {
+        try await client.openBranch(on: lane)
+        errorMessage = nil
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func isOpeningBranch(for lane: LaneItem) -> Bool {
+    activeAction == "\(lane.id)/branch"
+  }
+
+  func openGitHubBranch(for lane: LaneItem) {
+    let actionID = "\(lane.id)/github-branch"
+    guard activeAction == nil else { return }
+    activeAction = actionID
+    Task {
+      defer { activeAction = nil }
+      do {
+        try await client.openGitHubBranch(on: lane)
+        errorMessage = nil
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func createPullRequest(for lane: LaneItem) {
+    let actionID = "\(lane.id)/create-pr"
+    guard activeAction == nil else { return }
+    activeAction = actionID
+    pullRequestCreationStages[lane.id] = .inspecting
+    Task {
+      defer {
+        activeAction = nil
+        pullRequestCreationStages[lane.id] = nil
+      }
+      do {
+        let url = try await client.createPullRequest(on: lane) { [weak self] stage in
+          self?.pullRequestCreationStages[lane.id] = stage
+        }
+        ciLoadedAt[lane.projectID] = nil
+        errorMessage = nil
+        NSWorkspace.shared.open(url)
+        refresh()
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func isCreatingPullRequest(for lane: LaneItem) -> Bool {
+    activeAction == "\(lane.id)/create-pr"
+  }
+
+  func pullRequestCreationStage(for lane: LaneItem) -> PullRequestCreationStage? {
+    pullRequestCreationStages[lane.id]
+  }
+
+  func release(_ lane: LaneItem) {
+    guard activeAction == nil, activeService == nil else { return }
+    activeAction = "\(lane.id)/release"
+    Task {
+      defer { activeAction = nil }
+      do {
+        try await client.release(lane)
+        errorMessage = nil
+        refresh()
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func isReleasing(_ lane: LaneItem) -> Bool {
+    activeAction == "\(lane.id)/release"
+  }
+
+  func sync(_ lane: LaneItem) {
+    guard lane.needsBaseUpdate, activeAction == nil, activeService == nil else { return }
+    activeAction = "\(lane.id)/sync"
+    Task {
+      defer { activeAction = nil }
+      do {
+        try await client.sync(lane)
+        errorMessage = nil
+        refresh()
+      } catch {
+        errorMessage = error.localizedDescription
+        refresh()
+      }
+    }
+  }
+
+  func isSyncing(_ lane: LaneItem) -> Bool {
+    activeAction == "\(lane.id)/sync"
   }
 
   func toggle(_ service: LaneService, on lane: LaneItem) {
@@ -188,4 +326,65 @@ final class LaneStore: ObservableObject {
       service.manageable && service.state != .unavailable ? service.withState(state) : service
     }
   }
+
+  private func refreshLiveStatuses(for lanes: [LaneItem], ciProjects: [LaneProject]) async {
+    let client = client
+    var errors: [String] = []
+    await withTaskGroup(of: LaneRefreshResult.self) { group in
+      for lane in lanes {
+        group.addTask {
+          do {
+            return .services(lane.serviceKey, try await client.loadServices(for: lane), nil)
+          } catch {
+            let unavailable = LaneService(
+              id: "status",
+              name: "Services",
+              manageable: false,
+              managed: false,
+              command: nil,
+              detail: error.localizedDescription,
+              state: .unavailable
+            )
+            return .services(lane.serviceKey, [unavailable], error.localizedDescription)
+          }
+        }
+      }
+      for project in ciProjects {
+        group.addTask {
+          do {
+            return .ci(project.id, try await client.loadCiStatuses(for: project), nil)
+          } catch {
+            let unavailable = Dictionary(
+              uniqueKeysWithValues: project.lanes.map {
+                ($0.serviceKey, LaneCiStatus.unavailable(for: $0))
+              }
+            )
+            return .ci(
+              project.id,
+              unavailable,
+              error.localizedDescription
+            )
+          }
+        }
+      }
+
+      for await result in group {
+        switch result {
+        case .services(let key, let services, let error):
+          serviceStatuses[key] = services
+          if let error { errors.append(error) }
+        case .ci(let projectID, let statuses, let error):
+          ciStatuses.merge(statuses) { _, new in new }
+          if error == nil { ciLoadedAt[projectID] = Date() }
+          if let error { errors.append(error) }
+        }
+      }
+    }
+    errorMessage = errors.first
+  }
+}
+
+private enum LaneRefreshResult: Sendable {
+  case services(String, [LaneService], String?)
+  case ci(String, [String: LaneCiStatus], String?)
 }

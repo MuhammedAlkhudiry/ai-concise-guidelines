@@ -8,18 +8,18 @@
 - `content/skills/<category>/<name>/SKILL.md` — Source files for local skills; each skill belongs under a category folder.
 - `config/skills.ts` — Remote skill declarations fetched and installed by this repo.
 - `config/codex.ts`, `config/opencode.ts`, and `config/mcp.ts` — Source of truth for generated Codex, OpenCode, and MCP configuration.
-- `src/cli.ts` — `my-setup` CLI entrypoint.
+- `src/cli.ts` and `src/commands/system-tools-cli.ts` — `my-setup` installation and external-tool maintenance CLI entrypoints.
 - `src/commands/generate.ts` — Generator for files under `output/`.
 - `src/commands/install.ts` — Local installer that syncs rules, config, skills, shell helpers, secrets, and shared bin commands.
 - `src/commands/lanes-cli.ts`, `src/lib/project-lanes.ts`, and `src/lib/lane-services.ts` — Standalone `lanes` command, persistent clone-lane runtime,
   and service control plane.
 - `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
 - `system-tools.md` — Human-readable list of expected system tools; keep it aligned with `doctor`.
-- `config/active-projects.ts` — Active projects and their fixed clone lanes (see ACTIVE-PROJECTS).
+- `config/active-projects.ts` — Active project defaults and canonical lane path patterns (see ACTIVE-PROJECTS).
 - `output/` — Generated preview artifacts only; do not edit by hand.
 
-- **ACTIVE-PROJECTS** — Active projects and their fixed clone lanes are declared in `config/active-projects.ts`; installation writes the standalone
-  `lanes` catalog to `~/.config/lanes/projects.json`.
+- **ACTIVE-PROJECTS** — Active project defaults are declared in `config/active-projects.ts`; installation merges them into the standalone local
+  `lanes` catalog at `~/.config/lanes/projects.json` without replacing locally added or removed lanes.
 - **MAIN-ONLY** — Work directly on `main`; do not create branches unless explicitly requested.
 - **INSTALL** — Use `mise run install` as the only supported local sync/install command after changing content/config/generator behavior. Agents
   should use `mise run install -- --compact` so successful runs emit only the final result while warnings and failures remain visible.
@@ -42,9 +42,10 @@
 - **SKILL-GLOBAL** — Skill instructions are global capabilities; do not mention any project, repo, product, client, or local workspace by name.
 - **SKILL-INSTALL** — Never install skills with `npx skills add`; local skills live in this repo under `content/skills/<category>/*`, and remote
   skills must be declared in `config/skills.ts` for this repo's source/import logic.
-- **MY-SETUP-CLI** — Supported local commands are `my-setup install`, `my-setup doctor`, `my-setup tools status`, and `my-setup tools update-plan`.
-- **LANES-CLI** — Use the standalone `lanes <setup|status|verify|audit|services|open|reset|destroy|simulators>` command for persistent clone-lane
-  maintenance and service control.
+- **MY-SETUP-CLI** — `my-setup` only provides `install` and built-in help. Use `doctor` for setup health checks and `system-tools status` or
+  `system-tools update-plan` for external CLI maintenance.
+- **LANES-CLI** — Use the standalone `lanes <add|setup|status|verify|audit|services|ci|open|plans|reset|destroy|simulators>` command for persistent
+  clone-lane maintenance, saved-plan management, and service control.
 - **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the
   repo's voice.

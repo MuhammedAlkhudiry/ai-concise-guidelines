@@ -28,8 +28,7 @@ import {
 } from "./project-lanes";
 import type { LaneServiceDefinition } from "./lanes-config";
 
-export type LaneServiceState =
-  "running" | "starting" | "stopped" | "failed" | "unavailable";
+export type LaneServiceState = "running" | "starting" | "stopped" | "failed" | "unavailable";
 
 export interface LaneServiceStatus {
   id: string;
@@ -85,24 +84,35 @@ export async function listLaneServiceStatuses(
   const lanes = selectedLanes(projectId, laneId);
   const observed = processSnapshot();
   return Promise.all(
-    lanes.map(async (lane) => ({
-      project: lane.project.id,
-      lane: lane.id,
-      path: lane.path,
-      services: [
-        await siteStatus(lane),
-        ...lane.project.services.map((service) =>
-          serviceStatus(serviceContext(lane, service), observed),
-        ),
-      ],
-    })),
+    lanes.map(async (lane) => {
+      const services = lane.project.services.map((service) =>
+        serviceStatus(serviceContext(lane, service), observed),
+      );
+      const frontendStopped = services.some(
+        ({ id, state }) => id === "frontend" && state === "stopped",
+      );
+      return {
+        project: lane.project.id,
+        lane: lane.id,
+        path: lane.path,
+        services: [frontendStopped ? stoppedSiteStatus() : await siteStatus(lane), ...services],
+      };
+    }),
   );
 }
 
-export function verifyLaneServiceDefinitions(
-  projectId?: string,
-  laneId?: string,
-): void {
+function stoppedSiteStatus(): LaneServiceStatus {
+  return {
+    id: "site",
+    name: "Site",
+    state: "stopped",
+    manageable: false,
+    managed: false,
+    detail: "Frontend is stopped",
+  };
+}
+
+export function verifyLaneServiceDefinitions(projectId?: string, laneId?: string): void {
   for (const lane of selectedLanes(projectId, laneId)) {
     for (const definition of lane.project.services) {
       const context = serviceContext(lane, definition);
@@ -153,15 +163,10 @@ export async function restartLaneService(
   return laneServicesStatus(lane);
 }
 
-export function laneServiceLogPath(
-  projectId: string,
-  laneId: string,
-  serviceId: string,
-): string {
+export function laneServiceLogPath(projectId: string, laneId: string, serviceId: string): string {
   const lane = explicitLane(projectId, laneId);
   const definition = selectedServices(lane, serviceId)[0];
-  if (!definition || serviceId === "all")
-    throw new Error("Logs require one service id");
+  if (!definition || serviceId === "all") throw new Error("Logs require one service id");
   return serviceContext(lane, definition).logPath;
 }
 
@@ -182,24 +187,17 @@ export function readLaneServiceLogs(
   } finally {
     closeSync(descriptor);
   }
-  const ansiSequence = new RegExp(
-    `${String.fromCharCode(27)}\\[[0-?]*[ -/]*[@-~]`,
-    "g",
-  );
-  const value = buffer
-    .toString("utf8")
-    .replace(ansiSequence, "")
-    .replaceAll("\r", "");
+  const ansiSequence = new RegExp(`${String.fromCharCode(27)}\\[[0-?]*[ -/]*[@-~]`, "g");
+  const value = buffer.toString("utf8").replace(ansiSequence, "").replaceAll("\r", "");
   return (
-    value.split("\n").slice(-Math.max(1, lines)).join("\n").trim() ||
-    "No output captured yet."
+    value.split("\n").slice(-Math.max(1, lines)).join("\n").trim() || "No output captured yet."
   );
 }
 
 export async function openLaneTarget(
   projectId: string,
   laneId: string,
-  target: "phpstorm" | "simulator" | "browser",
+  target: "phpstorm" | "finder" | "simulator" | "browser" | "branch" | "github-branch",
 ): Promise<void> {
   const lane = explicitLane(projectId, laneId);
   if (target === "phpstorm") {
@@ -208,6 +206,18 @@ export async function openLaneTarget(
   }
   if (target === "browser") {
     await execa("open", [`https://${lane.project.id}-${lane.id}.test`]);
+    return;
+  }
+  if (target === "finder") {
+    await execa("open", ["-a", "Finder", lane.path]);
+    return;
+  }
+  if (target === "branch") {
+    await openLaneBranch(lane);
+    return;
+  }
+  if (target === "github-branch") {
+    await openLaneGitHubBranch(lane);
     return;
   }
 
@@ -228,30 +238,82 @@ export async function openLaneTarget(
     >;
   };
   const simulator = findSimulator(document, simulatorName);
-  if (!simulator?.udid)
-    throw new Error(`Simulator ${simulatorName} is missing`);
+  if (!simulator?.udid) throw new Error(`Simulator ${simulatorName} is missing`);
   if (simulator.state !== "Booted") {
     await execa("xcrun", ["simctl", "boot", simulator.udid]);
   }
   await execa("open", ["-a", "Simulator"]);
 }
 
+async function openLaneBranch(lane: Lane): Promise<void> {
+  const repository = githubRepository(lane.project.remoteUrl);
+  const branch =
+    execFileSync("git", ["branch", "--show-current"], {
+      cwd: lane.path,
+      encoding: "utf8",
+    }).trim() || lane.project.baseBranch;
+  const gh = ["/opt/homebrew/bin/gh", "/usr/local/bin/gh"].find(existsSync);
+  if (gh) {
+    const pullRequest = await execa(
+      gh,
+      [
+        "pr",
+        "list",
+        "--state",
+        "all",
+        "--head",
+        branch,
+        "--repo",
+        repository,
+        "--limit",
+        "1",
+        "--json",
+        "url",
+      ],
+      { reject: false },
+    );
+    if (pullRequest.exitCode === 0) {
+      const result = JSON.parse(pullRequest.stdout) as Array<{ url?: string }>;
+      if (result[0]?.url) {
+        await execa("open", [result[0].url]);
+        return;
+      }
+    }
+  }
+
+  await openLaneGitHubBranch(lane, branch);
+}
+
+async function openLaneGitHubBranch(lane: Lane, selectedBranch?: string): Promise<void> {
+  const repository = githubRepository(lane.project.remoteUrl);
+  const branch =
+    selectedBranch ||
+    execFileSync("git", ["branch", "--show-current"], {
+      cwd: lane.path,
+      encoding: "utf8",
+    }).trim() ||
+    lane.project.baseBranch;
+  const branchPath = branch.split("/").map(encodeURIComponent).join("/");
+  await execa("open", [`https://github.com/${repository}/tree/${branchPath}`]);
+}
+
+function githubRepository(remoteUrl: string): string {
+  const url = new URL(remoteUrl);
+  if (url.hostname !== "github.com") throw new Error(`Unsupported Git remote: ${remoteUrl}`);
+  return url.pathname.replace(/^\//, "").replace(/\.git$/, "");
+}
+
 async function laneServicesStatus(lane: Lane): Promise<LaneServicesStatus> {
   const statuses = await listLaneServiceStatuses(lane.project.id, lane.id);
   const status = statuses[0];
-  if (!status)
-    throw new Error(
-      `Could not read services for ${lane.project.id}/${lane.id}`,
-    );
+  if (!status) throw new Error(`Could not read services for ${lane.project.id}/${lane.id}`);
   return status;
 }
 
 function selectedLanes(projectId?: string, laneId?: string): Lane[] {
   if (laneId && !projectId) throw new Error("A lane id requires a project id");
   if (projectId && laneId) return [explicitLane(projectId, laneId)];
-  const projects = projectId
-    ? [getActiveProject(projectId)]
-    : getActiveProjects();
+  const projects = projectId ? [getActiveProject(projectId)] : getActiveProjects();
   return projects.flatMap(getProjectLanes);
 }
 
@@ -259,39 +321,27 @@ function explicitLane(projectId: string, laneId: string): Lane {
   return selectProjectLane(getActiveProjects(), { projectId, laneId });
 }
 
-function selectedServices(
-  lane: Lane,
-  serviceId: string,
-): LaneServiceDefinition[] {
+function selectedServices(lane: Lane, serviceId: string): LaneServiceDefinition[] {
   if (serviceId === "all") return lane.project.services;
   const service = lane.project.services.find(({ id }) => id === serviceId);
-  if (!service)
-    throw new Error(
-      `Unknown service: ${lane.project.id}/${lane.id}/${serviceId}`,
-    );
+  if (!service) throw new Error(`Unknown service: ${lane.project.id}/${lane.id}/${serviceId}`);
   return [service];
 }
 
-function serviceContext(
-  lane: Lane,
-  definition: LaneServiceDefinition,
-): ServiceContext {
+function serviceContext(lane: Lane, definition: LaneServiceDefinition): ServiceContext {
   const directory = resolve(lane.path, definition.directory);
   const environment = laneServiceEnvironment(directory);
   const scriptArguments = environment.EXPO_DEV_SERVER_PORT
     ? ["--port", environment.EXPO_DEV_SERVER_PORT]
     : [];
-  const safeKey = `${lane.project.id}.${lane.id}.${definition.id}`.replace(
-    /[^a-zA-Z0-9.-]/g,
-    "-",
-  );
+  const safeKey = `${lane.project.id}.${lane.id}.${definition.id}`.replace(/[^a-zA-Z0-9.-]/g, "-");
   const label = `com.muhammed.lanes.${safeKey}`;
   const executable = (() => {
     if (definition.runner.type === "bun-script") {
       return findExecutable([
-          join(homedir(), ".bun/bin/bun"),
-          "/opt/homebrew/bin/bun",
-          "/usr/local/bin/bun",
+        join(homedir(), ".bun/bin/bun"),
+        "/opt/homebrew/bin/bun",
+        "/usr/local/bin/bun",
       ]);
     }
     if (definition.runner.type === "npm-script") {
@@ -313,7 +363,11 @@ function serviceContext(
       return [definition.runner.script, ...scriptArguments];
     }
     if (definition.runner.type === "npm-script") {
-      return ["run", definition.runner.script, ...(scriptArguments.length ? ["--", ...scriptArguments] : [])];
+      return [
+        "run",
+        definition.runner.script,
+        ...(scriptArguments.length ? ["--", ...scriptArguments] : []),
+      ];
     }
     return ["artisan", definition.runner.command];
   })();
@@ -338,9 +392,7 @@ function serviceContext(
 function findExecutable(candidates: string[]): string {
   const executable = candidates.find((path) => existsSync(path));
   if (!executable) {
-    throw new Error(
-      `Missing executable: ${candidates.map((path) => basename(path)).join(" or ")}`,
-    );
+    throw new Error(`Missing executable: ${candidates.map((path) => basename(path)).join(" or ")}`);
   }
   return executable;
 }
@@ -362,10 +414,7 @@ function serviceAvailable(context: ServiceContext): boolean {
   }
 }
 
-function serviceStatus(
-  context: ServiceContext,
-  observed = processSnapshot(),
-): LaneServiceStatus {
+function serviceStatus(context: ServiceContext, observed = processSnapshot()): LaneServiceStatus {
   const base = {
     id: context.definition.id,
     name: context.definition.name,
@@ -382,11 +431,7 @@ function serviceStatus(
   if (launchStatus.loaded) {
     return {
       ...base,
-      state: launchStatus.pid
-        ? "running"
-        : launchStatus.failed
-          ? "failed"
-          : "starting",
+      state: launchStatus.pid ? "running" : launchStatus.failed ? "failed" : "starting",
       managed: true,
       ...(launchStatus.pid ? { pid: launchStatus.pid } : {}),
     };
@@ -414,9 +459,7 @@ async function siteStatus(lane: Lane): Promise<LaneServiceStatus> {
       id: "site",
       name: "Site",
       state:
-        response.ok || (response.status >= 300 && response.status < 400)
-          ? "running"
-          : "failed",
+        response.ok || (response.status >= 300 && response.status < 400) ? "running" : "failed",
       manageable: false,
       managed: false,
       ...(response.ok || (response.status >= 300 && response.status < 400)
@@ -457,9 +500,7 @@ async function startService(context: ServiceContext): Promise<void> {
       reject: false,
     });
     rmSync(context.plistPath, { force: true });
-    throw new Error(
-      `${context.definition.name} failed to start; see ${context.logPath}`,
-    );
+    throw new Error(`${context.definition.name} failed to start; see ${context.logPath}`);
   }
 }
 
@@ -491,14 +532,10 @@ function launchAgentStatus(label: string): {
   failed: boolean;
 } {
   try {
-    const output = execFileSync(
-      "launchctl",
-      ["print", `${launchDomain}/${label}`],
-      {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      },
-    );
+    const output = execFileSync("launchctl", ["print", `${launchDomain}/${label}`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
     const pid = output.match(/\bpid = (\d+)/)?.[1];
     const exitCode = output.match(/last exit code = (-?\d+)/)?.[1];
     return {
@@ -525,9 +562,7 @@ function processSnapshot(): ObservedProcess[] {
     .map((line) => line.trim().match(/^(\d+)\s+(\d+)\s+(.+)$/))
     .filter((match): match is RegExpMatchArray => Boolean(match))
     .filter((match) =>
-      /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(
-        match[3]!.toLowerCase(),
-      ),
+      /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(match[3]!.toLowerCase()),
     )
     .flatMap((match) => {
       const pid = Number(match[1]);
@@ -547,14 +582,10 @@ function processSnapshot(): ObservedProcess[] {
 
 function processDirectory(pid: number): string | undefined {
   try {
-    const output = execFileSync(
-      "lsof",
-      ["-a", "-p", String(pid), "-d", "cwd", "-Fn"],
-      {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      },
-    );
+    const output = execFileSync("lsof", ["-a", "-p", String(pid), "-d", "cwd", "-Fn"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
     return output
       .split("\n")
       .find((line) => line.startsWith("n"))
@@ -572,9 +603,7 @@ function matchingProcesses(
   return observed.filter((process) => {
     if (canonicalPath(process.directory) !== expectedDirectory) return false;
     if (context.definition.runner.type === "artisan") {
-      return process.command.includes(
-        `artisan ${context.definition.runner.command}`,
-      );
+      return process.command.includes(`artisan ${context.definition.runner.command}`);
     }
     const script = context.definition.runner.script.toLowerCase();
     const runtime = context.definition.runner.type === "npm-script" ? "npm" : "bun";
@@ -647,10 +676,7 @@ function launchAgentPlist(context: ServiceContext): string {
   <key>WorkingDirectory</key><string>${xml(context.directory)}</string>
   <key>EnvironmentVariables</key>
   <dict>${Object.entries(environment)
-    .map(
-      ([key, value]) =>
-        `\n    <key>${xml(key)}</key><string>${xml(value)}</string>`,
-    )
+    .map(([key, value]) => `\n    <key>${xml(key)}</key><string>${xml(value)}</string>`)
     .join("")}
   </dict>
   <key>RunAtLoad</key><true/>
