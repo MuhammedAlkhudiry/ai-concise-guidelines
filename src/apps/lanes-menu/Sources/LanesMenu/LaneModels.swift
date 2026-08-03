@@ -10,6 +10,28 @@ struct LaneProject: Identifiable, Sendable {
   }
 }
 
+struct LaneCleanupJob: Identifiable, Decodable, Sendable {
+  let id: String
+  let laneId: String
+  let phase: String
+  let attempts: Int
+  let lastError: String?
+  let project: LaneCleanupProject
+
+  var title: String {
+    "\(project.name) · \(laneId.replacingOccurrences(of: "lane-", with: "Lane "))"
+  }
+}
+
+struct LaneCleanupProject: Decodable, Sendable {
+  let id: String
+  let name: String
+}
+
+struct LaneCleanupDocument: Decodable, Sendable {
+  let jobs: [LaneCleanupJob]
+}
+
 struct LaneItem: Identifiable, Sendable {
   let laneID: String
   let number: Int
@@ -60,6 +82,10 @@ struct LaneItem: Identifiable, Sendable {
 
   var hasProposableChanges: Bool {
     hasWorkingTreeChanges || (baseBranchAhead ?? 0) > 0
+  }
+
+  var isRemovable: Bool {
+    availability == "available" && !hasWorkingTreeChanges
   }
 
   var id: String { serviceKey }
@@ -216,7 +242,28 @@ struct LaneService: Identifiable, Sendable, Equatable {
   let managed: Bool
   let command: String?
   let detail: String?
+  let residentBytes: Int64?
   var state: LaneServiceState
+
+  init(
+    id: String,
+    name: String,
+    manageable: Bool,
+    managed: Bool,
+    command: String?,
+    detail: String?,
+    residentBytes: Int64? = nil,
+    state: LaneServiceState
+  ) {
+    self.id = id
+    self.name = name
+    self.manageable = manageable
+    self.managed = managed
+    self.command = command
+    self.detail = detail
+    self.residentBytes = residentBytes
+    self.state = state
+  }
 
   func withState(_ state: LaneServiceState) -> LaneService {
     LaneService(
@@ -226,6 +273,7 @@ struct LaneService: Identifiable, Sendable, Equatable {
       managed: managed,
       command: command,
       detail: detail,
+      residentBytes: residentBytes,
       state: state
     )
   }
@@ -261,6 +309,7 @@ struct LaneServicesDocument: Decodable {
               managed: service.managed,
               command: service.command,
               detail: service.detail,
+              residentBytes: service.residentBytes,
               state: service.state
             )
           }
@@ -284,6 +333,7 @@ struct LaneServiceRecord: Decodable {
   let managed: Bool
   let command: String?
   let detail: String?
+  let residentBytes: Int64?
 }
 
 struct LaneStatusDocument: Decodable {

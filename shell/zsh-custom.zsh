@@ -80,6 +80,9 @@ hugeicons() {
 # makes Homebrew-managed tools available before runtime managers and helpers run.
 [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# Sentry installs its generated Zsh completions in the user data directory.
+fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
 # --- Runtime Manager ---------------------------------------------------------
 # mise owns global runtime activation for this setup. Keep this lightweight so a
 # missing mise binary does not break shell startup on a partially prepared host.

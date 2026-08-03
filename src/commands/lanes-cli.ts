@@ -13,12 +13,14 @@ import {
   projectLanesAdd,
   projectLanesDestroy,
   projectLanesAudit,
+  projectLanesCleanup,
   projectLanesRelease,
   projectLanesReset,
   projectLanesSetup,
   projectLanesStatus,
   projectLanesSync,
   projectLanesVerify,
+  resumeProjectLaneCleanup,
 } from "./project-lanes";
 import { runPlansCommand } from "./plans";
 
@@ -33,6 +35,10 @@ interface CompactOptions {
 
 interface MobileOptions extends CompactOptions {
   mobile?: boolean;
+}
+
+interface LaneAddOptions extends MobileOptions {
+  branch?: string;
 }
 
 interface ServiceOptions {
@@ -60,10 +66,11 @@ cli
 
 cli
   .command("add <project> [number]", "Register and provision a new local lane")
+  .option("--branch <branch>", "Create a local task branch from the latest remote base")
   .option("--mobile", "Provision mobile dependencies and the lane simulator")
   .option("--compact", "Print only the final result and failures")
-  .action((project: string, number: string | undefined, options: MobileOptions) =>
-    projectLanesAdd(project, number, options.mobile, options.compact),
+  .action((project: string, number: string | undefined, options: LaneAddOptions) =>
+    projectLanesAdd(project, number, options.mobile, options.compact, options.branch),
   );
 
 cli
@@ -179,8 +186,8 @@ cli
 cli.command("reset <project> <lane>", "Reset one idle lane").action(projectLanesReset);
 
 cli
-  .command("release <project> <lane>", "Discard lane work and return it to the available pool")
-  .option("--confirm", "Confirm destructive Git and task-data cleanup")
+  .command("release <project> <lane>", "Return one clean lane to the available pool")
+  .option("--confirm", "Confirm branch cleanup and task-data reset")
   .option("--mobile", "Provision mobile dependencies and the lane simulator")
   .option("--compact", "Print only the final result and failures")
   .action(
@@ -197,6 +204,13 @@ cli
   .action((project: string, lane: string, options: { confirm?: boolean }) => {
     return projectLanesDestroy(project, lane, options.confirm);
   });
+
+cli
+  .command("cleanup <operation>", "Inspect or retry durable lane cleanup jobs")
+  .option("--json", "Print machine-readable cleanup status")
+  .action((operation: string, options: { json?: boolean }) =>
+    projectLanesCleanup(operation, Boolean(options.json)),
+  );
 
 cli.help((sections) => {
   if (cli.matchedCommand?.name !== "plans") return sections;
@@ -218,4 +232,5 @@ cli.addEventListener("command:*", () => {
   process.exitCode = 1;
 });
 cli.parse(process.argv, { run: false });
+if (cli.args[0] !== "cleanup" && cli.args[0] !== "destroy") resumeProjectLaneCleanup();
 await cli.runMatchedCommand();

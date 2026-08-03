@@ -4,6 +4,7 @@ import SwiftUI
 enum AdsAccessState: String, Codable {
   case ready
   case pending
+  case browser
   case unavailable
   case error
 
@@ -11,6 +12,7 @@ enum AdsAccessState: String, Codable {
     switch self {
     case .ready: "Ready"
     case .pending: "Pending"
+    case .browser: "Browser only"
     case .unavailable: "Unavailable"
     case .error: "Error"
     }
@@ -20,6 +22,7 @@ enum AdsAccessState: String, Codable {
     switch self {
     case .ready: .green
     case .pending: .orange
+    case .browser: .blue
     case .unavailable: .secondary
     case .error: .red
     }

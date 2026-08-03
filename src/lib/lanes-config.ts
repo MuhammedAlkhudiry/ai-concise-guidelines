@@ -41,7 +41,7 @@ const projectFields = {
 };
 
 const legacyProjectSchema = z.object(projectFields).superRefine(validateProject);
-const activeProjectSchema = z
+export const activeProjectSchema = z
   .object({
     ...projectFields,
     lanePathPattern: z.string().includes("{number}"),

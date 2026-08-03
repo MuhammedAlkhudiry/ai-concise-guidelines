@@ -4,6 +4,7 @@ struct LanesMenuView: View {
   @ObservedObject var store: LaneStore
   @State private var selectedLaneID: String?
   @State private var releaseConfirmationLaneID: String?
+  @State private var destroyConfirmationLaneID: String?
   @State private var pullRequestConfirmationLaneID: String?
 
   private var allLanes: [LaneItem] {
@@ -36,11 +37,27 @@ struct LanesMenuView: View {
       VStack(alignment: .leading, spacing: 0) {
         Text("Lanes")
           .font(.headline)
-        Text("\(allLanes.count) lanes")
-          .font(.caption2)
-          .foregroundStyle(.secondary)
+        Text(
+          store.totalResidentBytes.map {
+            "\(allLanes.count) lanes · \(formattedMemory($0)) RAM"
+          } ?? "\(allLanes.count) lanes"
+        )
+        .font(.caption2)
+        .foregroundStyle(.secondary)
       }
       Spacer()
+      if !store.cleanupJobs.isEmpty {
+        let failedCleanup = store.cleanupJobs.contains { $0.lastError != nil }
+        Label(
+          failedCleanup
+            ? "\(store.cleanupJobs.count) cleanup failed" : "\(store.cleanupJobs.count) cleaning",
+          systemImage: failedCleanup ? "exclamationmark.triangle.fill" : "trash.slash.fill"
+        )
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(failedCleanup ? Color.red : Color.orange)
+        .help(cleanupHelp)
+        .accessibilityLabel(cleanupHelp)
+      }
       if store.isRefreshing {
         ProgressView()
           .controlSize(.small)
@@ -67,6 +84,12 @@ struct LanesMenuView: View {
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 9)
+  }
+
+  private var cleanupHelp: String {
+    store.cleanupJobs.map { job in
+      job.lastError.map { "\(job.title): \($0)" } ?? "\(job.title): \(job.phase)"
+    }.joined(separator: "\n")
   }
 
   @ViewBuilder
@@ -111,30 +134,48 @@ struct LanesMenuView: View {
   private var laneList: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        ForEach(store.projects) { project in
+        ForEach(Array(store.projects.enumerated()), id: \.element.id) { index, project in
+          if index > 0 {
+            Divider()
+              .padding(.horizontal, 10)
+              .padding(.vertical, 7)
+          }
+
           let isProjectRunning = store.hasRunningServices(in: project)
           HStack(spacing: 6) {
+            Image(systemName: "folder.fill")
+              .font(.system(size: 10, weight: .bold))
+              .foregroundStyle(.tint)
             Text(project.name.uppercased())
-              .font(.caption2.weight(.bold))
-              .tracking(0.6)
+              .font(.caption.weight(.heavy))
+              .tracking(0.8)
+              .foregroundStyle(.primary)
+            Text("\(project.lanes.count)")
+              .font(.caption2.monospacedDigit().weight(.semibold))
               .foregroundStyle(.secondary)
             Spacer()
             Button {
               store.setProjectServices(running: !isProjectRunning, in: project)
             } label: {
               if store.activeService == "\(project.id)/all/all" {
-                ProgressView()
-                  .controlSize(.mini)
-                  .frame(width: 12, height: 12)
+                HStack(spacing: 4) {
+                  ProgressView()
+                    .controlSize(.mini)
+                  Text(isProjectRunning ? "Stopping…" : "Starting…")
+                }
               } else {
-                Image(systemName: isProjectRunning ? "stop.fill" : "play.fill")
-                  .font(.system(size: 9, weight: .bold))
-                  .frame(width: 12, height: 12)
+                Label(
+                  isProjectRunning ? "Stop All" : "Start All",
+                  systemImage: isProjectRunning ? "stop.fill" : "play.fill"
+                )
               }
             }
-            .buttonStyle(.plain)
+            .font(.caption2.weight(.semibold))
+            .buttonStyle(.borderless)
+            .fixedSize()
             .disabled(
               store.activeAction != nil || store.activeService != nil
+                || project.lanes.contains(where: store.isDestroying)
                 || !project.lanes.contains(where: store.canControlServices)
             )
             .help(
@@ -144,8 +185,10 @@ struct LanesMenuView: View {
               "\(isProjectRunning ? "Stop" : "Start") all \(project.name) lanes"
             )
           }
-          .padding(.horizontal, 10)
-          .padding(.top, 8)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 6)
+          .background(.quaternary.opacity(0.32), in: RoundedRectangle(cornerRadius: 6))
+          .padding(.horizontal, 6)
           .padding(.bottom, 4)
 
           ForEach(project.lanes) { lane in
@@ -153,65 +196,63 @@ struct LanesMenuView: View {
             let serviceSummary = store.serviceSummary(for: lane)
             let gitDiff = lane.gitDiff ?? .clean
             HStack(alignment: .center, spacing: 8) {
-              VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                  Circle()
-                    .fill(laneServiceSummaryColor(serviceSummary))
-                    .frame(width: 6, height: 6)
-                  Text(lane.displayName)
-                    .font(.caption.weight(selectedLaneID == lane.id ? .semibold : .regular))
-                    .monospaced()
-                  Spacer()
-                }
+              Button {
+                selectLane(lane)
+              } label: {
+                VStack(alignment: .leading, spacing: 2) {
+                  HStack(spacing: 6) {
+                    Circle()
+                      .fill(laneServiceSummaryColor(serviceSummary))
+                      .frame(width: 6, height: 6)
+                    Text(lane.displayName)
+                      .font(.caption.weight(selectedLaneID == lane.id ? .semibold : .regular))
+                      .monospaced()
+                    Spacer()
+                  }
 
-                HStack(spacing: 3) {
                   HStack(spacing: 3) {
                     Image(systemName: "arrow.triangle.branch")
                       .font(.system(size: 8, weight: .semibold))
                     Text(lane.branchName)
                       .lineLimit(1)
                       .truncationMode(.middle)
-                    if lane.availability == "available" {
-                      LaneBaseSyncLabel(
-                        state: lane.baseSyncState,
-                        isSyncing: store.isSyncing(lane),
-                        isEnabled: store.activeAction == nil && store.activeService == nil,
-                        sync: { store.sync(lane) }
-                      )
-                    }
                   }
                   .foregroundStyle(
                     lane.branchName == lane.baseBranch
                       ? Color.secondary : Color.blue.opacity(0.72)
                   )
                   .frame(maxWidth: .infinity, alignment: .leading)
-
-                  HStack(spacing: 3) {
-                    Text("+\(gitDiff.additions)")
-                      .foregroundStyle(.green)
-                    Text("−\(gitDiff.deletions)")
-                      .foregroundStyle(.red)
-                  }
-                  .fixedSize()
-                  .layoutPriority(1)
+                  .font(.caption2.monospacedDigit())
+                  .padding(.leading, 9)
                 }
-                .font(.caption2.monospacedDigit())
-                .padding(.leading, 9)
               }
+              .buttonStyle(.plain)
               .frame(maxWidth: .infinity, alignment: .leading)
-              .contentShape(Rectangle())
-              .onTapGesture {
-                selectedLaneID = lane.id
-              }
               .accessibilityLabel(
                 "\(lane.projectName) \(lane.displayName), branch \(lane.branchName), \(gitDiff.additions) additions, \(gitDiff.deletions) deletions, \(gitDiff.untrackedFiles) untracked files, services \(serviceSummary.title)"
               )
               .help(
                 "\(lane.projectName) \(lane.displayName) · \(lane.branchName) · +\(gitDiff.additions) −\(gitDiff.deletions)"
               )
-              .accessibilityAddTraits(.isButton)
-              .accessibilityAction {
-                selectedLaneID = lane.id
+
+              VStack(alignment: .trailing, spacing: 2) {
+                if lane.availability == "available" {
+                  LaneBaseSyncLabel(
+                    state: lane.baseSyncState,
+                    isSyncing: store.isSyncing(lane),
+                    isEnabled: store.activeAction == nil && store.activeService == nil
+                      && !store.isDestroying(lane),
+                    sync: { store.sync(lane) }
+                  )
+                }
+                HStack(spacing: 3) {
+                  Text("+\(gitDiff.additions)")
+                    .foregroundStyle(.green)
+                  Text("−\(gitDiff.deletions)")
+                    .foregroundStyle(.red)
+                }
+                .font(.caption2.monospacedDigit())
+                .fixedSize()
               }
 
               Button {
@@ -230,6 +271,7 @@ struct LanesMenuView: View {
               .buttonStyle(.plain)
               .disabled(
                 store.activeAction != nil || store.activeService != nil
+                  || store.isDestroying(lane)
                   || !store.canControlServices(on: lane)
               )
               .help(
@@ -241,6 +283,10 @@ struct LanesMenuView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 3)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              selectLane(lane)
+            }
             .background(
               selectedLaneID == lane.id ? Color.accentColor.opacity(0.15) : .clear,
               in: RoundedRectangle(cornerRadius: 4)
@@ -300,30 +346,18 @@ struct LanesMenuView: View {
                 )
                 .accessibilityLabel("Create pull request for branch \(lane.branchName)")
               }
-              if ciStatus.state == .merged {
-                Button {
-                  releaseConfirmationLaneID = lane.id
-                } label: {
-                  Label("Make Available", systemImage: "arrow.counterclockwise")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
-                .tint(.orange)
-                .disabled(store.activeAction != nil || store.activeService != nil)
-                .help("Release this merged lane back to the available pool")
-              }
-              if lane.availability == "available" {
-                LaneBaseSyncLabel(
-                  state: lane.baseSyncState,
-                  isSyncing: store.isSyncing(lane),
-                  isEnabled: store.activeAction == nil && store.activeService == nil,
-                  sync: { store.sync(lane) }
-                )
-              }
             }
           }
           Spacer()
           LaneServiceSummaryBadge(summary: serviceSummary)
+          laneActionsMenu(lane, status: ciStatus)
+        }
+
+        if serviceSummary == .checking || ciStatus.state == .checking {
+          laneStatusLoadingPanel(
+            checkingServices: serviceSummary == .checking,
+            checkingPullRequest: ciStatus.state == .checking
+          )
         }
 
         if pullRequestConfirmationLaneID == lane.id {
@@ -332,14 +366,25 @@ struct LanesMenuView: View {
           pullRequestProgress(stage)
         }
 
-        HStack(spacing: 8) {
-          Text("+\(gitDiff.additions)")
-            .foregroundStyle(.green)
-          Text("−\(gitDiff.deletions)")
-            .foregroundStyle(.red)
-          if gitDiff.untrackedFiles > 0 {
-            Text("\(gitDiff.untrackedFiles) untracked")
-              .foregroundStyle(.orange)
+        HStack(spacing: 10) {
+          if gitDiff.additions > 0 || gitDiff.deletions > 0 || gitDiff.untrackedFiles > 0 {
+            Label {
+              HStack(spacing: 4) {
+                Text("\(gitDiff.additions) additions")
+                  .foregroundStyle(.green)
+                Text("·")
+                  .foregroundStyle(.tertiary)
+                Text("\(gitDiff.deletions) deletions")
+                  .foregroundStyle(.red)
+                if gitDiff.untrackedFiles > 0 {
+                  Text("· \(gitDiff.untrackedFiles) untracked")
+                    .foregroundStyle(.orange)
+                }
+              }
+            } icon: {
+              Image(systemName: "plus.forwardslash.minus")
+                .foregroundStyle(.secondary)
+            }
           }
           if lane.branchName != lane.baseBranch {
             LaneCiLabel(status: ciStatus)
@@ -379,75 +424,221 @@ struct LanesMenuView: View {
           }
         }
 
-        if lane.availability != "available" {
-          if releaseConfirmationLaneID == lane.id {
-            VStack(alignment: .leading, spacing: 8) {
-              Text("Make Lane Available?")
-                .font(.caption.weight(.semibold))
-              Text(
-                "This stops services, permanently discards Git changes, switches to the latest \(lane.baseBranch), resets task data, and verifies the lane."
-              )
-              .font(.caption2)
-              .foregroundStyle(.secondary)
+        if releaseConfirmationLaneID == lane.id {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Make Lane Available?")
+              .font(.caption.weight(.semibold))
+            Text(
+              "This stops services, switches to the latest \(lane.baseBranch), resets task data, and verifies the lane. Committed branches remain available."
+            )
+            .font(.caption2)
+            .foregroundStyle(.secondary)
 
-              HStack(spacing: 8) {
-                Button("Cancel") {
-                  releaseConfirmationLaneID = nil
-                }
-                .buttonStyle(.bordered)
+            HStack(spacing: 8) {
+              Button("Cancel") {
+                releaseConfirmationLaneID = nil
+              }
+              .buttonStyle(.bordered)
 
-                Button("Discard Work and Release", role: .destructive) {
-                  releaseConfirmationLaneID = nil
-                  store.release(lane)
-                }
-                .buttonStyle(.borderedProminent)
+              Button("Make Available") {
+                releaseConfirmationLaneID = nil
+                store.release(lane)
               }
+              .buttonStyle(.borderedProminent)
             }
-            .padding(10)
-            .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
-          } else if ciStatus.state != .merged {
-            Button {
-              releaseConfirmationLaneID = lane.id
-            } label: {
-              if store.isReleasing(lane) {
-                HStack(spacing: 6) {
-                  ProgressView()
-                    .controlSize(.small)
-                  Text("Making Available…")
-                }
-              } else {
-                Label("Make Lane Available", systemImage: "arrow.counterclockwise")
-              }
-            }
-            .buttonStyle(.bordered)
-            .tint(.orange)
-            .disabled(store.activeAction != nil || store.activeService != nil)
-            .help("Discard lane work and return it to the latest \(lane.baseBranch)")
-            .accessibilityLabel("Make \(lane.projectName) \(lane.displayName) available")
-            .frame(maxWidth: .infinity, alignment: .trailing)
           }
+          .padding(10)
+          .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
         }
 
-        Text("SERVICES")
-          .font(.caption2.weight(.bold))
-          .foregroundStyle(.tertiary)
-          .padding(.top, 4)
-
-        VStack(spacing: 4) {
-          ForEach(store.services(for: lane)) { service in
-            LaneServiceRow(
-              service: service,
-              isBusy: store.activeService != nil,
-              onToggle: { store.toggle(service, on: lane) },
-              onRestart: { store.restart(service, on: lane) },
-              loadLogs: { await store.latestLogs(for: service, on: lane) }
+        if destroyConfirmationLaneID == lane.id {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Remove Lane Permanently?")
+              .font(.caption.weight(.semibold))
+            Text(
+              "This stops services, deletes the clone at \(lane.path), and unregisters the lane. This cannot be undone."
             )
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+
+            HStack(spacing: 8) {
+              Button("Cancel") {
+                destroyConfirmationLaneID = nil
+              }
+              .buttonStyle(.bordered)
+
+              Button("Remove Lane", role: .destructive) {
+                destroyConfirmationLaneID = nil
+                store.destroy(lane)
+              }
+              .buttonStyle(.borderedProminent)
+            }
+          }
+          .padding(10)
+          .background(.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+        }
+
+        HStack {
+          Text("SERVICES")
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.tertiary)
+          Spacer()
+          if let residentBytes = store.residentBytes(for: lane) {
+            Label("Total \(formattedMemory(residentBytes))", systemImage: "memorychip")
+              .font(.caption2.monospacedDigit().weight(.medium))
+              .foregroundStyle(.secondary)
+              .help("Total resident memory used by this lane's services")
+              .accessibilityLabel(
+                "Services use \(formattedMemory(residentBytes)) of memory in total"
+              )
+          }
+        }
+        .padding(.top, 4)
+
+        if serviceSummary != .checking {
+          VStack(spacing: 4) {
+            ForEach(store.services(for: lane)) { service in
+              LaneServiceRow(
+                service: service,
+                isBusy: store.activeService != nil,
+                onToggle: { store.toggle(service, on: lane) },
+                onRestart: { store.restart(service, on: lane) },
+                loadLogs: { await store.latestLogs(for: service, on: lane) }
+              )
+              .id("\(lane.serviceKey)/\(service.id)")
+            }
           }
         }
       }
       .padding(12)
     }
     .frame(maxWidth: .infinity)
+    .allowsHitTesting(!store.isDestroying(lane))
+  }
+
+  private func selectLane(_ lane: LaneItem) {
+    selectedLaneID = lane.id
+    releaseConfirmationLaneID = nil
+    destroyConfirmationLaneID = nil
+    pullRequestConfirmationLaneID = nil
+  }
+
+  private func laneStatusLoadingPanel(
+    checkingServices: Bool,
+    checkingPullRequest: Bool
+  ) -> some View {
+    HStack(spacing: 9) {
+      ProgressView()
+        .controlSize(.small)
+      VStack(alignment: .leading, spacing: 1) {
+        Text("Checking lane status…")
+          .font(.caption.weight(.semibold))
+        Text(
+          checkingServices && checkingPullRequest
+            ? "Loading services and pull-request checks."
+            : checkingServices
+              ? "Loading service health and resource usage."
+              : "Loading pull-request checks."
+        )
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+      }
+      Spacer()
+      Button {
+        store.refresh()
+      } label: {
+        Label("Retry", systemImage: "arrow.clockwise")
+      }
+      .buttonStyle(.bordered)
+      .controlSize(.small)
+      .disabled(store.isRefreshing)
+    }
+    .padding(9)
+    .background(Color.blue.opacity(0.08), in: RoundedRectangle(cornerRadius: 7))
+    .accessibilityElement(children: .contain)
+  }
+
+  private func laneActionsMenu(_ lane: LaneItem, status: LaneCiStatus) -> some View {
+    Menu {
+      if status.url != nil {
+        Button {
+          store.openBranch(for: lane)
+        } label: {
+          Label("Open Pull Request", systemImage: "arrow.up.right.square")
+        }
+      }
+
+      Button {
+        store.openGitHubBranch(for: lane)
+      } label: {
+        Label("Open Branch on GitHub", systemImage: "arrow.triangle.branch")
+      }
+
+      Button {
+        copyToPasteboard(lane.branchName)
+      } label: {
+        Label("Copy Branch Name", systemImage: "doc.on.doc")
+      }
+
+      if lane.needsBaseUpdate {
+        Divider()
+        Button {
+          store.sync(lane)
+        } label: {
+          Label("Fetch Latest", systemImage: "arrow.down.circle")
+        }
+        .disabled(store.activeAction != nil || store.activeService != nil || store.isSyncing(lane))
+      }
+
+      if lane.availability != "available" {
+        Divider()
+        Button {
+          releaseConfirmationLaneID = lane.id
+        } label: {
+          Label("Make Lane Available…", systemImage: "arrow.counterclockwise")
+        }
+        .disabled(
+          lane.hasWorkingTreeChanges || store.activeAction != nil
+            || store.activeService != nil || store.isSyncing(lane)
+        )
+      }
+
+      Divider()
+      Button(role: .destructive) {
+        destroyConfirmationLaneID = lane.id
+      } label: {
+        Label("Remove Lane…", systemImage: "trash")
+      }
+      .disabled(
+        !lane.isRemovable || store.activeAction != nil || store.activeService != nil
+          || store.isSyncing(lane)
+      )
+    } label: {
+      if store.isReleasing(lane) {
+        HStack(spacing: 4) {
+          ProgressView()
+            .controlSize(.mini)
+          Text("Making Available…")
+        }
+      } else if store.isDestroying(lane) {
+        HStack(spacing: 4) {
+          ProgressView()
+            .controlSize(.mini)
+          Text("Removing…")
+        }
+      } else {
+        Label("Lane Actions", systemImage: "ellipsis.circle")
+      }
+    }
+    .buttonStyle(.bordered)
+    .controlSize(.mini)
+    .help("More actions for \(lane.projectName) \(lane.displayName)")
+    .accessibilityLabel("Actions for \(lane.projectName) \(lane.displayName)")
+  }
+
+  private func copyToPasteboard(_ value: String) {
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(value, forType: .string)
   }
 
   private func pullRequestPreflight(_ lane: LaneItem, gitDiff: LaneGitDiff) -> some View {

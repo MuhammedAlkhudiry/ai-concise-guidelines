@@ -125,10 +125,6 @@ function herdSitePath(context: ProjectEnvironmentContext): string {
 }
 
 export function cleanHerd(context: ProjectEnvironmentContext): void {
-  run(context, "clean:herd", context.herdCommand, ["unsecure", context.site, "--no-interaction"], {
-    cwd: context.backendDir,
-    allowFailure: true,
-  });
   run(context, "clean:herd", context.herdCommand, ["unlink", context.site], {
     cwd: context.backendDir,
     allowFailure: true,

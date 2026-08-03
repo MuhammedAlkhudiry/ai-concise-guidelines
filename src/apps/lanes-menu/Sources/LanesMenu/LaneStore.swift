@@ -8,6 +8,9 @@ final class LaneStore: ObservableObject {
   @Published private(set) var isRefreshing = false
   @Published private(set) var activeAction: String?
   @Published private(set) var activeService: String?
+  @Published private(set) var syncingLaneIDs: Set<String> = []
+  @Published private(set) var destroyingLaneKeys: Set<String> = []
+  @Published private(set) var cleanupJobs: [LaneCleanupJob] = []
   @Published private(set) var serviceStatuses: [String: [LaneService]] = [:]
   @Published private(set) var ciStatuses: [String: LaneCiStatus] = [:]
   @Published private(set) var pullRequestCreationStages: [String: PullRequestCreationStage] = [:]
@@ -15,6 +18,8 @@ final class LaneStore: ObservableObject {
 
   private let client: LaneCommandClient
   private var ciLoadedAt: [String: Date] = [:]
+  private var refreshRequested = false
+  private var cleanupRefreshTask: Task<Void, Never>?
   private let ciCacheLifetime: TimeInterval = 60
 
   init(client: LaneCommandClient = LaneCommandClient()) {
@@ -22,13 +27,24 @@ final class LaneStore: ObservableObject {
   }
 
   func refresh() {
-    guard !isRefreshing else { return }
+    guard !isRefreshing else {
+      refreshRequested = true
+      return
+    }
     isRefreshing = true
     Task {
-      defer { isRefreshing = false }
+      defer {
+        isRefreshing = false
+        if refreshRequested {
+          refreshRequested = false
+          refresh()
+        }
+      }
       do {
+        async let loadedCleanupJobs = client.loadCleanupJobs()
         projects = try await client.loadProjects()
-        let lanes = projects.flatMap(\.lanes)
+        cleanupJobs = (try? await loadedCleanupJobs) ?? cleanupJobs
+        let lanes = projects.flatMap(\.lanes).filter { !isDestroying($0) }
         serviceStatuses = Dictionary(
           uniqueKeysWithValues: lanes.map { lane in
             (
@@ -54,6 +70,7 @@ final class LaneStore: ObservableObject {
         )
         let now = Date()
         let staleCiProjects = projects.filter { project in
+          guard !project.lanes.contains(where: isDestroying) else { return false }
           guard
             let loadedAt = ciLoadedAt[project.id],
             now.timeIntervalSince(loadedAt) < ciCacheLifetime
@@ -109,6 +126,19 @@ final class LaneStore: ObservableObject {
 
   func serviceSummary(for lane: LaneItem) -> LaneServiceSummary {
     LaneServiceSummary.summarize(services(for: lane))
+  }
+
+  func residentBytes(for lane: LaneItem) -> Int64? {
+    let total = services(for: lane).compactMap(\.residentBytes).reduce(0, +)
+    return total > 0 ? total : nil
+  }
+
+  var totalResidentBytes: Int64? {
+    let total = serviceStatuses.values
+      .flatMap { $0 }
+      .compactMap(\.residentBytes)
+      .reduce(0, +)
+    return total > 0 ? total : nil
   }
 
   func ciStatus(for lane: LaneItem) -> LaneCiStatus {
@@ -182,7 +212,9 @@ final class LaneStore: ObservableObject {
   }
 
   func release(_ lane: LaneItem) {
-    guard activeAction == nil, activeService == nil else { return }
+    guard !lane.hasWorkingTreeChanges, activeAction == nil, activeService == nil,
+      !isSyncing(lane)
+    else { return }
     activeAction = "\(lane.id)/release"
     Task {
       defer { activeAction = nil }
@@ -200,15 +232,18 @@ final class LaneStore: ObservableObject {
     activeAction == "\(lane.id)/release"
   }
 
-  func sync(_ lane: LaneItem) {
-    guard lane.needsBaseUpdate, activeAction == nil, activeService == nil else { return }
-    activeAction = "\(lane.id)/sync"
+  func destroy(_ lane: LaneItem) {
+    guard lane.isRemovable, activeAction == nil, activeService == nil, !isSyncing(lane),
+      !isDestroying(lane)
+    else { return }
+    destroyingLaneKeys.insert(lane.serviceKey)
+    errorMessage = nil
     Task {
-      defer { activeAction = nil }
+      defer { destroyingLaneKeys.remove(lane.serviceKey) }
       do {
-        try await client.sync(lane)
-        errorMessage = nil
-        refresh()
+        try await client.destroy(lane)
+        removeLaneFromLocalState(lane)
+        monitorCleanupJobs()
       } catch {
         errorMessage = error.localizedDescription
         refresh()
@@ -216,8 +251,31 @@ final class LaneStore: ObservableObject {
     }
   }
 
+  func isDestroying(_ lane: LaneItem) -> Bool {
+    destroyingLaneKeys.contains(lane.serviceKey)
+  }
+
+  func sync(_ lane: LaneItem) {
+    guard lane.needsBaseUpdate, activeAction == nil, activeService == nil,
+      !syncingLaneIDs.contains(lane.id)
+    else { return }
+    syncingLaneIDs.insert(lane.id)
+    errorMessage = nil
+    Task {
+      defer {
+        syncingLaneIDs.remove(lane.id)
+        refresh()
+      }
+      do {
+        try await client.sync(lane)
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
   func isSyncing(_ lane: LaneItem) -> Bool {
-    activeAction == "\(lane.id)/sync"
+    syncingLaneIDs.contains(lane.id)
   }
 
   func toggle(_ service: LaneService, on lane: LaneItem) {
@@ -230,11 +288,13 @@ final class LaneStore: ObservableObject {
     Task {
       defer { activeService = nil }
       do {
-        try await client.setService(service, running: service.state != .running, on: lane)
-        serviceStatuses = try await client.loadServiceStatuses()
+        serviceStatuses[lane.serviceKey] = try await client.setService(
+          service, running: service.state != .running, on: lane)
         errorMessage = nil
       } catch {
-        serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
+        if let services = try? await client.loadServices(for: lane) {
+          serviceStatuses[lane.serviceKey] = services
+        }
         errorMessage = error.localizedDescription
       }
     }
@@ -247,11 +307,12 @@ final class LaneStore: ObservableObject {
     Task {
       defer { activeService = nil }
       do {
-        try await client.restartService(service, on: lane)
-        serviceStatuses = try await client.loadServiceStatuses()
+        serviceStatuses[lane.serviceKey] = try await client.restartService(service, on: lane)
         errorMessage = nil
       } catch {
-        serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
+        if let services = try? await client.loadServices(for: lane) {
+          serviceStatuses[lane.serviceKey] = services
+        }
         errorMessage = error.localizedDescription
       }
     }
@@ -278,11 +339,13 @@ final class LaneStore: ObservableObject {
     Task {
       defer { activeService = nil }
       do {
-        try await client.setLaneServices(running: running, on: lane)
-        serviceStatuses = try await client.loadServiceStatuses()
+        serviceStatuses[lane.serviceKey] = try await client.setLaneServices(
+          running: running, on: lane)
         errorMessage = nil
       } catch {
-        serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
+        if let services = try? await client.loadServices(for: lane) {
+          serviceStatuses[lane.serviceKey] = services
+        }
         errorMessage = error.localizedDescription
       }
     }
@@ -297,8 +360,8 @@ final class LaneStore: ObservableObject {
     Task {
       defer { activeService = nil }
       do {
-        try await client.setProjectServices(running: running, projectID: project.id)
-        serviceStatuses = try await client.loadServiceStatuses()
+        let updated = try await client.setProjectServices(running: running, projectID: project.id)
+        serviceStatuses.merge(updated) { _, new in new }
         errorMessage = nil
       } catch {
         serviceStatuses = (try? await client.loadServiceStatuses()) ?? serviceStatuses
@@ -309,7 +372,8 @@ final class LaneStore: ObservableObject {
 
   func latestLogs(for service: LaneService, on lane: LaneItem) async -> String {
     if !service.manageable {
-      return service.detail ?? "\(service.name) health check is \(service.state.title.lowercased())."
+      return service.detail
+        ?? "\(service.name) health check is \(service.state.title.lowercased())."
     }
     return await client.latestLogs(for: service, on: lane)
   }
@@ -324,6 +388,32 @@ final class LaneStore: ObservableObject {
   private func replaceManageableServices(on lane: LaneItem, with state: LaneServiceState) {
     serviceStatuses[lane.serviceKey] = serviceStatuses[lane.serviceKey]?.map { service in
       service.manageable && service.state != .unavailable ? service.withState(state) : service
+    }
+  }
+
+  private func removeLaneFromLocalState(_ lane: LaneItem) {
+    projects = projects.compactMap { project in
+      guard project.id == lane.projectID else { return project }
+      let remaining = project.lanes.filter { $0.id != lane.id }
+      return remaining.isEmpty
+        ? nil
+        : LaneProject(id: project.id, name: project.name, lanes: remaining)
+    }
+    serviceStatuses[lane.serviceKey] = nil
+    ciStatuses[lane.serviceKey] = nil
+    ciLoadedAt[lane.projectID] = nil
+  }
+
+  private func monitorCleanupJobs() {
+    cleanupRefreshTask?.cancel()
+    cleanupRefreshTask = Task {
+      while !Task.isCancelled {
+        if let jobs = try? await client.loadCleanupJobs() {
+          cleanupJobs = jobs
+          if jobs.isEmpty || jobs.contains(where: { $0.lastError != nil }) { return }
+        }
+        try? await Task.sleep(for: .seconds(1))
+      }
     }
   }
 

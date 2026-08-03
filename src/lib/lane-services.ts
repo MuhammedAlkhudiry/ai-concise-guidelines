@@ -40,6 +40,7 @@ export interface LaneServiceStatus {
   directory?: string;
   logPath?: string;
   pid?: number;
+  residentBytes?: number;
   detail?: string;
 }
 
@@ -69,6 +70,17 @@ interface ObservedProcess {
   directory: string;
 }
 
+interface ProcessMemory {
+  pid: number;
+  parentPid: number;
+  residentBytes: number;
+}
+
+interface LaneProcessSnapshot {
+  observed: ObservedProcess[];
+  memory: ProcessMemory[];
+}
+
 const userId = process.getuid?.();
 if (userId === undefined) throw new Error("lanes services requires macOS");
 
@@ -82,11 +94,11 @@ export async function listLaneServiceStatuses(
   laneId?: string,
 ): Promise<LaneServicesStatus[]> {
   const lanes = selectedLanes(projectId, laneId);
-  const observed = processSnapshot();
+  const snapshot = processSnapshot();
   return Promise.all(
     lanes.map(async (lane) => {
       const services = lane.project.services.map((service) =>
-        serviceStatus(serviceContext(lane, service), observed),
+        serviceStatus(serviceContext(lane, service), snapshot),
       );
       const frontendStopped = services.some(
         ({ id, state }) => id === "frontend" && state === "stopped",
@@ -143,10 +155,22 @@ export async function stopLaneService(
   serviceId: string,
 ): Promise<LaneServicesStatus> {
   const lane = explicitLane(projectId, laneId);
+  await stopLaneServicesForOperation(lane, serviceId);
+  return laneServicesStatus(lane);
+}
+
+export async function stopLaneServices(
+  projectId: string,
+  laneId: string,
+  serviceId: string,
+): Promise<void> {
+  await stopLaneServicesForOperation(explicitLane(projectId, laneId), serviceId);
+}
+
+async function stopLaneServicesForOperation(lane: Lane, serviceId: string): Promise<void> {
   for (const definition of selectedServices(lane, serviceId)) {
     await stopService(serviceContext(lane, definition));
   }
-  return laneServicesStatus(lane);
 }
 
 export async function restartLaneService(
@@ -414,7 +438,7 @@ function serviceAvailable(context: ServiceContext): boolean {
   }
 }
 
-function serviceStatus(context: ServiceContext, observed = processSnapshot()): LaneServiceStatus {
+function serviceStatus(context: ServiceContext, snapshot = processSnapshot()): LaneServiceStatus {
   const base = {
     id: context.definition.id,
     name: context.definition.name,
@@ -429,16 +453,27 @@ function serviceStatus(context: ServiceContext, observed = processSnapshot()): L
 
   const launchStatus = launchAgentStatus(context.label);
   if (launchStatus.loaded) {
+    const residentBytes = launchStatus.pid
+      ? processTreeResidentBytes(launchStatus.pid, snapshot.memory)
+      : 0;
     return {
       ...base,
       state: launchStatus.pid ? "running" : launchStatus.failed ? "failed" : "starting",
       managed: true,
       ...(launchStatus.pid ? { pid: launchStatus.pid } : {}),
+      ...(residentBytes > 0 ? { residentBytes } : {}),
     };
   }
-  const external = matchingProcesses(context, observed)[0];
+  const external = matchingProcesses(context, snapshot.observed)[0];
+  const residentBytes = external ? processTreeResidentBytes(external.pid, snapshot.memory) : 0;
   return external
-    ? { ...base, state: "running", managed: false, pid: external.pid }
+    ? {
+        ...base,
+        state: "running",
+        managed: false,
+        pid: external.pid,
+        ...(residentBytes > 0 ? { residentBytes } : {}),
+      }
     : { ...base, state: "stopped", managed: false };
 }
 
@@ -511,7 +546,7 @@ async function stopService(context: ServiceContext): Promise<void> {
     });
     rmSync(context.plistPath, { force: true });
   }
-  const processes = matchingProcesses(context, processSnapshot());
+  const processes = matchingProcesses(context, processSnapshot().observed);
   const ids = new Set(processes.map(({ pid }) => pid));
   const roots = processes.filter(({ parentPid }) => !ids.has(parentPid));
   for (const item of roots) terminateProcessTree(item.pid, "SIGTERM");
@@ -548,36 +583,68 @@ function launchAgentStatus(label: string): {
   }
 }
 
-function processSnapshot(): ObservedProcess[] {
+function processSnapshot(): LaneProcessSnapshot {
   let output = "";
   try {
-    output = execFileSync("ps", ["-axo", "pid=,ppid=,command="], {
+    output = execFileSync("ps", ["-axo", "pid=,ppid=,rss=,command="], {
       encoding: "utf8",
     });
   } catch {
-    return [];
+    return { observed: [], memory: [] };
   }
-  return output
+  const processes = output
     .split("\n")
-    .map((line) => line.trim().match(/^(\d+)\s+(\d+)\s+(.+)$/))
+    .map((line) => line.trim().match(/^(\d+)\s+(\d+)\s+(\d+)\s+(.+)$/))
     .filter((match): match is RegExpMatchArray => Boolean(match))
-    .filter((match) =>
-      /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(match[3]!.toLowerCase()),
+    .map((match) => ({
+      pid: Number(match[1]),
+      parentPid: Number(match[2]),
+      residentBytes: Number(match[3]) * 1024,
+      command: match[4]!,
+    }));
+  const observed = processes
+    .filter(({ command }) =>
+      /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(command.toLowerCase()),
     )
-    .flatMap((match) => {
-      const pid = Number(match[1]);
+    .flatMap((process) => {
+      const { pid } = process;
       const directory = processDirectory(pid);
       return directory
         ? [
             {
               pid,
-              parentPid: Number(match[2]),
-              command: match[3]!.toLowerCase(),
+              parentPid: process.parentPid,
+              command: process.command.toLowerCase(),
               directory,
             },
           ]
         : [];
     });
+  return {
+    observed,
+    memory: processes.map(({ pid, parentPid, residentBytes }) => ({
+      pid,
+      parentPid,
+      residentBytes,
+    })),
+  };
+}
+
+function processTreeResidentBytes(rootPid: number, processes: ProcessMemory[]): number {
+  const descendants = new Set([rootPid]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const process of processes) {
+      if (descendants.has(process.parentPid) && !descendants.has(process.pid)) {
+        descendants.add(process.pid);
+        changed = true;
+      }
+    }
+  }
+  return processes
+    .filter(({ pid }) => descendants.has(pid))
+    .reduce((total, { residentBytes }) => total + residentBytes, 0);
 }
 
 function processDirectory(pid: number): string | undefined {

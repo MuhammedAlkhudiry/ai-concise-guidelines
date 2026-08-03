@@ -134,12 +134,17 @@ export function summarizeChecks(checks: PullRequestCheck[]): LaneCiState {
 }
 
 function currentBranch(lane: Lane): string {
-  return (
-    execFileSync("git", ["branch", "--show-current"], {
-      cwd: lane.path,
-      encoding: "utf8",
-    }).trim() || lane.project.baseBranch
-  );
+  if (!existsSync(lane.path)) return lane.project.baseBranch;
+  try {
+    return (
+      execFileSync("git", ["branch", "--show-current"], {
+        cwd: lane.path,
+        encoding: "utf8",
+      }).trim() || lane.project.baseBranch
+    );
+  } catch {
+    return lane.project.baseBranch;
+  }
 }
 
 function statusWithoutPullRequest(

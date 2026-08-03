@@ -58,14 +58,18 @@ struct AdsMenuView: View {
       }
       .pickerStyle(.menu)
       .frame(width: 155)
-      Picker("Period", selection: Binding(
-        get: { store.period },
-        set: { store.selectPeriod($0) }
-      )) {
+      Picker(
+        "Period",
+        selection: Binding(
+          get: { store.period },
+          set: { store.selectPeriod($0) }
+        )
+      ) {
         ForEach(AdsPeriod.allCases) { period in
           Text(period.title).tag(period)
         }
       }
+      .labelsHidden()
       .pickerStyle(.segmented)
       .frame(width: 165)
       if store.isRefreshing {
@@ -224,9 +228,11 @@ struct AdsMenuView: View {
           metricGrid(metrics, currency: stats.account?.currency)
           spendChart(stats)
           if let range = stats.range {
-            Text("\(range.from) – \(range.to) · \(stats.account?.timezone ?? "timezone unavailable")")
-              .font(.caption2)
-              .foregroundStyle(.secondary)
+            Text(
+              "\(range.from) – \(range.to) · \(stats.account?.timezone ?? "timezone unavailable")"
+            )
+            .font(.caption2)
+            .foregroundStyle(.secondary)
           }
           if let attribution = stats.attribution {
             VStack(alignment: .leading, spacing: 3) {
@@ -259,9 +265,11 @@ struct AdsMenuView: View {
           Text("Active campaigns")
             .font(.subheadline.weight(.semibold))
           if snapshot.campaigns.isEmpty {
-            Text(snapshot.access.state == .ready ? "No active campaigns." : "Campaigns unavailable.")
-              .font(.caption)
-              .foregroundStyle(.secondary)
+            Text(
+              snapshot.access.state == .ready ? "No active campaigns." : "Campaigns unavailable."
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
           } else {
             ForEach(snapshot.campaigns) { campaign in
               HStack(alignment: .top) {

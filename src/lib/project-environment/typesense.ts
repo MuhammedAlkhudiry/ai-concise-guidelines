@@ -53,19 +53,19 @@ export async function deleteTypesenseCollections(
   const matchingNames = collections
     .map(({ name }) => name)
     .filter((name) => name.startsWith(prefix));
-  const deletedNames: string[] = [];
+  const deletedNames = await Promise.all(
+    matchingNames.map(async (name) => {
+      const response = await request(
+        endpoint(connection, `/collections/${encodeURIComponent(name)}`),
+        { method: "DELETE", headers: headers(connection) },
+      );
+      if (!response.ok && !options.allowFailure) {
+        throw new Error(`Could not delete Typesense collection ${name}: HTTP ${response.status}`);
+      }
+      log("clean", `deleted Typesense collection ${name}: HTTP ${response.status}`);
+      return response.ok ? name : undefined;
+    }),
+  );
 
-  for (const name of matchingNames) {
-    const response = await request(
-      endpoint(connection, `/collections/${encodeURIComponent(name)}`),
-      { method: "DELETE", headers: headers(connection) },
-    );
-    if (!response.ok && !options.allowFailure) {
-      throw new Error(`Could not delete Typesense collection ${name}: HTTP ${response.status}`);
-    }
-    log("clean", `deleted Typesense collection ${name}: HTTP ${response.status}`);
-    if (response.ok) deletedNames.push(name);
-  }
-
-  return deletedNames;
+  return deletedNames.filter((name): name is string => name !== undefined);
 }

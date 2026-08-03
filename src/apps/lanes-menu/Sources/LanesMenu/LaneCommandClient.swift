@@ -22,7 +22,8 @@ struct LaneCommandClient: Sendable {
         executable,
         arguments: ["services", "status", lane.projectID, lane.laneID, "--json"]
       )
-      let services = try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
+      let services = try JSONDecoder().decode(LaneServicesDocument.self, from: data)
+        .servicesByLane()
       guard let laneServices = services[lane.serviceKey] else {
         throw LaneMenuError.message("No service status returned for \(lane.serviceKey).")
       }
@@ -49,6 +50,14 @@ struct LaneCommandClient: Sendable {
       }
       let data = try run(executable, arguments: ["status", "--json"])
       return try JSONDecoder().decode(LaneStatusDocument.self, from: data).projects()
+    }.value
+  }
+
+  func loadCleanupJobs() async throws -> [LaneCleanupJob] {
+    let executable = lanesExecutable
+    return try await Task.detached(priority: .utility) {
+      let data = try run(executable, arguments: ["cleanup", "status", "--json"])
+      return try JSONDecoder().decode(LaneCleanupDocument.self, from: data).jobs
     }.value
   }
 
@@ -132,6 +141,16 @@ struct LaneCommandClient: Sendable {
     }.value
   }
 
+  func destroy(_ lane: LaneItem) async throws {
+    let executable = lanesExecutable
+    try await Task.detached(priority: .userInitiated) {
+      _ = try run(
+        executable,
+        arguments: ["destroy", lane.projectID, lane.laneID, "--confirm"]
+      )
+    }.value
+  }
+
   func sync(_ lane: LaneItem) async throws {
     let executable = lanesExecutable
     try await Task.detached(priority: .userInitiated) {
@@ -142,25 +161,31 @@ struct LaneCommandClient: Sendable {
     }.value
   }
 
-  func setService(_ service: LaneService, running: Bool, on lane: LaneItem) async throws {
-    try await setServices(
+  func setService(
+    _ service: LaneService, running: Bool, on lane: LaneItem
+  ) async throws -> [LaneService] {
+    let statuses = try await setServices(
       running: running,
       projectID: lane.projectID,
       laneID: lane.laneID,
       serviceID: service.id
     )
+    return try laneServices(for: lane, in: statuses)
   }
 
-  func setLaneServices(running: Bool, on lane: LaneItem) async throws {
-    try await setServices(
+  func setLaneServices(running: Bool, on lane: LaneItem) async throws -> [LaneService] {
+    let statuses = try await setServices(
       running: running,
       projectID: lane.projectID,
       laneID: lane.laneID,
       serviceID: "all"
     )
+    return try laneServices(for: lane, in: statuses)
   }
 
-  func setProjectServices(running: Bool, projectID: String) async throws {
+  func setProjectServices(
+    running: Bool, projectID: String
+  ) async throws -> [String: [LaneService]] {
     try await setServices(
       running: running,
       projectID: projectID,
@@ -174,27 +199,31 @@ struct LaneCommandClient: Sendable {
     projectID: String,
     laneID: String,
     serviceID: String
-  ) async throws {
+  ) async throws -> [String: [LaneService]] {
     let executable = lanesExecutable
-    _ = try await Task.detached(priority: .userInitiated) {
-      try run(
+    return try await Task.detached(priority: .userInitiated) {
+      let data = try run(
         executable,
         arguments: [
           "services", running ? "start" : "stop", projectID, laneID, serviceID, "--json",
         ]
       )
+      return try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
     }.value
   }
 
-  func restartService(_ service: LaneService, on lane: LaneItem) async throws {
+  func restartService(_ service: LaneService, on lane: LaneItem) async throws -> [LaneService] {
     let executable = lanesExecutable
-    _ = try await Task.detached(priority: .userInitiated) {
-      try run(
+    return try await Task.detached(priority: .userInitiated) {
+      let data = try run(
         executable,
         arguments: [
           "services", "restart", lane.projectID, lane.laneID, service.id, "--json",
         ]
       )
+      let services = try JSONDecoder().decode(LaneServicesDocument.self, from: data)
+        .servicesByLane()
+      return try laneServices(for: lane, in: services)
     }.value
   }
 
@@ -205,13 +234,22 @@ struct LaneCommandClient: Sendable {
         let data = try? run(
           executable,
           arguments: [
-            "services", "logs", lane.projectID, lane.laneID, service.id, "--lines", "200", "--raw",
+            "services", "logs", lane.projectID, lane.laneID, service.id, "--lines", "50", "--raw",
           ]
         )
       else { return "Could not load service logs." }
       return String(decoding: data, as: UTF8.self)
     }.value
   }
+}
+
+private func laneServices(
+  for lane: LaneItem, in statuses: [String: [LaneService]]
+) throws -> [LaneService] {
+  guard let services = statuses[lane.serviceKey] else {
+    throw LaneMenuError.message("No service status returned for \(lane.serviceKey).")
+  }
+  return services
 }
 
 private func collectData(from handle: FileHandle) async throws -> Data {

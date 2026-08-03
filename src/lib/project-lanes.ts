@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   existsSync,
@@ -7,16 +7,19 @@ import {
   readdirSync,
   renameSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
+import { rm as rmAsync } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join, resolve, sep } from "node:path";
+import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { execa } from "execa";
 import { z } from "zod";
 
 import {
+  activeProjectSchema,
   addLaneDefinition,
   readLanesConfig,
   removeLaneDefinition,
@@ -150,12 +153,44 @@ interface Registry {
   projects: Record<string, Record<string, LaneState>>;
 }
 
+const laneCleanupJobSchema = z.object({
+  id: z.string().min(1),
+  project: activeProjectSchema,
+  laneId: z.string().regex(/^lane-\d+$/),
+  laneNumber: z.number().int().positive(),
+  originalPath: z.string().min(1),
+  cleanupPath: z.string().min(1),
+  phase: z.enum(["preparing", "ready", "cleaning", "deleting"]),
+  createdAt: z.string().datetime(),
+  attempts: z.number().int().nonnegative(),
+  lastAttemptAt: z.string().datetime().optional(),
+  lastError: z.string().optional(),
+});
+
+const laneCleanupQueueSchema = z.object({
+  version: z.literal(1),
+  jobs: z.array(laneCleanupJobSchema),
+});
+
+export type LaneCleanupJob = z.infer<typeof laneCleanupJobSchema>;
+
+interface LaneCleanupQueue {
+  version: 1;
+  jobs: LaneCleanupJob[];
+}
+
 const configHome = process.env.XDG_CONFIG_HOME || join(homedir(), ".config");
 const stateHome = process.env.XDG_STATE_HOME || join(homedir(), ".local/state");
 export const LANES_CONFIG_PATH =
   process.env.LANES_CONFIG_PATH || join(configHome, "lanes/projects.json");
 export const LANES_STATE_PATH = process.env.LANES_STATE_PATH || join(stateHome, "lanes/state.json");
 const stateLockPath = process.env.LANES_STATE_LOCK_PATH || join(stateHome, "lanes/state.lock");
+export const LANES_CLEANUP_PATH =
+  process.env.LANES_CLEANUP_PATH || join(stateHome, "lanes/cleanup.json");
+const cleanupWorkerLockPath =
+  process.env.LANES_CLEANUP_LOCK_PATH || join(stateHome, "lanes/cleanup.lock");
+const registryLockRetryDelayMs = 50;
+const registryLockTimeoutMs = 10_000;
 const projectEnvironmentRuntimeDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "project-environment",
@@ -196,6 +231,55 @@ function git(cwd: string, args: string[], allowFailure = false): string {
   }
 }
 
+export function assertLaneTaskBranch(baseBranch: string, branch: string): void {
+  if (branch !== branch.trim() || !branch) {
+    throw new Error("Task branch must be a non-empty Git branch name without surrounding spaces");
+  }
+  if (branch === baseBranch) {
+    throw new Error(`Task branch must differ from the base branch ${baseBranch}`);
+  }
+  try {
+    execFileSync("git", ["check-ref-format", "--branch", branch], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch {
+    throw new Error(`Invalid task branch name: ${branch}`);
+  }
+}
+
+function configureLaneGitSafety(lane: Lane): void {
+  git(lane.path, ["config", "--local", "branch.autoSetupMerge", "false"]);
+  git(lane.path, ["config", "--local", "push.default", "current"]);
+
+  const branch = git(lane.path, ["branch", "--show-current"], true);
+  if (!branch || branch === lane.project.baseBranch) return;
+  const upstream = git(
+    lane.path,
+    ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"],
+    true,
+  );
+  if (upstream === `origin/${lane.project.baseBranch}`) {
+    git(lane.path, ["branch", "--unset-upstream"]);
+  }
+}
+
+export function prepareLaneGit(lane: Lane, branch?: string): void {
+  configureLaneGitSafety(lane);
+  git(lane.path, ["fetch", "origin", lane.project.baseBranch]);
+  if (branch) {
+    assertLaneTaskBranch(lane.project.baseBranch, branch);
+    git(lane.path, [
+      "switch",
+      "--no-track",
+      "--create",
+      branch,
+      `origin/${lane.project.baseBranch}`,
+    ]);
+    return;
+  }
+  git(lane.path, ["switch", "--detach", `origin/${lane.project.baseBranch}`]);
+}
+
 function readRegistry(): Registry {
   if (!existsSync(LANES_STATE_PATH)) {
     return { version: 1, projects: {} };
@@ -214,6 +298,24 @@ function writeRegistry(registry: Registry): void {
   renameSync(temporaryPath, LANES_STATE_PATH);
 }
 
+function readCleanupQueue(): LaneCleanupQueue {
+  if (!existsSync(LANES_CLEANUP_PATH)) return { version: 1, jobs: [] };
+  const value: unknown = JSON.parse(readFileSync(LANES_CLEANUP_PATH, "utf8"));
+  return laneCleanupQueueSchema.parse(value);
+}
+
+function writeCleanupQueue(queue: LaneCleanupQueue): void {
+  const value = laneCleanupQueueSchema.parse(queue);
+  mkdirSync(dirname(LANES_CLEANUP_PATH), { recursive: true, mode: 0o700 });
+  const temporaryPath = `${LANES_CLEANUP_PATH}.${process.pid}.tmp`;
+  writeFileSync(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
+  renameSync(temporaryPath, LANES_CLEANUP_PATH);
+}
+
+export function listProjectLaneCleanupJobs(): LaneCleanupJob[] {
+  return readCleanupQueue().jobs;
+}
+
 function processIsAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
@@ -221,6 +323,38 @@ function processIsAlive(pid: number): boolean {
   } catch {
     return false;
   }
+}
+
+function tryAcquireCleanupWorkerLock(): boolean {
+  mkdirSync(dirname(cleanupWorkerLockPath), { recursive: true, mode: 0o700 });
+  try {
+    mkdirSync(cleanupWorkerLockPath, { mode: 0o700 });
+  } catch {
+    const ownerPath = join(cleanupWorkerLockPath, "owner.json");
+    const owner = (() => {
+      if (!existsSync(ownerPath)) return undefined;
+      try {
+        return z
+          .object({ pid: z.number().int().positive() })
+          .safeParse(JSON.parse(readFileSync(ownerPath, "utf8")));
+      } catch {
+        return undefined;
+      }
+    })();
+    const abandoned =
+      !owner?.success && Date.now() - statSync(cleanupWorkerLockPath).mtimeMs > 5_000;
+    if ((!owner?.success && !abandoned) || (owner?.success && processIsAlive(owner.data.pid))) {
+      return false;
+    }
+    rmSync(cleanupWorkerLockPath, { recursive: true, force: true });
+    mkdirSync(cleanupWorkerLockPath, { mode: 0o700 });
+  }
+  writeFileSync(
+    join(cleanupWorkerLockPath, "owner.json"),
+    `${JSON.stringify({ pid: process.pid, acquiredAt: new Date().toISOString() })}\n`,
+    { mode: 0o600 },
+  );
+  return true;
 }
 
 function acquireStateLock(): void {
@@ -251,6 +385,26 @@ function acquireStateLock(): void {
   );
 }
 
+async function withRegistryLockWhenAvailable<T>(
+  callback: (registry: Registry) => Promise<T>,
+): Promise<T> {
+  const deadline = Date.now() + registryLockTimeoutMs;
+  while (true) {
+    try {
+      return await withRegistryLock(callback);
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        error.message !== "Project lane state is being changed by another process" ||
+        Date.now() >= deadline
+      ) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, registryLockRetryDelayMs));
+    }
+  }
+}
+
 async function withRegistryLock<T>(callback: (registry: Registry) => Promise<T>): Promise<T> {
   acquireStateLock();
   try {
@@ -261,6 +415,130 @@ async function withRegistryLock<T>(callback: (registry: Registry) => Promise<T>)
   } finally {
     rmSync(stateLockPath, { recursive: true, force: true });
   }
+}
+
+async function updateCleanupQueue(update: (queue: LaneCleanupQueue) => void): Promise<void> {
+  await withRegistryLockWhenAvailable(async () => {
+    const queue = readCleanupQueue();
+    update(queue);
+    writeCleanupQueue(queue);
+  });
+}
+
+function cleanupJobLane(job: LaneCleanupJob, path: string): Lane {
+  return {
+    id: job.laneId,
+    number: job.laneNumber,
+    path,
+    project: job.project,
+  };
+}
+
+function cleanupSourcePath(job: LaneCleanupJob): string | undefined {
+  if (existsSync(job.cleanupPath)) return job.cleanupPath;
+  if (existsSync(job.originalPath)) return job.originalPath;
+  return undefined;
+}
+
+function laneIsRegistered(job: LaneCleanupJob): boolean {
+  if (!existsSync(LANES_CONFIG_PATH)) return true;
+  const project = readLanesConfig(LANES_CONFIG_PATH).projects.find(
+    ({ id }) => id === job.project.id,
+  );
+  return Boolean(project?.lanes.some(({ number }) => number === job.laneNumber));
+}
+
+async function reconcilePreparingCleanupJobs(): Promise<void> {
+  await updateCleanupQueue((queue) => {
+    queue.jobs = queue.jobs.filter((job) => {
+      if (job.phase !== "preparing") return true;
+      if (!laneIsRegistered(job)) {
+        job.phase = "ready";
+        delete job.lastError;
+        return true;
+      }
+      try {
+        if (existsSync(job.cleanupPath) && !existsSync(job.originalPath)) {
+          renameSync(job.cleanupPath, job.originalPath);
+        }
+        if (existsSync(job.originalPath)) return false;
+        job.lastError = "Could not restore the registered lane after interrupted removal";
+      } catch (error) {
+        job.lastError = error instanceof Error ? error.message : String(error);
+      }
+      return true;
+    });
+  });
+}
+
+async function processCleanupJob(job: LaneCleanupJob): Promise<void> {
+  let phase = job.phase;
+  try {
+    if (phase === "ready" || phase === "cleaning") {
+      const path = cleanupSourcePath(job);
+      if (!path) throw new Error(`Cleanup source is missing: ${job.cleanupPath}`);
+      phase = "cleaning";
+      await updateCleanupQueue((queue) => {
+        const current = queue.jobs.find(({ id }) => id === job.id);
+        if (!current) return;
+        current.phase = "cleaning";
+        current.attempts += 1;
+        current.lastAttemptAt = new Date().toISOString();
+        delete current.lastError;
+      });
+      await runEnvironmentCommand(cleanupJobLane(job, path), "destroy", [], true);
+      phase = "deleting";
+      await updateCleanupQueue((queue) => {
+        const current = queue.jobs.find(({ id }) => id === job.id);
+        if (current) current.phase = "deleting";
+      });
+    }
+
+    const path = cleanupSourcePath(job);
+    if (path) await rmAsync(path, { recursive: true, force: true });
+    await updateCleanupQueue((queue) => {
+      queue.jobs = queue.jobs.filter(({ id }) => id !== job.id);
+    });
+  } catch (error) {
+    await updateCleanupQueue((queue) => {
+      const current = queue.jobs.find(({ id }) => id === job.id);
+      if (!current) return;
+      current.phase = phase === "deleting" ? "deleting" : "ready";
+      current.lastError = error instanceof Error ? error.message : String(error);
+    });
+  }
+}
+
+export async function runProjectLaneCleanupJobs(): Promise<LaneCleanupJob[]> {
+  if (!tryAcquireCleanupWorkerLock()) return listProjectLaneCleanupJobs();
+  const attempted = new Set<string>();
+  try {
+    await reconcilePreparingCleanupJobs();
+    while (true) {
+      const jobs = listProjectLaneCleanupJobs().filter(
+        (job) =>
+          !attempted.has(job.id) &&
+          (job.phase === "ready" || job.phase === "cleaning" || job.phase === "deleting"),
+      );
+      if (jobs.length === 0) break;
+      jobs.forEach(({ id }) => attempted.add(id));
+      await Promise.all(jobs.map(processCleanupJob));
+    }
+    return listProjectLaneCleanupJobs();
+  } finally {
+    rmSync(cleanupWorkerLockPath, { recursive: true, force: true });
+  }
+}
+
+export function startProjectLaneCleanupWorker(): void {
+  if (process.env.LANES_CLEANUP_WORKER === "1" || readCleanupQueue().jobs.length === 0) return;
+  const scriptPath = resolve(dirname(fileURLToPath(import.meta.url)), "../commands/lanes-cli.ts");
+  const child = spawn(process.execPath, [scriptPath, "cleanup", "run"], {
+    detached: true,
+    stdio: "ignore",
+    env: { ...process.env, LANES_CLEANUP_WORKER: "1" },
+  });
+  child.unref();
 }
 
 export function getActiveProject(projectId: string): ActiveProject {
@@ -541,6 +819,15 @@ function inspectGitDiff(cwd: string, changes: string): LaneGitDiff | undefined {
   };
 }
 
+function activeGitOperation(cwd: string): string | undefined {
+  return ["MERGE_HEAD", "rebase-merge", "rebase-apply", "CHERRY_PICK_HEAD", "BISECT_LOG"].find(
+    (path) => {
+      const resolved = git(cwd, ["rev-parse", "--git-path", path], true);
+      return resolved && existsSync(resolve(cwd, resolved));
+    },
+  );
+}
+
 function inspectLane(lane: Lane, state: LaneState): LaneStatus {
   if (!existsSync(lane.path)) {
     return {
@@ -555,17 +842,7 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
   const head = git(lane.path, ["rev-parse", "HEAD"], true);
   const branch = git(lane.path, ["branch", "--show-current"], true) || undefined;
   const changes = git(lane.path, ["status", "--porcelain=v1", "--untracked-files=all"], true);
-  const operationPaths = [
-    "MERGE_HEAD",
-    "rebase-merge",
-    "rebase-apply",
-    "CHERRY_PICK_HEAD",
-    "BISECT_LOG",
-  ];
-  const operation = operationPaths.find((path) => {
-    const resolved = git(lane.path, ["rev-parse", "--git-path", path], true);
-    return resolved && existsSync(resolve(lane.path, resolved));
-  });
+  const operation = activeGitOperation(lane.path);
 
   const baseBranchDivergence = parseGitDivergence(
     git(
@@ -738,9 +1015,22 @@ export async function setupProjectLanes(
 export async function addProjectLane(
   projectId: string,
   requestedNumber?: number,
-  options: { mobile?: boolean; compact?: boolean } = {},
+  options: { mobile?: boolean; compact?: boolean; branch?: string } = {},
 ): Promise<Lane> {
-  const { mobile = false, compact = false } = options;
+  const { mobile = false, compact = false, branch } = options;
+  if (branch) {
+    const project = getActiveProject(projectId);
+    assertLaneTaskBranch(project.baseBranch, branch);
+    const existingRemoteBranch = git(process.cwd(), [
+      "ls-remote",
+      "--heads",
+      project.remoteUrl,
+      `refs/heads/${branch}`,
+    ]);
+    if (existingRemoteBranch) {
+      throw new Error(`Remote branch already exists: ${branch}`);
+    }
+  }
   let addedLane: Lane | undefined;
   let failure: unknown;
   await withRegistryLock(async (registry) => {
@@ -756,7 +1046,7 @@ export async function addProjectLane(
     if (!addedLane) throw new Error(`Could not register ${projectId}/lane-${addition.lane.number}`);
     const state = stateFor(registry, addedLane);
     try {
-      await provisionLane(addedLane, state, { mobile, compact });
+      await provisionLane(addedLane, state, { mobile, compact, branch });
     } catch (error) {
       state.lastError = error instanceof Error ? error.message : String(error);
       failure = error;
@@ -770,10 +1060,11 @@ export async function addProjectLane(
 async function provisionLane(
   lane: Lane,
   state: LaneState,
-  options: { mobile: boolean; compact: boolean },
+  options: { mobile: boolean; compact: boolean; branch?: string },
 ): Promise<void> {
-  const { mobile, compact } = options;
+  const { mobile, compact, branch } = options;
   if (existsSync(lane.path)) {
+    configureLaneGitSafety(lane);
     const current = inspectLane(lane, state);
     if (current.availability === "occupied" || (current.health === "ready" && !mobile)) return;
   } else {
@@ -787,30 +1078,32 @@ async function provisionLane(
       lane.path,
     ]);
   }
-  git(lane.path, ["fetch", "origin", lane.project.baseBranch]);
-  git(lane.path, ["switch", "--detach", `origin/${lane.project.baseBranch}`]);
+  prepareLaneGit(lane, branch);
   await runEnvironmentCommand(lane, "setup", [], compact);
   if (mobile) await runEnvironmentCommand(lane, "mobile-development", [], compact);
   await verifyLane(lane, state, { mobile, compact });
 }
 
 export function releaseLaneGit(lane: Lane): void {
-  for (const operation of [
-    ["rebase", "--abort"],
-    ["merge", "--abort"],
-    ["cherry-pick", "--abort"],
-    ["revert", "--abort"],
-    ["bisect", "reset"],
-  ]) {
-    git(lane.path, operation, true);
+  configureLaneGitSafety(lane);
+  const changes = git(lane.path, ["status", "--porcelain=v1", "--untracked-files=all"], true);
+  const operation = activeGitOperation(lane.path);
+  if (changes || operation) {
+    throw new Error(
+      `${lane.project.id}/${lane.id} has uncommitted or in-progress Git work; commit, stash, or clean it before making the lane available`,
+    );
   }
   git(lane.path, ["fetch", "origin", lane.project.baseBranch]);
-  git(lane.path, ["switch", "--detach", "--discard-changes", `origin/${lane.project.baseBranch}`]);
-  git(lane.path, ["reset", "--hard", `origin/${lane.project.baseBranch}`]);
-  git(lane.path, ["clean", "-ffd"]);
+  git(lane.path, [
+    "switch",
+    "--force-create",
+    lane.project.baseBranch,
+    `origin/${lane.project.baseBranch}`,
+  ]);
 }
 
 export function syncLaneGit(lane: Lane): void {
+  configureLaneGitSafety(lane);
   const branch = git(lane.path, ["branch", "--show-current"], true);
   if (branch && branch !== lane.project.baseBranch) {
     throw new Error(
@@ -826,30 +1119,45 @@ export function syncLaneGit(lane: Lane): void {
 }
 
 export async function syncProjectLane(projectId: string, laneId: string): Promise<void> {
-  await withRegistryLock(async (registry) => {
-    const project = getActiveProject(projectId);
-    const lane = getProjectLanes(project).find(({ id }) => id === laneId);
-    if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
-    const state = stateFor(registry, lane);
-    const status = inspectLane(lane, state);
-    if (status.availability !== "available") {
-      throw new Error(`${projectId}/${laneId} must be clean and available to sync`);
-    }
-    syncLaneGit(lane);
-    const synced = inspectLane(lane, state);
-    if (synced.availability !== "available" || synced.baseBranchBehind !== 0) {
-      throw new Error(`${projectId}/${laneId} did not sync to origin/${project.baseBranch}`);
-    }
-  });
+  const project = getActiveProject(projectId);
+  const lane = getProjectLanes(project).find(({ id }) => id === laneId);
+  if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
+  const state = stateFor(readRegistry(), lane);
+  const status = inspectLane(lane, state);
+  if (status.availability !== "available") {
+    throw new Error(`${projectId}/${laneId} must be clean and available to sync`);
+  }
+  syncLaneGit(lane);
+  const synced = inspectLane(lane, state);
+  if (synced.availability !== "available" || synced.baseBranchBehind !== 0) {
+    throw new Error(`${projectId}/${laneId} did not sync to origin/${project.baseBranch}`);
+  }
+}
+
+function assertLaneReleasable(lane: Lane, state: LaneState): void {
+  const status = inspectLane(lane, state);
+  if (status.gitDiff || status.occupancyReason?.startsWith("Git ")) {
+    throw new Error(
+      `${lane.project.id}/${lane.id} has uncommitted or in-progress Git work; commit, stash, or clean it before making the lane available`,
+    );
+  }
+}
+
+export function assertProjectLaneReleasable(projectId: string, laneId: string): void {
+  const project = getActiveProject(projectId);
+  const lane = getProjectLanes(project).find(({ id }) => id === laneId);
+  if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
+  if (!existsSync(lane.path)) throw new Error(`Lane clone is missing: ${lane.path}`);
+  assertLaneReleasable(lane, stateFor(readRegistry(), lane));
 }
 
 export async function releaseProjectLane(
   projectId: string,
   laneId: string,
   confirmed: boolean,
-  options: { mobile?: boolean; compact?: boolean } = {},
+  options: { mobile?: boolean; compact?: boolean; beforeRelease?: () => Promise<void> } = {},
 ): Promise<void> {
-  const { mobile = false, compact = false } = options;
+  const { mobile = false, compact = false, beforeRelease } = options;
   if (!confirmed) throw new Error("Pass --confirm to discard lane work and make it available");
   let failure: unknown;
   await withRegistryLock(async (registry) => {
@@ -858,6 +1166,8 @@ export async function releaseProjectLane(
     if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
     if (!existsSync(lane.path)) throw new Error(`Lane clone is missing: ${lane.path}`);
     const state = stateFor(registry, lane);
+    assertLaneReleasable(lane, state);
+    await beforeRelease?.();
     try {
       releaseLaneGit(lane);
       await runEnvironmentCommand(lane, "setup", [], compact);
@@ -934,12 +1244,23 @@ export async function auditProjectLanes(
       }),
     );
   });
+  for (const job of listProjectLaneCleanupJobs().filter(
+    ({ project }) => !projectId || project.id === projectId,
+  )) {
+    failures.push(
+      `${job.project.id}/${job.laneId}: cleanup ${job.phase}${job.lastError ? `: ${job.lastError}` : ""}`,
+    );
+  }
   if (failures.length > 0) {
     throw new Error(`Project lane audit failed:\n${failures.join("\n")}`);
   }
 }
 
-export async function resetProjectLane(projectId: string, laneId: string): Promise<void> {
+export async function resetProjectLane(
+  projectId: string,
+  laneId: string,
+  options: { beforeReset?: () => Promise<void> } = {},
+): Promise<void> {
   await withRegistryLock(async (registry) => {
     const project = getActiveProject(projectId);
     const lane = getProjectLanes(project).find(({ id }) => id === laneId);
@@ -949,34 +1270,66 @@ export async function resetProjectLane(projectId: string, laneId: string): Promi
     if (status.availability === "occupied") {
       throw new Error(`${projectId}/${laneId} is not Git-empty`);
     }
+    await options.beforeReset?.();
     await runEnvironmentCommand(lane, "reset");
     await verifyLane(lane, state);
   });
+}
+
+export function assertProjectLaneDestroyable(projectId: string, laneId: string): void {
+  const project = getActiveProject(projectId);
+  const lane = getProjectLanes(project).find(({ id }) => id === laneId);
+  if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
+  const status = inspectLane(lane, stateFor(readRegistry(), lane));
+  if (status.availability === "occupied") {
+    throw new Error(`${projectId}/${laneId} is not safe to destroy: ${status.occupancyReason}`);
+  }
 }
 
 export async function destroyProjectLane(
   projectId: string,
   laneId: string,
   confirmed: boolean,
-): Promise<void> {
+  options: { beforeDestroy?: () => Promise<void> } = {},
+): Promise<LaneCleanupJob> {
   if (!confirmed) throw new Error("Pass --confirm to destroy a persistent project lane");
-  await withRegistryLock(async (registry) => {
-    const project = getActiveProject(projectId);
-    const lane = getProjectLanes(project).find(({ id }) => id === laneId);
-    if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
-    const state = stateFor(registry, lane);
-    const status = inspectLane(lane, state);
-    if (status.availability === "occupied" || status.health === "broken") {
-      throw new Error(
-        `${projectId}/${laneId} is not safe to destroy: ${status.occupancyReason || status.healthReason}`,
-      );
-    }
-    await runEnvironmentCommand(lane, "destroy");
-    rmSync(lane.path, { recursive: true });
+  const project = getActiveProject(projectId);
+  const lane = getProjectLanes(project).find(({ id }) => id === laneId);
+  if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
+  const status = inspectLane(lane, stateFor(readRegistry(), lane));
+  if (status.availability === "occupied") {
+    throw new Error(`${projectId}/${laneId} is not safe to destroy: ${status.occupancyReason}`);
+  }
+
+  await options.beforeDestroy?.();
+  const timestamp = Date.now();
+  const cleanupPath = join(
+    dirname(lane.path),
+    `.${basename(lane.path)}.lanes-cleanup-${timestamp}-${process.pid}`,
+  );
+  const job: LaneCleanupJob = {
+    id: `${project.id}-${lane.id}-${timestamp}-${process.pid}`,
+    project,
+    laneId: lane.id,
+    laneNumber: lane.number,
+    originalPath: lane.path,
+    cleanupPath,
+    phase: "preparing",
+    createdAt: new Date(timestamp).toISOString(),
+    attempts: 0,
+  };
+  await withRegistryLockWhenAvailable(async (registry) => {
+    const queue = readCleanupQueue();
+    queue.jobs.push(job);
+    writeCleanupQueue(queue);
+    renameSync(lane.path, cleanupPath);
     delete registry.projects[project.id]?.[lane.id];
     writeLanesConfig(
       LANES_CONFIG_PATH,
       removeLaneDefinition(readLanesConfig(LANES_CONFIG_PATH), projectId, laneId),
     );
+    job.phase = "ready";
+    writeCleanupQueue(queue);
   });
+  return job;
 }

@@ -24,7 +24,7 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
         id: "frontend",
         name: "Frontend",
         directory: "family-tree",
-        runner: { type: "npm-script", script: "dev" },
+        runner: { type: "bun-script", script: "dev" },
       },
       {
         id: "metro",

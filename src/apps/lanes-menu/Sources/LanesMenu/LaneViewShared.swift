@@ -36,6 +36,10 @@ func laneCiColor(_ state: LaneCiState) -> Color {
   }
 }
 
+func formattedMemory(_ bytes: Int64) -> String {
+  ByteCountFormatter.string(fromByteCount: bytes, countStyle: .memory)
+}
+
 struct LaneBaseSyncLabel: View {
   let state: LaneBaseSyncState
   let isSyncing: Bool
@@ -235,7 +239,7 @@ struct LaneServiceRow: View {
   let loadLogs: () async -> String
 
   @State private var isShowingLogs = false
-  @State private var logs = "Loading logs…"
+  @State private var logsState: ServiceLogsState = .idle
   @State private var hoverTask: Task<Void, Never>?
   @State private var closeTask: Task<Void, Never>?
 
@@ -252,6 +256,14 @@ struct LaneServiceRow: View {
           .foregroundStyle(.secondary)
       }
       Spacer()
+      if let residentBytes = service.residentBytes {
+        Label(formattedMemory(residentBytes), systemImage: "memorychip")
+          .font(.caption2.monospacedDigit())
+          .foregroundStyle(.secondary)
+          .fixedSize()
+          .help("Resident memory used by \(service.name) and its child processes")
+          .accessibilityLabel("\(service.name) uses \(formattedMemory(residentBytes)) of memory")
+      }
       if service.manageable {
         HStack(spacing: 8) {
           if service.state == .running {
@@ -279,7 +291,9 @@ struct LaneServiceRow: View {
           }
           .buttonStyle(.plain)
           .disabled(service.state == .unavailable || isBusy)
-          .help("\(service.state == .running ? "Stop" : "Start") \(service.command ?? service.name)")
+          .help(
+            "\(service.state == .running ? "Stop" : "Start") \(service.command ?? service.name)"
+          )
           .accessibilityLabel(
             "\(service.state == .running ? "Stop" : "Start") \(service.command ?? service.name)"
           )
@@ -294,7 +308,7 @@ struct LaneServiceRow: View {
       ServiceLogsPopover(
         service: service,
         statusColor: laneServiceColor(service.state),
-        logs: logs
+        logs: logsState.text
       )
       .onHover { hovering in
         if hovering {
@@ -313,8 +327,11 @@ struct LaneServiceRow: View {
       hoverTask = Task {
         try? await Task.sleep(for: .milliseconds(250))
         guard !Task.isCancelled else { return }
-        logs = await loadLogs()
+        logsState = .loading
         isShowingLogs = true
+        let logs = await loadLogs()
+        guard !Task.isCancelled else { return }
+        logsState = .loaded(logs)
       }
     } else {
       hoverTask?.cancel()
@@ -328,6 +345,19 @@ struct LaneServiceRow: View {
       try? await Task.sleep(for: .milliseconds(400))
       guard !Task.isCancelled else { return }
       isShowingLogs = false
+    }
+  }
+}
+
+private enum ServiceLogsState {
+  case idle
+  case loading
+  case loaded(String)
+
+  var text: String {
+    switch self {
+    case .idle, .loading: "Loading recent logs…"
+    case .loaded(let logs): logs
     }
   }
 }
@@ -352,6 +382,9 @@ struct ServiceLogsPopover: View {
         Text(service.state.title)
           .font(.caption2)
           .foregroundStyle(.secondary)
+        Text(service.manageable ? "Latest 50 lines" : "Status detail")
+          .font(.caption2)
+          .foregroundStyle(.tertiary)
       }
       Divider()
       ScrollView([.horizontal, .vertical]) {

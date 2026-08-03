@@ -94,7 +94,9 @@ export async function createLanePullRequest(
   }
 
   onProgress("pushing");
-  await execa("git", ["push", "--set-upstream", "origin", branch], { cwd: lane.path });
+  await execa("git", ["push", "--set-upstream", "origin", `HEAD:refs/heads/${branch}`], {
+    cwd: lane.path,
+  });
   onProgress("creating");
   const created = await execa(
     gh,

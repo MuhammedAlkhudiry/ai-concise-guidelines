@@ -73,9 +73,21 @@ import Testing
   #expect(document.platforms[0].state == .pending)
 }
 
+@Test func decodesBrowserOnlyProviderAsAnExplicitAccessState() throws {
+  let data = Data(
+    #"{"contractVersion":1,"generatedAt":"2026-08-03T12:00:00Z","cached":false,"platforms":[{"platform":"apple","platformName":"Apple Ads","state":"browser","configured":false,"account":{"id":"22534290","name":"Muhammed Alkhudiry","currency":"USD","timezone":"Asia/Riyadh"},"message":"App Store advertising is managed in Apple Ads; API access is intentionally not configured.","checkedAt":"2026-08-03T12:00:00Z"}]}"#
+      .utf8
+  )
+
+  let document = try JSONDecoder().decode(AdsStatusDocument.self, from: data)
+  #expect(document.platforms[0].state == .browser)
+  #expect(document.platforms[0].account?.id == "22534290")
+}
+
 @Test func decodesConfiguredProjectsAndClassificationQueue() throws {
   let data = Data(
-    #"{"contractVersion":1,"projects":[{"id":"awraq","name":"Awraq","classification":"project","platforms":["google","snapchat"]},{"id":"needs-classification","name":"Needs classification","classification":"unassigned","platforms":["meta"]}]}"#.utf8
+    #"{"contractVersion":1,"projects":[{"id":"awraq","name":"Awraq","classification":"project","platforms":["google","snapchat"]},{"id":"needs-classification","name":"Needs classification","classification":"unassigned","platforms":["meta"]}]}"#
+      .utf8
   )
 
   let document = try JSONDecoder().decode(AdsProjectsDocument.self, from: data)

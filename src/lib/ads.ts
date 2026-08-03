@@ -6,7 +6,7 @@ import { ADS_PROJECTS, type AdsProjectDefinition, type AdsProjectPlatform } from
 
 export const AD_PLATFORMS = ["google", "meta", "snapchat", "tiktok", "apple"] as const;
 export type AdPlatform = (typeof AD_PLATFORMS)[number];
-export type AdAccessState = "ready" | "pending" | "unavailable" | "error";
+export type AdAccessState = "ready" | "pending" | "browser" | "unavailable" | "error";
 export type AdsPeriod = "7d" | "30d";
 
 export type AdAccount = {
@@ -270,19 +270,19 @@ function provider(platform: AdPlatform, mapping?: AdsProjectPlatform): Provider 
   if (platform === "google") return googleProvider(mapping);
   if (platform === "meta") return metaProvider(mapping);
   if (platform === "snapchat") return snapchatProvider(mapping);
-  return unavailableProvider(platform);
+  return unavailableProvider(platform, mapping);
 }
 
-function unavailableProvider(platform: "apple" | "tiktok"): Provider {
+function unavailableProvider(platform: "apple" | "tiktok", mapping?: AdsProjectPlatform): Provider {
   const credentialPath = platform === "apple" ? "apple-ads/oauth.json" : "tiktok-ads/oauth.json";
   const message = `${PLATFORM_NAMES[platform]} API credentials are not configured at ${credentialPath}.`;
   const access = (): AdAccess => ({
     platform,
     platformName: PLATFORM_NAMES[platform],
-    state: "unavailable",
+    state: mapping?.access?.state ?? "unavailable",
     configured: false,
-    account: null,
-    message,
+    account: mapping?.access?.account ?? null,
+    message: mapping?.access?.message ?? message,
     checkedAt: now(),
   });
   return {
@@ -521,7 +521,13 @@ function metaProvider(_mapping?: AdsProjectPlatform): Provider {
         });
         const body = await metaGet(`act_${stringAt(credential, "ad_account_id")}/campaigns`, query);
         const campaigns = objectsAt(body, "data")
-          .filter((row) => !activeOnly || stringAt(row, "effective_status") === "ACTIVE")
+          .filter(
+            (row) =>
+              !activeOnly ||
+              (stringAt(row, "effective_status") === "ACTIVE" &&
+                (!nullableStringAt(row, "stop_time") ||
+                  Date.parse(stringAt(row, "stop_time")) > Date.now())),
+          )
           .map((row) => ({
             id: stringAt(row, "id"),
             name: stringAt(row, "name"),
@@ -665,7 +671,12 @@ function snapchatProvider(mapping?: AdsProjectPlatform): Provider {
         );
         const campaigns = objectsAt(body, "campaigns")
           .map((wrapper) => asObject(wrapper.campaign))
-          .filter((row) => !activeOnly || stringAt(row, "status") === "ACTIVE")
+          .filter(
+            (row) =>
+              !activeOnly ||
+              (stringAt(row, "status") === "ACTIVE" &&
+                !stringAt(row, "delivery_status").startsWith("INVALID_")),
+          )
           .filter(
             (row) =>
               !mapping?.campaignIds?.length || mapping.campaignIds.includes(stringAt(row, "id")),

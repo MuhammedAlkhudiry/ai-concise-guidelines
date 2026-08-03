@@ -81,6 +81,7 @@ import Testing
 
   #expect(latest.baseSyncState == .latest)
   #expect(behind.baseSyncState == .behind(2))
+  #expect(latest.isRemovable)
   #expect(project.availableLanes.map(\.laneID) == ["lane-1", "lane-2"])
 }
 
@@ -129,6 +130,7 @@ import Testing
   #expect(committedBranch.hasProposableChanges)
   #expect(workingTreeBranch.hasWorkingTreeChanges)
   #expect(workingTreeBranch.hasProposableChanges)
+  #expect(!workingTreeBranch.isRemovable)
 }
 
 @Test func decodesTheSharedLanesServiceContract() throws {
@@ -142,7 +144,7 @@ import Testing
           "path": "/projects/awraq-lane-1",
           "services": [
             { "id": "site", "name": "Site", "state": "running", "manageable": false, "managed": false, "detail": "HTTP 200 OK" },
-            { "id": "frontend", "name": "Frontend", "state": "running", "manageable": true, "managed": true, "command": "bun dev" },
+            { "id": "frontend", "name": "Frontend", "state": "running", "manageable": true, "managed": true, "command": "bun dev", "residentBytes": 104857600 },
             { "id": "metro", "name": "Metro", "state": "stopped", "manageable": true, "managed": false, "command": "bun start:lane" },
             { "id": "horizon", "name": "Horizon", "state": "failed", "manageable": true, "managed": true, "command": "php artisan horizon" }
           ]
@@ -160,6 +162,7 @@ import Testing
   #expect(lane.filter(\.manageable).count == 3)
   #expect(lane.first?.detail == "HTTP 200 OK")
   #expect(lane.first { $0.id == "frontend" }?.managed == true)
+  #expect(lane.first { $0.id == "frontend" }?.residentBytes == 104_857_600)
   #expect(LaneServiceSummary.summarize(lane) == .failed)
 }
 
@@ -188,7 +191,8 @@ import Testing
 
 @Test func decodesProjectLaneCiStatuses() throws {
   let data = Data(
-    #"{"lanes":[{"project":"awraq","lane":"lane-2","branch":"codex/example","state":"passing","url":"https://github.com/example/repo/pull/1","number":1,"checks":6},{"project":"awraq","lane":"lane-3","branch":"codex/merged","state":"merged","url":"https://github.com/example/repo/pull/2","number":2,"checks":6}]}"#.utf8
+    #"{"lanes":[{"project":"awraq","lane":"lane-2","branch":"codex/example","state":"passing","url":"https://github.com/example/repo/pull/1","number":1,"checks":6},{"project":"awraq","lane":"lane-3","branch":"codex/merged","state":"merged","url":"https://github.com/example/repo/pull/2","number":2,"checks":6}]}"#
+      .utf8
   )
 
   let statuses = try JSONDecoder().decode(LaneCiDocument.self, from: data).statusesByLane()
@@ -203,6 +207,21 @@ import Testing
   #expect(statuses["awraq/lane-3"]?.state.title == "Merged")
 }
 
+@Test func decodesDurableLaneCleanupStatus() throws {
+  let data = Data(
+    #"{"jobs":[{"id":"awraq-lane-8-1","laneId":"lane-8","phase":"ready","attempts":1,"lastError":"S3 unavailable","project":{"id":"awraq","name":"Awraq"}}]}"#
+      .utf8
+  )
+
+  let jobs = try JSONDecoder().decode(LaneCleanupDocument.self, from: data).jobs
+  let job = try #require(jobs.first)
+
+  #expect(job.title == "Awraq · Lane 8")
+  #expect(job.phase == "ready")
+  #expect(job.attempts == 1)
+  #expect(job.lastError == "S3 unavailable")
+}
+
 @Test func decodesPullRequestCreationProgressEvents() throws {
   let progress = try JSONDecoder().decode(
     PullRequestCreationEvent.self,
@@ -210,7 +229,9 @@ import Testing
   )
   let complete = try JSONDecoder().decode(
     PullRequestCreationEvent.self,
-    from: #"{"type":"complete","project":"awraq","lane":"lane-4","branch":"feature/example","url":"https://github.com/example/repo/pull/4"}"#.data(using: .utf8)!
+    from:
+      #"{"type":"complete","project":"awraq","lane":"lane-4","branch":"feature/example","url":"https://github.com/example/repo/pull/4"}"#
+      .data(using: .utf8)!
   )
 
   #expect(progress.stage == .generating)

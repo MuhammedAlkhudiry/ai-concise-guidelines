@@ -3,6 +3,9 @@
 - **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. Run `npm` and `bun` on the
   host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and
   one-time production data-fix scripts outside Git repositories. Commit only reusable scripts intended for recurring use.
+- **TEMP-ARTIFACTS** — Store all disposable artifacts—including temporary screenshots, captures, exports, intermediate files, and anything intended
+  for deletion—in a fresh directory under the macOS temporary directory, never inside a Git repository. Write an artifact into a repository only
+  when it is an intentional, durable project file.
 - **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including local development environment
   changes. Report what changed after the task.
 

@@ -42,4 +42,25 @@ describe("Typesense environment helpers", () => {
       "DELETE http://127.0.0.1:8108/collections/awraq_lane_3_nodes",
     ]);
   });
+
+  test("deletes matching collections concurrently", async () => {
+    let activeDeletes = 0;
+    let maximumActiveDeletes = 0;
+
+    const deleted = await deleteTypesenseCollections(connection, "awraq_lane_3_", {
+      request: async (_input, init) => {
+        if (!init?.method) {
+          return Response.json([{ name: "awraq_lane_3_nodes" }, { name: "awraq_lane_3_people" }]);
+        }
+        activeDeletes += 1;
+        maximumActiveDeletes = Math.max(maximumActiveDeletes, activeDeletes);
+        await Bun.sleep(10);
+        activeDeletes -= 1;
+        return new Response(null, { status: 200 });
+      },
+    });
+
+    expect(deleted).toEqual(["awraq_lane_3_nodes", "awraq_lane_3_people"]);
+    expect(maximumActiveDeletes).toBe(2);
+  });
 });

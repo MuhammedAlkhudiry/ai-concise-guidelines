@@ -3,14 +3,19 @@ import {
   auditProjectLanes,
   applyLaneSimulatorSlimming,
   destroyProjectLane,
+  getActiveProject,
+  getProjectLanes,
   LANES_STATE_PATH,
+  listProjectLaneCleanupJobs,
   listProjectLaneStatuses,
   releaseProjectLane,
+  runProjectLaneCleanupJobs,
   resetProjectLane,
   restoreLaneSimulators,
   setupProjectLanes,
   simulatorFleetFailures,
   statusLaneSimulators,
+  startProjectLaneCleanupWorker,
   syncProjectLane,
   verifyProjectLane,
   type SimulatorFleetReport,
@@ -24,6 +29,7 @@ import {
   restartLaneService,
   startLaneService,
   stopLaneService,
+  stopLaneServices,
   type LaneServicesStatus,
   verifyLaneServiceDefinitions,
 } from "../lib/lane-services";
@@ -74,14 +80,15 @@ export async function projectLanesAdd(
   numberValue?: string,
   mobile = false,
   compact = false,
+  branch?: string,
 ): Promise<void> {
   const number = numberValue === undefined ? undefined : Number(numberValue);
   if (number !== undefined && (!Number.isSafeInteger(number) || number < 1)) {
     throw new Error("Lane number must be positive");
   }
-  const lane = await addProjectLane(project, number, { mobile, compact });
+  const lane = await addProjectLane(project, number, { mobile, compact, branch });
   verifyLaneServiceDefinitions(project, lane.id);
-  console.log(`${project}/${lane.id}\tADDED\t${lane.path}`);
+  console.log(`${project}/${lane.id}\tADDED\t${lane.path}${branch ? `\t${branch}` : ""}`);
 }
 
 export function projectLanesStatus(project?: string, json = false): void {
@@ -156,8 +163,9 @@ export async function projectLaneSimulatorsRestore(project?: string, json = fals
 }
 
 export async function projectLanesReset(project: string, lane: string): Promise<void> {
-  await stopLaneService(project, lane, "all");
-  await resetProjectLane(project, lane);
+  await resetProjectLane(project, lane, {
+    beforeReset: () => stopLaneServices(project, lane, "all"),
+  });
 }
 
 export async function projectLanesSync(project: string, lane: string): Promise<void> {
@@ -173,8 +181,11 @@ export async function projectLanesRelease(
   compact = false,
 ): Promise<void> {
   if (!confirm) throw new Error("Pass --confirm to discard lane work and make it available");
-  await stopLaneService(project, lane, "all");
-  await releaseProjectLane(project, lane, confirm, { mobile, compact });
+  await releaseProjectLane(project, lane, confirm, {
+    mobile,
+    compact,
+    beforeRelease: () => stopLaneServices(project, lane, "all"),
+  });
   console.log(`${project}/${lane}\tAVAILABLE\tREADY`);
 }
 
@@ -183,8 +194,38 @@ export async function projectLanesDestroy(
   lane: string,
   confirm = false,
 ): Promise<void> {
-  await stopLaneService(project, lane, "all");
-  await destroyProjectLane(project, lane, confirm);
+  if (!confirm) throw new Error("Pass --confirm to destroy a persistent project lane");
+  const job = await destroyProjectLane(project, lane, confirm, {
+    beforeDestroy: () => stopLaneServices(project, lane, "all"),
+  });
+  startProjectLaneCleanupWorker();
+  console.log(`${project}/${lane}\tREMOVED\tcleanup queued as ${job.id}`);
+}
+
+export async function projectLanesCleanup(operation: string, json = false): Promise<void> {
+  if (operation === "run" || operation === "retry") await runProjectLaneCleanupJobs();
+  if (operation !== "status" && operation !== "run" && operation !== "retry") {
+    throw new Error(`Unknown cleanup operation: ${operation}`);
+  }
+  const jobs = listProjectLaneCleanupJobs();
+  if (json) {
+    console.log(JSON.stringify({ jobs }, null, 2));
+  } else if (jobs.length === 0) {
+    console.log("No pending lane cleanup jobs");
+  } else {
+    for (const job of jobs) {
+      console.log(
+        `${job.project.id}/${job.laneId}\t${job.phase.toUpperCase()}\tattempts=${job.attempts}${job.lastError ? `\t${job.lastError}` : ""}`,
+      );
+    }
+  }
+  if (operation === "retry" && jobs.length > 0) {
+    throw new Error(`${jobs.length} lane cleanup job${jobs.length === 1 ? "" : "s"} remain`);
+  }
+}
+
+export function resumeProjectLaneCleanup(): void {
+  startProjectLaneCleanupWorker();
 }
 
 function printServiceStatuses(statuses: LaneServicesStatus[], json: boolean): void {
@@ -223,19 +264,16 @@ export async function projectLaneServices(
   }
   if (operation === "start" || operation === "stop" || operation === "restart") {
     const laneIDs =
-      lane === "all"
-        ? (await listLaneServiceStatuses(project)).map(({ lane: laneID }) => laneID)
-        : [lane];
-    const statuses: LaneServicesStatus[] = [];
-    for (const laneID of laneIDs) {
-      statuses.push(
+      lane === "all" ? getProjectLanes(getActiveProject(project)).map(({ id }) => id) : [lane];
+    const statuses = await Promise.all(
+      laneIDs.map((laneID) =>
         operation === "start"
-          ? await startLaneService(project, laneID, service)
+          ? startLaneService(project, laneID, service)
           : operation === "stop"
-            ? await stopLaneService(project, laneID, service)
-            : await restartLaneService(project, laneID, service),
-      );
-    }
+            ? stopLaneService(project, laneID, service)
+            : restartLaneService(project, laneID, service),
+      ),
+    );
     printServiceStatuses(statuses, Boolean(options.json));
     return;
   }

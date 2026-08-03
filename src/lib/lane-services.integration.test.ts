@@ -63,7 +63,9 @@ test("controls and reads logs for a launchd-backed lane service", () => {
   try {
     const started = run(["services", "start", "service-test", "lane-1", "frontend", "--json"]);
     expect(started.exitCode).toBe(0);
-    expect(JSON.parse(started.stdout.toString()).lanes[0].services[1].state).toBe("running");
+    const startedService = JSON.parse(started.stdout.toString()).lanes[0].services[1];
+    expect(startedService.state).toBe("running");
+    expect(startedService.residentBytes).toBeGreaterThan(0);
 
     const logs = run(["services", "logs", "service-test", "lane-1", "frontend", "--lines", "10"]);
     expect(logs.exitCode).toBe(0);
@@ -78,6 +80,7 @@ test("controls and reads logs for a launchd-backed lane service", () => {
       detail: "Frontend is stopped",
     });
     expect(services[1].state).toBe("stopped");
+    expect(services[1].residentBytes).toBeUndefined();
   }
 }, 20_000);
 
