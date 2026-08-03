@@ -46,6 +46,7 @@ interface ServiceOptions {
   lines?: string;
   follow?: boolean;
   raw?: boolean;
+  siteTimeout?: string;
 }
 
 interface PlanOptions {
@@ -76,9 +77,9 @@ cli
 cli
   .command("status [project]", "Show lane readiness")
   .option("--json", "Print machine-readable status")
-  .action((project: string | undefined, options: { json?: boolean }) => {
-    projectLanesStatus(project, options.json);
-  });
+  .action((project: string | undefined, options: { json?: boolean }) =>
+    projectLanesStatus(project, options.json),
+  );
 
 cli
   .command("sync <project> <lane>", "Fetch and fast-forward one clean available lane")
@@ -109,6 +110,7 @@ cli
   .option("--lines <lines>", "Number of recent log lines", { default: "30" })
   .option("--follow", "Follow service logs")
   .option("--raw", "Print raw log text")
+  .option("--site-timeout <milliseconds>", "Override the live site probe timeout")
   .action(
     (
       operation: string,

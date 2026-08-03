@@ -92,6 +92,7 @@ const launchAgentsDirectory = join(homedir(), "Library/LaunchAgents");
 export async function listLaneServiceStatuses(
   projectId?: string,
   laneId?: string,
+  options: { siteTimeout?: number } = {},
 ): Promise<LaneServicesStatus[]> {
   const lanes = selectedLanes(projectId, laneId);
   const snapshot = processSnapshot();
@@ -107,7 +108,12 @@ export async function listLaneServiceStatuses(
         project: lane.project.id,
         lane: lane.id,
         path: lane.path,
-        services: [frontendStopped ? stoppedSiteStatus() : await siteStatus(lane), ...services],
+        services: [
+          frontendStopped
+            ? stoppedSiteStatus()
+            : await siteStatus(lane, options.siteTimeout ?? 3_000),
+          ...services,
+        ],
       };
     }),
   );
@@ -477,7 +483,7 @@ function serviceStatus(context: ServiceContext, snapshot = processSnapshot()): L
     : { ...base, state: "stopped", managed: false };
 }
 
-async function siteStatus(lane: Lane): Promise<LaneServiceStatus> {
+async function siteStatus(lane: Lane, timeout: number): Promise<LaneServiceStatus> {
   try {
     const certificateAuthority = join(
       homedir(),
@@ -485,7 +491,7 @@ async function siteStatus(lane: Lane): Promise<LaneServiceStatus> {
     );
     const response = await fetch(`https://${lane.project.id}-${lane.id}.test`, {
       method: "HEAD",
-      signal: AbortSignal.timeout(3_000),
+      signal: AbortSignal.timeout(timeout),
       ...(existsSync(certificateAuthority)
         ? { tls: { ca: readFileSync(certificateAuthority, "utf8") } }
         : {}),
@@ -602,24 +608,24 @@ function processSnapshot(): LaneProcessSnapshot {
       residentBytes: Number(match[3]) * 1024,
       command: match[4]!,
     }));
-  const observed = processes
-    .filter(({ command }) =>
-      /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(command.toLowerCase()),
-    )
-    .flatMap((process) => {
-      const { pid } = process;
-      const directory = processDirectory(pid);
-      return directory
-        ? [
-            {
-              pid,
-              parentPid: process.parentPid,
-              command: process.command.toLowerCase(),
-              directory,
-            },
-          ]
-        : [];
-    });
+  const observableProcesses = processes.filter(({ command }) =>
+    /\b(?:bun|npm)\b.*\b(dev|start(?::lane)?)\b|artisan\s+horizon/.test(command.toLowerCase()),
+  );
+  const directories = processDirectories(observableProcesses.map(({ pid }) => pid));
+  const observed = observableProcesses.flatMap((process) => {
+    const { pid } = process;
+    const directory = directories.get(pid);
+    return directory
+      ? [
+          {
+            pid,
+            parentPid: process.parentPid,
+            command: process.command.toLowerCase(),
+            directory,
+          },
+        ]
+      : [];
+  });
   return {
     observed,
     memory: processes.map(({ pid, parentPid, residentBytes }) => ({
@@ -647,19 +653,23 @@ function processTreeResidentBytes(rootPid: number, processes: ProcessMemory[]): 
     .reduce((total, { residentBytes }) => total + residentBytes, 0);
 }
 
-function processDirectory(pid: number): string | undefined {
+function processDirectories(pids: number[]): Map<number, string> {
+  const directories = new Map<number, string>();
+  if (pids.length === 0) return directories;
   try {
-    const output = execFileSync("lsof", ["-a", "-p", String(pid), "-d", "cwd", "-Fn"], {
+    const output = execFileSync("lsof", ["-a", "-p", pids.join(","), "-d", "cwd", "-Fpn"], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     });
-    return output
-      .split("\n")
-      .find((line) => line.startsWith("n"))
-      ?.slice(1);
+    let pid: number | undefined;
+    for (const line of output.split("\n")) {
+      if (line.startsWith("p")) pid = Number(line.slice(1));
+      if (pid !== undefined && line.startsWith("n")) directories.set(pid, line.slice(1));
+    }
   } catch {
-    return undefined;
+    return directories;
   }
+  return directories;
 }
 
 function matchingProcesses(

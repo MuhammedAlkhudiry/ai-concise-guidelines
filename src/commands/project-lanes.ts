@@ -91,8 +91,8 @@ export async function projectLanesAdd(
   console.log(`${project}/${lane.id}\tADDED\t${lane.path}${branch ? `\t${branch}` : ""}`);
 }
 
-export function projectLanesStatus(project?: string, json = false): void {
-  const statuses = listProjectLaneStatuses(project);
+export async function projectLanesStatus(project?: string, json = false): Promise<void> {
+  const statuses = await listProjectLaneStatuses(project);
   if (json) {
     process.stdout.write(
       `${JSON.stringify({ statePath: LANES_STATE_PATH, lanes: statuses }, null, 2)}\n`,
@@ -253,10 +253,18 @@ export async function projectLaneServices(
     lines?: string;
     follow?: boolean;
     raw?: boolean;
+    siteTimeout?: string;
   } = {},
 ): Promise<void> {
   if (operation === "status") {
-    printServiceStatuses(await listLaneServiceStatuses(project, lane), Boolean(options.json));
+    const siteTimeout = Number(options.siteTimeout ?? "3000");
+    if (!Number.isSafeInteger(siteTimeout) || siteTimeout < 1) {
+      throw new Error("--site-timeout must be a positive integer");
+    }
+    printServiceStatuses(
+      await listLaneServiceStatuses(project, lane, { siteTimeout }),
+      Boolean(options.json),
+    );
     return;
   }
   if (!project || !lane || !service) {

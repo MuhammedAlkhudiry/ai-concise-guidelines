@@ -38,6 +38,7 @@ import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/
 import { discoverLocalSkills } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
 import { installAdsMenu } from "../apps/ads-menu/install";
+import { installAIUsageMenu } from "../apps/ai-usage-menu/install";
 import { installLanesMenu } from "../apps/lanes-menu/install";
 
 // =============================================================================
@@ -414,6 +415,7 @@ async function installShared(): Promise<void> {
 
   await installLanesMenu();
   await installAdsMenu();
+  await installAIUsageMenu();
 
   print.info(`Ensuring local command paths are in PATH via ${SHARED_PATHS.zshenv}...`);
   await ensureParentDir(SHARED_PATHS.zshenv);

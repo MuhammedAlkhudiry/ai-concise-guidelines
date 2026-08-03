@@ -40,8 +40,8 @@ These are the commands the repo itself relies on for install and day-to-day loca
 
 ## Shell And Helper Integrations
 
-These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `playwriter`, `agent-device`, `simslim`, and
-`qmd` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
+These are referenced by synced shell config, helper commands, or installed workflows. `agent-browser`, `playwriter`, `agent-device`, `maestro`,
+`simslim`, and `qmd` are required by `doctor`; the rest are optional, but the repo assumes them when those workflows are used.
 
 | Tool            | Why this repo assumes it                                                                                                               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -52,6 +52,7 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
 | `playwriter`    | Controls the owner's existing signed-in Chrome tabs through the Playwriter extension and Playwright CLI.                               |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
+| `maestro`       | CLI-only mobile E2E test authoring, execution, and device inspection for agents.                                                       |
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
 | `fzf`           | Used by project pickers and interactive saved-plan archiving.                                                                          |
 | `sg`            | Optional AST-shaped code search through ast-grep when text search is too loose.                                                        |
@@ -64,8 +65,9 @@ These are referenced by synced shell config, helper commands, or installed workf
 
 Install `agent-browser` with `npm install -g agent-browser`, then run `agent-browser install` once to prepare Chrome for Testing when needed. Install
 Playwriter with `npm install -g playwriter`, then install its Chrome extension and enable it on each tab the agent should control. Install
-`agent-device` with `npm install -g agent-device`. Install SimSlim 0.4.0 or newer with `brew install mobai-app/tap/simslim`. Install qmd with
-`npm install -g @tobilu/qmd`; `pk setup` creates its isolated personal-knowledge index.
+`agent-device` with `npm install -g agent-device`. Install Maestro with `brew install mobile-dev-inc/tap/maestro`; it requires Java 17 or newer.
+Install SimSlim 0.4.0 or newer with `brew install mobai-app/tap/simslim`. Install qmd with `npm install -g @tobilu/qmd`; `pk setup` creates its
+isolated personal-knowledge index.
 
 ## Persistent Lane Simulator Profiles
 

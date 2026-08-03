@@ -10,7 +10,10 @@ struct LaneCommandClient: Sendable {
   func loadServiceStatuses() async throws -> [String: [LaneService]] {
     let executable = lanesExecutable
     return try await Task.detached(priority: .utility) {
-      let data = try run(executable, arguments: ["services", "status", "--json"])
+      let data = try run(
+        executable,
+        arguments: ["services", "status", "--json", "--site-timeout", "750"]
+      )
       return try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
     }.value
   }

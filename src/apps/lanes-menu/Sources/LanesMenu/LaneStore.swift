@@ -18,6 +18,7 @@ final class LaneStore: ObservableObject {
 
   private let client: LaneCommandClient
   private var ciLoadedAt: [String: Date] = [:]
+  private var ciRefreshTasks: [String: Task<Void, Never>] = [:]
   private var refreshRequested = false
   private var cleanupRefreshTask: Task<Void, Never>?
   private let ciCacheLifetime: TimeInterval = 60
@@ -84,7 +85,8 @@ final class LaneStore: ObservableObject {
             ciStatuses[lane.serviceKey] = .checking(for: lane)
           }
         }
-        await refreshLiveStatuses(for: lanes, ciProjects: staleCiProjects)
+        refreshCiStatuses(for: staleCiProjects)
+        await refreshServiceStatuses(for: lanes)
       } catch {
         errorMessage = error.localizedDescription
       }
@@ -417,64 +419,52 @@ final class LaneStore: ObservableObject {
     }
   }
 
-  private func refreshLiveStatuses(for lanes: [LaneItem], ciProjects: [LaneProject]) async {
-    let client = client
-    var errors: [String] = []
-    await withTaskGroup(of: LaneRefreshResult.self) { group in
-      for lane in lanes {
-        group.addTask {
-          do {
-            return .services(lane.serviceKey, try await client.loadServices(for: lane), nil)
-          } catch {
-            let unavailable = LaneService(
-              id: "status",
-              name: "Services",
-              manageable: false,
-              managed: false,
-              command: nil,
-              detail: error.localizedDescription,
-              state: .unavailable
-            )
-            return .services(lane.serviceKey, [unavailable], error.localizedDescription)
-          }
+  private func refreshServiceStatuses(for lanes: [LaneItem]) async {
+    do {
+      let loadedStatuses = try await client.loadServiceStatuses()
+      serviceStatuses = Dictionary(
+        uniqueKeysWithValues: lanes.map { lane in
+          (lane.serviceKey, loadedStatuses[lane.serviceKey] ?? [])
         }
-      }
-      for project in ciProjects {
-        group.addTask {
-          do {
-            return .ci(project.id, try await client.loadCiStatuses(for: project), nil)
-          } catch {
-            let unavailable = Dictionary(
-              uniqueKeysWithValues: project.lanes.map {
-                ($0.serviceKey, LaneCiStatus.unavailable(for: $0))
-              }
-            )
-            return .ci(
-              project.id,
-              unavailable,
-              error.localizedDescription
-            )
-          }
-        }
-      }
+      )
+      errorMessage = nil
+    } catch {
+      let unavailable = LaneService(
+        id: "status",
+        name: "Services",
+        manageable: false,
+        managed: false,
+        command: nil,
+        detail: error.localizedDescription,
+        state: .unavailable
+      )
+      serviceStatuses = Dictionary(
+        uniqueKeysWithValues: lanes.map { ($0.serviceKey, [unavailable]) }
+      )
+      errorMessage = error.localizedDescription
+    }
+  }
 
-      for await result in group {
-        switch result {
-        case .services(let key, let services, let error):
-          serviceStatuses[key] = services
-          if let error { errors.append(error) }
-        case .ci(let projectID, let statuses, let error):
+  private func refreshCiStatuses(for projects: [LaneProject]) {
+    for project in projects where ciRefreshTasks[project.id] == nil {
+      ciRefreshTasks[project.id] = Task { [weak self] in
+        guard let self else { return }
+        defer { ciRefreshTasks[project.id] = nil }
+        do {
+          let statuses = try await client.loadCiStatuses(for: project)
+          guard !Task.isCancelled else { return }
           ciStatuses.merge(statuses) { _, new in new }
-          if error == nil { ciLoadedAt[projectID] = Date() }
-          if let error { errors.append(error) }
+          ciLoadedAt[project.id] = Date()
+        } catch {
+          let unavailable = Dictionary(
+            uniqueKeysWithValues: project.lanes.map {
+              ($0.serviceKey, LaneCiStatus.unavailable(for: $0))
+            }
+          )
+          ciStatuses.merge(unavailable) { _, new in new }
+          errorMessage = error.localizedDescription
         }
       }
     }
-    errorMessage = errors.first
   }
-}
-
-private enum LaneRefreshResult: Sendable {
-  case services(String, [LaneService], String?)
-  case ci(String, [String: LaneCiStatus], String?)
 }

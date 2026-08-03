@@ -199,6 +199,20 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "maestro",
+        level: "required",
+        why: "CLI-only mobile E2E test authoring, execution, and device inspection for agents.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "mobile-dev-inc/tap/maestro",
+        },
+        update: {
+          commands: ["brew upgrade mobile-dev-inc/tap/maestro"],
+          note: "Install with brew install mobile-dev-inc/tap/maestro. Maestro requires Java 17 or newer.",
+        },
+      },
+      {
         name: "simslim",
         level: "required",
         why: "Applies and verifies the memory-saving service profile for persistent lane simulators.",

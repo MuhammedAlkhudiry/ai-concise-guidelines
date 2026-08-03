@@ -231,6 +231,13 @@ function git(cwd: string, args: string[], allowFailure = false): string {
   }
 }
 
+async function gitAsync(cwd: string, args: string[], allowFailure = false): Promise<string> {
+  const result = await execa("git", args, { cwd, reject: false });
+  if (result.exitCode === 0) return result.stdout.trim();
+  if (allowFailure) return "";
+  throw new Error(`git ${args.join(" ")} failed in ${cwd}: ${result.stderr.trim()}`);
+}
+
 export function assertLaneTaskBranch(baseBranch: string, branch: string): void {
   if (branch !== branch.trim() || !branch) {
     throw new Error("Task branch must be a non-empty Git branch name without surrounding spaces");
@@ -251,15 +258,20 @@ function configureLaneGitSafety(lane: Lane): void {
   git(lane.path, ["config", "--local", "branch.autoSetupMerge", "false"]);
   git(lane.path, ["config", "--local", "push.default", "current"]);
 
-  const branch = git(lane.path, ["branch", "--show-current"], true);
-  if (!branch || branch === lane.project.baseBranch) return;
-  const upstream = git(
-    lane.path,
-    ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"],
-    true,
-  );
-  if (upstream === `origin/${lane.project.baseBranch}`) {
-    git(lane.path, ["branch", "--unset-upstream"]);
+  const branches = git(lane.path, [
+    "for-each-ref",
+    "--format=%(refname:short)%09%(upstream:short)",
+    "refs/heads",
+  ]);
+  for (const line of branches.split("\n")) {
+    const [branch, upstream] = line.split("\t");
+    if (
+      branch &&
+      branch !== lane.project.baseBranch &&
+      upstream === `origin/${lane.project.baseBranch}`
+    ) {
+      git(lane.path, ["branch", "--unset-upstream", branch]);
+    }
   }
 }
 
@@ -819,38 +831,55 @@ function inspectGitDiff(cwd: string, changes: string): LaneGitDiff | undefined {
   };
 }
 
+async function inspectGitDiffAsync(cwd: string, changes: string): Promise<LaneGitDiff | undefined> {
+  if (!changes) return undefined;
+
+  let additions = 0;
+  let deletions = 0;
+  const numstat = await gitAsync(cwd, ["diff", "--numstat", "HEAD", "--"], true);
+  for (const line of numstat.split("\n")) {
+    const [added, deleted] = line.split("\t");
+    if (/^\d+$/.test(added)) additions += Number(added);
+    if (/^\d+$/.test(deleted)) deletions += Number(deleted);
+  }
+
+  return {
+    additions,
+    deletions,
+    untrackedFiles: changes.split("\n").filter((line) => line.startsWith("?? ")).length,
+  };
+}
+
 function activeGitOperation(cwd: string): string | undefined {
+  const gitDirectory = git(cwd, ["rev-parse", "--absolute-git-dir"], true);
+  if (!gitDirectory) return undefined;
   return ["MERGE_HEAD", "rebase-merge", "rebase-apply", "CHERRY_PICK_HEAD", "BISECT_LOG"].find(
-    (path) => {
-      const resolved = git(cwd, ["rev-parse", "--git-path", path], true);
-      return resolved && existsSync(resolve(cwd, resolved));
-    },
+    (path) => existsSync(resolve(gitDirectory, path)),
   );
 }
 
-function inspectLane(lane: Lane, state: LaneState): LaneStatus {
-  if (!existsSync(lane.path)) {
-    return {
-      lane,
-      state,
-      availability: "available",
-      health: "broken",
-      healthReason: "clone missing",
-    };
-  }
-
-  const head = git(lane.path, ["rev-parse", "HEAD"], true);
-  const branch = git(lane.path, ["branch", "--show-current"], true) || undefined;
-  const changes = git(lane.path, ["status", "--porcelain=v1", "--untracked-files=all"], true);
-  const operation = activeGitOperation(lane.path);
-
-  const baseBranchDivergence = parseGitDivergence(
-    git(
-      lane.path,
-      ["rev-list", "--left-right", "--count", `HEAD...origin/${lane.project.baseBranch}`],
-      true,
-    ),
+async function activeGitOperationAsync(cwd: string): Promise<string | undefined> {
+  const gitDirectory = await gitAsync(cwd, ["rev-parse", "--absolute-git-dir"], true);
+  if (!gitDirectory) return undefined;
+  return ["MERGE_HEAD", "rebase-merge", "rebase-apply", "CHERRY_PICK_HEAD", "BISECT_LOG"].find(
+    (path) => existsSync(resolve(gitDirectory, path)),
   );
+}
+
+function inspectedLaneStatus(
+  lane: Lane,
+  state: LaneState,
+  gitStatus: {
+    head: string;
+    branch?: string;
+    changes: string;
+    operation?: string;
+    baseBranchDivergence?: GitDivergence;
+    gitDiff?: LaneGitDiff;
+  },
+  runtimeHash = projectEnvironmentRuntimeHash(),
+): LaneStatus {
+  const { head, branch, changes, operation, baseBranchDivergence, gitDiff } = gitStatus;
   const baseBranchAhead = baseBranchDivergence?.ahead;
   const baseBranchBehind = baseBranchDivergence?.behind;
   const occupancyReason = laneOccupancyReason({
@@ -861,7 +890,6 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
     baseBranchAhead,
   });
   const availability: LaneAvailability = occupancyReason ? "occupied" : "available";
-  const gitDiff = inspectGitDiff(lane.path, changes);
   const missingScript = requiredEnvironmentScripts.find(
     (script) => !existsSync(join(lane.path, "scripts/project-lanes", `${script}.ts`)),
   );
@@ -896,7 +924,7 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
       healthReason: healthError,
     };
   }
-  if (state.lastVerifiedRuntimeHash !== projectEnvironmentRuntimeHash()) {
+  if (state.lastVerifiedRuntimeHash !== runtimeHash) {
     return {
       lane,
       state,
@@ -939,6 +967,80 @@ function inspectLane(lane: Lane, state: LaneState): LaneStatus {
     gitDiff,
     occupancyReason,
   };
+}
+
+function inspectLane(lane: Lane, state: LaneState): LaneStatus {
+  if (!existsSync(lane.path)) {
+    return {
+      lane,
+      state,
+      availability: "available",
+      health: "broken",
+      healthReason: "clone missing",
+    };
+  }
+
+  const head = git(lane.path, ["rev-parse", "HEAD"], true);
+  const branch = git(lane.path, ["branch", "--show-current"], true) || undefined;
+  const changes = git(lane.path, ["status", "--porcelain=v1", "--untracked-files=all"], true);
+  const operation = activeGitOperation(lane.path);
+  const baseBranchDivergence = parseGitDivergence(
+    git(
+      lane.path,
+      ["rev-list", "--left-right", "--count", `HEAD...origin/${lane.project.baseBranch}`],
+      true,
+    ),
+  );
+  return inspectedLaneStatus(lane, state, {
+    head,
+    branch,
+    changes,
+    operation,
+    baseBranchDivergence,
+    gitDiff: inspectGitDiff(lane.path, changes),
+  });
+}
+
+async function inspectLaneAsync(
+  lane: Lane,
+  state: LaneState,
+  runtimeHash: string,
+): Promise<LaneStatus> {
+  if (!existsSync(lane.path)) {
+    return {
+      lane,
+      state,
+      availability: "available",
+      health: "broken",
+      healthReason: "clone missing",
+    };
+  }
+
+  const [head, branchValue, changes, operation, divergenceValue] = await Promise.all([
+    gitAsync(lane.path, ["rev-parse", "HEAD"], true),
+    gitAsync(lane.path, ["branch", "--show-current"], true),
+    gitAsync(lane.path, ["status", "--porcelain=v1", "--untracked-files=all"], true),
+    activeGitOperationAsync(lane.path),
+    gitAsync(
+      lane.path,
+      ["rev-list", "--left-right", "--count", `HEAD...origin/${lane.project.baseBranch}`],
+      true,
+    ),
+  ]);
+  const gitDiff = await inspectGitDiffAsync(lane.path, changes);
+  return inspectedLaneStatus(
+    lane,
+    state,
+    {
+      head,
+      branch: branchValue || undefined,
+      changes,
+      operation,
+      baseBranchDivergence: parseGitDivergence(divergenceValue),
+      gitDiff,
+    },
+    runtimeHash,
+  );
 }
 
 async function runEnvironmentCommand(
@@ -1188,11 +1290,16 @@ export async function releaseProjectLane(
   if (failure) throw failure;
 }
 
-export function listProjectLaneStatuses(projectId?: string): LaneStatus[] {
+export async function listProjectLaneStatuses(projectId?: string): Promise<LaneStatus[]> {
   const registry = readRegistry();
   const projects = projectId ? [getActiveProject(projectId)] : getActiveProjects();
-  return projects.flatMap((project) =>
-    getProjectLanes(project).map((lane) => inspectLane(lane, stateFor(registry, lane))),
+  const runtimeHash = projectEnvironmentRuntimeHash();
+  return Promise.all(
+    projects.flatMap((project) =>
+      getProjectLanes(project).map((lane) =>
+        inspectLaneAsync(lane, stateFor(registry, lane), runtimeHash),
+      ),
+    ),
   );
 }
 

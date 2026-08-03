@@ -225,6 +225,7 @@ main() {
   check_tool agent-browser required "Default AI-agent browser automation CLI."
   check_tool playwriter required "Controls signed-in Chrome tabs through the Playwriter extension."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."
+  check_tool maestro required "CLI-only mobile E2E testing and device inspection for agents."
   check_tool simslim required "Install with brew install mobai-app/tap/simslim for persistent lane simulator slimming."
   check_tool fzf optional "Used by project pickers and interactive saved-plan archiving."
   check_tool sg optional "Install ast-grep for AST-shaped code search."

@@ -183,6 +183,10 @@ test("creates a task branch from remote main without allowing a default push to 
     runGit(source, ["branch", "-M", "main"]);
     runGit(source, ["push", "-u", "origin", "main"]);
     execFileSync("git", ["clone", "--branch", "main", remote, lanePath]);
+    runGit(lanePath, ["switch", "--create", "legacy-task", "origin/main"]);
+    expect(runGit(lanePath, ["config", "--get", "branch.legacy-task.merge"])).toBe(
+      "refs/heads/main",
+    );
 
     const lane = {
       id: "lane-1",
@@ -198,6 +202,7 @@ test("creates a task branch from remote main without allowing a default push to 
     );
     expect(runGit(lanePath, ["config", "--get", "branch.autoSetupMerge"])).toBe("false");
     expect(runGit(lanePath, ["config", "--get", "push.default"])).toBe("current");
+    expect(() => runGit(lanePath, ["config", "--get", "branch.legacy-task.merge"])).toThrow();
     expect(() => runGit(lanePath, ["config", "--get", "branch.codex/new-task.merge"])).toThrow();
 
     runGit(lanePath, ["config", "user.name", "Lanes Test"]);
