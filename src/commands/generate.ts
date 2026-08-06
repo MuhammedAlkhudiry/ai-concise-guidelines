@@ -9,6 +9,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { CODEX_CONFIG } from "../../config/codex";
 import { createOpencodeConfig } from "../../config/opencode";
+import { MCP_SERVERS } from "../../config/mcp";
 import { ensureDir } from "../lib/fs";
 import { compactOutput } from "../lib/print";
 
@@ -46,6 +47,10 @@ async function generateOpencodeConfig(): Promise<void> {
 // Codex Generators
 // =============================================================================
 
+function toTomlString(value: string): string {
+  return JSON.stringify(value);
+}
+
 async function generateCodexConfig(): Promise<void> {
   log("  [Codex] Generating config...");
 
@@ -65,6 +70,33 @@ async function generateCodexConfig(): Promise<void> {
 
   await writeFile(join(CODEX_DIR, "config.toml"), lines.join("\n"));
   log("    Generated config.toml");
+}
+
+async function generateCodexMcpConfig(): Promise<number> {
+  log("  [Codex] Generating MCP config...");
+
+  const serverNames = Object.keys(MCP_SERVERS).sort();
+  const lines: string[] = [
+    "# Managed by my-setup. Do not edit by hand.",
+    "# Source of truth: config/mcp.ts",
+    "",
+  ];
+
+  for (const serverName of serverNames) {
+    const server = MCP_SERVERS[serverName];
+    const [command, ...args] = server.command;
+    lines.push(`[mcp_servers.${serverName}]`);
+    lines.push(`command = ${toTomlString(command)}`);
+    lines.push(`args = [${args.map(toTomlString).join(", ")}]`);
+    lines.push(`startup_timeout_sec = ${server.startupTimeoutSec}`);
+    lines.push(`tool_timeout_sec = ${server.toolTimeoutSec}`);
+    lines.push(`enabled_tools = [${server.enabledTools.map(toTomlString).join(", ")}]`);
+    lines.push("");
+  }
+
+  await writeFile(join(CODEX_DIR, "mcp-servers.toml"), lines.join("\n"));
+  log(`    Generated mcp-servers.toml (${serverNames.length} servers)`);
+  return serverNames.length;
 }
 
 export async function generate(): Promise<void> {
@@ -93,6 +125,7 @@ export async function generate(): Promise<void> {
   // Generate Codex
   log("Codex:");
   await generateCodexConfig();
+  const codexMcpCount = await generateCodexMcpConfig();
 
   log("\n" + "=".repeat(50));
   log("Generation complete!");
@@ -102,7 +135,7 @@ export async function generate(): Promise<void> {
   log(`  Codex:       ${CODEX_DIR}/`);
   log(`\nSummary:`);
   log(`  OpenCode:    config`);
-  log(`  Codex:       config`);
+  log(`  Codex:       config, ${codexMcpCount} MCP server${codexMcpCount === 1 ? "" : "s"}`);
 }
 
 if (import.meta.main) {

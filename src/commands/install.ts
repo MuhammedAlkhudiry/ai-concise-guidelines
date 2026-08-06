@@ -147,31 +147,33 @@ function copyClaudeRules(): void {
   print.success(`Claude Code rules copied`);
 }
 
-function removeCodexMcpConfig(configToml: string): string {
-  const withoutManagedBlock = configToml.replace(
-    /^# >>> my-setup mcp >>>$[\s\S]*?^# <<< my-setup mcp <<<$\n?/gm,
-    "",
+function getManagedMcpServerNames(managedContent: string): Set<string> {
+  return new Set(
+    Array.from(managedContent.matchAll(/^\[mcp_servers\.([^\]]+)\]\s*$/gm), ([, name]) => name),
   );
-  const lines = withoutManagedBlock.split(/\r?\n/);
+}
+
+function removeManagedMcpServers(configToml: string, managedServerNames: Set<string>): string {
+  if (managedServerNames.size === 0) {
+    return configToml;
+  }
+
+  const lines = configToml.split(/\r?\n/);
   const cleanedLines: string[] = [];
-  let removingMcpSection = false;
 
-  for (const line of lines) {
-    const sectionMatch = line.match(/^\s*\[([^\]]+)\]\s*$/);
-    if (sectionMatch) {
-      removingMcpSection =
-        sectionMatch[1] === "mcp_servers" || sectionMatch[1].startsWith("mcp_servers.");
-
-      if (removingMcpSection) {
-        while (cleanedLines.at(-1)?.trim() === "") {
-          cleanedLines.pop();
-        }
-        continue;
-      }
+  for (let index = 0; index < lines.length; index++) {
+    const sectionMatch = lines[index].match(/^\[mcp_servers\.([^\]]+)\]\s*$/);
+    if (!sectionMatch || !managedServerNames.has(sectionMatch[1])) {
+      cleanedLines.push(lines[index]);
+      continue;
     }
 
-    if (!removingMcpSection) {
-      cleanedLines.push(line);
+    while (cleanedLines.at(-1)?.trim() === "") {
+      cleanedLines.pop();
+    }
+
+    while (index + 1 < lines.length && !lines[index + 1].startsWith("[")) {
+      index++;
     }
   }
 
@@ -240,7 +242,6 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
       print.warning("Failed to parse existing config, creating new file");
     }
   }
-  delete existingConfig.mcp;
   const merged = {
     ...existingConfig,
     model: settings.model,
@@ -258,6 +259,11 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
       ...(settings.agent as Record<string, unknown>),
     },
     plugin: settings.plugin,
+    mcp: settings.mcp,
+    tools: {
+      ...(existingConfig.tools as Record<string, boolean>),
+      ...settings.tools,
+    },
   };
   await writeFile(OPENCODE_PATHS.config, JSON.stringify(merged, null, 2) + "\n");
   print.success("OpenCode config merged");
@@ -266,7 +272,7 @@ async function mergeOpencodeConfigAsync(): Promise<void> {
 async function installCodex(): Promise<void> {
   copyCodexRules();
   await mergeCodexConfigAsync();
-  await removeCodexMcpConfigAsync();
+  await mergeCodexMcpConfigAsync();
 }
 
 async function installClaude(): Promise<void> {
@@ -354,15 +360,35 @@ async function mergeCodexConfigAsync(): Promise<void> {
   print.success("Codex config merged");
 }
 
-async function removeCodexMcpConfigAsync(): Promise<void> {
-  print.info(`Removing MCP config from ${CODEX_PATHS.config}...`);
+async function mergeCodexMcpConfigAsync(): Promise<void> {
+  print.info(`Merging Codex MCP config into ${CODEX_PATHS.config}...`);
+  const sourceFile = join(ROOT_DIR, "output", "codex", "mcp-servers.toml");
+  if (!existsSync(sourceFile)) {
+    throw new Error("mcp-servers.toml not found. Run mise run install.");
+  }
+  const managedContent = (await readFile(sourceFile, "utf-8")).trimEnd();
+  const startMarker = "# >>> my-setup mcp >>>";
+  const endMarker = "# <<< my-setup mcp <<<";
+  const managedBlock = `${startMarker}\n${managedContent}\n${endMarker}\n`;
   await ensureParentDir(CODEX_PATHS.config);
   const existing = existsSync(CODEX_PATHS.config)
     ? await readFile(CODEX_PATHS.config, "utf-8")
     : "";
-  const cleaned = removeCodexMcpConfig(existing);
-  await writeFile(CODEX_PATHS.config, cleaned ? `${cleaned}\n` : "");
-  print.success("Codex MCP config removed");
+  const escapedStart = startMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedEnd = endMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const managedPattern = new RegExp(`${escapedStart}[\\s\\S]*?${escapedEnd}\\n?`, "g");
+  const previousManagedContent = Array.from(existing.matchAll(managedPattern), ([match]) =>
+    match.replace(startMarker, "").replace(endMarker, ""),
+  ).join("\n");
+  const managedServerNames = new Set([
+    ...getManagedMcpServerNames(previousManagedContent),
+    ...getManagedMcpServerNames(managedContent),
+  ]);
+  const withoutManagedBlock = existing.replace(managedPattern, "");
+  const cleaned = removeManagedMcpServers(withoutManagedBlock, managedServerNames).trimEnd();
+  const merged = cleaned.length > 0 ? `${cleaned}\n\n${managedBlock}` : managedBlock;
+  await writeFile(CODEX_PATHS.config, merged);
+  print.success("Codex MCP config merged");
 }
 
 async function installShared(): Promise<void> {

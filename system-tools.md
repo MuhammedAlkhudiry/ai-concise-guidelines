@@ -52,7 +52,7 @@ These are referenced by synced shell config, helper commands, or installed workf
 | `agent-browser` | Default AI-agent browser automation CLI for snapshots, interaction, screenshots, and local web QA.                                     |
 | `playwriter`    | Controls the owner's existing signed-in Chrome tabs through the Playwriter extension and Playwright CLI.                               |
 | `agent-device`  | Default AI-agent mobile and device automation CLI for app snapshots, interaction, screenshots, and mobile QA.                          |
-| `maestro`       | CLI-only mobile E2E test authoring, execution, and device inspection for agents.                                                       |
+| `maestro`       | Mobile E2E test execution and persistent agent control through the bundled MCP server.                                                 |
 | `simslim`       | Applies and verifies project-safe memory-saving profiles for persistent lane simulators.                                               |
 | `fzf`           | Used by project pickers and interactive saved-plan archiving.                                                                          |
 | `sg`            | Optional AST-shaped code search through ast-grep when text search is too loose.                                                        |
@@ -86,7 +86,7 @@ full mode is explicit because it can disable capabilities used by the app.
 
 ## Observability CLIs
 
-These CLIs are the supported agent access path for PostHog and Sentry. The setup intentionally does not configure MCP servers.
+These CLIs remain the supported agent access path for PostHog and Sentry; neither service uses MCP in this setup.
 
 | Tool          | Why this repo assumes it                                                                  |
 | ------------- | ----------------------------------------------------------------------------------------- |

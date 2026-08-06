@@ -8,6 +8,7 @@ import {
   adsProjects,
   adsStats,
   adsStatus,
+  parseCampaign,
   parsePeriod,
   parsePlatform,
   parseProject,
@@ -48,13 +49,15 @@ cli
   .option("--period <period>", "Reporting window: 7d or 30d", { default: "7d" })
   .option("--platform <name>", "Limit the result to one platform")
   .option("--project <id>", "Limit the result to one configured project")
+  .option("--campaign <id>", "Limit the result to one campaign")
   .option("--refresh", "Bypass the local fifteen-minute cache")
   .option("--json", "Print the stable JSON contract")
-  .action(async (options: CommonOptions & { period?: string }) => {
+  .action(async (options: CommonOptions & { campaign?: string | number; period?: string }) => {
     const document = await adsStats({
       period: parsePeriod(options.period),
       platform: parsePlatform(options.platform),
       project: parseProject(options.project),
+      campaign: parseCampaign(options.campaign),
       refresh: options.refresh,
     });
     output(document, options.json);

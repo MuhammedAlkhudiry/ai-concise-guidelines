@@ -2,6 +2,44 @@ import AppKit
 import Charts
 import SwiftUI
 
+private enum DailyChartMetric {
+  case spend
+  case impressions
+  case clicks
+
+  var title: String {
+    switch self {
+    case .spend: "Spend"
+    case .impressions: "Impressions"
+    case .clicks: "Clicks"
+    }
+  }
+
+  var systemImage: String {
+    switch self {
+    case .spend: "banknote"
+    case .impressions: "eye"
+    case .clicks: "cursorarrow.click"
+    }
+  }
+
+  var color: Color {
+    switch self {
+    case .spend: .accentColor
+    case .impressions: .purple
+    case .clicks: .green
+    }
+  }
+
+  func value(for point: AdsDailyStats) -> Double {
+    switch self {
+    case .spend: point.spend
+    case .impressions: point.impressions
+    case .clicks: point.clicks
+    }
+  }
+}
+
 struct AdsMenuView: View {
   @ObservedObject var store: AdsStore
   @State private var selectedPlatform: String?
@@ -218,6 +256,10 @@ struct AdsMenuView: View {
           }
         }
 
+        if !snapshot.campaigns.isEmpty {
+          campaignPicker(snapshot)
+        }
+
         if let message = snapshot.access.message {
           Label(message, systemImage: "info.circle")
             .font(.caption)
@@ -226,7 +268,7 @@ struct AdsMenuView: View {
 
         if let stats = snapshot.stats, let metrics = stats.metrics {
           metricGrid(metrics, currency: stats.account?.currency)
-          spendChart(stats)
+          dailyCharts(stats)
           if let range = stats.range {
             Text(
               "\(range.from) – \(range.to) · \(stats.account?.timezone ?? "timezone unavailable")"
@@ -244,19 +286,7 @@ struct AdsMenuView: View {
             }
           }
           if !metrics.nativeConversions.isEmpty {
-            VStack(alignment: .leading, spacing: 5) {
-              Text("Native conversion results")
-                .font(.caption.weight(.semibold))
-              ForEach(metrics.nativeConversions) { metric in
-                HStack {
-                  Text(metric.name.replacingOccurrences(of: "_", with: " "))
-                  Spacer()
-                  Text(metric.value.formatted())
-                    .monospacedDigit()
-                }
-                .font(.caption)
-              }
-            }
+            conversionChart(metrics.nativeConversions)
           }
         }
 
@@ -303,42 +333,84 @@ struct AdsMenuView: View {
     }
   }
 
-  @ViewBuilder
-  private func spendChart(_ stats: AdsPlatformStats) -> some View {
-    VStack(alignment: .leading, spacing: 6) {
+  private func campaignPicker(_ snapshot: AdsPlatformSnapshot) -> some View {
+    Picker(
+      selection: Binding(
+        get: { store.selectedCampaignID(for: snapshot.id) ?? "all" },
+        set: { value in
+          store.selectCampaign(value == "all" ? nil : value, for: snapshot.id)
+        }
+      )
+    ) {
+      Label("All campaigns", systemImage: "square.stack.3d.up").tag("all")
+      ForEach(snapshot.campaigns) { campaign in
+        Label(campaign.name, systemImage: "megaphone").tag(campaign.id)
+      }
+    } label: {
+      Label("Campaign", systemImage: "megaphone")
+    }
+    .pickerStyle(.menu)
+    .controlSize(.small)
+    .disabled(store.isRefreshing)
+    .accessibilityHint("Filters all performance metrics and charts")
+  }
+
+  private func dailyCharts(_ stats: AdsPlatformStats) -> some View {
+    VStack(alignment: .leading, spacing: 10) {
       HStack {
-        Label("Daily spend", systemImage: "chart.xyaxis.line")
-          .font(.caption.weight(.semibold))
+        Label("Daily performance", systemImage: "chart.xyaxis.line")
+          .font(.subheadline.weight(.semibold))
         Spacer()
-        Text(stats.account?.currency ?? "Currency unavailable")
+        Text("By day")
           .font(.caption2)
           .foregroundStyle(.secondary)
       }
-      if stats.daily.contains(where: { $0.spend != 0 }) {
+
+      dailyChart(stats, metric: .spend)
+      dailyChart(stats, metric: .impressions)
+      dailyChart(stats, metric: .clicks)
+    }
+  }
+
+  @ViewBuilder
+  private func dailyChart(_ stats: AdsPlatformStats, metric: DailyChartMetric) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      HStack {
+        Label(metric.title, systemImage: metric.systemImage)
+          .font(.caption.weight(.semibold))
+        Spacer()
+        if metric == .spend {
+          Text(stats.account?.currency ?? "Currency unavailable")
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+        }
+      }
+
+      if stats.daily.contains(where: { metric.value(for: $0) != 0 }) {
         Chart(stats.daily) { point in
           AreaMark(
             x: .value("Date", point.chartDate),
-            y: .value("Spend", point.spend)
+            y: .value(metric.title, metric.value(for: point))
           )
           .foregroundStyle(
             .linearGradient(
-              colors: [Color.accentColor.opacity(0.28), Color.accentColor.opacity(0.03)],
+              colors: [metric.color.opacity(0.25), metric.color.opacity(0.02)],
               startPoint: .top,
               endPoint: .bottom
             )
           )
           LineMark(
             x: .value("Date", point.chartDate),
-            y: .value("Spend", point.spend)
+            y: .value(metric.title, metric.value(for: point))
           )
-          .foregroundStyle(Color.accentColor)
+          .foregroundStyle(metric.color)
           .interpolationMethod(.catmullRom)
           PointMark(
             x: .value("Date", point.chartDate),
-            y: .value("Spend", point.spend)
+            y: .value(metric.title, metric.value(for: point))
           )
-          .foregroundStyle(Color.accentColor)
-          .symbolSize(15)
+          .foregroundStyle(metric.color)
+          .symbolSize(12)
         }
         .chartYAxis {
           AxisMarks(position: .leading) {
@@ -352,17 +424,54 @@ struct AdsMenuView: View {
             AxisValueLabel(format: .dateTime.month(.abbreviated).day())
           }
         }
-        .frame(height: 145)
-        .accessibilityLabel("Daily spend in \(stats.account?.currency ?? "the account currency")")
+        .chartXScale(range: .plotDimension(padding: 8))
+        .frame(height: 125)
+        .accessibilityLabel("Daily \(metric.title.lowercased())")
       } else {
         ContentUnavailableView(
-          "No spend in this period",
-          systemImage: "chart.xyaxis.line",
-          description: Text("The provider returned zero spend for every day.")
+          "No \(metric.title.lowercased()) in this period",
+          systemImage: metric.systemImage,
+          description: Text("The provider returned zero for every day.")
         )
-        .frame(height: 110)
+        .frame(height: 90)
       }
     }
+    .padding(10)
+    .background(.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
+  }
+
+  private func conversionChart(_ metrics: [AdsNativeMetric]) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      Label("Native conversion results", systemImage: "chart.bar.xaxis")
+        .font(.caption.weight(.semibold))
+      Chart(metrics) { metric in
+        BarMark(
+          x: .value("Conversions", metric.value),
+          y: .value("Result", nativeMetricTitle(metric.name))
+        )
+        .foregroundStyle(Color.accentColor.gradient)
+        .annotation(position: .trailing, alignment: .leading) {
+          Text(metric.value.formatted())
+            .font(.caption2)
+            .monospacedDigit()
+            .foregroundStyle(.secondary)
+        }
+      }
+      .chartXAxis {
+        AxisMarks(position: .bottom) {
+          AxisGridLine()
+          AxisValueLabel()
+        }
+      }
+      .frame(height: max(90, CGFloat(metrics.count) * 32))
+      .accessibilityLabel("Native conversion results")
+    }
+  }
+
+  private func nativeMetricTitle(_ name: String) -> String {
+    name
+      .replacingOccurrences(of: "_", with: " ")
+      .capitalized
   }
 
   private func metric(_ title: String, value: String) -> some View {

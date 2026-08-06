@@ -12,7 +12,7 @@ struct LaneCommandClient: Sendable {
     return try await Task.detached(priority: .utility) {
       let data = try run(
         executable,
-        arguments: ["services", "status", "--json", "--site-timeout", "750"]
+        arguments: ["services", "status", "--json", "--site-timeout", "3000"]
       )
       return try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
     }.value

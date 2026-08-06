@@ -52,6 +52,31 @@ struct AdsCommandClient: Sendable {
     }.value
   }
 
+  func loadStats(
+    period: AdsPeriod,
+    project: String?,
+    platform: String,
+    campaign: String,
+    refresh: Bool
+  ) async throws -> AdsStatsDocument {
+    let executable = executable
+    return try await Task.detached(priority: .utility) {
+      guard FileManager.default.isExecutableFile(atPath: executable.path) else {
+        throw AdsMenuError.message("The ads command is missing. Run mise run install.")
+      }
+      let refreshArguments = refresh ? ["--refresh"] : []
+      let projectArguments = project.map { ["--project", $0] } ?? []
+      let data = try run(
+        executable,
+        arguments: [
+          "stats", "--period", period.rawValue, "--platform", platform, "--campaign", campaign,
+          "--json",
+        ] + projectArguments + refreshArguments
+      )
+      return try JSONDecoder().decode(AdsStatsDocument.self, from: data)
+    }.value
+  }
+
   func open(platform: String) async throws {
     let executable = executable
     try await Task.detached(priority: .userInitiated) {

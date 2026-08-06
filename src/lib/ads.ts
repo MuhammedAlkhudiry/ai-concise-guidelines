@@ -108,7 +108,7 @@ type JsonObject = Record<string, unknown>;
 type Provider = {
   platform: AdPlatform;
   status(): Promise<AdAccess>;
-  stats(period: AdsPeriod): Promise<PlatformStats>;
+  stats(period: AdsPeriod, campaignID?: string): Promise<PlatformStats>;
   campaigns(activeOnly: boolean): Promise<PlatformCampaigns>;
 };
 
@@ -159,6 +159,15 @@ export function parseProject(value: string | undefined): string | undefined {
   return value;
 }
 
+export function parseCampaign(value: string | number | undefined): string | undefined {
+  if (!value || value === "all") return undefined;
+  const campaignID = String(value).trim();
+  if (!/^[A-Za-z0-9_-]+$/.test(campaignID)) {
+    throw new Error("Campaign ID may contain only letters, numbers, hyphens, and underscores.");
+  }
+  return campaignID;
+}
+
 export function adsProjects(): AdsProjectsDocument {
   return {
     contractVersion: 1,
@@ -196,12 +205,16 @@ export async function adsStats(options: {
   period: AdsPeriod;
   platform?: AdPlatform;
   project?: string;
+  campaign?: string;
   refresh?: boolean;
 }): Promise<AdsStatsDocument> {
+  if (options.campaign && !options.platform) {
+    throw new Error("A campaign filter requires one platform.");
+  }
   const project = projectDefinition(options.project);
   const platforms = selectedPlatforms(options.platform, project);
   return cachedDocument(
-    `stats-${options.project || "all"}-${options.period}-${platforms.join("-") || "none"}`,
+    `stats-${options.project || "all"}-${options.period}-${options.campaign || "all-campaigns"}-${platforms.join("-") || "none"}`,
     Boolean(options.refresh),
     async (): Promise<AdsStatsDocument> => ({
       contractVersion: 1,
@@ -210,7 +223,7 @@ export async function adsStats(options: {
       period: options.period,
       platforms: await Promise.all(
         platforms.map((platform) =>
-          provider(platform, project?.platforms[platform]).stats(options.period),
+          provider(platform, project?.platforms[platform]).stats(options.period, options.campaign),
         ),
       ),
     }),
@@ -266,6 +279,17 @@ function selectedPlatforms(
   return platform ? available.filter((candidate) => candidate === platform) : available;
 }
 
+function allowedCampaignID(
+  campaignID: string | undefined,
+  mapping: AdsProjectPlatform | undefined,
+): string | undefined {
+  if (!campaignID) return undefined;
+  if (mapping?.campaignIds?.length && !mapping.campaignIds.includes(campaignID)) {
+    throw new Error(`Campaign "${campaignID}" is not mapped to the selected project.`);
+  }
+  return campaignID;
+}
+
 function provider(platform: AdPlatform, mapping?: AdsProjectPlatform): Provider {
   if (platform === "google") return googleProvider(mapping);
   if (platform === "meta") return metaProvider(mapping);
@@ -302,13 +326,13 @@ function googleProvider(mapping?: AdsProjectPlatform): Provider {
         return ensureMappedAccount(client.account, mapping);
       });
     },
-    async stats(period) {
+    async stats(period, campaignID) {
       const checkedAt = now();
       try {
         const client = await googleClient();
         const account = ensureMappedAccount(client.account, mapping);
         const range = reportingRange(period, account.timezone);
-        const campaignCondition = googleCampaignCondition(mapping);
+        const campaignCondition = googleCampaignCondition(mapping, campaignID);
         const rows = await client.query(
           `SELECT segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.all_conversions, metrics.view_through_conversions, metrics.biddable_app_install_conversions FROM campaign WHERE segments.date BETWEEN '${range.from}' AND '${range.to}'${campaignCondition}`,
         );
@@ -378,7 +402,14 @@ function googleProvider(mapping?: AdsProjectPlatform): Provider {
   };
 }
 
-function googleCampaignCondition(mapping?: AdsProjectPlatform): string {
+function googleCampaignCondition(mapping?: AdsProjectPlatform, campaignID?: string): string {
+  const selectedCampaignID = allowedCampaignID(campaignID, mapping);
+  if (selectedCampaignID) {
+    if (!/^\d+$/.test(selectedCampaignID)) {
+      throw new Error(`Google Ads campaign ID "${selectedCampaignID}" must be numeric.`);
+    }
+    return ` AND campaign.id = ${selectedCampaignID}`;
+  }
   return mapping?.campaignIds?.length
     ? ` AND campaign.id IN (${mapping.campaignIds.join(", ")})`
     : "";
@@ -462,21 +493,29 @@ function metaProvider(_mapping?: AdsProjectPlatform): Provider {
         ensureMappedAccount(await metaAccount(), _mapping),
       );
     },
-    async stats(period) {
+    async stats(period, campaignID) {
       try {
         const credential = await readCredential("meta-ads/system-user.json");
         const account = ensureMappedAccount(await metaAccount(), _mapping);
+        const selectedCampaignID = allowedCampaignID(campaignID, _mapping);
         const range = reportingRange(period, account.timezone);
         const query = new URLSearchParams({
           access_token: stringAt(credential, "access_token"),
-          level: "account",
+          level: selectedCampaignID ? "campaign" : "account",
           fields: "impressions,clicks,spend,actions,action_values,date_start,date_stop",
           time_range: JSON.stringify({ since: range.from, until: range.to }),
           use_account_attribution_setting: "true",
           time_increment: "1",
           limit: "100",
         });
-        const body = await metaGet(`act_${stringAt(credential, "ad_account_id")}/insights`, query);
+        if (!selectedCampaignID && _mapping?.campaignIds?.length) {
+          query.set(
+            "filtering",
+            JSON.stringify([{ field: "campaign.id", operator: "IN", value: _mapping.campaignIds }]),
+          );
+        }
+        const insightsOwner = selectedCampaignID || `act_${stringAt(credential, "ad_account_id")}`;
+        const body = await metaGet(`${insightsOwner}/insights`, query);
         const rows = objectsAt(body, "data");
         const daily = rows.map((row) => ({
           date: stringAt(row, "date_start"),
@@ -528,6 +567,10 @@ function metaProvider(_mapping?: AdsProjectPlatform): Provider {
                 (!nullableStringAt(row, "stop_time") ||
                   Date.parse(stringAt(row, "stop_time")) > Date.now())),
           )
+          .filter(
+            (row) =>
+              !_mapping?.campaignIds?.length || _mapping.campaignIds.includes(stringAt(row, "id")),
+          )
           .map((row) => ({
             id: stringAt(row, "id"),
             name: stringAt(row, "name"),
@@ -576,7 +619,7 @@ function snapchatProvider(mapping?: AdsProjectPlatform): Provider {
         ensureMappedAccount(await snapchatAccount(), mapping),
       );
     },
-    async stats(period) {
+    async stats(period, campaignID) {
       const configured = await credentialExists("snapchat-ads/oauth.json");
       try {
         const { credential, token } = await snapchatCredential();
@@ -589,9 +632,12 @@ function snapchatProvider(mapping?: AdsProjectPlatform): Provider {
         const availableCampaignIDs = objectsAt(campaignBody, "campaigns")
           .map((wrapper) => stringAt(wrapper, "campaign.id"))
           .filter(Boolean);
-        const campaignIDs = mapping?.campaignIds?.length
-          ? availableCampaignIDs.filter((id) => mapping.campaignIds?.includes(id))
-          : availableCampaignIDs;
+        const selectedCampaignID = allowedCampaignID(campaignID, mapping);
+        const campaignIDs = selectedCampaignID
+          ? availableCampaignIDs.filter((id) => id === selectedCampaignID)
+          : mapping?.campaignIds?.length
+            ? availableCampaignIDs.filter((id) => mapping.campaignIds?.includes(id))
+            : availableCampaignIDs;
         const query = new URLSearchParams({
           granularity: "DAY",
           start_time: zonedMidnightIso(range.from, account.timezone),

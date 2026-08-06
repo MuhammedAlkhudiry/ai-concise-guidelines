@@ -12,6 +12,8 @@ description: Idea stress-testing, brainstorming, and option comparison.
    synthesis.
 4. Use options when requested or when meaningfully different paths are available.
 5. Take a position. Say when an idea is over-scoped, under-evidenced, structurally awkward, or solves the wrong problem.
+6. Judge ideas by the user value and complete journey they create, not feature count or technical possibility. Prefer one coherent product model that
+   preserves worthwhile capability, and identify how its effectiveness can be observed after release.
 
 ## Response
 

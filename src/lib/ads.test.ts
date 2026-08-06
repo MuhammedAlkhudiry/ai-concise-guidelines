@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
-import { adsProjects, adsStatus, parsePeriod, parsePlatform, parseProject } from "./ads";
+import {
+  adsProjects,
+  adsStats,
+  adsStatus,
+  parseCampaign,
+  parsePeriod,
+  parsePlatform,
+  parseProject,
+} from "./ads";
 
 describe("ads CLI contract inputs", () => {
   test("normalizes supported platform aliases", () => {
@@ -20,6 +28,22 @@ describe("ads CLI contract inputs", () => {
     expect(parseProject("all")).toBeUndefined();
     expect(parseProject("awraq")).toBe("awraq");
     expect(() => parseProject("unknown")).toThrow("Unknown project");
+  });
+
+  test("accepts provider campaign IDs and rejects unsafe filters", () => {
+    expect(parseCampaign(123456789)).toBe("123456789");
+    expect(parseCampaign("123456789")).toBe("123456789");
+    expect(parseCampaign("2d3798dd-26c2-4e4e-b750-c246cfe8a36d")).toBe(
+      "2d3798dd-26c2-4e4e-b750-c246cfe8a36d",
+    );
+    expect(parseCampaign("all")).toBeUndefined();
+    expect(() => parseCampaign("123 OR 1=1")).toThrow("Campaign ID may contain only");
+  });
+
+  test("requires a platform when filtering stats by campaign", async () => {
+    await expect(adsStats({ period: "7d", campaign: "123456789" })).rejects.toThrow(
+      "requires one platform",
+    );
   });
 
   test("represents browser-only and pending project access accurately", async () => {

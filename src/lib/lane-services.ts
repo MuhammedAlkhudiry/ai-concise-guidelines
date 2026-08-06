@@ -28,7 +28,13 @@ import {
 } from "./project-lanes";
 import type { LaneServiceDefinition } from "./lanes-config";
 
-export type LaneServiceState = "running" | "starting" | "stopped" | "failed" | "unavailable";
+export type LaneServiceState =
+  | "running"
+  | "starting"
+  | "stopped"
+  | "failed"
+  | "unreachable"
+  | "unavailable";
 
 export interface LaneServiceStatus {
   id: string;
@@ -500,7 +506,9 @@ async function siteStatus(lane: Lane, timeout: number): Promise<LaneServiceStatu
       id: "site",
       name: "Site",
       state:
-        response.ok || (response.status >= 300 && response.status < 400) ? "running" : "failed",
+        response.ok || (response.status >= 300 && response.status < 400)
+          ? "running"
+          : "unreachable",
       manageable: false,
       managed: false,
       ...(response.ok || (response.status >= 300 && response.status < 400)
@@ -511,7 +519,7 @@ async function siteStatus(lane: Lane, timeout: number): Promise<LaneServiceStatu
     return {
       id: "site",
       name: "Site",
-      state: "failed",
+      state: "unreachable",
       manageable: false,
       managed: false,
       detail: error instanceof Error ? error.message : String(error),

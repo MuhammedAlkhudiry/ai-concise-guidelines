@@ -1,9 +1,12 @@
 import { MODELS } from "./models";
+import { createOpencodeMcpConfig, createOpencodeMcpToolConfig } from "./mcp";
 
 export interface OpencodeConfig {
   $schema: string;
   instructions: string[];
   plugin: string[];
+  mcp: ReturnType<typeof createOpencodeMcpConfig>;
+  tools: Record<string, boolean>;
   keybinds: Record<string, string>;
   model: string;
   small_model: string;
@@ -30,6 +33,8 @@ export function createOpencodeConfig(homeDir: string): OpencodeConfig {
     $schema: "https://opencode.ai/config.json",
     instructions: [],
     plugin: [],
+    mcp: createOpencodeMcpConfig(),
+    tools: createOpencodeMcpToolConfig(),
     keybinds: {
       model_cycle_favorite: "ctrl+a",
       model_cycle_favorite_reverse: "ctrl+shift+a",

@@ -186,7 +186,22 @@ import Testing
   #expect(LaneServiceSummary.summarize(services(.stopped, .stopped)) == .stopped)
   #expect(LaneServiceSummary.summarize(services(.running, .starting)) == .changing)
   #expect(LaneServiceSummary.summarize(services(.running, .failed)) == .failed)
+  #expect(LaneServiceSummary.summarize(services(.running, .unreachable)) == .unreachable)
   #expect(LaneServiceSummary.summarize([]) == .checking)
+}
+
+@Test func decodesAnUnreachableSiteWithoutCallingItFailed() throws {
+  let data = Data(
+    #"{"lanes":[{"project":"awraq","lane":"lane-1","path":"/projects/awraq-lane-1","services":[{"id":"site","name":"Site","state":"unreachable","manageable":false,"managed":false,"detail":"The request timed out"}]}]}"#
+      .utf8
+  )
+
+  let services = try JSONDecoder().decode(LaneServicesDocument.self, from: data).servicesByLane()
+  let site = try #require(services["awraq/lane-1"]?.first)
+
+  #expect(site.state == .unreachable)
+  #expect(site.state.title == "Unreachable")
+  #expect(LaneServiceSummary.summarize([site]) == .unreachable)
 }
 
 @Test func decodesProjectLaneCiStatuses() throws {

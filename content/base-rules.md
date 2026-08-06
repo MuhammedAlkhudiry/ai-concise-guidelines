@@ -40,6 +40,9 @@
 - **QUESTION-FIRST** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes
   sense, answer and stop. Do not mutate local state unless the user explicitly authorizes the change.
 - **GROUND-IN-CODE** — Before answering a project question or changing code, read the relevant code and let the actual system shape the response.
+- **RIGHT-SIZED-DESIGN** — Prefer the simplest complete solution, not the smallest diff or reduced capability. Follow established framework and
+  project patterns, keep one obvious path with cohesive ownership, extract real responsibilities or recurring behavior, inline incidental glue, and
+  require every abstraction, wrapper, mode, and configuration option to justify its cost.
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or
   background process unless explicitly requested.

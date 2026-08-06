@@ -219,6 +219,7 @@ enum LaneServiceSummary: String, Sendable {
   case partial
   case stopped
   case failed
+  case unreachable
   case unavailable
 
   var title: String { rawValue.capitalized }
@@ -226,6 +227,7 @@ enum LaneServiceSummary: String, Sendable {
   static func summarize(_ services: [LaneService]) -> LaneServiceSummary {
     let states = services.map(\.state)
     if states.contains(.failed) { return .failed }
+    if states.contains(.unreachable) { return .unreachable }
     if states.contains(.unavailable) { return .unavailable }
     if states.contains(.starting) || states.contains(.stopping) { return .changing }
     if states.contains(.checking) || states.isEmpty { return .checking }
@@ -286,6 +288,7 @@ enum LaneServiceState: String, Sendable, Equatable, Decodable {
   case stopping
   case stopped
   case failed
+  case unreachable
   case unavailable
 
   var title: String {

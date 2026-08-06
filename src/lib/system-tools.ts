@@ -201,7 +201,7 @@ export const SYSTEM_TOOL_GROUPS = [
       {
         name: "maestro",
         level: "required",
-        why: "CLI-only mobile E2E test authoring, execution, and device inspection for agents.",
+        why: "Mobile E2E test execution and persistent agent control through the bundled MCP server.",
         versionArgs: ["--version"],
         latest: {
           type: "homebrew",
