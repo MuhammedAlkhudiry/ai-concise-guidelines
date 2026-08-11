@@ -28,6 +28,11 @@ const pullRequestAutomationSchema = z.object({
   model: z.string().min(1),
 });
 
+const mobileDevelopmentSchema = z.object({
+  directory: z.string().min(1),
+  bundleIdentifier: z.string().min(1),
+});
+
 const projectFields = {
   id: z.string().min(1),
   name: z.string().min(1),
@@ -36,6 +41,7 @@ const projectFields = {
   lanes: z.array(laneDefinitionSchema),
   environmentVariable: z.string().min(1),
   services: z.array(laneServiceSchema).min(1),
+  mobile: mobileDevelopmentSchema.optional(),
   simulatorSlimming: simulatorSlimmingProfileSchema.optional(),
   pullRequest: pullRequestAutomationSchema.optional(),
 };
@@ -66,12 +72,18 @@ export interface ActiveProject {
   lanes: LaneDefinition[];
   environmentVariable: string;
   services: LaneServiceDefinition[];
+  mobile?: MobileDevelopment;
   simulatorSlimming?: SimulatorSlimmingProfile;
   pullRequest?: PullRequestAutomation;
 }
 
 export interface PullRequestAutomation {
   model: string;
+}
+
+export interface MobileDevelopment {
+  directory: string;
+  bundleIdentifier: string;
 }
 
 export interface LaneServiceDefinition {

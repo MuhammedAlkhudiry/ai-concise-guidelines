@@ -4,8 +4,8 @@
   host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and
   one-time production data-fix scripts outside Git repositories. Commit only reusable scripts intended for recurring use.
 - **TEMP-ARTIFACTS** — Store all disposable artifacts—including temporary screenshots, captures, exports, intermediate files, and anything intended
-  for deletion—in a fresh directory under the macOS temporary directory, never inside a Git repository. Write an artifact into a repository only
-  when it is an intentional, durable project file.
+  for deletion—in a fresh directory under the macOS temporary directory, never inside a Git repository. Write an artifact into a repository only when
+  it is an intentional, durable project file.
 - **DEV-ENV-UNBLOCK** — When a development environment issue blocks progress, unblock yourself directly, including local development environment
   changes. Report what changed after the task.
 
@@ -19,7 +19,9 @@
 - **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and the task mentions a feature, domain term, workflow, product behavior, glossary, or
   history, run `knowledge list` before broad code exploration. Before discussing a feature, read `docs/knowledge/glossary.md` and use its established
   domain language. In user-facing prose, bold and italicize every defined term while preserving its canonical wording—for example: “We need to allow
-  the [***User***] to...”
+  the **_User_** to...”
+- **DOCUMENTATION-ROUTING** — Use Markdown to point to authoritative code, live help, schemas, metadata, or evidence. Do not restate discoverable
+  inventories, syntax, options, behavior, or implementation. Keep only durable decisions, boundaries, non-obvious guidance, and completion contracts.
 
 ## Response
 

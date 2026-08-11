@@ -8,6 +8,7 @@ import {
   LANES_STATE_PATH,
   listProjectLaneCleanupJobs,
   listProjectLaneStatuses,
+  repairProjectLane,
   releaseProjectLane,
   runProjectLaneCleanupJobs,
   resetProjectLane,
@@ -91,7 +92,11 @@ export async function projectLanesAdd(
   console.log(`${project}/${lane.id}\tADDED\t${lane.path}${branch ? `\t${branch}` : ""}`);
 }
 
-export async function projectLanesStatus(project?: string, json = false): Promise<void> {
+export async function projectLanesStatus(
+  project?: string,
+  json = false,
+  verbose = false,
+): Promise<void> {
   const statuses = await listProjectLaneStatuses(project);
   if (json) {
     process.stdout.write(
@@ -101,6 +106,7 @@ export async function projectLanesStatus(project?: string, json = false): Promis
   }
   for (const {
     lane,
+    state,
     availability,
     health,
     branch,
@@ -119,6 +125,7 @@ export async function projectLanesStatus(project?: string, json = false): Promis
     console.log(
       `${lane.project.id}/${lane.id}\t${availability.toUpperCase()}\t${health.toUpperCase()}\t${detail}`,
     );
+    if (verbose && state.lastError) console.log(state.lastError);
   }
 }
 
@@ -131,6 +138,17 @@ export async function projectLanesVerify(
   const verified = await verifyProjectLane(project, lane, { mobile, compact });
   verifyLaneServiceDefinitions(verified.project.id, verified.id);
   console.log(`${verified.project.id}/${verified.id}\tVERIFIED`);
+}
+
+export async function projectLanesRepair(
+  project?: string,
+  lane?: string,
+  mobile = false,
+  compact = false,
+): Promise<void> {
+  const repaired = await repairProjectLane(project, lane, { mobile, compact });
+  verifyLaneServiceDefinitions(repaired.project.id, repaired.id);
+  console.log(`${repaired.project.id}/${repaired.id}\tREPAIRED\tREADY`);
 }
 
 export async function projectLanesAudit(
@@ -163,9 +181,8 @@ export async function projectLaneSimulatorsRestore(project?: string, json = fals
 }
 
 export async function projectLanesReset(project: string, lane: string): Promise<void> {
-  await resetProjectLane(project, lane, {
-    beforeReset: () => stopLaneServices(project, lane, "all"),
-  });
+  await resetProjectLane(project, lane);
+  console.log(`${project}/${lane}\tRESET\tdata reset; Git work preserved`);
 }
 
 export async function projectLanesSync(project: string, lane: string): Promise<void> {

@@ -14,7 +14,7 @@
 - `src/commands/lanes-cli.ts`, `src/lib/project-lanes.ts`, and `src/lib/lane-services.ts` — Standalone `lanes` command, persistent clone-lane runtime,
   and service control plane.
 - `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
-- `system-tools.md` — Human-readable list of expected system tools; keep it aligned with `doctor`.
+- `src/lib/system-tools.ts` — System-tool inventory, ownership, update commands, and notes; keep it aligned with `doctor`.
 - `config/active-projects.ts` — Active project defaults and canonical lane path patterns (see ACTIVE-PROJECTS).
 - `output/` — Generated preview artifacts only; do not edit by hand.
 
@@ -26,8 +26,7 @@
 - **THIN-ZSHRC** — If user `~/.zshrc` contains anything beyond the managed `shell/zsh-custom.zsh` import, repair it directly instead of leaving
   installation blocked. Preserve custom shell code by migrating it into `shell/zsh-custom.zsh`, then restore the thin `~/.zshrc` and rerun
   installation.
-- **SYSTEM-TOOLS** — Keep `system-tools.md` current when repo scripts or synced shell config add, remove, or depend on system-installed commands; keep
-  `doctor` in sync with that list.
+- **SYSTEM-TOOLS** — Keep `src/lib/system-tools.ts` and `doctor` aligned when repository workflows add, remove, or change a system-tool dependency.
 - **SKILL-STRUCTURE** — Each skill must live in `content/skills/<category>/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) and
   instructions body.
 - **SKILL-OPENAI-YAML** — Never add `agents/openai.yaml` to a skill unless the user explicitly requests it.
@@ -44,8 +43,8 @@
   skills must be declared in `config/skills.ts` for this repo's source/import logic.
 - **MY-SETUP-CLI** — `my-setup` only provides `install` and built-in help. Use `doctor` for setup health checks and `system-tools status` or
   `system-tools update-plan` for external CLI maintenance.
-- **LANES-CLI** — Use the standalone `lanes <add|setup|status|verify|audit|services|ci|open|plans|reset|destroy|simulators>` command for persistent
-  clone-lane maintenance, saved-plan management, and service control.
-- **KNOWLEDGE-CLI** — Use the standalone `knowledge` command to initialize, list, create, and check project knowledge packs.
+- **LANES-CLI** — Use the standalone `lanes` command for persistent clone-lane maintenance, saved plans, and service control; read the narrowest live
+  help for the task.
+- **KNOWLEDGE-CLI** — Use the standalone `knowledge` command for project knowledge packs; read its live help for the task.
 - **WORDING-QUALITY** — Preserve user intent, but do not reuse the user's rough wording. Rewrite it into the clearest, strongest wording that fits the
   repo's voice.

@@ -18,9 +18,9 @@ OAuth, 2FA, CAPTCHA, or missing permissions. Request approval before every accou
 
 - Open [Apple Ads Advanced](https://app-ads.apple.com/cm/app/) in Chrome and select the exact organization or campaign group for the task.
 - Verify browser access from the Campaigns dashboard and report the organization name and ID, campaign group, currency, timezone, and user role.
-- Prefer the Apple Ads Campaign Management API when `$SERVICE_CREDENTIALS_HOME/apple-ads/oauth.json` and its referenced private key exist. Use API v5
-  and verify access with `GET /api/v5/acls`; the returned `orgId` is the Apple Ads account identifier. Request only the least-privileged API Read Only
-  role for reporting unless an approved task requires mutations.
+- Prefer the Apple Ads Campaign Management API when `$SERVICE_CREDENTIALS_HOME/apple-ads/oauth.json` and its referenced private key exist. Derive the
+  current API version and ACL verification route from official documentation. Request only the least-privileged API Read Only role for reporting
+  unless an approved task requires mutations.
 - Keep the Apple Account, Apple Ads organization, campaign group, App Store Connect account, promoted app, API user, OAuth client, and AdServices
   attribution integration distinct. Store `clientId`, `teamId`, `keyId`, the private-key path, and any selected `orgId` in the credential file; create
   access tokens at runtime and never persist them.
@@ -56,5 +56,5 @@ OAuth, 2FA, CAPTCHA, or missing permissions. Request approval before every accou
 - Prefer the TikTok Marketing API when `$SERVICE_CREDENTIALS_HOME/tiktok-ads/oauth.json` contains an approved app and advertiser authorization. Verify
   access read-only by listing authorized advertisers, then request advertiser information.
 - Keep the developer profile, developer app, Business Center, advertiser account, and access token distinct. Until TikTok approves the app and exposes
-  its App ID and secret, use Chrome and report API access as pending; a new-app review normally takes two to three business days.
+  its App ID and secret, use Chrome and report API access as pending.
 - If the account is absent, request or assign advertiser-account access through Business Center rather than sharing another user's credentials.

@@ -19,6 +19,10 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     pullRequest: {
       model: "gpt-5.6-terra",
     },
+    mobile: {
+      directory: "awraq-mobile-app",
+      bundleIdentifier: "com.awraq",
+    },
     services: [
       {
         id: "frontend",
@@ -56,6 +60,10 @@ export const ACTIVE_PROJECTS: ActiveProject[] = [
     environmentVariable: "HARIUM_LANE_ROOT",
     pullRequest: {
       model: "gpt-5.6-terra",
+    },
+    mobile: {
+      directory: "harium-app",
+      bundleIdentifier: "com.muhammed28.harium-app",
     },
     services: [
       {

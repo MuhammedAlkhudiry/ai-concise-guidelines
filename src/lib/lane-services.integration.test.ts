@@ -67,6 +67,19 @@ test("controls and reads logs for a launchd-backed lane service", () => {
     expect(startedService.state).toBe("running");
     expect(startedService.residentBytes).toBeGreaterThan(0);
 
+    writeFileSync(
+      join(appPath, "package.json"),
+      JSON.stringify({ scripts: { dev: "echo service-updated; sleep 30 #" } }),
+    );
+    const stale = run(["services", "status", "service-test", "lane-1", "--json"]);
+    expect(JSON.parse(stale.stdout.toString()).lanes[0].services[1]).toMatchObject({
+      state: "degraded",
+      detail: "Service inputs changed after launch; restart this lane service",
+    });
+
+    const restarted = run(["services", "restart", "service-test", "lane-1", "frontend", "--json"]);
+    expect(JSON.parse(restarted.stdout.toString()).lanes[0].services[1].state).toBe("running");
+
     const logs = run(["services", "logs", "service-test", "lane-1", "frontend", "--lines", "10"]);
     expect(logs.exitCode).toBe(0);
     expect(logs.stdout.toString()).toContain("service-ready:9123");

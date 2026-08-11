@@ -186,6 +186,8 @@ import Testing
   #expect(LaneServiceSummary.summarize(services(.stopped, .stopped)) == .stopped)
   #expect(LaneServiceSummary.summarize(services(.running, .starting)) == .changing)
   #expect(LaneServiceSummary.summarize(services(.running, .failed)) == .failed)
+  #expect(LaneServiceSummary.summarize(services(.running, .degraded)) == .degraded)
+  #expect(LaneServiceSummary.summarize(services(.running, .crashLooping)) == .crashLooping)
   #expect(LaneServiceSummary.summarize(services(.running, .unreachable)) == .unreachable)
   #expect(LaneServiceSummary.summarize([]) == .checking)
 }

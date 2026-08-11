@@ -1,6 +1,6 @@
 ---
 name: posthog-cli
-description: PostHog CLI analytics and management
+description: PostHog CLI analytics and management.
 ---
 
 Use $service-access for authentication or credential setup.

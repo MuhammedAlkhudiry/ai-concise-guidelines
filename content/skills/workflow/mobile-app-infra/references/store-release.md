@@ -24,10 +24,6 @@ and review tasks as explicit manual blockers requiring fresh user intent.
 
 ## App Store Version Preparation
 
-Use the bundled `scripts/mobile-app-store-release.ts`, resolved relative to this skill directory rather than the target repository. Run it with
-`--help`, then pass the project root, mobile directory, and provider environment discovered through $service-access.
-
-- `prepare` requires an explicit processed build number and localized release notes. It creates the version when needed, preserves localization and
-  review details from the previous version, updates the selected localization, and attaches the build.
-- `submit` sends the prepared version through Apple's review-submission API and reuses an active submission when one already exists.
-- Use `scripts/mobile-store-status.ts` for all read-only release inspection. Do not use preparation or submission as a status check.
+Use the bundled `scripts/mobile-app-store-release.ts` for App Store version preparation and submission. Resolve it relative to this skill, read its
+live help, and treat the script as the authority for arguments, defaults, and API behavior. Use `scripts/mobile-store-status.ts` for read-only
+inspection; never use a preparation or submission action as a status check.

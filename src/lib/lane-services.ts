@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   chmodSync,
   closeSync,
@@ -6,6 +7,7 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  readdirSync,
   readSync,
   readlinkSync,
   realpathSync,
@@ -33,6 +35,8 @@ export type LaneServiceState =
   | "starting"
   | "stopped"
   | "failed"
+  | "degraded"
+  | "crash-looping"
   | "unreachable"
   | "unavailable";
 
@@ -468,12 +472,39 @@ function serviceStatus(context: ServiceContext, snapshot = processSnapshot()): L
     const residentBytes = launchStatus.pid
       ? processTreeResidentBytes(launchStatus.pid, snapshot.memory)
       : 0;
+    const uptime = launchStatus.pid ? processUptimeSeconds(launchStatus.pid) : undefined;
+    const crashLooping = Boolean(
+      launchStatus.pid &&
+      launchStatus.failed &&
+      (launchStatus.runs ?? 0) >= 3 &&
+      uptime !== undefined &&
+      uptime < 15,
+    );
+    const staleInputs = serviceInputsChanged(context);
+    const readinessFailure = staleInputs
+      ? "Service inputs changed after launch; restart this lane service"
+      : launchStatus.pid
+        ? serviceReadinessFailure(context)
+        : undefined;
     return {
       ...base,
-      state: launchStatus.pid ? "running" : launchStatus.failed ? "failed" : "starting",
+      state: crashLooping
+        ? "crash-looping"
+        : readinessFailure
+          ? "degraded"
+          : launchStatus.pid
+            ? "running"
+            : launchStatus.failed
+              ? "failed"
+              : "starting",
       managed: true,
       ...(launchStatus.pid ? { pid: launchStatus.pid } : {}),
       ...(residentBytes > 0 ? { residentBytes } : {}),
+      ...(crashLooping
+        ? { detail: `Restarted ${launchStatus.runs} times; last exit ${launchStatus.exitCode}` }
+        : readinessFailure
+          ? { detail: readinessFailure }
+          : {}),
     };
   }
   const external = matchingProcesses(context, snapshot.observed)[0];
@@ -544,12 +575,19 @@ async function startService(context: ServiceContext): Promise<void> {
   await execa("launchctl", ["bootstrap", launchDomain, context.plistPath]);
   await Bun.sleep(300);
   const status = serviceStatus(context);
-  if (status.state === "failed" || status.state === "stopped") {
+  if (
+    status.state === "failed" ||
+    status.state === "degraded" ||
+    status.state === "crash-looping" ||
+    status.state === "stopped"
+  ) {
     await execa("launchctl", ["bootout", launchDomain, context.plistPath], {
       reject: false,
     });
     rmSync(context.plistPath, { force: true });
-    throw new Error(`${context.definition.name} failed to start; see ${context.logPath}`);
+    throw new Error(
+      `${context.definition.name} failed to become healthy${status.detail ? `: ${status.detail}` : ""}; see ${context.logPath}`,
+    );
   }
 }
 
@@ -579,6 +617,8 @@ function launchAgentStatus(label: string): {
   loaded: boolean;
   pid?: number;
   failed: boolean;
+  exitCode?: number;
+  runs?: number;
 } {
   try {
     const output = execFileSync("launchctl", ["print", `${launchDomain}/${label}`], {
@@ -587,13 +627,67 @@ function launchAgentStatus(label: string): {
     });
     const pid = output.match(/\bpid = (\d+)/)?.[1];
     const exitCode = output.match(/last exit code = (-?\d+)/)?.[1];
+    const runs = output.match(/\bruns = (\d+)/)?.[1];
     return {
       loaded: true,
       ...(pid ? { pid: Number(pid) } : {}),
+      ...(exitCode ? { exitCode: Number(exitCode) } : {}),
+      ...(runs ? { runs: Number(runs) } : {}),
       failed: exitCode !== undefined && Number(exitCode) !== 0,
     };
   } catch {
     return { loaded: false, failed: false };
+  }
+}
+
+function processUptimeSeconds(pid: number): number | undefined {
+  try {
+    const value = execFileSync("ps", ["-p", String(pid), "-o", "etime="], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    const match = value.match(/^(?:(\d+)-)?(?:(\d+):)?(\d+):(\d+)$/);
+    if (!match) return undefined;
+    return (
+      Number(match[1] ?? 0) * 86_400 +
+      Number(match[2] ?? 0) * 3_600 +
+      Number(match[3]) * 60 +
+      Number(match[4])
+    );
+  } catch {
+    return undefined;
+  }
+}
+
+function serviceReadinessFailure(context: ServiceContext): string | undefined {
+  try {
+    if (
+      context.definition.runner.type === "artisan" &&
+      context.definition.runner.command === "horizon"
+    ) {
+      const output = execFileSync(context.executable, ["artisan", "horizon:status"], {
+        cwd: context.directory,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 2_000,
+      });
+      if (!/running/i.test(output)) return "Horizon does not report running supervisors";
+    }
+    if (context.definition.id === "metro") {
+      const port = laneServiceEnvironment(context.directory).EXPO_DEV_SERVER_PORT;
+      if (port) {
+        const output = execFileSync(
+          "/usr/bin/curl",
+          ["--fail", "--silent", "--max-time", "1", `http://127.0.0.1:${port}/status`],
+          { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+        );
+        if (!output.includes("packager-status:running")) return `Metro ${port} is not ready`;
+      }
+    }
+    return undefined;
+  } catch (error) {
+    const message = error instanceof Error ? error.message.split("\n")[0] : String(error);
+    return `${context.definition.name} readiness failed: ${message}`;
   }
 }
 
@@ -748,6 +842,7 @@ function launchAgentPlist(context: ServiceContext): string {
     HOME: homedir(),
     PATH: path,
     USER: process.env.USER ?? "muhammed",
+    LANES_SERVICE_INPUT_FINGERPRINT: serviceInputFingerprint(context),
     ...laneServiceEnvironment(context.directory),
   };
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -772,6 +867,47 @@ function launchAgentPlist(context: ServiceContext): string {
 </dict>
 </plist>
 `;
+}
+
+function serviceInputsChanged(context: ServiceContext): boolean {
+  if (!existsSync(context.plistPath)) return false;
+  const installed = readFileSync(context.plistPath, "utf8").match(
+    /<key>LANES_SERVICE_INPUT_FINGERPRINT<\/key><string>([^<]+)<\/string>/,
+  )?.[1];
+  return Boolean(installed && installed !== serviceInputFingerprint(context));
+}
+
+function serviceInputFingerprint(context: ServiceContext): string {
+  const hash = createHash("sha256");
+  for (const name of [
+    "package.json",
+    "bun.lock",
+    "bun.lockb",
+    "app.json",
+    "app.config.js",
+    "app.config.ts",
+    "vite.config.js",
+    "vite.config.ts",
+  ]) {
+    const path = join(context.directory, name);
+    if (existsSync(path)) hash.update(name).update("\0").update(readFileSync(path));
+  }
+  for (const directoryName of ["app", "src", "resources/js"]) {
+    const root = join(context.directory, directoryName);
+    if (!existsSync(root)) continue;
+    const visit = (directory: string): void => {
+      for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
+        a.name.localeCompare(b.name),
+      )) {
+        if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+        const path = join(directory, entry.name);
+        if (entry.isDirectory()) visit(path);
+        else if (entry.isFile()) hash.update(path.slice(root.length)).update("\0");
+      }
+    };
+    visit(root);
+  }
+  return hash.digest("hex");
 }
 
 function laneServiceEnvironment(directory: string): Record<string, string> {

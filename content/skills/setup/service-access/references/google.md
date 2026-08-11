@@ -14,7 +14,6 @@
 
 - Use the Google Play Developer API through $mobile-app-infra. Never automate Play Console through a browser; reserve it for explicit user-run
   account, policy, legal, payment, or review tasks that the API does not support.
-- Check `GOOGLE_SERVICE_ACCOUNT_KEY` in the selected environment file under `$SERVICE_CREDENTIALS_HOME/environments/`.
+- Derive the required credentials from the selected script's live help and the installed environment template.
 - Verify access with the read-only Android store-status command.
-- To repair access, store the service-account key under `$SERVICE_CREDENTIALS_HOME/google-play/` and update the environment file. Pause for key
-  creation or Play Console grants.
+- Keep the service-account key in agent-managed credential storage. Pause for key creation or Play Console grants.

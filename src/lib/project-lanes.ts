@@ -41,13 +41,16 @@ import {
   type SimSlimCategory,
 } from "./project-environment/simslim";
 import { findSimulator, type SimulatorDevice } from "./project-environment/simulator";
+import { verifyExpoDevelopmentClientFreshness } from "./project-environment/expo";
 import type { SimulatorSlimmingProfile } from "./project-environment/types";
 
 const laneStateSchema = z.object({
   lastVerifiedAt: z.string().datetime().optional(),
   lastVerifiedHead: z.string().optional(),
   lastVerifiedRuntimeHash: z.string().optional(),
+  lastVerifiedProjectHash: z.string().optional(),
   lastError: z.string().optional(),
+  lastErrorAt: z.string().datetime().optional(),
 });
 
 const registrySchema = z.object({
@@ -59,7 +62,9 @@ export interface LaneState {
   lastVerifiedAt?: string;
   lastVerifiedHead?: string;
   lastVerifiedRuntimeHash?: string;
+  lastVerifiedProjectHash?: string;
   lastError?: string;
+  lastErrorAt?: string;
 }
 
 export interface Lane {
@@ -215,6 +220,46 @@ function projectEnvironmentRuntimeHash(): string {
       .update(readFileSync(join(projectEnvironmentRuntimeDirectory, name)));
   }
   return hash.digest("hex");
+}
+
+function projectEnvironmentProjectHash(lane: Lane): string {
+  const hash = createHash("sha256");
+  hash.update(
+    JSON.stringify({
+      environmentVariable: lane.project.environmentVariable,
+      services: lane.project.services,
+      simulatorSlimming: lane.project.simulatorSlimming,
+    }),
+  );
+  const scriptsDirectory = join(lane.path, "scripts/project-lanes");
+  if (!existsSync(scriptsDirectory)) return hash.digest("hex");
+  const visit = (directory: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    )) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.isFile() && entry.name.endsWith(".ts")) {
+        hash.update(path.slice(scriptsDirectory.length)).update("\0").update(readFileSync(path));
+      }
+    }
+  };
+  visit(scriptsDirectory);
+  return hash.digest("hex");
+}
+
+export function summarizeLaneError(error: string): string {
+  const lines = error
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const explicit = lines.find(
+    (line) => /^(?:error:|Error:)/.test(line) && !/^error:\s*['"]?\//i.test(line),
+  );
+  const command = lines.find((line) => line.startsWith("Command failed with exit code"));
+  return (explicit ?? command ?? lines[0] ?? "environment command failed")
+    .replace(/^error:\s*/i, "")
+    .slice(0, 240);
 }
 
 function git(cwd: string, args: string[], allowFailure = false): string {
@@ -921,7 +966,7 @@ function inspectedLaneStatus(
       baseBranchBehind,
       gitDiff,
       occupancyReason,
-      healthReason: healthError,
+      healthReason: `${summarizeLaneError(healthError)}${state.lastErrorAt ? ` (${state.lastErrorAt})` : ""}`,
     };
   }
   if (state.lastVerifiedRuntimeHash !== runtimeHash) {
@@ -936,7 +981,22 @@ function inspectedLaneStatus(
       baseBranchBehind,
       gitDiff,
       occupancyReason,
-      healthReason: "shared project environment runtime changed",
+      healthReason: "shared environment runtime changed; run lanes repair",
+    };
+  }
+  if (state.lastVerifiedProjectHash !== projectEnvironmentProjectHash(lane)) {
+    return {
+      lane,
+      state,
+      availability,
+      health: "drifted",
+      branch,
+      head,
+      baseBranchAhead,
+      baseBranchBehind,
+      gitDiff,
+      occupancyReason,
+      healthReason: "project environment contract changed; run lanes repair",
     };
   }
   if (!state.lastVerifiedAt || state.lastVerifiedHead !== head) {
@@ -1081,10 +1141,19 @@ async function verifyLane(
   await runEnvironmentCommand(lane, "verify", mobile ? ["--mobile-development"] : [], compact, {
     PROJECT_LANE_VERIFY_LIVE_SERVICES: liveServices ? "1" : "0",
   });
+  if (mobile && lane.project.mobile) {
+    verifyExpoDevelopmentClientFreshness({
+      mobileDirectory: resolve(lane.path, lane.project.mobile.directory),
+      simulatorName: `${lane.project.name} Lane ${lane.number}`,
+      bundleIdentifier: lane.project.mobile.bundleIdentifier,
+    });
+  }
   state.lastVerifiedAt = new Date().toISOString();
   state.lastVerifiedHead = git(lane.path, ["rev-parse", "HEAD"]);
   state.lastVerifiedRuntimeHash = projectEnvironmentRuntimeHash();
+  state.lastVerifiedProjectHash = projectEnvironmentProjectHash(lane);
   delete state.lastError;
+  delete state.lastErrorAt;
 }
 
 export async function setupProjectLanes(
@@ -1104,6 +1173,7 @@ export async function setupProjectLanes(
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           state.lastError = message;
+          state.lastErrorAt = new Date().toISOString();
           failures.push(`${project.id}/${lane.id}: ${message}`);
         }
       }
@@ -1151,6 +1221,7 @@ export async function addProjectLane(
       await provisionLane(addedLane, state, { mobile, compact, branch });
     } catch (error) {
       state.lastError = error instanceof Error ? error.message : String(error);
+      state.lastErrorAt = new Date().toISOString();
       failure = error;
     }
   });
@@ -1284,6 +1355,7 @@ export async function releaseProjectLane(
       }
     } catch (error) {
       state.lastError = error instanceof Error ? error.message : String(error);
+      state.lastErrorAt = new Date().toISOString();
       failure = error;
     }
   });
@@ -1323,6 +1395,36 @@ export async function verifyProjectLane(
       });
     } catch (error) {
       state.lastError = error instanceof Error ? error.message : String(error);
+      state.lastErrorAt = new Date().toISOString();
+      failure = error;
+    }
+  });
+  if (failure) throw failure;
+  return lane;
+}
+
+export async function repairProjectLane(
+  projectId?: string,
+  laneId?: string,
+  options: { cwd?: string; mobile?: boolean; compact?: boolean } = {},
+): Promise<Lane> {
+  const lane = selectProjectLane(getActiveProjects(), {
+    projectId,
+    laneId,
+    cwd: options.cwd,
+  });
+  let failure: unknown;
+  await withRegistryLock(async (registry) => {
+    const state = stateFor(registry, lane);
+    try {
+      await runEnvironmentCommand(lane, "setup", [], options.compact);
+      if (options.mobile) {
+        await runEnvironmentCommand(lane, "mobile-development", [], options.compact);
+      }
+      await verifyLane(lane, state, options);
+    } catch (error) {
+      state.lastError = error instanceof Error ? error.message : String(error);
+      state.lastErrorAt = new Date().toISOString();
       failure = error;
     }
   });
@@ -1346,6 +1448,7 @@ export async function auditProjectLanes(
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           state.lastError = message;
+          state.lastErrorAt = new Date().toISOString();
           failures.push(`${lane.project.id}/${lane.id}: ${message}`);
         }
       }),
@@ -1373,13 +1476,11 @@ export async function resetProjectLane(
     const lane = getProjectLanes(project).find(({ id }) => id === laneId);
     if (!lane) throw new Error(`Unknown lane: ${projectId}/${laneId}`);
     const state = stateFor(registry, lane);
-    const status = inspectLane(lane, state);
-    if (status.availability === "occupied") {
-      throw new Error(`${projectId}/${laneId} is not Git-empty`);
-    }
+    const operation = activeGitOperation(lane.path);
+    if (operation) throw new Error(`${projectId}/${laneId} has Git ${operation} in progress`);
     await options.beforeReset?.();
     await runEnvironmentCommand(lane, "reset");
-    await verifyLane(lane, state);
+    await verifyLane(lane, state, { liveServices: false });
   });
 }
 

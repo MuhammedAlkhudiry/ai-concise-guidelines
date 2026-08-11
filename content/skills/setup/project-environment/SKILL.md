@@ -33,6 +33,8 @@ invocation; never edit its state directly.
 - Require `PROJECT_LANE_DEFINITION_ROOT` and the configured project root to agree.
 - Load the module supplied by `PROJECT_LANES_RUNTIME_MODULE`; use the established installed runtime only when that variable is absent.
 - Keep setup repeatable, non-destructive, isolated, and explicit when a contract is wrong. Do not mask a broken path with a fallback.
+- Setup owns lane storage repair; verification stays read-only. Preserve catalog assets during resets, scope S3 cleanup to safe prefixes, and delete
+  buckets only during destruction.
 - Derive the Laravel testing database from the lane prefix and let Laravel append its parallel process token; never use a shared `testing` database.
 - Treat the lane's Herd certificate and key as required resources. Supply their paths to the project environment and fail verification when either is
   missing.

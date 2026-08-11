@@ -21,7 +21,7 @@ source "$ZSH/oh-my-zsh.sh"
 
 # --- Editor ------------------------------------------------------------------
 # Keeps the default editor and the quick `zsh` alias pointed at PhpStorm, which
-# is the personal editor contract documented in system-tools.md.
+# is the personal editor contract declared in src/lib/system-tools.ts.
 alias zsh="phpstorm ~/.zshrc"
 export EDITOR=phpstorm
 
@@ -169,3 +169,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # --- PATH Cleanup ------------------------------------------------------------
 # Deduplicates PATH after all sections have contributed their entries.
 typeset -U path PATH
+
+# --- Sentry ------------------------------------------------------------------
+fpath=("$HOME/.local/share/zsh/site-functions" $fpath)

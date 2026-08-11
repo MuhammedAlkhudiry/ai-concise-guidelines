@@ -15,6 +15,7 @@ import {
   projectLanesAudit,
   projectLanesCleanup,
   projectLanesRelease,
+  projectLanesRepair,
   projectLanesReset,
   projectLanesSetup,
   projectLanesStatus,
@@ -77,8 +78,9 @@ cli
 cli
   .command("status [project]", "Show lane readiness")
   .option("--json", "Print machine-readable status")
-  .action((project: string | undefined, options: { json?: boolean }) =>
-    projectLanesStatus(project, options.json),
+  .option("--verbose", "Include the complete stored failure after each concise status")
+  .action((project: string | undefined, options: { json?: boolean; verbose?: boolean }) =>
+    projectLanesStatus(project, options.json, options.verbose),
   );
 
 cli
@@ -94,6 +96,14 @@ cli
   );
 
 cli
+  .command("repair [project] [lane]", "Repair and verify the current or explicitly named lane")
+  .option("--mobile", "Include mobile environment and lane simulator repair")
+  .option("--compact", "Print only the final result and failures")
+  .action((project: string | undefined, lane: string | undefined, options: MobileOptions) =>
+    projectLanesRepair(project, lane, options.mobile, options.compact),
+  );
+
+cli
   .command("audit [project]", "Audit every configured lane environment")
   .option("--mobile", "Include mobile-development verification for every lane")
   .option("--compact", "Print only the final result and failures")
@@ -106,6 +116,7 @@ cli
     "services <operation> [project] [lane] [service]",
     "Manage lane services; use all for every lane or service",
   )
+  .usage("services <status|start|stop|restart|logs> [project] [lane] [service]")
   .option("--json", "Print machine-readable output")
   .option("--lines <lines>", "Number of recent log lines", { default: "30" })
   .option("--follow", "Follow service logs")
@@ -185,7 +196,13 @@ cli
     },
   );
 
-cli.command("reset <project> <lane>", "Reset one idle lane").action(projectLanesReset);
+cli
+  .command(
+    "reset <project> <lane>",
+    "Reset task data while preserving Git work and the lane environment",
+  )
+  .usage("reset <project> <lane>")
+  .action(projectLanesReset);
 
 cli
   .command("release <project> <lane>", "Return one clean lane to the available pool")

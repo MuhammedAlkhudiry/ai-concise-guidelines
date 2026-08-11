@@ -4,8 +4,8 @@ import SwiftUI
 func laneServiceSummaryColor(_ summary: LaneServiceSummary) -> Color {
   switch summary {
   case .running: .green
-  case .changing, .partial: .yellow
-  case .failed, .unreachable: .red
+  case .changing, .partial, .degraded: .yellow
+  case .failed, .crashLooping, .unreachable: .red
   case .stopped: .secondary
   case .checking: .blue
   case .unavailable: .gray
@@ -15,8 +15,8 @@ func laneServiceSummaryColor(_ summary: LaneServiceSummary) -> Color {
 func laneServiceColor(_ state: LaneServiceState) -> Color {
   switch state {
   case .running: .green
-  case .starting, .stopping: .yellow
-  case .failed, .unreachable: .red
+  case .starting, .stopping, .degraded: .yellow
+  case .failed, .crashLooping, .unreachable: .red
   case .stopped: .secondary
   case .checking: .blue
   case .unavailable: .gray.opacity(0.45)
@@ -132,7 +132,7 @@ struct LaneServiceSummaryBadge: View {
     case .changing: "arrow.triangle.2.circlepath"
     case .partial: "circle.lefthalf.filled"
     case .stopped: "stop.circle.fill"
-    case .failed, .unreachable: "exclamationmark.triangle.fill"
+    case .failed, .degraded, .crashLooping, .unreachable: "exclamationmark.triangle.fill"
     case .checking: "ellipsis.circle.fill"
     case .unavailable: "questionmark.circle.fill"
     }

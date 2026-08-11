@@ -7,12 +7,13 @@ description: AI agent skill creation and maintenance.
 
 - Assume the agent is capable. Keep only reusable task-specific workflows, domain knowledge, tool contracts, and preferences unavailable from broader
   instructions or authoritative sources.
+- Make the skill route to authoritative code, live help, schemas, metadata, catalogs, or another skill. Do not mirror discoverable inventories,
+  syntax, options, behavior, or implementation.
 - Remove textbook material, generic advice, copied global rules, duplication, mood, decorative examples, stale guidance, and no-op steps before adding
   anything.
 - For CLI-backed skills, require the agent to read the narrowest relevant live help before acting. Never copy, summarize, explain, or maintain CLI
   commands, options, syntax, installation steps, or behavior that help exposes. Keep only task-specific workflow, decisions, safety boundaries, and
   completion contracts that the CLI cannot provide.
-- Route to authoritative schemas, metadata, documentation, live catalogs, or another skill instead of copying them.
 - Bundle source material only when it is unavailable at execution time, prohibitively expensive to retrieve, or needs a stable task-specific
   interpretation.
 - State the intended rule or boundary directly instead of layering exception clauses.

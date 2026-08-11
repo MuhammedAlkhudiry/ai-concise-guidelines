@@ -15,6 +15,7 @@ import {
   releaseLaneGit,
   selectProjectLane,
   simulatorFleetFailures,
+  summarizeLaneError,
   syncLaneGit,
 } from "./project-lanes";
 
@@ -38,6 +39,14 @@ const project = {
     },
   ],
 };
+
+test("reduces stored environment failures to one actionable line", () => {
+  expect(
+    summarizeLaneError(
+      "Command failed with exit code 1: bun verify.ts\nerror: Typesense health failed with HTTP 401\nlong output",
+    ),
+  ).toBe("Typesense health failed with HTTP 401");
+});
 
 test("uses each configured lane path directly", () => {
   const configuredLanes = [

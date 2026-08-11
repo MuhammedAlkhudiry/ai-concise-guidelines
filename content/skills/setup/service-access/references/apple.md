@@ -3,10 +3,9 @@
 ## App Store Connect
 
 - Use the App Store Connect API through $mobile-app-infra; never use browser automation.
-- Check `ASC_KEY_ID`, `ASC_ISSUER_ID`, and `ASC_KEY_PATH` in the selected environment file under `$SERVICE_CREDENTIALS_HOME/environments/`.
+- Derive the required credentials from the selected script's live help and the installed environment template.
 - Verify access with the read-only iOS store-status command.
-- To repair access, store the API key under `$SERVICE_CREDENTIALS_HOME/app-store-connect/` and update the environment file. Pause when the user must
-  create or download the key.
+- Keep the API key in agent-managed credential storage. Pause when the user must create or download it.
 
 ## Sign in with Apple
 

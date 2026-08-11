@@ -1,30 +1,23 @@
 ---
 name: ux-ui
-description: UX/UI discovery, prototyping, implementation, options, and review.
+description: UX/UI discovery, implementation, options, and review.
 ---
 
 ## Routing
 
-- For a new interface, redesign, or meaningful flow change, use the interview and prototype loop below.
-- For a review, audit, or small scoped change, inspect the existing interface and proceed directly without forcing the discovery loop.
+- For a new interface, redesign, or meaningful flow change, inspect the existing experience and use $interview for material product or design
+  decisions that evidence cannot resolve.
+- For a review, audit, or small scoped change, inspect the existing interface and proceed directly.
+- Use $workshop when abstract product framing or strategic options remain unresolved.
 
-## Interview and prototype loop
+## Design workflow
 
-1. Inspect the flow, platform conventions, design system, realistic content, and relevant states. Use $interview for material product or design
-   decisions that evidence cannot resolve.
-2. After the interview synthesis is confirmed, create one lightweight standalone HTML prototype with a switcher for the requested number of
-   directions, or five by default.
-3. Make directions meaningfully different in workflow, hierarchy, density, states, responsiveness, or interaction; cosmetic variations do not count.
-   Keep content and states consistent so the experience is comparable.
-4. Present the prototype, recommend one direction, and wait for the user's selection before deepening it.
-5. Refine the selected direction in two stages:
-   - Settle the UX, including flow, hierarchy, interaction, density, responsiveness, and states.
-   - After the UX is approved, refine the UI styling and polish without reopening settled UX decisions unless new evidence changes them.
-6. After each material revision, summarize the change and remaining decision, then wait for feedback until the prototype is explicitly approved.
-7. After approval, ask whether to implement now or preserve the prototype with a saved plan; approval alone does not authorize implementation.
-8. Remove the temporary prototype after direct implementation, or use $planning to persist it with a later implementation plan.
-
-Use $workshop when abstract product framing or strategic options remain unresolved before prototyping.
+1. Inspect the user's job, complete journey, platform conventions, design system, realistic content, and relevant states.
+2. When options are requested, make them meaningfully different in workflow, hierarchy, density, states, responsiveness, or interaction; cosmetic
+   variations do not count. Keep content and states consistent so the experience is comparable, then recommend one direction with its trade-offs.
+3. Implement the requested or selected direction. Settle the UX before refining UI styling and polish unless new evidence changes an earlier
+   decision.
+4. After each material revision, summarize the change and any remaining decision.
 
 ## Design-system boundary
 
@@ -47,9 +40,8 @@ preference.
 
 ## Completion standard
 
-- After implementation, inspect rendered UX and UI, improve until optimal, then declare it the best achievable UI.
-Do not call the work complete until the primary task, relevant failure and recovery paths, accessibility behavior, realistic content, and relevant
-viewport and input modes work as one coherent experience.
+After implementation, inspect the rendered UX and UI and improve it until optimal. Do not call the work complete until the primary task, relevant
+failure and recovery paths, accessibility behavior, realistic content, and relevant viewport and input modes work as one coherent experience.
 
 ## User preferences
 

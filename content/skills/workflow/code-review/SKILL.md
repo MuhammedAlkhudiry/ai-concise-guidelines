@@ -19,16 +19,27 @@ Review along two independent axes:
    general judgment; do not report issues already enforced by tooling unless the change bypasses that tooling.
 5. Ground every finding in a concrete file or hunk. Keep the axes separate and report counts and the worst finding for each.
 
+## Finding format
+
+Severity: `CRITICAL` is exploitable, destructive, or release-blocking; `HIGH` is serious; `MEDIUM` is contained; `LOW` is minor. Every finding must
+name the problem, location, concrete impact, and actionable fix:
+
+```md
+- **<CRITICAL | HIGH | MEDIUM | LOW>: <problem>** (`<file>:<line>`)
+  - **Impact:** <impact>
+  - **Fix:** <fix>
+```
+
 ## Output
 
 ```md
 ## Standards
 
-- <finding or "No findings">
+<findings in the required format, or "No findings">
 
 ## Spec
 
-- <finding, "No findings", or "No spec available">
+<findings in the required format, "No findings", or "No spec available">
 
 Summary: Standards <count>; Spec <count>. Worst Standards issue: <item or none>. Worst Spec issue: <item or none>.
 ```

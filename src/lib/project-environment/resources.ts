@@ -2,7 +2,10 @@ import { existsSync, readFileSync, readlinkSync, symlinkSync, unlinkSync } from 
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 
+import { z } from "zod";
+
 import { output, run } from "./command";
+import { upsertEnvValues } from "./files";
 import type { ProjectEnvironmentContext } from "./types";
 
 export function artisan(context: ProjectEnvironmentContext, step: string, args: string[]): void {
@@ -26,6 +29,9 @@ export function ensureLaravelAppKey(context: ProjectEnvironmentContext): void {
   if (!/^APP_KEY=base64:.+/m.test(readFileSync(envPath, "utf8"))) {
     artisan(context, "app-key", ["key:generate", "--force"]);
   }
+  const key = readFileSync(envPath, "utf8").match(/^APP_KEY=(base64:.+)$/m)?.[1];
+  if (!key) throw new Error(`Laravel APP_KEY was not generated in ${envPath}`);
+  upsertEnvValues(resolve(context.backendDir, ".env.testing"), { APP_KEY: key });
 }
 
 export function reindexLaravelScoutModels(context: ProjectEnvironmentContext): void {
@@ -48,6 +54,52 @@ export function reindexLaravelScoutModels(context: ProjectEnvironmentContext): v
   artisan(context, "search", ["tinker", "--execute", script]);
 }
 
+export function ensureLaravelS3Bucket(
+  context: ProjectEnvironmentContext,
+  options: { publicRead?: boolean } = {},
+): void {
+  const policy = options.publicRead
+    ? "$client->putBucketPolicy(['Bucket' => $bucket, 'Policy' => json_encode(['Version' => '2012-10-17', 'Statement' => [['Effect' => 'Allow', 'Principal' => '*', 'Action' => ['s3:GetObject'], 'Resource' => [\"arn:aws:s3:::{$bucket}/*\"]]]], JSON_THROW_ON_ERROR)]);"
+    : "";
+  artisan(context, "storage", [
+    "tinker",
+    "--execute",
+    [
+      "$disk = Storage::disk('s3');",
+      "$client = $disk->getClient();",
+      "$bucket = config('filesystems.disks.s3.bucket');",
+      "try { $client->headBucket(['Bucket' => $bucket]); } catch (Throwable $exception) { $client->createBucket(['Bucket' => $bucket]); }",
+      policy,
+    ].join(" "),
+  ]);
+}
+
+export function verifyLaravelS3Bucket(context: ProjectEnvironmentContext): void {
+  artisan(context, "verify:storage", [
+    "tinker",
+    "--execute",
+    [
+      "$disk = Storage::disk('s3');",
+      "$client = $disk->getClient();",
+      "$bucket = config('filesystems.disks.s3.bucket');",
+      "$client->headBucket(['Bucket' => $bucket]);",
+      "$client->listObjectsV2(['Bucket' => $bucket, 'MaxKeys' => 1]);",
+    ].join(" "),
+  ]);
+}
+
+export function cleanLaravelS3Prefix(context: ProjectEnvironmentContext, prefix: string): void {
+  if (!prefix || !/^[a-zA-Z0-9_/-]+$/.test(prefix) || prefix.startsWith("/")) {
+    throw new Error(`Unsafe S3 cleanup prefix: ${prefix}`);
+  }
+  const encodedPrefix = JSON.stringify(prefix);
+  artisan(context, "clean:storage", [
+    "tinker",
+    "--execute",
+    `$disk = Storage::disk('s3'); $files = $disk->allFiles(${encodedPrefix}); foreach (array_chunk($files, 1000) as $chunk) { $disk->delete($chunk); }`,
+  ]);
+}
+
 export function deleteLaravelS3Bucket(
   context: ProjectEnvironmentContext,
   options: { allowFailure?: boolean } = {},
@@ -61,7 +113,7 @@ export function deleteLaravelS3Bucket(
       "artisan",
       "tinker",
       "--execute",
-      "$disk = Storage::disk('s3'); foreach ($disk->allFiles() as $file) { $disk->delete($file); } try { $disk->getClient()->deleteBucket(['Bucket' => config('filesystems.disks.s3.bucket')]); } catch (Throwable $exception) { report($exception); }",
+      "$disk = Storage::disk('s3'); $client = $disk->getClient(); $bucket = config('filesystems.disks.s3.bucket'); if ($client->doesBucketExistV2($bucket)) { foreach (array_chunk($disk->allFiles(), 1000) as $chunk) { $disk->delete($chunk); } $client->deleteBucket(['Bucket' => $bucket]); }",
     ],
     { cwd: context.backendDir, allowFailure: options.allowFailure },
   );
@@ -73,35 +125,51 @@ export function trustMise(context: ProjectEnvironmentContext): void {
 }
 
 export function setupHerd(context: ProjectEnvironmentContext): void {
-  run(context, "herd", context.herdCommand, ["unlink", context.site], {
-    cwd: context.backendDir,
-    allowFailure: true,
-  });
-  run(context, "herd", context.herdCommand, ["link", context.site], { cwd: context.backendDir });
+  const current = herdSite(context);
+  if (!current || resolve(current.path) !== context.backendDir) {
+    if (current) {
+      run(context, "herd", context.herdCommand, ["unlink", context.site], {
+        cwd: context.backendDir,
+        allowFailure: true,
+      });
+    }
+    run(context, "herd", context.herdCommand, ["link", context.site], {
+      cwd: context.backendDir,
+    });
+  }
   const sitePath = herdSitePath(context);
   const target = resolve(dirname(sitePath), readlinkSync(sitePath));
   if (target !== context.backendDir) {
     unlinkSync(sitePath);
     symlinkSync(context.backendDir, sitePath, "dir");
   }
-  run(context, "herd", context.herdCommand, ["secure", context.site, "--no-interaction"], {
-    cwd: context.backendDir,
-  });
+  const linked = herdSite(context);
+  if (!linked?.secured || !existsSync(context.herdCertificate) || !existsSync(context.herdKey)) {
+    run(context, "herd", context.herdCommand, ["secure", context.site, "--no-interaction"], {
+      cwd: context.backendDir,
+    });
+  }
   verifyHerdCertificateFiles(context);
-  run(
-    context,
-    "herd",
-    context.herdCommand,
-    ["isolate", context.phpVersion, `--site=${context.site}`],
-    { cwd: context.backendDir },
-  );
+  if (herdSite(context)?.phpVersion !== context.phpVersion) {
+    run(
+      context,
+      "herd",
+      context.herdCommand,
+      ["isolate", context.phpVersion, `--site=${context.site}`],
+      { cwd: context.backendDir },
+    );
+  }
 }
 
 export function verifyHerd(context: ProjectEnvironmentContext): void {
-  const sites = output(context, "verify:herd", context.herdCommand, ["sites"], {
-    cwd: context.root,
-  });
-  if (!sites.includes(context.site)) throw new Error(`Herd site ${context.site} is missing`);
+  const site = herdSite(context, "verify:herd");
+  if (!site) throw new Error(`Herd site ${context.site} is missing`);
+  if (!site.secured) throw new Error(`Herd site ${context.site} is not secured`);
+  if (site.phpVersion !== context.phpVersion) {
+    throw new Error(
+      `Herd site ${context.site} uses PHP ${site.phpVersion}, not ${context.phpVersion}`,
+    );
+  }
 
   const sitePath = herdSitePath(context);
   const target = resolve(dirname(sitePath), readlinkSync(sitePath));
@@ -109,6 +177,26 @@ export function verifyHerd(context: ProjectEnvironmentContext): void {
     throw new Error(`Herd site ${context.site} points to ${target}, not ${context.backendDir}`);
   }
   verifyHerdCertificateFiles(context);
+}
+
+function herdSite(
+  context: ProjectEnvironmentContext,
+  step = "herd:inspect",
+): { site: string; path: string; secured: boolean; phpVersion: string } | undefined {
+  const document: unknown = JSON.parse(
+    output(context, step, context.herdCommand, ["sites", "--json"], { cwd: context.root }),
+  );
+  const sites = z
+    .array(
+      z.object({
+        site: z.string(),
+        path: z.string(),
+        secured: z.boolean(),
+        phpVersion: z.string(),
+      }),
+    )
+    .parse(document);
+  return sites.find(({ site }) => site === context.site);
 }
 
 function verifyHerdCertificateFiles(context: ProjectEnvironmentContext): void {
