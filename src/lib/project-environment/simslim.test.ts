@@ -13,7 +13,7 @@ import {
 } from "./simslim";
 
 const categories: SimSlimCategory[] = [
-  { id: "icloud", labels: ["com.apple.icloud"] },
+  { id: "icloud", labels: ["com.apple.icloud", "com.apple.store"] },
   { id: "store", labels: ["com.apple.store", "com.apple.receipts"] },
   {
     id: "media",
@@ -55,12 +55,6 @@ test("verifies the exact disabled service set for a project profile", () => {
     verdict: "partially slim",
     dropped: [
       {
-        id: "store",
-        name: "Store",
-        downside: "Store unavailable",
-        labels: ["com.apple.store"],
-      },
-      {
         id: "media",
         name: "Media",
         downside: "Music unavailable",
@@ -69,10 +63,7 @@ test("verifies the exact disabled service set for a project profile", () => {
     ],
   };
 
-  expect(expectedDisabledLabels(categories, profile)).toEqual([
-    "com.apple.music",
-    "com.apple.store",
-  ]);
+  expect(expectedDisabledLabels(categories, profile)).toEqual(["com.apple.music"]);
   expect(() => assertSimSlimProfile(categories, status, profile)).not.toThrow();
 
   status.dropped[0]!.labels.push("com.apple.receipts");

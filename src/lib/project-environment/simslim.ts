@@ -99,7 +99,13 @@ export function expectedDisabledLabels(
   }
 
   const preservedCategories = new Set(profile.exceptCategories);
-  const preservedServices = new Set(profile.keepServices);
+  const preservedServices = new Set([
+    ...profile.keepServices,
+    ...alwaysEnabledLabels(categories),
+    ...categories
+      .filter(({ id }) => preservedCategories.has(id))
+      .flatMap(({ labels }) => labels),
+  ]);
   return categories
     .filter(({ id }) => !preservedCategories.has(id))
     .flatMap(({ labels }) => labels)
