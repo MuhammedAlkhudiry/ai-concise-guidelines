@@ -9,14 +9,14 @@ Use `$service-access` for platform access and `$manage-ad-accounts` for reportin
 
 1. Read the existing `ADS.md`, then identify the project's advertising goals, destinations, promoted apps, domains, conversion events, and lead paths
    from authoritative project sources.
-2. Discover every accessible platform and account. Paginate through all exposed campaign states, including inactive, ended, archived, deleted, or
-   removed entities.
+2. Discover every accessible platform and account. Paginate through all exposed campaign states to distinguish current campaigns from inactive, ended,
+   archived, deleted, or removed history.
 3. Classify campaigns using ownership, destination, promoted app, tracking assets, and campaign evidence. Put unresolved relationships under
    `Needs classification`.
 4. Create or refresh `ADS.md` with the contract below. Preserve still-valid manual context and record the synchronization time, sources, and coverage
    gaps.
-5. Finish when every accessible account and campaign is represented or named in `Access gaps`, and every ambiguous relationship is named in
-   `Needs classification`.
+5. Finish when every accessible account and current campaign is represented or named in `Access gaps`, historical exclusions are summarized, and every
+   ambiguous relationship is named in `Needs classification`.
 
 ## ADS.md contract
 

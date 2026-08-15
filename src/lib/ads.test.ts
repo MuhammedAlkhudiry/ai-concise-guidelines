@@ -46,19 +46,13 @@ describe("ads CLI contract inputs", () => {
     );
   });
 
-  test("represents browser-only and pending project access accurately", async () => {
+  test("represents browser-only project access accurately", async () => {
     const apple = await adsStatus({ platform: "apple", project: "awraq", refresh: true });
-    const tiktok = await adsStatus({ platform: "tiktok", project: "awraq", refresh: true });
 
     expect(apple.platforms[0]).toMatchObject({
       state: "browser",
       configured: false,
       account: { id: "22534290" },
-    });
-    expect(tiktok.platforms[0]).toMatchObject({
-      state: "pending",
-      configured: false,
-      account: { id: "7665783056824877073" },
     });
   });
 });

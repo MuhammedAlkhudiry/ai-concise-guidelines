@@ -36,6 +36,89 @@ afterEach(() => {
 test("derives shared resources from the explicit lane identity", () => {
   delete process.env.PROJECT_LANE_DEFINITION_ROOT;
   delete process.env[rootEnvironmentVariable];
+  process.env.PROJECT_LANE_ID = "excel-tree-import";
+  process.env.PROJECT_LANE_NUMBER = "2";
+
+  const context = createProjectEnvironmentContext(
+    {
+      id: "example",
+      name: "Example",
+      rootEnvironmentVariable,
+      backendDirectory: "backend",
+      mobileDirectory: "mobile",
+      metroPortBase: 7000,
+      vitePortBase: 7100,
+      defaultRoot: "/projects/excel-tree-import",
+      assetUrl: (bucket) => `https://assets.test/${bucket}`,
+    },
+    ["agent", "mutation"],
+  );
+
+  expect(context).toMatchObject({
+    root: "/projects/excel-tree-import",
+    backendDir: "/projects/excel-tree-import/backend",
+    mobileDir: "/projects/excel-tree-import/mobile",
+    lane: "excel-tree-import",
+    laneNumber: 2,
+    site: "example-excel-tree-import",
+    appUrl: "https://example-excel-tree-import.test",
+    database: "example_excel_tree_import",
+    testingDatabase: "example_excel_tree_import_testing",
+    agentDatabase: "example_excel_tree_import_agent",
+    mutationDatabase: "example_excel_tree_import_mutation",
+    prefix: "example_excel_tree_import",
+    sessionCookie: "example_excel_tree_import_session",
+    bucket: "example-excel-tree-import",
+    assetUrl: "https://assets.test/example-excel-tree-import",
+    metroPort: "7002",
+    vitePort: "7102",
+    simulatorName: "Example excel-tree-import",
+    herdCertificateAuthority: expect.stringContaining(
+      "Herd/config/valet/CA/LaravelValetCASelfSigned.pem",
+    ),
+    herdCertificate: expect.stringContaining(
+      "Herd/config/valet/Certificates/example-excel-tree-import.test.crt",
+    ),
+    herdKey: expect.stringContaining(
+      "Herd/config/valet/Certificates/example-excel-tree-import.test.key",
+    ),
+  });
+});
+
+test("derives stable resources for the canonical project clone", () => {
+  delete process.env.PROJECT_LANE_DEFINITION_ROOT;
+  delete process.env[rootEnvironmentVariable];
+  process.env.PROJECT_LANE_ID = "main";
+  process.env.PROJECT_LANE_NUMBER = "0";
+
+  const context = createProjectEnvironmentContext({
+    id: "example",
+    name: "Example",
+    rootEnvironmentVariable,
+    backendDirectory: "backend",
+    mobileDirectory: "mobile",
+    metroPortBase: 7000,
+    defaultRoot: "/projects/example",
+  });
+
+  expect(context).toMatchObject({
+    root: "/projects/example",
+    lane: "main",
+    laneNumber: 0,
+    site: "example-main",
+    appUrl: "https://example-main.test",
+    database: "example_main",
+    testingDatabase: "example_main_testing",
+    bucket: "example-main",
+    metroPort: "7000",
+    vitePort: "5173",
+    simulatorName: "Example Main",
+  });
+});
+
+test("omits optional database roles unless the adapter declares them", () => {
+  delete process.env.PROJECT_LANE_DEFINITION_ROOT;
+  delete process.env[rootEnvironmentVariable];
   process.env.PROJECT_LANE_ID = "lane-2";
   process.env.PROJECT_LANE_NUMBER = "2";
 
@@ -47,33 +130,10 @@ test("derives shared resources from the explicit lane identity", () => {
     mobileDirectory: "mobile",
     metroPortBase: 7000,
     defaultRoot: "/projects/example-lane-2",
-    assetUrl: (bucket) => `https://assets.test/${bucket}`,
   });
 
-  expect(context).toMatchObject({
-    root: "/projects/example-lane-2",
-    backendDir: "/projects/example-lane-2/backend",
-    mobileDir: "/projects/example-lane-2/mobile",
-    lane: "lane-2",
-    laneNumber: 2,
-    site: "example-lane-2",
-    appUrl: "https://example-lane-2.test",
-    database: "example_lane_2",
-    testingDatabase: "example_lane_2_testing",
-    prefix: "example_lane_2",
-    sessionCookie: "example_lane_2_session",
-    bucket: "example-lane-2",
-    assetUrl: "https://assets.test/example-lane-2",
-    metroPort: "7002",
-    simulatorName: "Example Lane 2",
-    herdCertificateAuthority: expect.stringContaining(
-      "Herd/config/valet/CA/LaravelValetCASelfSigned.pem",
-    ),
-    herdCertificate: expect.stringContaining(
-      "Herd/config/valet/Certificates/example-lane-2.test.crt",
-    ),
-    herdKey: expect.stringContaining("Herd/config/valet/Certificates/example-lane-2.test.key"),
-  });
+  expect(context.agentDatabase).toBeUndefined();
+  expect(context.mutationDatabase).toBeUndefined();
 });
 
 test("rejects conflicting orchestrator and project roots", () => {
@@ -95,8 +155,8 @@ test("rejects conflicting orchestrator and project roots", () => {
   ).toThrow("Lane root mismatch");
 });
 
-test("rejects mismatched explicit lane identity", () => {
-  process.env.PROJECT_LANE_ID = "lane-3";
+test("rejects the canonical identity with a task slot", () => {
+  process.env.PROJECT_LANE_ID = "main";
   process.env.PROJECT_LANE_NUMBER = "2";
 
   expect(() =>
@@ -109,7 +169,7 @@ test("rejects mismatched explicit lane identity", () => {
       metroPortBase: 7000,
       defaultRoot: "/projects/custom",
     }),
-  ).toThrow("Lane identity mismatch");
+  ).toThrow("Invalid environment identity and slot");
 });
 
 test("reads the simulator slimming profile provided by the lane orchestrator", () => {

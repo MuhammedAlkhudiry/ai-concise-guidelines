@@ -7,7 +7,9 @@ import type { ProjectEnvironmentContext } from "./types";
 
 export function loadShellSecret(context: ProjectEnvironmentContext, key: string): void {
   if (!/^[A-Z][A-Z0-9_]*$/.test(key)) throw new Error(`Invalid environment key: ${key}`);
-  const secretsFile = resolve(homedir(), ".config/my-setup/secrets.zsh");
+  const credentialsHome =
+    process.env.SERVICE_CREDENTIALS_HOME ?? resolve(homedir(), ".config/my-setup/credentials");
+  const secretsFile = resolve(credentialsHome, "secrets.zsh");
   if (process.env[key] || !existsSync(secretsFile)) return;
 
   const value = output(
@@ -20,5 +22,5 @@ export function loadShellSecret(context: ProjectEnvironmentContext, key: string)
   if (!value) return;
 
   process.env[key] = value;
-  log("secrets", `loaded ${key} from ~/.config/my-setup/secrets.zsh`);
+  log("secrets", `loaded ${key} from the shared credentials home`);
 }

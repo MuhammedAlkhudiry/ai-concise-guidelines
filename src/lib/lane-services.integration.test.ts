@@ -16,7 +16,8 @@ test("controls and reads logs for a launchd-backed lane service", () => {
   const lanePath = join(root, "project-lane-1");
   const appPath = join(lanePath, "app");
   const configPath = join(root, "projects.json");
-  const statePath = join(root, "state");
+  const statePath = join(root, "state.json");
+  const stateHome = join(root, "state-home");
   mkdirSync(appPath, { recursive: true });
   writeFileSync(
     join(appPath, "package.json"),
@@ -28,14 +29,14 @@ test("controls and reads logs for a launchd-backed lane service", () => {
   writeFileSync(
     configPath,
     JSON.stringify({
-      version: 3,
+      version: 5,
       projects: [
         {
           id: "service-test",
           name: "Service Test",
           remoteUrl: "https://example.com/project.git",
           baseBranch: "main",
-          lanes: [{ number: 1, path: lanePath }],
+          canonicalRoot: join(root, "canonical-project"),
           environmentVariable: "SERVICE_TEST_ROOT",
           services: [
             {
@@ -49,6 +50,17 @@ test("controls and reads logs for a launchd-backed lane service", () => {
       ],
     }),
   );
+  writeFileSync(
+    statePath,
+    JSON.stringify({
+      version: 2,
+      projects: {
+        "service-test": {
+          "lane-1": { path: lanePath, number: 1, kind: "task" },
+        },
+      },
+    }),
+  );
 
   const run = (args: string[]) =>
     Bun.spawnSync(["bun", "src/commands/lanes-cli.ts", ...args], {
@@ -56,7 +68,9 @@ test("controls and reads logs for a launchd-backed lane service", () => {
       env: {
         ...process.env,
         LANES_CONFIG_PATH: configPath,
-        XDG_STATE_HOME: statePath,
+        XDG_STATE_HOME: stateHome,
+        LANES_STATE_PATH: statePath,
+        LANES_STATE_LOCK_PATH: `${statePath}.lock`,
       },
     });
 
@@ -101,7 +115,8 @@ test("controls every lane and service in a project", () => {
   const root = mkdtempSync(join(tmpdir(), "lanes-service-fleet-"));
   roots.push(root);
   const configPath = join(root, "projects.json");
-  const statePath = join(root, "state");
+  const statePath = join(root, "state.json");
+  const stateHome = join(root, "state-home");
   const lanes = [1, 2].map((number) => {
     const lanePath = join(root, `project-lane-${number}`);
     const appPath = join(lanePath, "app");
@@ -115,14 +130,14 @@ test("controls every lane and service in a project", () => {
   writeFileSync(
     configPath,
     JSON.stringify({
-      version: 3,
+      version: 5,
       projects: [
         {
           id: "service-fleet",
           name: "Service Fleet",
           remoteUrl: "https://example.com/project.git",
           baseBranch: "main",
-          lanes,
+          canonicalRoot: lanes[0]!.path,
           environmentVariable: "SERVICE_FLEET_ROOT",
           services: [
             {
@@ -136,6 +151,18 @@ test("controls every lane and service in a project", () => {
       ],
     }),
   );
+  writeFileSync(
+    statePath,
+    JSON.stringify({
+      version: 2,
+      projects: {
+        "service-fleet": {
+          main: { path: lanes[0]!.path, number: 0, kind: "canonical" },
+          second: { path: lanes[1]!.path, number: 1, kind: "task" },
+        },
+      },
+    }),
+  );
 
   const run = (args: string[]) =>
     Bun.spawnSync(["bun", "src/commands/lanes-cli.ts", ...args], {
@@ -143,7 +170,9 @@ test("controls every lane and service in a project", () => {
       env: {
         ...process.env,
         LANES_CONFIG_PATH: configPath,
-        XDG_STATE_HOME: statePath,
+        XDG_STATE_HOME: stateHome,
+        LANES_STATE_PATH: statePath,
+        LANES_STATE_LOCK_PATH: `${statePath}.lock`,
       },
     });
 
@@ -168,3 +197,84 @@ test("controls every lane and service in a project", () => {
     ).toBe(true);
   }
 }, 60_000);
+
+test("waits for Metro to become ready before failing startup", () => {
+  const root = mkdtempSync(join(tmpdir(), "lanes-service-metro-"));
+  roots.push(root);
+  const lanePath = join(root, "project-lane-1");
+  const appPath = join(lanePath, "app");
+  const configPath = join(root, "projects.json");
+  const statePath = join(root, "state.json");
+  const stateHome = join(root, "state-home");
+  mkdirSync(appPath, { recursive: true });
+  writeFileSync(
+    join(appPath, "package.json"),
+    JSON.stringify({ scripts: { start: "bun metro-server.ts" } }),
+  );
+  writeFileSync(join(appPath, ".env.local"), "EXPO_DEV_SERVER_PORT=9124\n");
+  writeFileSync(
+    join(appPath, "metro-server.ts"),
+    `await Bun.sleep(1_800);
+Bun.serve({
+  port: Number(process.env.EXPO_DEV_SERVER_PORT),
+  fetch: () => new Response("packager-status:running"),
+});
+`,
+  );
+  writeFileSync(
+    configPath,
+    JSON.stringify({
+      version: 5,
+      projects: [
+        {
+          id: "service-metro",
+          name: "Service Metro",
+          remoteUrl: "https://example.com/project.git",
+          baseBranch: "main",
+          canonicalRoot: join(root, "canonical-project"),
+          environmentVariable: "SERVICE_METRO_ROOT",
+          services: [
+            {
+              id: "metro",
+              name: "Metro",
+              directory: "app",
+              runner: { type: "bun-script", script: "start" },
+            },
+          ],
+        },
+      ],
+    }),
+  );
+  writeFileSync(
+    statePath,
+    JSON.stringify({
+      version: 2,
+      projects: {
+        "service-metro": {
+          "lane-1": { path: lanePath, number: 1, kind: "task" },
+        },
+      },
+    }),
+  );
+
+  const run = (args: string[]) =>
+    Bun.spawnSync(["bun", "src/commands/lanes-cli.ts", ...args], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        LANES_CONFIG_PATH: configPath,
+        XDG_STATE_HOME: stateHome,
+        LANES_STATE_PATH: statePath,
+        LANES_STATE_LOCK_PATH: `${statePath}.lock`,
+      },
+    });
+
+  try {
+    const started = run(["services", "start", "service-metro", "lane-1", "metro", "--json"]);
+    expect(started.exitCode).toBe(0);
+    expect(JSON.parse(started.stdout.toString()).lanes[0].services[1].state).toBe("running");
+  } finally {
+    const stopped = run(["services", "stop", "service-metro", "lane-1", "metro", "--json"]);
+    expect(stopped.exitCode).toBe(0);
+  }
+}, 20_000);

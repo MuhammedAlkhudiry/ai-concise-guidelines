@@ -20,6 +20,7 @@ import { basename, dirname, join, resolve } from "node:path";
 
 import { execa } from "execa";
 
+import { openExpoDevelopmentClient } from "./project-environment/expo";
 import { findSimulator } from "./project-environment/simulator";
 import {
   getActiveProject,
@@ -237,7 +238,7 @@ export function readLaneServiceLogs(
 export async function openLaneTarget(
   projectId: string,
   laneId: string,
-  target: "phpstorm" | "finder" | "simulator" | "browser" | "branch" | "github-branch",
+  target: "phpstorm" | "finder" | "simulator" | "browser",
 ): Promise<void> {
   const lane = explicitLane(projectId, laneId);
   if (target === "phpstorm") {
@@ -252,16 +253,20 @@ export async function openLaneTarget(
     await execa("open", ["-a", "Finder", lane.path]);
     return;
   }
-  if (target === "branch") {
-    await openLaneBranch(lane);
+  const simulatorName =
+    lane.kind === "canonical" ? `${lane.project.name} Main` : `${lane.project.name} ${lane.id}`;
+  if (lane.project.mobile?.developmentScheme) {
+    const mobileDirectory = resolve(lane.path, lane.project.mobile.directory);
+    const port = laneServiceEnvironment(mobileDirectory).EXPO_DEV_SERVER_PORT;
+    if (!port) throw new Error(`Managed mobile environment is missing for ${projectId}/${laneId}`);
+    openExpoDevelopmentClient({
+      cwd: mobileDirectory,
+      port,
+      scheme: lane.project.mobile.developmentScheme,
+      simulatorName,
+    });
     return;
   }
-  if (target === "github-branch") {
-    await openLaneGitHubBranch(lane);
-    return;
-  }
-
-  const simulatorName = `${lane.project.name} Lane ${lane.number}`;
   const document = JSON.parse(
     execFileSync("xcrun", ["simctl", "list", "-j", "devices"], {
       encoding: "utf8",
@@ -283,64 +288,6 @@ export async function openLaneTarget(
     await execa("xcrun", ["simctl", "boot", simulator.udid]);
   }
   await execa("open", ["-a", "Simulator"]);
-}
-
-async function openLaneBranch(lane: Lane): Promise<void> {
-  const repository = githubRepository(lane.project.remoteUrl);
-  const branch =
-    execFileSync("git", ["branch", "--show-current"], {
-      cwd: lane.path,
-      encoding: "utf8",
-    }).trim() || lane.project.baseBranch;
-  const gh = ["/opt/homebrew/bin/gh", "/usr/local/bin/gh"].find(existsSync);
-  if (gh) {
-    const pullRequest = await execa(
-      gh,
-      [
-        "pr",
-        "list",
-        "--state",
-        "all",
-        "--head",
-        branch,
-        "--repo",
-        repository,
-        "--limit",
-        "1",
-        "--json",
-        "url",
-      ],
-      { reject: false },
-    );
-    if (pullRequest.exitCode === 0) {
-      const result = JSON.parse(pullRequest.stdout) as Array<{ url?: string }>;
-      if (result[0]?.url) {
-        await execa("open", [result[0].url]);
-        return;
-      }
-    }
-  }
-
-  await openLaneGitHubBranch(lane, branch);
-}
-
-async function openLaneGitHubBranch(lane: Lane, selectedBranch?: string): Promise<void> {
-  const repository = githubRepository(lane.project.remoteUrl);
-  const branch =
-    selectedBranch ||
-    execFileSync("git", ["branch", "--show-current"], {
-      cwd: lane.path,
-      encoding: "utf8",
-    }).trim() ||
-    lane.project.baseBranch;
-  const branchPath = branch.split("/").map(encodeURIComponent).join("/");
-  await execa("open", [`https://github.com/${repository}/tree/${branchPath}`]);
-}
-
-function githubRepository(remoteUrl: string): string {
-  const url = new URL(remoteUrl);
-  if (url.hostname !== "github.com") throw new Error(`Unsupported Git remote: ${remoteUrl}`);
-  return url.pathname.replace(/^\//, "").replace(/\.git$/, "");
 }
 
 async function laneServicesStatus(lane: Lane): Promise<LaneServicesStatus> {
@@ -520,13 +467,27 @@ function serviceStatus(context: ServiceContext, snapshot = processSnapshot()): L
     : { ...base, state: "stopped", managed: false };
 }
 
-async function siteStatus(lane: Lane, timeout: number): Promise<LaneServiceStatus> {
+export async function siteStatus(
+  lane: Lane,
+  timeout: number,
+  request: typeof fetch = fetch,
+): Promise<LaneServiceStatus> {
+  const firstAttempt = await siteStatusAttempt(lane, timeout, request);
+  if (firstAttempt.state === "running") return firstAttempt;
+  return siteStatusAttempt(lane, timeout, request);
+}
+
+async function siteStatusAttempt(
+  lane: Lane,
+  timeout: number,
+  request: typeof fetch,
+): Promise<LaneServiceStatus> {
   try {
     const certificateAuthority = join(
       homedir(),
       "Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem",
     );
-    const response = await fetch(`https://${lane.project.id}-${lane.id}.test`, {
+    const response = await request(`https://${lane.project.id}-${lane.id}.test`, {
       method: "HEAD",
       signal: AbortSignal.timeout(timeout),
       ...(existsSync(certificateAuthority)
@@ -573,14 +534,8 @@ async function startService(context: ServiceContext): Promise<void> {
   writeFileSync(context.plistPath, launchAgentPlist(context), { mode: 0o600 });
   chmodSync(context.plistPath, 0o600);
   await execa("launchctl", ["bootstrap", launchDomain, context.plistPath]);
-  await Bun.sleep(300);
-  const status = serviceStatus(context);
-  if (
-    status.state === "failed" ||
-    status.state === "degraded" ||
-    status.state === "crash-looping" ||
-    status.state === "stopped"
-  ) {
+  const status = await waitForServiceStart(context);
+  if (status.state !== "running") {
     await execa("launchctl", ["bootout", launchDomain, context.plistPath], {
       reject: false,
     });
@@ -589,6 +544,21 @@ async function startService(context: ServiceContext): Promise<void> {
       `${context.definition.name} failed to become healthy${status.detail ? `: ${status.detail}` : ""}; see ${context.logPath}`,
     );
   }
+}
+
+async function waitForServiceStart(
+  context: ServiceContext,
+  timeoutMilliseconds = 10_000,
+): Promise<LaneServiceStatus> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let status: LaneServiceStatus;
+  do {
+    await Bun.sleep(300);
+    status = serviceStatus(context);
+    if (status.state === "running") return status;
+    if (["failed", "crash-looping", "stopped"].includes(status.state)) return status;
+  } while (Date.now() < deadline);
+  return status;
 }
 
 async function stopService(context: ServiceContext): Promise<void> {

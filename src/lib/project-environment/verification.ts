@@ -7,6 +7,8 @@ import {
   expoEnvironmentValues,
   laravelEnvironmentValues,
   laravelTestingEnvironmentValues,
+  verifyManagedExpoEnvironment,
+  verifyManagedLaravelEnvironment,
 } from "./environment";
 import { readEnv } from "./files";
 import { artisan, verifyDatabase, verifyHerd } from "./resources";
@@ -66,6 +68,7 @@ export function verifyLaravelEnvironment(
   context: ProjectEnvironmentContext,
   options: LaravelEnvironmentOptions = {},
 ): void {
+  verifyManagedLaravelEnvironment(context);
   verifyEnvironmentFile(
     resolve(context.backendDir, ".env"),
     laravelEnvironmentValues(context, options),
@@ -109,9 +112,17 @@ export function verifyExpoEnvironment(
   context: ProjectEnvironmentContext,
   options: ExpoEnvironmentOptions,
 ): void {
+  verifyExpoEnvironmentFile(context, options);
+  verifySimulator(context);
+}
+
+export function verifyExpoEnvironmentFile(
+  context: ProjectEnvironmentContext,
+  options: ExpoEnvironmentOptions,
+): void {
+  verifyManagedExpoEnvironment(context);
   verifyEnvironmentFile(
     resolve(context.mobileDir, ".env.local"),
     expoEnvironmentValues(context, options),
   );
-  verifySimulator(context);
 }

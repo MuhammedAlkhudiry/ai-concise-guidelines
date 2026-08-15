@@ -4,7 +4,7 @@
  * Internal local installer used by `mise run install`.
  */
 
-import { existsSync, copyFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import {
   readFile,
   writeFile,
@@ -40,6 +40,7 @@ import { validateRemoteSkillSources } from "../lib/validation";
 import { installAdsMenu } from "../apps/ads-menu/install";
 import { installAIUsageMenu } from "../apps/ai-usage-menu/install";
 import { installLanesMenu } from "../apps/lanes-menu/install";
+import { installPlansMenu } from "../apps/plans-menu/install";
 
 // =============================================================================
 // Constants
@@ -88,6 +89,7 @@ const USER_ZSHRC_HEADER = "# Managed shell config lives in my-setup.";
 const USER_ZSHRC_IMPORT =
   '[ -f "$HOME/.config/zsh-sync/custom.zsh" ] && source "$HOME/.config/zsh-sync/custom.zsh"';
 const REQUIRED_SECRETS = ["POSTHOG_CLI_API_KEY", "HUGEICONS_TOKEN"] as const;
+const ACTIVE_PROJECTS_PLACEHOLDER = "{{ACTIVE_PROJECTS}}";
 
 const SHARED_BIN_COMMANDS = [
   { name: "my-setup", source: "my-setup.zsh" },
@@ -105,8 +107,23 @@ const SHARED_BIN_COMMANDS = [
 // Individual Operations
 // =============================================================================
 
-function copyOpencodeRules(): void {
-  print.info(`Copying OpenCode rules to ${OPENCODE_PATHS.rules}...`);
+export function renderBaseRules(template: string, projects = ACTIVE_PROJECTS): string {
+  if (!template.includes(ACTIVE_PROJECTS_PLACEHOLDER)) {
+    throw new Error(`Base rules are missing ${ACTIVE_PROJECTS_PLACEHOLDER}`);
+  }
+
+  const activeProjects = projects
+    .map(
+      ({ name, remoteUrl, baseBranch, canonicalRoot }) =>
+        `- **ACTIVE-PROJECT** — **${name}**: repository [${remoteUrl}](${remoteUrl}), base branch \`${baseBranch}\`, canonical clone at \`${canonicalRoot}\`; task worktrees are harness-managed.`,
+    )
+    .join("\n");
+
+  return template.replace(ACTIVE_PROJECTS_PLACEHOLDER, activeProjects);
+}
+
+function copyRules(destination: string, agent: string): void {
+  print.info(`Copying ${agent} rules to ${destination}...`);
 
   const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
   if (!existsSync(sourceFile)) {
@@ -114,37 +131,21 @@ function copyOpencodeRules(): void {
     return;
   }
 
-  ensureParentDirSync(OPENCODE_PATHS.rules);
-  copyFileSync(sourceFile, OPENCODE_PATHS.rules);
-  print.success(`OpenCode rules copied`);
+  ensureParentDirSync(destination);
+  writeFileSync(destination, renderBaseRules(readFileSync(sourceFile, "utf-8")));
+  print.success(`${agent} rules copied`);
+}
+
+function copyOpencodeRules(): void {
+  copyRules(OPENCODE_PATHS.rules, "OpenCode");
 }
 
 function copyCodexRules(): void {
-  print.info(`Copying Codex rules to ${CODEX_PATHS.rules}...`);
-
-  const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
-  if (!existsSync(sourceFile)) {
-    print.error("Base rules file not found");
-    return;
-  }
-
-  ensureParentDirSync(CODEX_PATHS.rules);
-  copyFileSync(sourceFile, CODEX_PATHS.rules);
-  print.success(`Codex rules copied`);
+  copyRules(CODEX_PATHS.rules, "Codex");
 }
 
 function copyClaudeRules(): void {
-  print.info(`Copying Claude Code rules to ${CLAUDE_PATHS.rules}...`);
-
-  const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
-  if (!existsSync(sourceFile)) {
-    print.error("Base rules file not found");
-    return;
-  }
-
-  ensureParentDirSync(CLAUDE_PATHS.rules);
-  copyFileSync(sourceFile, CLAUDE_PATHS.rules);
-  print.success(`Claude Code rules copied`);
+  copyRules(CLAUDE_PATHS.rules, "Claude Code");
 }
 
 function getManagedMcpServerNames(managedContent: string): Set<string> {
@@ -440,6 +441,7 @@ async function installShared(): Promise<void> {
   }
 
   await installLanesMenu();
+  await installPlansMenu();
   await installAdsMenu();
   await installAIUsageMenu();
 
@@ -495,12 +497,10 @@ async function installLanesConfig(): Promise<void> {
   }
 
   await ensureParentDir(SHARED_PATHS.lanesConfig);
-  const installed = existsSync(SHARED_PATHS.lanesConfig)
-    ? readLanesConfig(SHARED_PATHS.lanesConfig)
-    : undefined;
+  if (existsSync(SHARED_PATHS.lanesConfig)) readLanesConfig(SHARED_PATHS.lanesConfig);
   await writeFile(
     SHARED_PATHS.lanesConfig,
-    `${JSON.stringify(createLanesConfig(ACTIVE_PROJECTS, installed), null, 2)}\n`,
+    `${JSON.stringify(createLanesConfig(ACTIVE_PROJECTS), null, 2)}\n`,
     { mode: 0o600 },
   );
   print.success(`Installed lanes config to ${SHARED_PATHS.lanesConfig}`);

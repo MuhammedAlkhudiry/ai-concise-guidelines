@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
+import { basename, delimiter, dirname, join, relative, resolve, sep } from "node:path";
 
 import { execa } from "execa";
 
@@ -35,7 +35,16 @@ const COLLECTION = "personal-knowledge";
 const INDEX = "personal-knowledge";
 const CONTEXT =
   "Mohammed's maintained personal knowledge: life, work, preferences, tools, projects, and decisions.";
-const REQUIRED_FRONTMATTER = ["title", "type", "status", "confidence", "updated", "tags", "links", "sources"];
+const REQUIRED_FRONTMATTER = [
+  "title",
+  "type",
+  "status",
+  "confidence",
+  "updated",
+  "tags",
+  "links",
+  "sources",
+];
 const INDEX_SECTIONS: Record<string, string> = {
   profile: "## Profile",
   work: "## Work",
@@ -79,8 +88,16 @@ function qmdArgs(...args: string[]): string[] {
 }
 
 const defaultRunner: PersonalKnowledgeRunner = async (command, args, options = {}) => {
+  const commandPath = Bun.which(command);
+  if (!commandPath) {
+    throw new Error(`Required command is not installed: ${command}`);
+  }
+  const path = process.env.PATH;
   const result = await execa(command, args, {
-    env: process.env,
+    env: {
+      ...process.env,
+      PATH: path ? `${dirname(commandPath)}${delimiter}${path}` : dirname(commandPath),
+    },
     stdio: options.capture ? "pipe" : "inherit",
   });
   return { stdout: result.stdout ?? "" };
@@ -120,8 +137,8 @@ function frontmatter(content: string): string | undefined {
 }
 
 function wikilinkTargets(content: string): string[] {
-  return [...content.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]/g)].map(
-    (match) => match[1].trim(),
+  return [...content.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]/g)].map((match) =>
+    match[1].trim(),
   );
 }
 
@@ -241,7 +258,10 @@ export async function personalKnowledgeNew(
   const content = template
     .replace(/^title:\s*$/m, `title: ${noteTitle}`)
     .replace(/^type:\s*$/m, `type: ${normalizedType}`)
-    .replace(/^updated:\s*\d{4}-\d{2}-\d{2}\s*$/m, `updated: ${new Date().toISOString().slice(0, 10)}`)
+    .replace(
+      /^updated:\s*\d{4}-\d{2}-\d{2}\s*$/m,
+      `updated: ${new Date().toISOString().slice(0, 10)}`,
+    )
     .replace(/^# Title\s*$/m, `# ${noteTitle}`);
 
   await mkdir(dirname(path), { recursive: true });
@@ -270,9 +290,7 @@ export async function personalKnowledgeSetup(
 
   if (collection) {
     if (!collection.stdout.includes(expectedPath)) {
-      throw new Error(
-        `qmd collection "${COLLECTION}" points somewhere other than ${expectedPath}`,
-      );
+      throw new Error(`qmd collection "${COLLECTION}" points somewhere other than ${expectedPath}`);
     }
   } else {
     await runner("qmd", qmdArgs("collection", "add", expectedPath, "--name", COLLECTION));

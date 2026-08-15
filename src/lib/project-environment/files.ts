@@ -24,17 +24,52 @@ export function readEnv(path: string): Record<string, string> {
 
 function parseEnvValue(value: string): string {
   if (value.startsWith('"') && value.endsWith('"')) {
-    try {
-      return JSON.parse(value) as string;
-    } catch {
-      return value.slice(1, -1);
+    const characters = value.slice(1, -1);
+    let parsed = "";
+    for (let index = 0; index < characters.length; index += 1) {
+      const character = characters[index];
+      if (character !== "\\") {
+        parsed += character;
+        continue;
+      }
+      const escaped = characters[++index];
+      const escapes: Record<string, string> = {
+        '"': '"',
+        $: "$",
+        "\\": "\\",
+        f: "\f",
+        n: "\n",
+        r: "\r",
+        t: "\t",
+        v: "\v",
+      };
+      if (!(escaped in escapes)) throw new Error(`Invalid dotenv escape sequence: \\${escaped}`);
+      parsed += escapes[escaped];
     }
+    return parsed;
   }
-  return value;
+  if (value.startsWith("'") && value.endsWith("'")) return value.slice(1, -1);
+  const comment = value.indexOf("#");
+  return (comment === -1 ? value : value.slice(0, comment)).trimEnd();
 }
 
 function serializeEnvValue(value: string): string {
-  return /\s/.test(value) ? JSON.stringify(value) : value;
+  for (const character of value) {
+    const code = character.codePointAt(0)!;
+    if (code <= 8 || (code >= 14 && code <= 31) || code === 127) {
+      throw new Error("Dotenv values cannot contain unsupported control characters");
+    }
+  }
+  if (/^[A-Za-z0-9_./:@+-]*$/.test(value)) return value;
+  return `"${value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("$", "\\$")
+    .replaceAll('"', '\\"')
+    .replaceAll("\f", "\\f")
+    .replaceAll("\n", "\\n")
+    .replaceAll("\r", "\\r")
+    .replaceAll("\t", "\\t")
+    .replaceAll("\v", "\\v")}"`;
 }
 
 export function upsertEnvValues(path: string, values: Record<string, string>): void {

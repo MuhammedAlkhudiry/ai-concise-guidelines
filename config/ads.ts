@@ -4,7 +4,7 @@ export type AdsProjectPlatform = {
   accountIds: readonly string[];
   campaignIds?: readonly string[];
   access?: {
-    state: "browser" | "pending";
+    state: "browser";
     account: {
       id: string;
       name: string;
@@ -55,18 +55,7 @@ export const ADS_PROJECTS: readonly AdsProjectDefinition[] = [
             },
             tiktok: {
               accountIds: ["7665783056824877073"],
-              campaignIds: ["1872241969712626"],
-              access: {
-                state: "pending" as const,
-                account: {
-                  id: "7665783056824877073",
-                  name: "Awraq_bgexzb",
-                  currency: "SAR",
-                  timezone: "Asia/Riyadh",
-                },
-                message:
-                  "Browser and Events API access are ready; Marketing API developer profile and app approval are pending.",
-              },
+              campaignIds: ["1873239047268401"],
             },
           }
         : {},

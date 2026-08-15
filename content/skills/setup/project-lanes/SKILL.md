@@ -1,32 +1,36 @@
 ---
 name: project-lanes
-description: Persistent clone-lane lifecycle, readiness, service control, CI and pull requests, saved plans, simulator profiles, and cleanup.
+description: Canonical and task-worktree runtime provisioning, readiness, services, saved plans, simulator profiles, reset, and resource cleanup.
 ---
 
-A lane is a persistent, independent Git clone and saved Codex project with an isolated local environment.
+A lane is an isolated runtime environment attached to either a project's canonical clone or a disposable task worktree. The coding harness owns
+worktree creation and deletion. `lanes` must not create, inspect, mutate, or remove Git branches, clones, or worktrees.
 
 Before acting, read the narrowest relevant live `lanes` help. Treat live help as the sole authority for command names, syntax, options, installation,
-and output. Lane status reports availability separately from environment health.
+and output.
 
 ## Workflow
 
-1. Inspect the selected lane before editing. Refuse work when it contains another task's branch, changes, or an in-progress Git operation.
-2. Keep the task branch and every process, URL, database, service, and simulator scoped to the lane.
-3. When a new lane should begin task work immediately, finish creation on a new local task branch based on the latest remote base without an upstream.
-   Otherwise leave it detached and available. Treat a task branch that tracks the remote base branch as unsafe and repair it before any push.
-4. Verify only the current or explicitly selected lane. Run a fleet-wide audit only when the assignment explicitly covers the fleet. Include mobile
-   provisioning or verification only when the assigned work requires it.
-5. Release only after committing, stashing, or cleaning all Git work. Destroy only an available lane. Pending or failed durable cleanup keeps the
-   lifecycle operation incomplete.
-6. Use $project-environment when the repository-owned environment contract is missing or broken.
+1. Use identity `main` for the canonical clone. Its slot is always `0`, its resources are stable, and task cleanup must never remove them.
+2. For a task worktree, choose a concise lowercase task name such as `excel-tree-import`; never use a branch name, path, or numbered lane as identity.
+3. After the harness creates the worktree, run `lanes provision <project> <task> --root <worktree>`. Provisioning registers the root, assigns an
+   internal positive slot for ports, and creates the isolated environment without performing Git operations.
+4. Keep every process, URL, database, service, secret-backed environment file, object-storage bucket, port, and simulator scoped to that identity.
+5. Verify or repair only the current or explicitly selected environment. Audit the full registry only when the task covers it. Include mobile setup
+   only when the work requires it.
+6. Before the harness deletes a task worktree, run `lanes destroy <project> <task> --confirm`. Destruction removes resources and registry state but
+   never removes project files or the worktree itself. Never destroy `main`.
+7. Use $project-environment when the centrally owned environment contract is missing or broken.
 
-Saved plans belong to the project selected by the current lane, not to an individual lane. Installation preserves locally added or removed lanes while
-refreshing committed project defaults.
+Use `lanes` for runtime provisioning, environment repair, and managed services. In a managed environment, never edit, recreate, or replace `.env`,
+`.env.testing`, or mobile `.env.local`, and never prefix their lane-derived values onto project commands. Repair them with `lanes repair`. Use the
+project's own task runner—normally `mise`—for application commands such as checks, tests, and coverage; never add a generic `lanes run` path.
 
-Register each clone as its own Codex project named `<Emoji> <Project> · Lane <N>`. Use one project-specific emoji consistently; it identifies the
-project, not lane readiness.
+Saved plans belong to the selected project, not to an individual runtime environment. The installed project catalog contains stable project metadata;
+task environment registrations live only in external runtime state.
 
 ## Completion
 
-- Current-lane repair is complete when its verification passes.
-- Fleet setup or shared-runtime repair is complete when every configured lane passes audit and no relevant cleanup job remains pending or failed.
+- Provisioning or repair is complete when the selected environment verifies.
+- Destruction is complete when its resources and registry entry are gone and the worktree remains untouched for the harness to delete.
+- Fleet repair is complete when every registered environment passes audit.

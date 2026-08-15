@@ -5,7 +5,35 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "bun:test";
 
-import { syncManagedSkillsAsync } from "./install";
+import { renderBaseRules, syncManagedSkillsAsync } from "./install";
+
+describe("renderBaseRules", () => {
+  test("injects the configured active projects", () => {
+    const rendered = renderBaseRules("Before\n{{ACTIVE_PROJECTS}}\nAfter\n", [
+      {
+        id: "example",
+        name: "Example",
+        remoteUrl: "https://github.com/example/project.git",
+        baseBranch: "main",
+        canonicalRoot: "/projects/example-project",
+        environmentVariable: "EXAMPLE_LANE_ROOT",
+        services: [],
+      },
+    ]);
+
+    expect(rendered).toContain("**Example**");
+    expect(rendered).toContain("[https://github.com/example/project.git]");
+    expect(rendered).toContain("`/projects/example-project`");
+    expect(rendered).toContain("task worktrees are harness-managed");
+    expect(rendered).not.toContain("{{ACTIVE_PROJECTS}}");
+  });
+
+  test("fails when the base rules omit the injection point", () => {
+    expect(() => renderBaseRules("No placeholder\n", [])).toThrow(
+      "Base rules are missing {{ACTIVE_PROJECTS}}",
+    );
+  });
+});
 
 async function withTempDirs(run: (src: string, dest: string) => Promise<void>): Promise<void> {
   const root = await mkdtemp(join(tmpdir(), "my-setup-install-"));

@@ -49,7 +49,7 @@ import Testing
   #expect(document.platforms[0].daily[0].spend == 44.5)
 }
 
-@Test func decodesPendingProviderAsAnExplicitAccessState() throws {
+@Test func decodesReadyTikTokProvider() throws {
   let data = Data(
     #"""
     {
@@ -59,10 +59,10 @@ import Testing
       "platforms": [{
         "platform": "tiktok",
         "platformName": "TikTok Ads",
-        "state": "pending",
+        "state": "ready",
         "configured": true,
-        "account": null,
-        "message": "TikTok Marketing API application approval is pending.",
+        "account": {"id":"7665783056824877073","name":"Awraq_bgexzb","currency":"SAR","timezone":"Asia/Riyadh"},
+        "message": null,
         "checkedAt": "2026-07-30T12:00:00Z"
       }]
     }
@@ -70,7 +70,8 @@ import Testing
   )
 
   let document = try JSONDecoder().decode(AdsStatusDocument.self, from: data)
-  #expect(document.platforms[0].state == .pending)
+  #expect(document.platforms[0].state == .ready)
+  #expect(document.platforms[0].account?.id == "7665783056824877073")
 }
 
 @Test func decodesBrowserOnlyProviderAsAnExplicitAccessState() throws {

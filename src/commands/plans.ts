@@ -23,12 +23,18 @@ type Plan = {
   updated: string;
   title: string;
   description: string;
+  status: PlanStatus;
 };
+
+type PlanStatus = "pending" | "progress" | "done";
 
 type Options = {
   project: string;
   plansRoot: string;
   query: string;
+  all: boolean;
+  json: boolean;
+  status?: string;
   write: boolean;
 };
 
@@ -45,15 +51,13 @@ function parseOptions(args: string[]): Options {
       }),
     )?.id;
   }
-  const remote = spawnSync("git", ["remote", "get-url", "origin"], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-  }).stdout.trim();
-  const remoteProject = remote.match(/([^/:]+?)(?:\.git)?$/)?.[1];
-  const cwdProject = laneProject || remoteProject || basename(process.cwd().replace(/\/$/, ""));
+  const cwdProject = laneProject || basename(process.cwd().replace(/\/$/, ""));
   const query: string[] = [];
   let project = cwdProject;
   let plansRoot = join(home, "plans");
+  let all = false;
+  let json = false;
+  let status: string | undefined;
   let write = false;
 
   for (let index = 0; index < args.length; index += 1) {
@@ -61,6 +65,16 @@ function parseOptions(args: string[]): Options {
 
     if (arg === "--write") {
       write = true;
+      continue;
+    }
+
+    if (arg === "--all") {
+      all = true;
+      continue;
+    }
+
+    if (arg === "--json") {
+      json = true;
       continue;
     }
 
@@ -74,6 +88,11 @@ function parseOptions(args: string[]): Options {
       continue;
     }
 
+    if (arg.startsWith("--status=")) {
+      status = arg.slice("--status=".length);
+      continue;
+    }
+
     query.push(arg);
   }
 
@@ -81,6 +100,9 @@ function parseOptions(args: string[]): Options {
     project,
     plansRoot: resolve(plansRoot.replace(/^~/, home)),
     query: query.join(" ").trim(),
+    all,
+    json,
+    status,
     write,
   };
 }
@@ -102,6 +124,37 @@ function title(text: string, fallback: string): string {
   return text.match(/^#\s+(.+)$/m)?.[1].trim() || fallback.replace(/\.md$/, "");
 }
 
+function isPlanStatus(value: string): value is PlanStatus {
+  return value === "pending" || value === "progress" || value === "done";
+}
+
+function planStatus(value: string | undefined, path?: string): PlanStatus {
+  if (!value) return "pending";
+  if (isPlanStatus(value)) return value;
+  throw new Error(
+    `Invalid plan status${path ? ` in ${path}` : ""}: ${value}. Use pending, progress, or done.`,
+  );
+}
+
+function today(): string {
+  const now = new Date();
+  return [
+    now.getFullYear().toString().padStart(4, "0"),
+    (now.getMonth() + 1).toString().padStart(2, "0"),
+    now.getDate().toString().padStart(2, "0"),
+  ].join("-");
+}
+
+function setFrontmatterField(text: string, field: string, value: string): string {
+  const match = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return text;
+  const pattern = new RegExp(`^${field}:\\s*.*$`, "m");
+  const metadata = pattern.test(match[1])
+    ? match[1].replace(pattern, `${field}: ${value}`)
+    : `${match[1]}\n${field}: ${value}`;
+  return `---\n${metadata}\n---${text.slice(match[0].length)}`;
+}
+
 function readPlan(projectRoot: string, project: string, entry: string): Plan | undefined {
   const full = join(projectRoot, entry);
   const stat = statSync(full);
@@ -120,6 +173,7 @@ function readPlan(projectRoot: string, project: string, entry: string): Plan | u
     updated: meta.updated || "missing",
     title: title(text, entry),
     description: meta.description || "",
+    status: planStatus(meta.status, main),
   };
 }
 
@@ -137,7 +191,10 @@ function indexBody(project: string, plans: Plan[]): string {
   return [
     `# ${project} Plans`,
     "",
-    ...plans.map((plan) => `- [${plan.title}](${plan.relativePath}) - updated ${plan.updated}`),
+    ...plans.map(
+      (plan) =>
+        `- [${plan.title}](${plan.relativePath}) - ${plan.status} - updated ${plan.updated}`,
+    ),
     "",
   ].join("\n");
 }
@@ -147,6 +204,15 @@ function pad(value: string, width: number): string {
 }
 
 function relatedProjectNames(options: Options): string[] {
+  if (options.all) {
+    if (!existsSync(options.plansRoot)) return [];
+
+    return readdirSync(options.plansRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+      .map((entry) => entry.name)
+      .sort();
+  }
+
   return [options.project];
 }
 
@@ -212,16 +278,17 @@ function printPlansTable(plans: Plan[]): void {
     Math.max("Title".length, ...plans.map((plan) => plan.title.length)),
   );
   const updatedWidth = Math.max("Updated".length, ...plans.map((plan) => plan.updated.length));
+  const statusWidth = Math.max("Status".length, ...plans.map((plan) => plan.status.length));
   const descriptionWidth = Math.min(
     56,
     Math.max("Description".length, ...plans.map((plan) => plan.description.length)),
   );
 
   console.log(
-    `${pad("Updated", updatedWidth)}  ${pad("Title", titleWidth)}  ${pad("Description", descriptionWidth)}  File`,
+    `${pad("Updated", updatedWidth)}  ${pad("Status", statusWidth)}  ${pad("Title", titleWidth)}  ${pad("Description", descriptionWidth)}  File`,
   );
   console.log(
-    `${"-".repeat(updatedWidth)}  ${"-".repeat(titleWidth)}  ${"-".repeat(descriptionWidth)}  ${"-".repeat(4)}`,
+    `${"-".repeat(updatedWidth)}  ${"-".repeat(statusWidth)}  ${"-".repeat(titleWidth)}  ${"-".repeat(descriptionWidth)}  ${"-".repeat(4)}`,
   );
 
   for (const plan of plans) {
@@ -232,7 +299,7 @@ function printPlansTable(plans: Plan[]): void {
         ? `${plan.description.slice(0, descriptionWidth - 3)}...`
         : plan.description;
     console.log(
-      `${pad(plan.updated, updatedWidth)}  ${pad(displayTitle, titleWidth)}  ${pad(displayDescription, descriptionWidth)}  ${plan.relativePath}`,
+      `${pad(plan.updated, updatedWidth)}  ${pad(plan.status, statusWidth)}  ${pad(displayTitle, titleWidth)}  ${pad(displayDescription, descriptionWidth)}  ${plan.relativePath}`,
     );
   }
 }
@@ -242,6 +309,24 @@ function listPlans(options: Options): void {
   const projectNames = relatedProjectNames(options);
   const plans = activePlansForList(options);
   const multipleProjects = projectNames.length > 1;
+
+  if (options.json) {
+    console.log(
+      JSON.stringify(
+        {
+          contractVersion: 2,
+          plansRoot: options.plansRoot,
+          projects: projectNames.map((project) => ({
+            id: project,
+            plans: plans.filter((plan) => plan.project === project),
+          })),
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
 
   console.log(`${options.project} plans`);
   console.log(multipleProjects ? options.plansRoot : projectRoot);
@@ -282,6 +367,70 @@ function showPlan(options: Options): void {
 
 function showPath(options: Options): void {
   console.log(requirePlan(options).path);
+}
+
+function savePlan(options: Options): void {
+  const plan = requirePlan(options);
+  const contents = readFileSync(0, "utf8");
+
+  if (!contents.trim()) {
+    console.error("Plan content cannot be empty.");
+    process.exit(1);
+  }
+
+  const metadata = frontmatter(contents);
+  const requiredFields = ["created", "updated", "project", "description"];
+  const missingFields = requiredFields.filter((field) => !metadata[field]);
+  if (missingFields.length > 0) {
+    console.error(`Plan frontmatter is missing: ${missingFields.join(", ")}.`);
+    process.exit(1);
+  }
+  if (metadata.project !== plan.project) {
+    console.error(`Plan project must remain ${plan.project}.`);
+    process.exit(1);
+  }
+
+  const status = planStatus(metadata.status);
+  let savedContents = setFrontmatterField(contents, "status", status);
+  savedContents = setFrontmatterField(savedContents, "updated", today());
+  writeFileSync(plan.path, savedContents);
+
+  const projectRoot = join(options.plansRoot, options.project);
+  writeFileSync(
+    join(projectRoot, "INDEX.md"),
+    indexBody(options.project, activePlans(projectRoot, options.project)),
+  );
+  console.log(plan.path);
+}
+
+function archivePlans(plansRoot: string, plans: Plan[]): void {
+  for (const plan of plans) {
+    const target = join(plansRoot, plan.project, "archive", plan.name);
+    if (existsSync(target)) {
+      console.error(`Archived plan already exists: ${target}`);
+      process.exit(1);
+    }
+  }
+
+  for (const plan of plans) {
+    const projectRoot = join(plansRoot, plan.project);
+    const archiveRoot = join(projectRoot, "archive");
+    mkdirSync(archiveRoot, { recursive: true });
+    renameSync(join(projectRoot, plan.name), join(archiveRoot, plan.name));
+  }
+
+  for (const project of new Set(plans.map((plan) => plan.project))) {
+    const projectRoot = join(plansRoot, project);
+    writeFileSync(
+      join(projectRoot, "INDEX.md"),
+      indexBody(project, activePlans(projectRoot, project)),
+    );
+  }
+
+  console.log(`Archived ${plans.length} plan${plans.length === 1 ? "" : "s"}.`);
+  for (const plan of plans) {
+    console.log(join(plansRoot, plan.project, "archive", plan.name));
+  }
 }
 
 function archivePlan(options: Options): void {
@@ -335,31 +484,36 @@ function archivePlan(options: Options): void {
     process.exit(1);
   }
 
-  const archiveRoot = join(projectRoot, "archive");
+  const selected = plans.filter((plan) => selectedPlans.includes(plan.name));
+  archivePlans(options.plansRoot, selected);
+}
 
-  for (const selected of selectedPlans) {
-    const target = join(archiveRoot, selected);
-
-    if (existsSync(target)) {
-      console.error(`Archived plan already exists: ${target}`);
-      process.exit(1);
-    }
+function archiveDonePlans(options: Options): void {
+  const plans = activePlansForList(options).filter((plan) => plan.status === "done");
+  if (plans.length === 0) {
+    console.log("No done plans to archive.");
+    return;
   }
+  archivePlans(options.plansRoot, plans);
+}
 
-  mkdirSync(archiveRoot, { recursive: true });
-  for (const selected of selectedPlans) {
-    renameSync(join(projectRoot, selected), join(archiveRoot, selected));
+function setPlanStatus(options: Options): void {
+  const plan = requirePlan(options);
+  if (!options.status) {
+    throw new Error("--status must be pending, progress, or done.");
   }
+  const status = planStatus(options.status);
+  let contents = readFileSync(plan.path, "utf8");
+  contents = setFrontmatterField(contents, "status", status);
+  contents = setFrontmatterField(contents, "updated", today());
+  writeFileSync(plan.path, contents);
 
+  const projectRoot = join(options.plansRoot, options.project);
   writeFileSync(
     join(projectRoot, "INDEX.md"),
     indexBody(options.project, activePlans(projectRoot, options.project)),
   );
-
-  console.log(`Archived ${selectedPlans.length} plan${selectedPlans.length === 1 ? "" : "s"}.`);
-  for (const selected of selectedPlans) {
-    console.log(join(archiveRoot, selected));
-  }
+  console.log(`${plan.path}\t${status}`);
 }
 
 function indexPlans(options: Options): void {
@@ -370,7 +524,7 @@ function indexPlans(options: Options): void {
   console.log(`Root: ${projectRoot}`);
   console.log(`Active plans: ${plans.length}`);
   for (const plan of plans) {
-    console.log(`- ${plan.name}: updated ${plan.updated}`);
+    console.log(`- ${plan.name}: ${plan.status}, updated ${plan.updated}`);
   }
 
   if (options.write) {
@@ -394,6 +548,12 @@ export function runPlansCommand(command: string, rawOptions: string[]): void {
     showPlan(options);
   } else if (command === "path") {
     showPath(options);
+  } else if (command === "save") {
+    savePlan(options);
+  } else if (command === "status") {
+    setPlanStatus(options);
+  } else if (command === "archive-done") {
+    archiveDonePlans(options);
   } else if (
     command === "archive" ||
     command === "delete" ||

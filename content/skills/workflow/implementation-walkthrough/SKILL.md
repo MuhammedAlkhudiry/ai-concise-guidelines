@@ -40,9 +40,11 @@ Persist this shape, omitting `pr` when no PR exists, and reconstruct broader con
 ## Walkthrough Loop
 
 1. Use warm, calm, gentle language and the final-answer shape below for walkthrough turns.
-2. Present only the current part and wait for the user's response before continuing.
-3. After each walkthrough turn, persist the cursor and each part's `pending`, `completed`, `skipped`, or `stale` status.
-4. When the user requests a change, pause the walkthrough and handle the work normally, regardless of size. Remain in the detour until the user
+2. Make every **Do** self-contained: include the exact target URL as a clickable Markdown link plus any required account or role, test data, starting
+   state, and navigation the URL cannot encode. Never tell the user to open or visit a named page without linking directly to it.
+3. Present only the current part and wait for the user's response before continuing.
+4. After each walkthrough turn, persist the cursor and each part's `pending`, `completed`, `skipped`, or `stale` status.
+5. When the user requests a change, pause the walkthrough and handle the work normally, regardless of size. Remain in the detour until the user
    explicitly asks for the next part, then reconcile affected parts before resuming.
 
 ## Final-answer shape
@@ -62,7 +64,8 @@ A short plain-language behavioral explanation with the technical context needed 
 
 **Do**
 
-One small, exact action for inspecting or exercising the part.
+One small, exact, self-contained action for inspecting or exercising the part, including the clickable target URL and everything needed to complete
+it.
 
 **Expected**
 

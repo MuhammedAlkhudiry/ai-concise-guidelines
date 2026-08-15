@@ -294,11 +294,13 @@ function provider(platform: AdPlatform, mapping?: AdsProjectPlatform): Provider 
   if (platform === "google") return googleProvider(mapping);
   if (platform === "meta") return metaProvider(mapping);
   if (platform === "snapchat") return snapchatProvider(mapping);
-  return unavailableProvider(platform, mapping);
+  if (platform === "tiktok") return tiktokProvider(mapping);
+  return unavailableProvider(mapping);
 }
 
-function unavailableProvider(platform: "apple" | "tiktok", mapping?: AdsProjectPlatform): Provider {
-  const credentialPath = platform === "apple" ? "apple-ads/oauth.json" : "tiktok-ads/oauth.json";
+function unavailableProvider(mapping?: AdsProjectPlatform): Provider {
+  const platform = "apple";
+  const credentialPath = "apple-ads/oauth.json";
   const message = `${PLATFORM_NAMES[platform]} API credentials are not configured at ${credentialPath}.`;
   const access = (): AdAccess => ({
     platform,
@@ -807,6 +809,217 @@ async function snapchatGet(path: string, token: string): Promise<JsonObject> {
   const body = await jsonResponse(response);
   if (!response.ok || String(asObject(body).request_status || "").toUpperCase() === "ERROR") {
     throw apiError("Snapchat Ads", response, body);
+  }
+  return asObject(body);
+}
+
+function tiktokProvider(mapping?: AdsProjectPlatform): Provider {
+  return {
+    platform: "tiktok",
+    async status() {
+      return safeAccess("tiktok", await credentialExists("tiktok-ads/oauth.json"), async () =>
+        ensureMappedAccount(await tiktokAccount(), mapping),
+      );
+    },
+    async stats(period, campaignID) {
+      const configured = await credentialExists("tiktok-ads/oauth.json");
+      try {
+        const credential = await readCredential("tiktok-ads/oauth.json");
+        const account = ensureMappedAccount(await tiktokAccount(credential), mapping);
+        const range = reportingRange(period, account.timezone);
+        const selectedCampaignID = allowedCampaignID(campaignID, mapping);
+        const campaignIDs = selectedCampaignID
+          ? [selectedCampaignID]
+          : mapping?.campaignIds?.length
+            ? [...mapping.campaignIds]
+            : null;
+        const rows = (await tiktokReport(credential, range)).filter((row) => {
+          const id = stringAt(row, "dimensions.campaign_id");
+          return !campaignIDs || campaignIDs.includes(id);
+        });
+        const normalizedRows = rows.map((row) => ({
+          date: stringAt(row, "dimensions.stat_time_day").slice(0, 10),
+          impressions: numberAt(row, "metrics.impressions"),
+          clicks: numberAt(row, "metrics.clicks"),
+          spend: numberAt(row, "metrics.spend"),
+          conversion: numberAt(row, "metrics.conversion"),
+          real_time_conversion: numberAt(row, "metrics.real_time_conversion"),
+        }));
+        const daily = groupedDailyStats(normalizedRows, range, {
+          date: "date",
+          impressions: "impressions",
+          clicks: "clicks",
+          spend: (row) => numberAt(row, "spend"),
+          conversions: [
+            ["conversion", "conversion"],
+            ["real_time_conversion", "real_time_conversion"],
+          ],
+        });
+        return readyStats("tiktok", account, period, range, {
+          attribution:
+            "TikTok Ads Manager attribution settings; conversion is reported by impression time and real_time_conversion by conversion time",
+          impressions: sum(normalizedRows, "impressions"),
+          clicks: sum(normalizedRows, "clicks"),
+          spend: sum(normalizedRows, "spend"),
+          nativeConversions: nativeMetrics(normalizedRows, [
+            ["conversion", "conversion"],
+            ["real_time_conversion", "real_time_conversion"],
+          ]),
+          checkedAt: now(),
+          daily,
+          freshnessNote:
+            "TikTok reporting can restate recent conversion data; the range excludes the current account day.",
+        });
+      } catch (error) {
+        return emptyStats(errorAccess("tiktok", configured, error), period);
+      }
+    },
+    async campaigns(activeOnly) {
+      const configured = await credentialExists("tiktok-ads/oauth.json");
+      try {
+        const credential = await readCredential("tiktok-ads/oauth.json");
+        const account = ensureMappedAccount(await tiktokAccount(credential), mapping);
+        const campaigns = (await tiktokCampaigns(credential))
+          .filter(
+            (row) =>
+              !mapping?.campaignIds?.length ||
+              mapping.campaignIds.includes(stringAt(row, "campaign_id")),
+          )
+          .filter(
+            (row) =>
+              !activeOnly ||
+              (stringAt(row, "operation_status") === "ENABLE" &&
+                stringAt(row, "secondary_status") === "CAMPAIGN_STATUS_ENABLE"),
+          )
+          .map((row) => ({
+            id: stringAt(row, "campaign_id"),
+            name: stringAt(row, "campaign_name"),
+            status: stringAt(row, "operation_status"),
+            deliveryStatus: nullableStringAt(row, "secondary_status"),
+            objective: nullableStringAt(row, "objective_type"),
+            startAt: null,
+            endAt: null,
+          }));
+        return { ...readyAccess("tiktok", account), campaigns };
+      } catch (error) {
+        return { ...errorAccess("tiktok", configured, error), campaigns: [] };
+      }
+    },
+  };
+}
+
+async function tiktokAccount(existingCredential?: JsonObject): Promise<AdAccount> {
+  const credential = existingCredential ?? (await readCredential("tiktok-ads/oauth.json"));
+  const advertiserID = stringAt(credential, "advertiser_id");
+  const authorized = await tiktokGet(
+    "oauth2/advertiser/get/",
+    new URLSearchParams({
+      app_id: stringAt(credential, "app_id"),
+      secret: stringAt(credential, "app_secret"),
+    }),
+    stringAt(credential, "access_token"),
+  );
+  const authorizedAccount = objectsAt(authorized, "data.list").find(
+    (row) => stringAt(row, "advertiser_id") === advertiserID,
+  );
+  if (!authorizedAccount) {
+    throw new Error(`TikTok advertiser ${advertiserID} is not authorized for the configured app.`);
+  }
+  const info = await tiktokGet(
+    "advertiser/info/",
+    new URLSearchParams({
+      advertiser_ids: JSON.stringify([advertiserID]),
+      fields: JSON.stringify(["name", "currency", "timezone"]),
+    }),
+    stringAt(credential, "access_token"),
+  );
+  const account = objectsAt(info, "data.list")[0] ?? {};
+  return {
+    id: advertiserID,
+    name:
+      nullableStringAt(account, "name") ||
+      nullableStringAt(authorizedAccount, "advertiser_name") ||
+      nullableStringAt(credential, "advertiser_name"),
+    currency: nullableStringAt(account, "currency"),
+    timezone: nullableStringAt(account, "timezone"),
+  };
+}
+
+async function tiktokCampaigns(credential: JsonObject): Promise<JsonObject[]> {
+  const rows: JsonObject[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const body = await tiktokGet(
+      "campaign/get/",
+      new URLSearchParams({
+        advertiser_id: stringAt(credential, "advertiser_id"),
+        fields: JSON.stringify([
+          "campaign_id",
+          "campaign_name",
+          "operation_status",
+          "secondary_status",
+          "objective_type",
+        ]),
+        page: String(page),
+        page_size: "1000",
+      }),
+      stringAt(credential, "access_token"),
+    );
+    rows.push(...objectsAt(body, "data.list"));
+    totalPages = Math.max(1, numberAt(body, "data.page_info.total_page"));
+    page += 1;
+  } while (page <= totalPages);
+  return rows;
+}
+
+async function tiktokReport(
+  credential: JsonObject,
+  range: { from: string; to: string },
+): Promise<JsonObject[]> {
+  const rows: JsonObject[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const body = await tiktokGet(
+      "report/integrated/get/",
+      new URLSearchParams({
+        advertiser_id: stringAt(credential, "advertiser_id"),
+        report_type: "BASIC",
+        data_level: "AUCTION_CAMPAIGN",
+        dimensions: JSON.stringify(["campaign_id", "stat_time_day"]),
+        metrics: JSON.stringify([
+          "impressions",
+          "clicks",
+          "spend",
+          "conversion",
+          "real_time_conversion",
+        ]),
+        start_date: range.from,
+        end_date: range.to,
+        page: String(page),
+        page_size: "1000",
+      }),
+      stringAt(credential, "access_token"),
+    );
+    rows.push(...objectsAt(body, "data.list"));
+    totalPages = Math.max(1, numberAt(body, "data.page_info.total_page"));
+    page += 1;
+  } while (page <= totalPages);
+  return rows;
+}
+
+async function tiktokGet(
+  path: string,
+  query: URLSearchParams,
+  accessToken: string,
+): Promise<JsonObject> {
+  const response = await fetch(`https://business-api.tiktok.com/open_api/v1.3/${path}?${query}`, {
+    headers: { "Access-Token": accessToken },
+  });
+  const body = await jsonResponse(response);
+  if (!response.ok || numberAt(body, "code") !== 0) {
+    throw apiError("TikTok Ads", response, body);
   }
   return asObject(body);
 }

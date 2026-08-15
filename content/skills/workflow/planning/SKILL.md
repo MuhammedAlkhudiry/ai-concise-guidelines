@@ -13,6 +13,13 @@ description: Implementation planning and saved-plan management.
 4. When the user explicitly asks to persist or manage a plan, run `lanes plans --help` and follow its current storage, frontmatter, indexing, and
    archiving contract.
 
+## Saved Plan Status
+
+- Use `pending` for work that has not started, `progress` for work currently underway, and `done` for completed work.
+- Omit `status` only when creating a pending plan; the saved-plan contract defaults a missing status to `pending`.
+- Do not invent synonyms such as `in_progress`, `active`, or `complete`.
+- Archive completed plans with the CLI; bulk archive affects only plans whose status is `done`.
+
 ## Plan Shape
 
 - Keep plans short; expand only when a detailed plan is requested.

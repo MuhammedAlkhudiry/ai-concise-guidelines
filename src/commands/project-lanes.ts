@@ -1,23 +1,19 @@
+import { execa } from "execa";
+
 import {
-  addProjectLane,
-  auditProjectLanes,
   applyLaneSimulatorSlimming,
+  auditProjectLanes,
   destroyProjectLane,
   getActiveProject,
   getProjectLanes,
   LANES_STATE_PATH,
-  listProjectLaneCleanupJobs,
   listProjectLaneStatuses,
+  provisionProjectLane,
   repairProjectLane,
-  releaseProjectLane,
-  runProjectLaneCleanupJobs,
   resetProjectLane,
   restoreLaneSimulators,
-  setupProjectLanes,
   simulatorFleetFailures,
   statusLaneSimulators,
-  startProjectLaneCleanupWorker,
-  syncProjectLane,
   verifyProjectLane,
   type SimulatorFleetReport,
   type SimulatorSlimmingMode,
@@ -34,15 +30,10 @@ import {
   type LaneServicesStatus,
   verifyLaneServiceDefinitions,
 } from "../lib/lane-services";
-import { laneCiStatuses } from "../lib/lane-ci";
-import { createLanePullRequest } from "../lib/lane-pull-request";
-import type { PullRequestCreationStage } from "../lib/lane-pull-request";
-import { execa } from "execa";
 
 function printSimulatorFleetReport(report: SimulatorFleetReport, json: boolean): void {
-  if (json) {
-    console.log(JSON.stringify(report, null, 2));
-  } else {
+  if (json) console.log(JSON.stringify(report, null, 2));
+  else {
     for (const simulator of report.simulators) {
       const status = simulator.error
         ? `ERROR\t${simulator.error}`
@@ -66,30 +57,16 @@ function slimmingMode(value: string | undefined): SimulatorSlimmingMode {
   throw new Error(`Unknown simulator slimming mode: ${value}`);
 }
 
-export async function projectLanesSetup(
-  project?: string,
-  mobile = false,
-  compact = false,
-): Promise<void> {
-  await setupProjectLanes(project, { mobile, compact });
-  verifyLaneServiceDefinitions(project);
-  if (compact) console.log(`lanes setup${project ? ` ${project}` : ""}: ok`);
-}
-
-export async function projectLanesAdd(
+export async function projectLanesProvision(
   project: string,
-  numberValue?: string,
+  lane: string,
+  root?: string,
   mobile = false,
   compact = false,
-  branch?: string,
 ): Promise<void> {
-  const number = numberValue === undefined ? undefined : Number(numberValue);
-  if (number !== undefined && (!Number.isSafeInteger(number) || number < 1)) {
-    throw new Error("Lane number must be positive");
-  }
-  const lane = await addProjectLane(project, number, { mobile, compact, branch });
-  verifyLaneServiceDefinitions(project, lane.id);
-  console.log(`${project}/${lane.id}\tADDED\t${lane.path}${branch ? `\t${branch}` : ""}`);
+  const provisioned = await provisionProjectLane(project, lane, { root, mobile, compact });
+  verifyLaneServiceDefinitions(project, lane);
+  console.log(`${project}/${lane}\tPROVISIONED\t${provisioned.path}\tslot=${provisioned.number}`);
 }
 
 export async function projectLanesStatus(
@@ -104,27 +81,11 @@ export async function projectLanesStatus(
     );
     return;
   }
-  for (const {
-    lane,
-    state,
-    availability,
-    health,
-    branch,
-    baseBranchBehind,
-    occupancyReason,
-    healthReason,
-  } of statuses) {
-    const baseStatus =
-      availability === "available" && baseBranchBehind !== undefined
-        ? baseBranchBehind === 0
-          ? "latest"
-          : `${baseBranchBehind} behind`
-        : undefined;
-    const detail =
-      [branch, baseStatus, occupancyReason, healthReason].filter(Boolean).join("; ") || "verified";
-    console.log(
-      `${lane.project.id}/${lane.id}\t${availability.toUpperCase()}\t${health.toUpperCase()}\t${detail}`,
-    );
+  for (const { lane, state, health, healthReason } of statuses) {
+    const detail = [lane.kind, `slot ${lane.number}`, lane.path, healthReason]
+      .filter(Boolean)
+      .join("; ");
+    console.log(`${lane.project.id}/${lane.id}\t${health.toUpperCase()}\t${detail}`);
     if (verbose && state.lastError) console.log(state.lastError);
   }
 }
@@ -181,29 +142,10 @@ export async function projectLaneSimulatorsRestore(project?: string, json = fals
 }
 
 export async function projectLanesReset(project: string, lane: string): Promise<void> {
-  await resetProjectLane(project, lane);
-  console.log(`${project}/${lane}\tRESET\tdata reset; Git work preserved`);
-}
-
-export async function projectLanesSync(project: string, lane: string): Promise<void> {
-  await syncProjectLane(project, lane);
-  console.log(`${project}/${lane}\tSYNCED\tLATEST`);
-}
-
-export async function projectLanesRelease(
-  project: string,
-  lane: string,
-  confirm = false,
-  mobile = false,
-  compact = false,
-): Promise<void> {
-  if (!confirm) throw new Error("Pass --confirm to discard lane work and make it available");
-  await releaseProjectLane(project, lane, confirm, {
-    mobile,
-    compact,
-    beforeRelease: () => stopLaneServices(project, lane, "all"),
+  await resetProjectLane(project, lane, {
+    beforeReset: () => stopLaneServices(project, lane, "all"),
   });
-  console.log(`${project}/${lane}\tAVAILABLE\tREADY`);
+  console.log(`${project}/${lane}\tRESET\tdata reset; project files preserved`);
 }
 
 export async function projectLanesDestroy(
@@ -211,38 +153,12 @@ export async function projectLanesDestroy(
   lane: string,
   confirm = false,
 ): Promise<void> {
-  if (!confirm) throw new Error("Pass --confirm to destroy a persistent project lane");
-  const job = await destroyProjectLane(project, lane, confirm, {
+  const destroyed = await destroyProjectLane(project, lane, confirm, {
     beforeDestroy: () => stopLaneServices(project, lane, "all"),
   });
-  startProjectLaneCleanupWorker();
-  console.log(`${project}/${lane}\tREMOVED\tcleanup queued as ${job.id}`);
-}
-
-export async function projectLanesCleanup(operation: string, json = false): Promise<void> {
-  if (operation === "run" || operation === "retry") await runProjectLaneCleanupJobs();
-  if (operation !== "status" && operation !== "run" && operation !== "retry") {
-    throw new Error(`Unknown cleanup operation: ${operation}`);
-  }
-  const jobs = listProjectLaneCleanupJobs();
-  if (json) {
-    console.log(JSON.stringify({ jobs }, null, 2));
-  } else if (jobs.length === 0) {
-    console.log("No pending lane cleanup jobs");
-  } else {
-    for (const job of jobs) {
-      console.log(
-        `${job.project.id}/${job.laneId}\t${job.phase.toUpperCase()}\tattempts=${job.attempts}${job.lastError ? `\t${job.lastError}` : ""}`,
-      );
-    }
-  }
-  if (operation === "retry" && jobs.length > 0) {
-    throw new Error(`${jobs.length} lane cleanup job${jobs.length === 1 ? "" : "s"} remain`);
-  }
-}
-
-export function resumeProjectLaneCleanup(): void {
-  startProjectLaneCleanupWorker();
+  console.log(
+    `${project}/${lane}\tDESTROYED\tresources removed; root preserved at ${destroyed.path}`,
+  );
 }
 
 function printServiceStatuses(statuses: LaneServicesStatus[], json: boolean): void {
@@ -285,7 +201,7 @@ export async function projectLaneServices(
     return;
   }
   if (!project || !lane || !service) {
-    throw new Error(`lanes services ${operation} requires project, lane, and service`);
+    throw new Error(`lanes services ${operation} requires project, environment, and service`);
   }
   if (operation === "start" || operation === "stop" || operation === "restart") {
     const laneIDs =
@@ -307,8 +223,7 @@ export async function projectLaneServices(
     if (!Number.isSafeInteger(lines) || lines < 1) throw new Error("--lines must be positive");
     if (options.follow) {
       if (options.json) throw new Error("--follow and --json cannot be combined");
-      const path = laneServiceLogPath(project, lane, service);
-      await execa("tail", ["-n", String(lines), "-f", path], {
+      await execa("tail", ["-n", String(lines), "-f", laneServiceLogPath(project, lane, service)], {
         stdio: "inherit",
       });
       return;
@@ -322,48 +237,6 @@ export async function projectLaneServices(
   throw new Error(`Unknown services operation: ${operation}`);
 }
 
-export async function projectLaneCi(
-  operation: string,
-  project: string,
-  lane?: string,
-  json = false,
-): Promise<void> {
-  if (operation !== "status") throw new Error(`Unknown CI operation: ${operation}`);
-  const statuses = (await laneCiStatuses(project)).filter(
-    (status) => !lane || lane === "all" || status.lane === lane,
-  );
-  if (lane && lane !== "all" && statuses.length === 0) {
-    throw new Error(`Unknown lane: ${project}/${lane}`);
-  }
-  if (json) {
-    console.log(JSON.stringify({ lanes: statuses }, null, 2));
-    return;
-  }
-  for (const status of statuses) {
-    console.log(
-      `${status.project}/${status.lane}\t${status.state.toUpperCase()}\t${status.branch}`,
-    );
-  }
-}
-
-export async function projectLanePullRequest(
-  operation: string,
-  project: string,
-  lane: string,
-  json = false,
-): Promise<void> {
-  if (operation !== "create") throw new Error(`Unknown pull-request operation: ${operation}`);
-  const reportProgress = (stage: PullRequestCreationStage): void => {
-    console.log(json ? JSON.stringify({ type: "progress", stage }) : `PR\t${stage.toUpperCase()}`);
-  };
-  const pullRequest = await createLanePullRequest(project, lane, reportProgress);
-  console.log(
-    json
-      ? JSON.stringify({ type: "complete", ...pullRequest })
-      : `${pullRequest.project}/${pullRequest.lane}\tCREATED\t${pullRequest.url}`,
-  );
-}
-
 export async function projectLaneOpen(
   project: string,
   lane: string,
@@ -373,11 +246,9 @@ export async function projectLaneOpen(
     target !== "phpstorm" &&
     target !== "finder" &&
     target !== "simulator" &&
-    target !== "browser" &&
-    target !== "branch" &&
-    target !== "github-branch"
+    target !== "browser"
   ) {
-    throw new Error(`Unknown lane target: ${target}`);
+    throw new Error(`Unknown environment target: ${target}`);
   }
   await openLaneTarget(project, lane, target);
 }

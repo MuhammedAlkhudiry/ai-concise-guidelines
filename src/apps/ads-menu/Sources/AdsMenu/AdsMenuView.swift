@@ -97,7 +97,7 @@ struct AdsMenuView: View {
       .pickerStyle(.menu)
       .frame(width: 155)
       Picker(
-        "Period",
+        "Reporting window",
         selection: Binding(
           get: { store.period },
           set: { store.selectPeriod($0) }

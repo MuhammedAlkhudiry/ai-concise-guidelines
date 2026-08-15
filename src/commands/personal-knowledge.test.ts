@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -101,9 +101,7 @@ async function capture(run: () => Promise<void>): Promise<string[]> {
   }
 }
 
-function recordingRunner(
-  output = "",
-): { calls: string[][]; runner: PersonalKnowledgeRunner } {
+function recordingRunner(output = ""): { calls: string[][]; runner: PersonalKnowledgeRunner } {
   const calls: string[][] = [];
   return {
     calls,
@@ -169,6 +167,34 @@ describe("personal knowledge commands", () => {
           "json",
         ],
       ]);
+    });
+  });
+
+  test("runs qmd with its installation runtime first in PATH", async () => {
+    await withRepository(async (root) => {
+      const commandRoot = await mkdtemp(join(tmpdir(), "my-setup-qmd-runtime-"));
+      const conflictingBin = join(commandRoot, "conflicting-bin");
+      const qmdBin = join(commandRoot, "qmd-bin");
+      mkdirSync(conflictingBin);
+      mkdirSync(qmdBin);
+      writeFileSync(join(conflictingBin, "node"), "#!/bin/sh\nexit 1\n");
+      writeFileSync(join(qmdBin, "node"), "#!/bin/sh\nexit 0\n");
+      writeFileSync(
+        join(qmdBin, "qmd"),
+        `#!/bin/sh\n[ "$(command -v node)" = "${join(qmdBin, "node")}" ]\n`,
+      );
+      chmodSync(join(conflictingBin, "node"), 0o755);
+      chmodSync(join(qmdBin, "node"), 0o755);
+      chmodSync(join(qmdBin, "qmd"), 0o755);
+
+      const originalPath = process.env.PATH;
+      process.env.PATH = [conflictingBin, qmdBin, originalPath].filter(Boolean).join(":");
+      try {
+        await personalKnowledgeFind("runtime consistency", { root, keyword: true });
+      } finally {
+        process.env.PATH = originalPath;
+        rmSync(commandRoot, { recursive: true, force: true });
+      }
     });
   });
 

@@ -5,7 +5,6 @@ import { dirname, resolve } from "node:path";
 import { z } from "zod";
 
 import { output, run } from "./command";
-import { upsertEnvValues } from "./files";
 import type { ProjectEnvironmentContext } from "./types";
 
 export function artisan(context: ProjectEnvironmentContext, step: string, args: string[]): void {
@@ -29,9 +28,9 @@ export function ensureLaravelAppKey(context: ProjectEnvironmentContext): void {
   if (!/^APP_KEY=base64:.+/m.test(readFileSync(envPath, "utf8"))) {
     artisan(context, "app-key", ["key:generate", "--force"]);
   }
-  const key = readFileSync(envPath, "utf8").match(/^APP_KEY=(base64:.+)$/m)?.[1];
-  if (!key) throw new Error(`Laravel APP_KEY was not generated in ${envPath}`);
-  upsertEnvValues(resolve(context.backendDir, ".env.testing"), { APP_KEY: key });
+  if (!/^APP_KEY=base64:.+/m.test(readFileSync(envPath, "utf8"))) {
+    throw new Error(`Laravel APP_KEY was not generated in ${envPath}`);
+  }
 }
 
 export function reindexLaravelScoutModels(context: ProjectEnvironmentContext): void {
@@ -54,6 +53,17 @@ export function reindexLaravelScoutModels(context: ProjectEnvironmentContext): v
   artisan(context, "search", ["tinker", "--execute", script]);
 }
 
+function laravelS3BucketPrelude(context: ProjectEnvironmentContext): string[] {
+  const expectedBucket = JSON.stringify(context.bucket);
+  return [
+    "$disk = Storage::disk('s3');",
+    "$client = $disk->getClient();",
+    "$bucket = config('filesystems.disks.s3.bucket');",
+    `$expectedBucket = ${expectedBucket};`,
+    'if ($bucket !== $expectedBucket) { throw new RuntimeException("Configured S3 bucket [{$bucket}] does not belong to this lane."); }',
+  ];
+}
+
 export function ensureLaravelS3Bucket(
   context: ProjectEnvironmentContext,
   options: { publicRead?: boolean } = {},
@@ -65,9 +75,7 @@ export function ensureLaravelS3Bucket(
     "tinker",
     "--execute",
     [
-      "$disk = Storage::disk('s3');",
-      "$client = $disk->getClient();",
-      "$bucket = config('filesystems.disks.s3.bucket');",
+      ...laravelS3BucketPrelude(context),
       "try { $client->headBucket(['Bucket' => $bucket]); } catch (Throwable $exception) { $client->createBucket(['Bucket' => $bucket]); }",
       policy,
     ].join(" "),
@@ -79,9 +87,7 @@ export function verifyLaravelS3Bucket(context: ProjectEnvironmentContext): void 
     "tinker",
     "--execute",
     [
-      "$disk = Storage::disk('s3');",
-      "$client = $disk->getClient();",
-      "$bucket = config('filesystems.disks.s3.bucket');",
+      ...laravelS3BucketPrelude(context),
       "$client->headBucket(['Bucket' => $bucket]);",
       "$client->listObjectsV2(['Bucket' => $bucket, 'MaxKeys' => 1]);",
     ].join(" "),
@@ -96,7 +102,23 @@ export function cleanLaravelS3Prefix(context: ProjectEnvironmentContext, prefix:
   artisan(context, "clean:storage", [
     "tinker",
     "--execute",
-    `$disk = Storage::disk('s3'); $files = $disk->allFiles(${encodedPrefix}); foreach (array_chunk($files, 1000) as $chunk) { $disk->delete($chunk); }`,
+    [
+      ...laravelS3BucketPrelude(context),
+      `$files = $disk->allFiles(${encodedPrefix});`,
+      "foreach (array_chunk($files, 1000) as $chunk) { $disk->delete($chunk); }",
+    ].join(" "),
+  ]);
+}
+
+export function cleanLaravelS3Bucket(context: ProjectEnvironmentContext): void {
+  artisan(context, "clean:storage", [
+    "tinker",
+    "--execute",
+    [
+      ...laravelS3BucketPrelude(context),
+      "$files = $disk->allFiles();",
+      "foreach (array_chunk($files, 1000) as $chunk) { $disk->delete($chunk); }",
+    ].join(" "),
   ]);
 }
 
@@ -113,7 +135,13 @@ export function deleteLaravelS3Bucket(
       "artisan",
       "tinker",
       "--execute",
-      "$disk = Storage::disk('s3'); $client = $disk->getClient(); $bucket = config('filesystems.disks.s3.bucket'); if ($client->doesBucketExistV2($bucket)) { foreach (array_chunk($disk->allFiles(), 1000) as $chunk) { $disk->delete($chunk); } $client->deleteBucket(['Bucket' => $bucket]); }",
+      [
+        ...laravelS3BucketPrelude(context),
+        "if ($client->doesBucketExistV2($bucket)) {",
+        "foreach (array_chunk($disk->allFiles(), 1000) as $chunk) { $disk->delete($chunk); }",
+        "$client->deleteBucket(['Bucket' => $bucket]);",
+        "}",
+      ].join(" "),
     ],
     { cwd: context.backendDir, allowFailure: options.allowFailure },
   );
@@ -184,7 +212,9 @@ function herdSite(
   step = "herd:inspect",
 ): { site: string; path: string; secured: boolean; phpVersion: string } | undefined {
   const document: unknown = JSON.parse(
-    output(context, step, context.herdCommand, ["sites", "--json"], { cwd: context.root }),
+    output(context, step, context.herdCommand, ["sites", "--json"], {
+      cwd: context.root,
+    }),
   );
   const sites = z
     .array(
@@ -196,7 +226,44 @@ function herdSite(
       }),
     )
     .parse(document);
-  return sites.find(({ site }) => site === context.site);
+  return sites.find(({ site }) => site === context.site) ?? linkedHerdSite(context, step);
+}
+
+function linkedHerdSite(
+  context: ProjectEnvironmentContext,
+  step: string,
+): { site: string; path: string; secured: boolean; phpVersion: string } | undefined {
+  const sitePath = herdSitePath(context);
+  if (!existsSync(sitePath)) return undefined;
+
+  let path: string;
+  try {
+    path = resolve(dirname(sitePath), readlinkSync(sitePath));
+  } catch {
+    return undefined;
+  }
+
+  const phpCommand = output(
+    context,
+    `${step}:php`,
+    context.herdCommand,
+    ["which-php", context.site],
+    { cwd: context.root },
+  ).trim();
+  const phpVersion = output(
+    context,
+    `${step}:php-version`,
+    phpCommand,
+    ["-r", "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;"],
+    { cwd: context.root },
+  ).trim();
+
+  return {
+    site: context.site,
+    path,
+    secured: existsSync(context.herdCertificate) && existsSync(context.herdKey),
+    phpVersion,
+  };
 }
 
 function verifyHerdCertificateFiles(context: ProjectEnvironmentContext): void {
@@ -249,12 +316,13 @@ function createDatabase(context: ProjectEnvironmentContext, database: string): v
 }
 
 export function setupDatabase(context: ProjectEnvironmentContext): void {
-  createDatabase(context, context.database);
-  createDatabase(context, context.testingDatabase);
+  for (const database of projectDatabases(context)) {
+    createDatabase(context, database);
+  }
 }
 
 export function verifyDatabase(context: ProjectEnvironmentContext): void {
-  const databases = [context.database, context.testingDatabase].map(databaseIdentifier);
+  const databases = projectDatabases(context).map(databaseIdentifier);
   const value = output(
     context,
     "verify:database",
@@ -287,6 +355,11 @@ function dropDatabase(context: ProjectEnvironmentContext, database: string): voi
 export function cleanTestingDatabases(context: ProjectEnvironmentContext): void {
   const testingDatabase = databaseIdentifier(context.testingDatabase);
   const parallelPrefix = `${testingDatabase}_test_`;
+  const exactDatabases = [
+    testingDatabase,
+    ...(context.agentDatabase ? [databaseIdentifier(context.agentDatabase)] : []),
+    ...(context.mutationDatabase ? [databaseIdentifier(context.mutationDatabase)] : []),
+  ];
   const value = output(
     context,
     "clean:testing-databases",
@@ -295,12 +368,12 @@ export function cleanTestingDatabases(context: ProjectEnvironmentContext): void 
       "-h127.0.0.1",
       "-uroot",
       "-Nse",
-      `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${testingDatabase}' OR LEFT(SCHEMA_NAME, ${parallelPrefix.length})='${parallelPrefix}' ORDER BY SCHEMA_NAME`,
+      `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME IN ('${exactDatabases.join("','")}') OR LEFT(SCHEMA_NAME, ${parallelPrefix.length})='${parallelPrefix}' ORDER BY SCHEMA_NAME`,
     ],
     { cwd: context.root },
   );
   for (const database of value.trim().split(/\s+/).filter(Boolean)) {
-    if (database !== testingDatabase && !database.startsWith(parallelPrefix)) {
+    if (!exactDatabases.includes(database) && !database.startsWith(parallelPrefix)) {
       throw new Error(`Database ${database} does not belong to ${context.lane}`);
     }
     dropDatabase(context, database);
@@ -310,4 +383,13 @@ export function cleanTestingDatabases(context: ProjectEnvironmentContext): void 
 export function cleanDatabase(context: ProjectEnvironmentContext): void {
   cleanTestingDatabases(context);
   dropDatabase(context, context.database);
+}
+
+function projectDatabases(context: ProjectEnvironmentContext): string[] {
+  return [
+    context.database,
+    context.testingDatabase,
+    context.agentDatabase,
+    context.mutationDatabase,
+  ].filter((database): database is string => database !== undefined);
 }

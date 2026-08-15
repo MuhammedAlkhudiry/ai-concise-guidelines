@@ -12,3 +12,7 @@ Follow stronger established project patterns.
 - Access global stores through hooks rather than passing their state through props.
 - Minimize props and prefer whole domain objects over collections of primitive fields.
 - Use lazy loading only for deliberate code splitting or a concrete runtime boundary.
+
+## React Native
+
+- Keep mobile JavaScript compatible with the project's Hermes runtime.

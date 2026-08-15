@@ -13,6 +13,7 @@ export async function installAdsMenu(): Promise<void> {
   const appPath = join(home, "Applications", APP_NAME);
   const executablePath = join(appPath, "Contents", "MacOS", "AdsMenu");
   const launchAgentPath = join(home, "Library", "LaunchAgents", `${BUNDLE_ID}.plist`);
+  const cachePath = join(process.env.XDG_CACHE_HOME || join(home, ".cache"), "my-setup", "ads");
 
   await execa("swift", ["build", "-c", "release", "--package-path", SOURCE_ROOT], {
     stdio: "pipe",
@@ -42,6 +43,7 @@ export async function installAdsMenu(): Promise<void> {
 
   await mkdir(join(home, "Library", "LaunchAgents"), { recursive: true });
   await writeFile(launchAgentPath, createLaunchAgent(executablePath));
+  await rm(cachePath, { recursive: true, force: true });
   const userID = process.getuid?.();
   if (userID === undefined) throw new Error("The Ads menu-bar app can only be installed on macOS.");
   const domain = `gui/${userID}`;

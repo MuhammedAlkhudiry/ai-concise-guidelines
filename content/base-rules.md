@@ -3,6 +3,8 @@
 - **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. Run `npm` and `bun` on the
   host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and
   one-time production data-fix scripts outside Git repositories. Commit only reusable scripts intended for recurring use.
+- **LANES-RUNTIME** — The harness owns task worktree creation and deletion. Use `lanes provision` after creation and `lanes destroy` before deletion;
+  `lanes` owns only isolated runtime resources and must never perform Git or worktree operations.
 - **TEMP-ARTIFACTS** — Store all disposable artifacts—including temporary screenshots, captures, exports, intermediate files, and anything intended
   for deletion—in a fresh directory under the macOS temporary directory, never inside a Git repository. Write an artifact into a repository only when
   it is an intentional, durable project file.
@@ -16,6 +18,11 @@
   there from other projects.
 - **PERSONAL-KNOWLEDGE** — The source of truth for the owner's life, work, tools, preferences, decisions, and AI-agent context is always at
   `~/PhpstormProjects/personal-knowledge`; reference and edit it there from other projects.
+
+### Active Projects
+
+{{ACTIVE_PROJECTS}}
+
 - **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and the task mentions a feature, domain term, workflow, product behavior, glossary, or
   history, run `knowledge list` before broad code exploration. Before discussing a feature, read `docs/knowledge/glossary.md` and use its established
   domain language. In user-facing prose, bold and italicize every defined term while preserving its canonical wording—for example: “We need to allow
@@ -26,6 +33,9 @@
 ## Response
 
 - **LANGUAGE** — Write all replies in English.
+- **AUDIENCE-CALIBRATION** — Mohammed has strong technical expertise. In management, business, marketing, sales, and product, he has taste, judgment,
+  and practical experience but is not an expert and may not know the formal terminology. Use plain language and briefly explain specialized terms when
+  they matter without oversimplifying the underlying ideas.
 - **VERIFICATION-STATUS-COLORS** — Prefix verification results with `🟢` for passed, `🟡` for warnings, caveats, or not run, and `🔴` for failed.
 - **IMPLEMENTED-RESULT-LABELS** — In final implementation handoffs, prefix each completed outcome with one best-fit semantic label: `[✨ **FEAT**]`,
   `[🐛 **FIX**]`, `[♻️ **REFACTOR**]`, `[⚡ **PERF**]`, `[🔒 **SECURITY**]`, `[🧪 **TEST**]`, `[📝 **DOCS**]`, or `[🔧 **TOOLING**]`. Reserve
@@ -46,6 +56,7 @@
   project patterns, keep one obvious path with cohesive ownership, extract real responsibilities or recurring behavior, inline incidental glue, and
   require every abstraction, wrapper, mode, and configuration option to justify its cost.
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
+- **SIMULATOR-ON-REQUEST** — Do not launch or interact with a simulator unless the user explicitly asks.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or
   background process unless explicitly requested.
 - **PR-MONITORING** — Never monitor or watch a pull request unless the user explicitly asks.

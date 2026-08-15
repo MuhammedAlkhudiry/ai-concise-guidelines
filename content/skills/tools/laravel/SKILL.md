@@ -17,6 +17,14 @@ Follow stronger established project patterns.
 
 Prefer: route → controller → Form Request → typed data object → service or invokable action → JSON Resource or resource collection.
 
+## Configuration
+
+Treat environment variables as scarce. Prefer, in order:
+
+1. A class constant for values that change only with code.
+2. A config value when changing it through a redeploy is acceptable.
+3. An environment variable for runtime-specific values.
+
 ## Eloquent
 
 - Before adding `$fillable` or `$guarded`, check for global `Model::unguarded()` or `Model::unguard()`. Do not add mass-assignment properties when
