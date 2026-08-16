@@ -17,6 +17,10 @@ description: Test coverage audits, writing, and review.
 - Add coverage only for a meaningful behavior gap such as changed behavior, a boundary, failure, authorization, persistence, integration, or
   user-visible state.
 - Add a bug regression only when it fails on the original bug and protects behavior users or callers rely on.
+- Never deploy as part of test writing, test review, or verification. Prove behavior locally or in CI without mutating a deployed environment.
+- Do not add or retain committed tests for disposable code that is available only in local, development, or test environments and has no production,
+  user-facing, deployment, security, migration, release, or relied-on infrastructure contract. Temporary disposable tests and probes may use any
+  format, but keep them outside the repository and remove them after use.
 - Reject tests of private calls, incidental order or branching, intermediate objects, non-contract storage shapes, irrelevant DOM structure, framework
   behavior, or mock and fixture choreography.
 - Prefer the lowest test layer that proves the contract. Use integration or feature coverage when the contract includes wiring, persistence, framework
