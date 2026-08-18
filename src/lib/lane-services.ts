@@ -7,7 +7,6 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
-  readdirSync,
   readSync,
   readlinkSync,
   realpathSync,
@@ -60,6 +59,14 @@ export interface LaneServicesStatus {
   lane: string;
   path: string;
   services: LaneServiceStatus[];
+}
+
+export interface LaneServiceReload {
+  project: string;
+  lane: string;
+  service: string;
+  connectedClients: number;
+  restarted: boolean;
 }
 
 interface ServiceContext {
@@ -202,6 +209,109 @@ export async function restartLaneService(
     await startService(context);
   }
   return laneServicesStatus(lane);
+}
+
+export async function reloadLaneService(
+  projectId: string,
+  laneId: string,
+  serviceId: string,
+): Promise<LaneServiceReload> {
+  const lane = explicitLane(projectId, laneId);
+  const definition = selectedServices(lane, serviceId)[0];
+  if (!definition || serviceId === "all" || definition.id !== "metro") {
+    throw new Error("Reload requires one Metro service");
+  }
+  const context = serviceContext(lane, definition);
+  const status = serviceStatus(context);
+  const staleInputs =
+    status.detail === "Service inputs changed after launch; restart this lane service";
+  if (status.state !== "running" && !staleInputs) {
+    throw new Error(`${projectId}/${laneId}/${serviceId} is not running`);
+  }
+  if (staleInputs) {
+    await stopService(context);
+    await startService(context);
+  }
+  const port = laneServiceEnvironment(context.directory).EXPO_DEV_SERVER_PORT;
+  const metroPort = Number(port);
+  if (!Number.isSafeInteger(metroPort) || metroPort < 1 || metroPort > 65_535) {
+    throw new Error(`${projectId}/${laneId}/${serviceId} has no valid Expo development port`);
+  }
+  return {
+    project: projectId,
+    lane: laneId,
+    service: serviceId,
+    connectedClients: await broadcastMetroReload(metroPort, staleInputs ? 10_000 : 3_000),
+    restarted: staleInputs,
+  };
+}
+
+export function broadcastMetroReload(port: number, timeoutMilliseconds = 3_000): Promise<number> {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const requestId = `lanes-reload-${process.pid}-${Date.now()}`;
+    const socket = new WebSocket(`ws://127.0.0.1:${port}/message?name=lanes`);
+    let settled = false;
+    let metroAnswered = false;
+    const timeout = setTimeout(
+      () =>
+        fail(
+          metroAnswered
+            ? `No native app is connected to Metro ${port}`
+            : `Metro ${port} did not answer the reload request`,
+        ),
+      timeoutMilliseconds,
+    );
+
+    const requestPeers = (): void => {
+      if (!settled && socket.readyState === WebSocket.OPEN) {
+        socket.send(
+          JSON.stringify({ version: 2, method: "getpeers", target: "server", id: requestId }),
+        );
+      }
+    };
+
+    const finish = (connectedClients: number): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      socket.close();
+      resolvePromise(connectedClients);
+    };
+    const fail = (message: string): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      socket.close();
+      rejectPromise(new Error(message));
+    };
+
+    socket.addEventListener("open", requestPeers);
+    socket.addEventListener("message", ({ data }) => {
+      try {
+        const message = JSON.parse(String(data)) as {
+          id?: string;
+          result?: Record<string, unknown>;
+        };
+        if (message.id !== requestId) return;
+        metroAnswered = true;
+        const connectedClients = Object.values(message.result ?? {}).filter(
+          (query) => typeof query === "string" && /(?:^|&)role=(?:ios|android)(?:&|$)/.test(query),
+        ).length;
+        if (connectedClients === 0) {
+          setTimeout(requestPeers, 100);
+          return;
+        }
+        socket.send(JSON.stringify({ version: 2, method: "reload" }));
+        setTimeout(() => finish(connectedClients), 25);
+      } catch {
+        fail(`Metro ${port} returned an invalid reload response`);
+      }
+    });
+    socket.addEventListener("error", () => fail(`Could not connect to Metro ${port}`));
+    socket.addEventListener("close", () => {
+      if (!settled) fail(`Metro ${port} closed before acknowledging the reload request`);
+    });
+  });
 }
 
 export function laneServiceLogPath(projectId: string, laneId: string, serviceId: string): string {
@@ -861,21 +971,6 @@ function serviceInputFingerprint(context: ServiceContext): string {
   ]) {
     const path = join(context.directory, name);
     if (existsSync(path)) hash.update(name).update("\0").update(readFileSync(path));
-  }
-  for (const directoryName of ["app", "src", "resources/js"]) {
-    const root = join(context.directory, directoryName);
-    if (!existsSync(root)) continue;
-    const visit = (directory: string): void => {
-      for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
-        a.name.localeCompare(b.name),
-      )) {
-        if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-        const path = join(directory, entry.name);
-        if (entry.isDirectory()) visit(path);
-        else if (entry.isFile()) hash.update(path.slice(root.length)).update("\0");
-      }
-    };
-    visit(root);
   }
   return hash.digest("hex");
 }

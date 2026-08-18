@@ -15,4 +15,5 @@ Follow stronger established project patterns.
 
 ## React Native
 
+- Assume React Native projects target native platforms only; support web only when the project explicitly declares it as a target.
 - Keep mobile JavaScript compatible with the project's Hermes runtime.

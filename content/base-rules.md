@@ -3,7 +3,8 @@
 - **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. Run `npm` and `bun` on the
   host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and
   one-time production data-fix scripts outside Git repositories. Commit only reusable scripts intended for recurring use.
-- **LANES-RUNTIME** — The harness owns task worktree creation and deletion. Use `lanes provision` after creation and `lanes destroy` before deletion;
+- **LANES-RUNTIME** — The harness owns task worktree creation and deletion. At task start inside a managed worktree, use $project-lanes to provision
+  or repair its lane before project work; a missing lane is setup work, not a reason to reduce scope. Destroy the lane before worktree deletion.
   `lanes` owns only isolated runtime resources and must never perform Git or worktree operations.
 - **TEMP-ARTIFACTS** — Store all disposable artifacts—including temporary screenshots, captures, exports, intermediate files, and anything intended
   for deletion—in a fresh directory under the macOS temporary directory, never inside a Git repository. Write an artifact into a repository only when
@@ -14,6 +15,8 @@
 ## Repo Context
 
 - **GIT-SCOPE** — Ignore unrelated changes and staging state. Do not modify unrelated diffs; the user manages the Git index.
+- **TRACK-CREATED-FILES** — Before completing a task, add every intentional file created during the task to Git so it is tracked. Do not stage
+  unrelated files or pre-existing modifications.
 - **GUIDELINES-PROJECT** — The shared AI rules, skills, and configuration repository is always at `~/PhpstormProjects/my-setup`; reference and edit it
   there from other projects.
 - **PERSONAL-KNOWLEDGE** — The source of truth for the owner's life, work, tools, preferences, decisions, and AI-agent context is always at
@@ -36,7 +39,11 @@
 - **AUDIENCE-CALIBRATION** — Mohammed has strong technical expertise. In management, business, marketing, sales, and product, he has taste, judgment,
   and practical experience but is not an expert and may not know the formal terminology. Use plain language and briefly explain specialized terms when
   they matter without oversimplifying the underlying ideas.
+- **CONCISE-BY-DEFAULT** — In discussions and teaching, respect Mohammed’s time and attention. Reply as a fellow engineer would in a natural
+  conversation: concise, direct, and proportionate to the question. Do not turn routine exchanges into blog posts. Provide long, deep, exhaustive,
+  report-style, or heavily analytical responses only when Mohammed explicitly requests that level of detail.
 - **VERIFICATION-STATUS-COLORS** — Prefix verification results with `🟢` for passed, `🟡` for warnings, caveats, or not run, and `🔴` for failed.
+  Consolidate all passed verification results into a single `🟢` line.
 - **IMPLEMENTED-RESULT-LABELS** — In final implementation handoffs, prefix each completed outcome with one best-fit semantic label: `[✨ **FEAT**]`,
   `[🐛 **FIX**]`, `[♻️ **REFACTOR**]`, `[⚡ **PERF**]`, `[🔒 **SECURITY**]`, `[🧪 **TEST**]`, `[📝 **DOCS**]`, or `[🔧 **TOOLING**]`. Reserve
   traffic-light emojis for verification results and the final status.
@@ -44,8 +51,10 @@
 - **PR-QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final handoff.
 - **MANUAL-QA** — When the user asks for QA, provide manual steps, human-run test cases, or a QA handoff. Do not run or propose automated end-to-end
   or smoke tests unless explicitly requested.
-- **FINAL-STATUS-SIGNAL** — End every final response with a standalone bold status line. Use `🟢 **ALL GOOD**` when complete,
-  `🟡 **ATTENTION NEEDED**` for caveats, `🔴 **ACTION REQUIRED**` when the user must act, or `⛔ **BLOCKED**` when progress cannot continue.
+- **FINAL-RESPONSE-CLOSURE** — Close every final response with a concise bottom line that makes the next action explicit, followed by a standalone
+  bold status line that reflects the outcome. Prioritize multiple actions; write `No action required.` when there are none. Use `🟢 **ALL GOOD**`
+  when complete, `🟡 **ATTENTION NEEDED**` for caveats, `🔴 **ACTION REQUIRED**` when the user must act, or `⛔ **BLOCKED**` when progress cannot
+  continue.
 
 ## Behavior
 

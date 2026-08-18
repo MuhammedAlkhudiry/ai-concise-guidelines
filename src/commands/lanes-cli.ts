@@ -11,6 +11,7 @@ import {
   projectLanesAudit,
   projectLanesDestroy,
   projectLanesProvision,
+  projectLaneReload,
   projectLanesRepair,
   projectLanesReset,
   projectLanesStatus,
@@ -110,6 +111,13 @@ cli
       service: string | undefined,
       options: ServiceOptions,
     ) => projectLaneServices(operation, project, environment, service, options),
+  );
+
+cli
+  .command("reload <project> <environment>", "Reload connected native apps through lane Metro")
+  .option("--json", "Print machine-readable output")
+  .action((project: string, environment: string, options: { json?: boolean }) =>
+    projectLaneReload(project, environment, Boolean(options.json)),
   );
 
 cli

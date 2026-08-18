@@ -23,6 +23,7 @@ import {
   listLaneServiceStatuses,
   openLaneTarget,
   readLaneServiceLogs,
+  reloadLaneService,
   restartLaneService,
   startLaneService,
   stopLaneService,
@@ -235,6 +236,21 @@ export async function projectLaneServices(
     return;
   }
   throw new Error(`Unknown services operation: ${operation}`);
+}
+
+export async function projectLaneReload(
+  project: string,
+  lane: string,
+  json = false,
+): Promise<void> {
+  const result = await reloadLaneService(project, lane, "metro");
+  if (json) {
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(
+      `${result.project}/${result.lane}\tRELOAD SENT\t${result.connectedClients} native connections${result.restarted ? "; Metro restarted" : ""}`,
+    );
+  }
 }
 
 export async function projectLaneOpen(

@@ -81,6 +81,12 @@ test("controls and reads logs for a launchd-backed lane service", () => {
     expect(startedService.state).toBe("running");
     expect(startedService.residentBytes).toBeGreaterThan(0);
 
+    const sourcePath = join(appPath, "src", "feature.ts");
+    mkdirSync(join(appPath, "src"), { recursive: true });
+    writeFileSync(sourcePath, "export const feature = true;\n");
+    const sourceChanged = run(["services", "status", "service-test", "lane-1", "--json"]);
+    expect(JSON.parse(sourceChanged.stdout.toString()).lanes[0].services[1].state).toBe("running");
+
     writeFileSync(
       join(appPath, "package.json"),
       JSON.stringify({ scripts: { dev: "echo service-updated; sleep 30 #" } }),
