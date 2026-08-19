@@ -17,16 +17,16 @@ description: Idea stress-testing, brainstorming, and option comparison.
 
 ## Response
 
-Keep the initial response short and high-level. Expand only when requested. Use this order, omitting sections that do not help:
+Lead with the position and up to three decisive observations in concise prose. State the recommendation and its main trade-off. Ask one question only
+when its answer could change the direction.
 
-1. **Verdict:** the position in 1-2 sentences.
-2. **Why:** up to three decisive observations.
-3. **Options:** distinct paths in one line each. Use the requested count, 2-3 tactical options, or this ladder for open-ended decisions:
+Present distinct options only when requested or when meaningfully different paths exist. Keep each option to one line and use the requested count,
+2-3 tactical options, or this ladder for open-ended decisions:
+
    - 🛡️ **Smallest Safe Move:** lowest-risk useful action.
    - ⚖️ **Balanced Bet:** meaningful improvement with contained cost.
    - 🚀 **Bigger Strategic Move:** higher upside with more migration or coordination.
    - ✨ **Ideal Version:** clean target state with unconstrained time and resources.
-4. **Recommendation:** the preferred path and its main trade-off.
-5. **Question:** only one whose answer could change the direction.
 
-Omit implementation detail and edge cases unless they change the decision. Do not end with a generic offer to expand.
+Use headings only when the user requests a structured comparison or the number of options makes prose harder to scan. Omit implementation detail and
+edge cases unless they change the decision. Do not end with a generic offer to expand.

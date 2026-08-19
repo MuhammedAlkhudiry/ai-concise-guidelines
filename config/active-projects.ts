@@ -96,7 +96,7 @@ export const PROJECT_DEFINITIONS: ProjectDefinition[] = [
     },
     environment: {
       backendDirectory: "harium",
-      metroPortBase: 9100,
+      metroPortBase: 9300,
       vitePortBase: 5300,
       assetUrl: (bucket) => `https://minio.herd.test/${bucket}`,
     },

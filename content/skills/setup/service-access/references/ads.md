@@ -51,14 +51,12 @@ OAuth, 2FA, CAPTCHA, or missing permissions. Request approval before every accou
 
 ## TikTok Ads
 
-- Open [TikTok Business Center](https://business.tiktok.com/) in Chrome and select the intended advertiser account.
-- Verify access from Business Center or Ads Manager and report the selected Business Center and advertiser account name and ID.
 - Treat `$SERVICE_CREDENTIALS_HOME/tiktok-ads/oauth.json` as Marketing API access and `tiktok-ads/events-api.json` as Pixel Events API access. Never
   substitute one credential for the other.
-- Prefer the TikTok Marketing API when `oauth.json` contains an approved app and advertiser authorization. Verify access read-only by listing
+- Use only the TikTok Marketing API when `oauth.json` contains an approved app and advertiser authorization. Verify access read-only by listing
   authorized advertisers, then request advertiser information and confirm the intended advertiser is the only selected project account.
 - Keep the developer profile, developer app, Business Center, advertiser account, and access token distinct. Until TikTok approves the app and exposes
-  its App ID and secret, use Chrome and report API access as pending.
+  its App ID and secret, report API access as pending and stop.
 - A Direct Advertiser profile is valid for an app managing its owner's advertiser account. Use Technology Company only for an integration serving
   third-party advertisers.
 - If the account is absent, request or assign advertiser-account access through Business Center rather than sharing another user's credentials.
