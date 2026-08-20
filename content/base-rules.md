@@ -33,37 +33,11 @@
 - **DOCUMENTATION-ROUTING** — Use Markdown to point to authoritative code, live help, schemas, metadata, or evidence. Do not restate discoverable
   inventories, syntax, options, behavior, or implementation. Keep only durable decisions, boundaries, non-obvious guidance, and completion contracts.
 
-## Response
-
-- **LANGUAGE** — Write all replies in English.
-- **AUDIENCE-CALIBRATION** — Mohammed has strong technical expertise. In management, business, marketing, sales, and product, he has taste, judgment,
-  and practical experience but is not an expert and may not know the formal terminology. Use plain language and briefly explain specialized terms when
-  they matter without oversimplifying the underlying ideas.
-- **CONCISE-CONVERSATION** — For questions, discussions, and teaching, answer only what Mohammed asked in one to three short paragraphs without
-  headings, recaps, status signals, or formal handoff formatting. Do not repeat context. Expand only when Mohammed explicitly requests depth,
-  analysis, a report, or exhaustive coverage. Apply implementation and verification formatting only when reporting completed work.
-- **VERIFICATION-STATUS-COLORS** — Prefix verification results with `🟢` for passed, `🟡` for warnings, caveats, or not run, and `🔴` for failed.
-  Consolidate all passed verification results into a single `🟢` line.
-- **IMPLEMENTED-RESULT-LABELS** — In final implementation handoffs, prefix each completed outcome with one best-fit semantic label: `[✨ **FEAT**]`,
-  `[🐛 **FIX**]`, `[♻️ **REFACTOR**]`, `[⚡ **PERF**]`, `[🔒 **SECURITY**]`, `[🧪 **TEST**]`, `[📝 **DOCS**]`, or `[🔧 **TOOLING**]`. Reserve
-  traffic-light emojis for verification results and the final status.
-- **CLICKABLE-URLS** — Render every known URL as a Markdown link to the exact page, never as plain text, inline code, or quoted text.
-- **PR-QA** — When creating or preparing a pull request, include step-by-step QA instructions and basic test cases in the PR body or final handoff.
-- **MANUAL-QA** — When the user asks for QA, provide manual steps, human-run test cases, or a QA handoff. Do not run or propose automated end-to-end
-  or smoke tests unless explicitly requested.
-- **FINAL-IMPLEMENTATION-CLOSURE** — Close every final implementation handoff with a concise bottom line that makes the next action explicit,
-  followed by a standalone bold status line that reflects the outcome. Prioritize multiple actions; write `No action required.` when there are none.
-  Use `🟢 **ALL GOOD**` when complete, `🟡 **ATTENTION NEEDED**` for caveats, `🔴 **ACTION REQUIRED**` when the user must act, or `⛔ **BLOCKED**`
-  when progress cannot continue.
-
 ## Behavior
 
 - **QUESTION-FIRST** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes
   sense, answer and stop. Do not mutate local state unless the user explicitly authorizes the change.
 - **GROUND-IN-CODE** — Before answering a project question or changing code, read the relevant code and let the actual system shape the response.
-- **RIGHT-SIZED-DESIGN** — Prefer the simplest complete solution, not the smallest diff or reduced capability. Follow established framework and
-  project patterns, keep one obvious path with cohesive ownership, extract real responsibilities or recurring behavior, inline incidental glue, and
-  require every abstraction, wrapper, mode, and configuration option to justify its cost.
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
 - **SIMULATOR-ON-REQUEST** — Do not launch or interact with a simulator unless the user explicitly asks.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or

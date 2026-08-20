@@ -37,6 +37,7 @@ export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"
 # Adds personal/user-level command locations before project helpers are loaded.
 # `fpath` includes local completions shipped by installed command-line tools.
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.kimi-code/bin:$PATH"
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
@@ -82,6 +83,9 @@ hugeicons() {
 
 # Sentry installs its generated Zsh completions in the user data directory.
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
+# Unity CLI
+. "/Users/muhammed/.unity/env"
 
 # --- Runtime Manager ---------------------------------------------------------
 # mise owns global runtime activation for this setup. Keep this lightweight so a
