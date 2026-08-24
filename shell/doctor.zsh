@@ -212,6 +212,7 @@ main() {
   print_header "Core repo tools"
   check_tool bun required "Runtime used internally by mise run install."
   check_tool git required "Needed for remote skill checkout, hooks, and shared git helpers."
+  check_tool zip required "Builds ChatGPT-compatible skill upload bundles during mise run install."
   check_tool mise required "Needed for the supported local task workflow and global runtime management."
   check_tool node required "Needed by the oxfmt CLI used in repo format checks."
   check_tool zsh required "Needed by all installed shared shell commands."

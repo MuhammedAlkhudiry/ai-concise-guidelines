@@ -15,8 +15,9 @@ description: UX/UI discovery, implementation, options, and review.
 1. Inspect the user's job, complete journey, platform conventions, design system, realistic content, and relevant states.
 2. When options are requested, make them meaningfully different in workflow, hierarchy, density, states, responsiveness, or interaction; cosmetic
    variations do not count. Keep content and states consistent so the experience is comparable, then recommend one direction with its trade-offs.
-3. Implement the requested or selected direction. Settle the UX before refining UI styling and polish unless new evidence changes an earlier
-   decision.
+3. Settle the UX before refining UI styling and polish unless new evidence changes an earlier decision. Implement the requested or selected direction
+   only when an editable site, artifact, or code environment is available; otherwise deliver the requested review, design direction, mockup, or
+   implementation brief without claiming the product changed.
 4. After each material revision, summarize the change and any remaining decision.
 
 ## Design-system boundary
@@ -40,8 +41,10 @@ preference.
 
 ## Completion standard
 
-After implementation, inspect the rendered UX and UI and improve it until optimal. Do not call the work complete until the primary task, relevant
-failure and recovery paths, accessibility behavior, realistic content, and relevant viewport and input modes work as one coherent experience.
+After implementation, inspect the rendered UX and UI and improve it until optimal. Do not call implemented work complete until the primary task,
+relevant failure and recovery paths, accessibility behavior, realistic content, and relevant viewport and input modes work as one coherent experience.
+For advisory work, complete the requested review, option set, mockup, or implementation brief and identify any behavior that still needs validation in
+a rendered product.
 
 ## User preferences
 

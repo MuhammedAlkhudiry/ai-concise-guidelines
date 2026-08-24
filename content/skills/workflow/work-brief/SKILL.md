@@ -9,8 +9,9 @@ description: Outcome-based work briefs and saved-plan management for code and no
    user input is required, ask without emitting a brief.
 2. Choose one decisions heading that matches the work and record only settled approach decisions and boundaries that constrain execution.
 3. Write one-line acceptance cases for the agreed outcomes. Each case must state one complete, independently observable result.
-4. When the user explicitly asks to persist or manage a brief, run `lanes plans --help` and follow its current storage, frontmatter, indexing, and
-   archiving contract.
+4. When the user explicitly asks to persist or manage a brief, use the established writable plan store available in the environment. When `lanes` is
+   available, run `lanes plans --help` and follow its contract. Otherwise follow an existing connected-repository plan convention. Do not invent a
+   storage location; when no writable plan store exists, return the complete brief and state that it was not persisted.
 
 ## Brief Shape
 
@@ -41,4 +42,4 @@ cases so the brief always expresses the current contract.
 - Use `pending` for work that has not started, `progress` for work currently underway, and `done` for completed work.
 - Omit `status` only when creating a pending plan; the saved-plan contract defaults a missing status to `pending`.
 - Do not invent synonyms such as `in_progress`, `active`, or `complete`.
-- Archive completed plans with the CLI; bulk archive affects only plans whose status is `done`.
+- Archive completed plans only through the active plan store; bulk archive affects only plans whose status is `done`.

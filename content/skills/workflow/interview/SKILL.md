@@ -18,13 +18,15 @@ description: Structured interviewing when requested or when multiple dependent, 
    would help the user answer, give it in the surrounding reply before the question tool; keep examples out of the tool's questions and options.
 5. Follow answers that can change the outcome at the selected depth. Challenge consequential assumptions with evidence, explain why the tension
    matters, then ask the next question. Stop probing harmless uncertainty.
-6. Finish when every material topic required by the selected depth is resolved, assumed, or deferred. Synthesize only the decisions, assumptions,
-   open issues, and next step needed by the calling workflow, then persist it using the contract below and resume that workflow.
+6. Finish when every material topic required by the selected depth is resolved, assumed, or deferred. Synthesize only the decisions, assumptions, open
+   issues, and next step needed by the calling workflow. Persist it when a writable interview store is available, then resume that workflow.
 7. If the user stops, return the partial topic map immediately without persisting it.
 
 ## Persistence
 
-- Save completed interviews under `~/interviews/<project-name>/` as `<YYYY-MM-DD>-<objective-slug>.md`.
+- In a local environment, save completed interviews under `~/interviews/<project-name>/` as `<YYYY-MM-DD>-<objective-slug>.md`.
+- In a connected repository, follow an established interview-storage convention when one exists. Do not invent a repository path.
 - Include `created`, `updated`, `project`, `depth`, and `description` frontmatter, followed by the confirmed synthesis.
 - Refresh `INDEX.md` with active interviews ordered by most recently updated.
+- When no writable interview store exists, return the confirmed synthesis in the conversation without claiming it was persisted.
 - Do not create a spec or plan from the interview; downstream workflows own those artifacts.

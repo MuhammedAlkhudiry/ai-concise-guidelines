@@ -36,6 +36,7 @@ import { migrateManagedCredentials } from "../lib/credentials";
 import { colors, compactOutput, print, printBox, printSeparator } from "../lib/print";
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
 import { discoverLocalSkills } from "../lib/skills";
+import { buildChatgptSkills } from "../lib/chatgpt-skills";
 import { validateRemoteSkillSources } from "../lib/validation";
 import { installAdsMenu } from "../apps/ads-menu/install";
 import { installAIUsageMenu } from "../apps/ai-usage-menu/install";
@@ -218,12 +219,19 @@ async function installSharedSkills(): Promise<void> {
     print.error("Skills folder not found");
     return;
   }
-  await syncManagedSkillsAsync({
+  const managedSkillNames = await syncManagedSkillsAsync({
     src,
     dest: SHARED_PATHS.skills,
     label: "shared skills",
     remoteSkillSources,
   });
+
+  const result = await buildChatgptSkills(
+    SHARED_PATHS.skills,
+    join(ROOT_DIR, "output", "chatgpt"),
+    managedSkillNames,
+  );
+  print.success(`Built ${result.skillNames.length} ChatGPT skill uploads and plugin bundle`);
 }
 
 async function installOpencode(): Promise<void> {
@@ -661,7 +669,7 @@ async function pruneEmptyDirs(dir: string): Promise<number> {
   return removedCount;
 }
 
-export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
+export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<string[]> {
   const { src, dest, label, remoteSkillSources = [] } = options;
   print.info(`Syncing ${label} to ${dest} (preserving valid custom skills)...`);
 
@@ -748,6 +756,7 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
 
   await writeFile(manifestPath, JSON.stringify(managedSkillNames, null, 2) + "\n");
   print.success(`Synced ${managedSkillNames.length} ${label}`);
+  return managedSkillNames;
 }
 
 async function installRemoteSkillSource(source: RemoteSkillSource, dest: string): Promise<void> {
