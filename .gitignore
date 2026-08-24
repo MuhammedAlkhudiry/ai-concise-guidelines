@@ -13,8 +13,5 @@ gen
 # JavaScript dependencies
 node_modules
 
-# Generated ChatGPT skill archives and plugin bundle
-output/chatgpt/
-
 # Swift Package Manager build artifacts
 .build/

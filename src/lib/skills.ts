@@ -19,7 +19,6 @@ interface SkillFrontmatter {
 interface SkillDiscoveryOptions {
   reportWarning?: (message: string) => void;
   additionalSkillNames?: readonly string[];
-  includedSkillNames?: readonly string[];
 }
 
 const DEFAULT_CATEGORY = "uncategorized";
@@ -293,7 +292,7 @@ export function discoverLocalSkills(
   skillsRoot: string,
   options: SkillDiscoveryOptions = { reportWarning: console.warn },
 ): LocalSkill[] {
-  const discoveredSkills = findSkillPaths(skillsRoot).map((skillPath) => {
+  const skills = findSkillPaths(skillsRoot).map((skillPath) => {
     const dir = dirname(skillPath);
     const content = readFileSync(skillPath, "utf-8");
     const frontmatter = parseSkillFrontmatter(content, skillPath);
@@ -316,23 +315,6 @@ export function discoverLocalSkills(
       content,
     };
   });
-
-  const includedSkillNames = options.includedSkillNames
-    ? new Set(options.includedSkillNames)
-    : undefined;
-  const skills = includedSkillNames
-    ? discoveredSkills.filter((skill) => includedSkillNames.has(skill.name))
-    : discoveredSkills;
-
-  if (includedSkillNames) {
-    const discoveredNames = new Set(discoveredSkills.map((skill) => skill.name));
-    const missingSkillNames = Array.from(includedSkillNames).filter(
-      (skillName) => !discoveredNames.has(skillName),
-    );
-    if (missingSkillNames.length > 0) {
-      throw new Error(`Included skills not found: ${missingSkillNames.sort().join(", ")}`);
-    }
-  }
 
   for (const skill of skills) {
     validateSkillSize(skillsRoot, skill.dir, skill.skillPath, skill.content, options);

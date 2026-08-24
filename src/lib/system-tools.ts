@@ -58,15 +58,6 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
-        name: "zip",
-        level: "required",
-        why: "Builds ChatGPT-compatible skill upload bundles during mise run install.",
-        versionArgs: ["-v"],
-        update: {
-          note: "Provided by macOS; update it through macOS or Xcode Command Line Tools.",
-        },
-      },
-      {
         name: "mise",
         level: "required",
         why: "Needed for the supported local task workflow and global runtime management.",

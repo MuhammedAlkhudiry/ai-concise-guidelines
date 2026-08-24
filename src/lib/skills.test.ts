@@ -157,26 +157,6 @@ describe("discoverLocalSkills", () => {
     }
   });
 
-  test("discovers and validates only an explicit skill selection", () => {
-    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
-    try {
-      writeSkill(root, "workflow", "alpha", ["Use $beta."]);
-      writeSkill(root, "workflow", "beta");
-      writeSkill(root, "workflow", "unrelated", ["Use $missing-skill."]);
-
-      expect(
-        discoverLocalSkills(root, { includedSkillNames: ["alpha", "beta"] }).map(
-          (skill) => skill.name,
-        ),
-      ).toEqual(["alpha", "beta"]);
-      expect(() => discoverLocalSkills(root, { includedSkillNames: ["missing"] })).toThrow(
-        "Included skills not found: missing",
-      );
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
-  });
-
   test("rejects unknown skill references with their source locations", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
     try {
