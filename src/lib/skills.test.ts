@@ -63,6 +63,24 @@ describe("discoverLocalSkills", () => {
     }
   });
 
+  test("accepts namespaced external skill references", () => {
+    const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
+    try {
+      writeSkill(root, "tools", "browser-routing", [
+        "# Browser routing",
+        "Use $chrome:control-chrome when existing browser state is required.",
+      ]);
+
+      expect(() =>
+        discoverLocalSkills(root, {
+          additionalSkillNames: ["chrome:control-chrome"],
+        }),
+      ).not.toThrow();
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("warns when a skill exceeds the recommended character budget", () => {
     const root = mkdtempSync(join(tmpdir(), "my-setup-skills-"));
     const warnings: string[] = [];

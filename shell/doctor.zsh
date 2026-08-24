@@ -222,7 +222,7 @@ main() {
   check_tool herd optional "Used by Laravel aliases in the synced zsh config."
   check_tool opencode optional "Used by the ai/opencode launcher and OpenCode workflows."
   check_tool claude optional "Used by Claude Code workflows and as a configured agent target."
-  check_tool agent-browser required "Default AI-agent browser automation CLI."
+  check_tool playwright-cli required "Default browser automation CLI when existing user browser state is not required."
   check_tool playwriter required "Controls signed-in Chrome tabs through the Playwriter extension."
   check_tool agent-device required "Default AI-agent mobile and device automation CLI."
   check_tool maestro required "Mobile E2E testing and bundled MCP server for agents."

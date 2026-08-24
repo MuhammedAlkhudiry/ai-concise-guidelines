@@ -37,6 +37,7 @@
 
 ## Behavior
 
+- **RESPONSE-LANGUAGE** — Write every reply in English.
 - **QUESTION-FIRST** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes
   sense, answer and stop. Do not mutate local state unless the user explicitly authorizes the change.
 - **GROUND-IN-CODE** — Before answering a project question or changing code, read the relevant code and let the actual system shape the response.

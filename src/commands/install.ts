@@ -661,7 +661,7 @@ async function pruneEmptyDirs(dir: string): Promise<number> {
   return removedCount;
 }
 
-export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<void> {
+export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): Promise<string[]> {
   const { src, dest, label, remoteSkillSources = [] } = options;
   print.info(`Syncing ${label} to ${dest} (preserving valid custom skills)...`);
 
@@ -748,6 +748,7 @@ export async function syncManagedSkillsAsync(options: ManagedSkillSyncOptions): 
 
   await writeFile(manifestPath, JSON.stringify(managedSkillNames, null, 2) + "\n");
   print.success(`Synced ${managedSkillNames.length} ${label}`);
+  return managedSkillNames;
 }
 
 async function installRemoteSkillSource(source: RemoteSkillSource, dest: string): Promise<void> {

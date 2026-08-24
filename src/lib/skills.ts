@@ -199,7 +199,7 @@ function validateCrossSkillReferences(
   const knownSkillNames = new Set([...skills.map((skill) => skill.name), ...additionalSkillNames]);
   const unknownReferences: string[] = [];
   const skillReferencePattern =
-    /(?:^|[^A-Za-z0-9_$])\$([a-z][a-z0-9]*(?:-[a-z0-9]+)*)(?![A-Za-z0-9-])/g;
+    /(?:^|[^A-Za-z0-9_$])\$([a-z][a-z0-9]*(?:-[a-z0-9]+)*(?::[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?)(?![A-Za-z0-9:-])/g;
 
   for (const skill of skills) {
     for (const markdownPath of findMarkdownPaths(skill.dir)) {

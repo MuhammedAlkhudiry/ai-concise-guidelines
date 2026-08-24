@@ -155,18 +155,17 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
-        name: "agent-browser",
+        name: "playwright-cli",
         level: "required",
-        why: "Default AI-agent browser automation CLI.",
+        why: "Default browser automation CLI when existing user browser state is not required.",
         versionArgs: ["--version"],
         latest: {
           type: "command",
           command: "npm",
-          args: ["view", "agent-browser", "version"],
+          args: ["view", "@playwright/cli", "version"],
         },
         update: {
-          commands: ["agent-browser upgrade", "agent-browser install"],
-          note: "Run agent-browser install after upgrades when Chrome for Testing needs repair.",
+          commands: ["npm install -g @playwright/cli@latest"],
         },
       },
       {
