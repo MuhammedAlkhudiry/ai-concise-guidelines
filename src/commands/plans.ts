@@ -34,6 +34,7 @@ type Options = {
   query: string;
   all: boolean;
   json: boolean;
+  description?: string;
   status?: string;
   write: boolean;
 };
@@ -57,6 +58,7 @@ function parseOptions(args: string[]): Options {
   let plansRoot = join(home, "plans");
   let all = false;
   let json = false;
+  let description: string | undefined;
   let status: string | undefined;
   let write = false;
 
@@ -88,6 +90,11 @@ function parseOptions(args: string[]): Options {
       continue;
     }
 
+    if (arg.startsWith("--description=")) {
+      description = arg.slice("--description=".length);
+      continue;
+    }
+
     if (arg.startsWith("--status=")) {
       status = arg.slice("--status=".length);
       continue;
@@ -102,6 +109,7 @@ function parseOptions(args: string[]): Options {
     query: query.join(" ").trim(),
     all,
     json,
+    description,
     status,
     write,
   };
@@ -205,12 +213,16 @@ function pad(value: string, width: number): string {
 
 function relatedProjectNames(options: Options): string[] {
   if (options.all) {
-    if (!existsSync(options.plansRoot)) return [];
+    const configuredProjects = existsSync(LANES_CONFIG_PATH)
+      ? getActiveProjects().map((project) => project.id)
+      : [];
+    const storedProjects = existsSync(options.plansRoot)
+      ? readdirSync(options.plansRoot, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+          .map((entry) => entry.name)
+      : [];
 
-    return readdirSync(options.plansRoot, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
-      .map((entry) => entry.name)
-      .sort();
+    return [...new Set([...configuredProjects, ...storedProjects])].sort();
   }
 
   return [options.project];
@@ -367,6 +379,68 @@ function showPlan(options: Options): void {
 
 function showPath(options: Options): void {
   console.log(requirePlan(options).path);
+}
+
+function createPlan(options: Options): void {
+  const description = options.description?.trim();
+  if (!description) {
+    console.error("--description is required when creating a plan.");
+    process.exit(1);
+  }
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(options.project)) {
+    console.error(`Invalid plan project: ${options.project}. Use a lowercase hyphenated id.`);
+    process.exit(1);
+  }
+
+  const name = options.query.endsWith(".md") ? options.query : `${options.query}.md`;
+  if (!/^[a-z0-9][a-z0-9-]*\.md$/.test(name)) {
+    console.error("Plan name must be a lowercase hyphenated filename or slug.");
+    process.exit(1);
+  }
+
+  const projectRoot = join(options.plansRoot, options.project);
+  const path = join(projectRoot, name);
+  const archivedPath = join(projectRoot, "archive", name);
+  if (existsSync(path) || existsSync(archivedPath)) {
+    console.error(`Plan already exists: ${existsSync(path) ? path : archivedPath}`);
+    process.exit(1);
+  }
+
+  const body = readFileSync(0, "utf8").trim();
+  if (!body) {
+    console.error("Plan body cannot be empty.");
+    process.exit(1);
+  }
+
+  const status = planStatus(options.status);
+  const date = today();
+  const planTitle = name
+    .replace(/\.md$/, "")
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  const contents = [
+    "---",
+    `created: ${date}`,
+    `updated: ${date}`,
+    `project: ${options.project}`,
+    `description: ${description}`,
+    `status: ${status}`,
+    "---",
+    "",
+    `# ${planTitle}`,
+    "",
+    body,
+    "",
+  ].join("\n");
+
+  mkdirSync(projectRoot, { recursive: true });
+  writeFileSync(path, contents);
+  writeFileSync(
+    join(projectRoot, "INDEX.md"),
+    indexBody(options.project, activePlans(projectRoot, options.project)),
+  );
+  console.log(path);
 }
 
 function savePlan(options: Options): void {
@@ -548,6 +622,8 @@ export function runPlansCommand(command: string, rawOptions: string[]): void {
     showPlan(options);
   } else if (command === "path") {
     showPath(options);
+  } else if (command === "create") {
+    createPlan(options);
   } else if (command === "save") {
     savePlan(options);
   } else if (command === "status") {

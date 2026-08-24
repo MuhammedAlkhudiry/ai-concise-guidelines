@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,10 +6,11 @@ import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 
 import {
-  knowledgeCheck,
   knowledgeFeature,
+  knowledgeFind,
   knowledgeInit,
   knowledgeLearning,
+  knowledgeLint,
   knowledgeList,
 } from "./knowledge";
 
@@ -24,16 +25,16 @@ async function withProject(run: (project: string) => Promise<void>): Promise<voi
 
 async function capture(run: () => Promise<void>): Promise<string[]> {
   const output: string[] = [];
-  const original = console.log;
-  console.log = (message?: unknown) => {
-    output.push(String(message));
-  };
-
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  console.log = (message?: unknown) => output.push(String(message));
+  console.warn = (message?: unknown) => output.push(String(message));
   try {
     await run();
     return output;
   } finally {
-    console.log = original;
+    console.log = originalLog;
+    console.warn = originalWarn;
   }
 }
 
@@ -42,121 +43,158 @@ function today(): string {
 }
 
 describe("project knowledge commands", () => {
-  test("initializes project knowledge files", async () => {
+  test("initializes scarce-knowledge scaffolding", async () => {
     await withProject(async (project) => {
-      await capture(async () => knowledgeInit({ project }));
-
+      await capture(() => knowledgeInit({ project }));
       expect(existsSync(join(project, "docs/knowledge/INDEX.md"))).toBe(true);
       expect(existsSync(join(project, "docs/knowledge/glossary.md"))).toBe(true);
       expect(existsSync(join(project, "docs/knowledge/features"))).toBe(true);
       expect(existsSync(join(project, "docs/knowledge/learnings"))).toBe(true);
-      expect(existsSync(join(project, "docs/knowledge/decisions"))).toBe(true);
+      expect(existsSync(join(project, "docs/knowledge/decisions"))).toBe(false);
+      expect(readFileSync(join(project, "docs/knowledge/INDEX.md"), "utf-8")).toContain(
+        "durable product contracts",
+      );
     });
   });
 
-  test("creates a feature pack and indexes it once", async () => {
+  test("creates a draft contract pack and indexes it once", async () => {
     await withProject(async (project) => {
       await capture(async () => {
         await knowledgeFeature("Billing Plans", { project });
         await knowledgeFeature("Billing Plans", { project });
       });
-
-      const featurePath = join(project, "docs/knowledge/features/billing-plans.md");
+      const feature = readFileSync(
+        join(project, "docs/knowledge/features/billing-plans.md"),
+        "utf-8",
+      );
       const index = readFileSync(join(project, "docs/knowledge/INDEX.md"), "utf-8");
-
-      expect(readFileSync(featurePath, "utf-8")).toContain("name: Billing Plans");
+      expect(feature).toContain("status: draft");
+      expect(feature).toContain("## Product Contracts");
+      expect(feature).not.toContain("## Language");
+      expect(feature).not.toContain("## Evidence");
+      expect(feature).not.toContain("last_verified");
       expect(index.match(/features\/billing-plans\.md/g)).toHaveLength(1);
     });
   });
 
-  test("lists feature packs", async () => {
+  test("supports Unicode-only names and real YAML arrays", async () => {
     await withProject(async (project) => {
-      await capture(async () => knowledgeFeature("Onboarding", { project }));
+      await capture(() => knowledgeFeature("إدارة العائلة", { project }));
+      const path = join(project, "docs/knowledge/features/إدارة-العائلة.md");
+      expect(existsSync(path)).toBe(true);
       writeFileSync(
-        join(project, "docs/knowledge/features/onboarding.md"),
-        `---
-name: Onboarding
-aliases:
-  - signup
-  - activation
-key_files: []
-last_verified: 2026-06-08
----
-`,
+        path,
+        readFileSync(path, "utf-8").replace("aliases: []", "aliases: [العائلة, الأسرة]"),
       );
+      const output = await capture(() => knowledgeFind("الأسرة", { project }));
+      expect(output).toContain(`- إدارة العائلة: docs/knowledge/features/إدارة-العائلة.md`);
+    });
+  });
 
-      const output = await capture(async () => knowledgeList({ project }));
-
+  test("finds a bounded set of glossary terms and aliased documents", async () => {
+    await withProject(async (project) => {
+      await capture(() => knowledgeFeature("Family Sharing", { project }));
+      const featurePath = join(project, "docs/knowledge/features/family-sharing.md");
+      writeFileSync(
+        featurePath,
+        readFileSync(featurePath, "utf-8").replace("aliases: []", "aliases: [family link, invite]"),
+      );
+      writeFileSync(
+        join(project, "docs/knowledge/glossary.md"),
+        "# Glossary\n\n- **Family link** — The app entry URL for one family.\n",
+      );
+      const output = await capture(() => knowledgeFind("family link", { project, limit: 1 }));
       expect(output).toEqual([
+        "Glossary:",
+        "- Family link — The app entry URL for one family.",
+        "Documents:",
+        "- Family Sharing: docs/knowledge/features/family-sharing.md",
+      ]);
+    });
+  });
+
+  test("lists a concise inventory without expanding aliases", async () => {
+    await withProject(async (project) => {
+      await capture(() => knowledgeFeature("Onboarding", { project }));
+      const path = join(project, "docs/knowledge/features/onboarding.md");
+      writeFileSync(
+        path,
+        readFileSync(path, "utf-8").replace("aliases: []", "aliases: [signup, activation]"),
+      );
+      expect(await capture(() => knowledgeList({ project }))).toEqual([
         "Features:",
-        "- Onboarding (aliases: signup, activation): docs/knowledge/features/onboarding.md",
+        "- Onboarding: docs/knowledge/features/onboarding.md",
       ]);
     });
   });
 
-  test("creates a hard-earned bug learning and indexes it once", async () => {
+  test("creates a constraint learning without freshness metadata", async () => {
     await withProject(async (project) => {
-      await capture(async () => {
-        await knowledgeLearning("Billing Renewal Race", { project });
-        await knowledgeLearning("Billing Renewal Race", { project });
-      });
-
-      const learningPath = join(
-        project,
-        `docs/knowledge/learnings/${today()}-billing-renewal-race.md`,
+      await capture(() => knowledgeLearning("Billing Renewal Race", { project }));
+      const learning = readFileSync(
+        join(project, `docs/knowledge/learnings/${today()}-billing-renewal-race.md`),
+        "utf-8",
       );
-      const index = readFileSync(join(project, "docs/knowledge/INDEX.md"), "utf-8");
-      const output = await capture(async () => knowledgeList({ project }));
-
-      expect(readFileSync(learningPath, "utf-8")).toContain("title: Billing Renewal Race");
-      expect(index.match(/learnings\/\d{4}-\d{2}-\d{2}-billing-renewal-race\.md/g)).toHaveLength(1);
-      expect(output).toEqual([
-        "Learnings:",
-        `- Billing Renewal Race: docs/knowledge/learnings/${today()}-billing-renewal-race.md`,
-      ]);
+      expect(learning).toContain("## Constraint");
+      expect(learning).not.toContain("## Evidence");
+      expect(learning).not.toContain("key_files");
+      expect(learning).not.toContain("last_verified");
     });
   });
 
-  test("checks feature key file references", async () => {
+  test("lints source-free active contracts structurally", async () => {
     await withProject(async (project) => {
-      mkdirSync(join(project, "app"), { recursive: true });
-      writeFileSync(join(project, "app/Billing.php"), "<?php\n");
-      await capture(async () => knowledgeFeature("Billing", { project }));
+      await capture(() => knowledgeFeature("Billing", { project }));
+      const path = join(project, "docs/knowledge/features/billing.md");
       writeFileSync(
-        join(project, "docs/knowledge/features/billing.md"),
+        path,
         `---
 name: Billing
-aliases: []
-key_files:
-  - app/Billing.php
-  - app/Missing.php
-last_verified: 2026-06-08
+aliases: [plans]
+status: active
 ---
+
+# Billing
+
+## Product Contracts
+
+### BILL-001 — A customer can subscribe
+
+- **Given** an eligible customer
+- **When** they choose a plan
+- **Then** they can subscribe
+
+## Boundaries
+
+One active plan.
 `,
       );
-
-      await expect(knowledgeCheck({ project })).rejects.toThrow(/app\/Missing\.php/);
+      const output = await capture(() => knowledgeLint({ project }));
+      expect(output).toEqual([
+        "Project knowledge lint passed structurally (1 documents, 0 warnings).",
+      ]);
     });
   });
 
-  test("checks learning key file references", async () => {
+  test("rejects malformed contracts and source-file links", async () => {
     await withProject(async (project) => {
-      await capture(async () => knowledgeLearning("Billing Renewal Race", { project }));
+      await capture(() => knowledgeFeature("Billing", { project }));
+      const path = join(project, "docs/knowledge/features/billing.md");
+      writeFileSync(join(project, "source.md"), "# Source\n");
       writeFileSync(
-        join(project, `docs/knowledge/learnings/${today()}-billing-renewal-race.md`),
-        `---
-title: Billing Renewal Race
-feature: billing
-related_features: []
-key_files:
-  - app/Missing.php
-fixed_in:
-last_verified: 2026-06-08
----
-`,
+        path,
+        readFileSync(path, "utf-8")
+          .replace("status: draft", "status: active")
+          .replace("- **Then** the observable product outcome remains possible", ""),
       );
-
-      await expect(knowledgeCheck({ project })).rejects.toThrow(/app\/Missing\.php/);
+      writeFileSync(
+        join(project, "docs/knowledge/INDEX.md"),
+        readFileSync(join(project, "docs/knowledge/INDEX.md"), "utf-8").concat(
+          "\n[Source](../../source.md)\n",
+        ),
+      );
+      await expect(knowledgeLint({ project })).rejects.toThrow(/missing Then/);
+      await expect(knowledgeLint({ project })).rejects.toThrow(/source file outside/);
     });
   });
 });

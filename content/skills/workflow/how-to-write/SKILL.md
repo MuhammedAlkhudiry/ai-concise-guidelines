@@ -1,6 +1,6 @@
 ---
-name: how-to-respond
-description: for writing final responses, always apply.
+name: how-to-write
+description: Human-sounding English writing and editing for every text intended for people; always apply.
 ---
 
 ## Writing
@@ -54,11 +54,11 @@ description: for writing final responses, always apply.
 - **Prefer the plain word.** "utilize" becomes "use", "leverage" becomes "use", "facilitate" becomes "help", "numerous" becomes "many", "in the event
   that" becomes "if". The fancier synonym is rarely clearer.
 
-## Response rules
+## Communication rules
 
 ### General
 
-- **Language.** Write all replies in English.
+- **Language.** Write every text intended for people in English.
 - **Audience calibration.** Mohammed has strong technical expertise. In management, business, marketing, sales, and product, he has taste, judgment,
   and practical experience but is not an expert and may not know the formal terminology. Use plain language and briefly explain specialized terms when
   they matter without oversimplifying the underlying ideas.
@@ -75,4 +75,3 @@ description: for writing final responses, always apply.
   by a standalone bold status line that reflects the outcome. Prioritize multiple actions; write `No action required.` when there are none. Use
   `🟢 **ALL GOOD**` when complete, `🟡 **ATTENTION NEEDED**` for caveats, `🔴 **ACTION REQUIRED**` when the user must act, or `⛔ **BLOCKED**` when
   progress cannot continue.
-

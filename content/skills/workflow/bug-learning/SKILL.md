@@ -7,7 +7,7 @@ description: Durable learning from complex or misleading bug investigations.
 
 1. Capture a learning only when the investigation reveals a reusable cause or invariant that was difficult to discover, such as misleading symptoms or
    cross-system behavior. Skip routine fixes and temporary incidents.
-2. Inspect the confirmed fix and supporting evidence, then run `knowledge learning --help` and create the learning.
-3. Fill the generated artifact with the impact, causal mechanism, why it was difficult, durable rule, and regression protection—or why protection does
-   not apply. Keep only history that explains the cause.
-4. Use $project-knowledge to connect related feature packs, terms, and `key_files`, then run `knowledge check`.
+2. Put observable regression behavior in a focused test or an existing product contract. Do not create a learning merely to narrate a fixed bug.
+3. When a test cannot explain a non-obvious external, platform, or product constraint, run `knowledge learning --help` and capture only the constraint
+   and its durable consequence. Link a primary external authority only when the constraint depends on it; never list source files.
+4. Use $project-knowledge to connect the canonical glossary term and related feature pack, then run `knowledge lint`.

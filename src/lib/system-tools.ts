@@ -266,6 +266,20 @@ export const SYSTEM_TOOL_GROUPS = [
         },
       },
       {
+        name: "mo",
+        level: "optional",
+        why: "Audits and cleans macOS storage through Mole.",
+        versionArgs: ["--version"],
+        latest: {
+          type: "homebrew",
+          formula: "mole",
+        },
+        update: {
+          commands: ["brew upgrade mole"],
+          note: "Install with brew install mole.",
+        },
+      },
+      {
         name: "wacli",
         level: "optional",
         why: "Reads and exports WhatsApp data for authorized personal knowledge workflows.",

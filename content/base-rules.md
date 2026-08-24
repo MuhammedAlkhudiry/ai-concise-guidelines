@@ -26,10 +26,12 @@
 
 {{ACTIVE_PROJECTS}}
 
-- **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and the task mentions a feature, domain term, workflow, product behavior, glossary, or
-  history, run `knowledge list` before broad code exploration. Before discussing a feature, read `docs/knowledge/glossary.md` and use its established
-  domain language. In user-facing prose, bold and italicize every defined term while preserving its canonical wording—for example: “We need to allow
-  the **_User_** to...”
+- **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and a task depends on project-specific language, promised product behavior, rationale,
+  or history, run a narrow `knowledge find "<query>"` before broad code exploration and use its canonical glossary terms naturally. Read the complete
+  glossary only when editing language or when the query is insufficient. Treat code and runtime evidence as authority for current behavior and active
+  product contracts as authority for intended behavior; report conflicts and preserve the intended capability unless the user explicitly supersedes
+  the contract. Knowledge packs contain product contracts, boundaries, and scarce rationale; they do not contain language sections, source-file
+  inventories, or evidence sections.
 - **DOCUMENTATION-ROUTING** — Use Markdown to point to authoritative code, live help, schemas, metadata, or evidence. Do not restate discoverable
   inventories, syntax, options, behavior, or implementation. Keep only durable decisions, boundaries, non-obvious guidance, and completion contracts.
 

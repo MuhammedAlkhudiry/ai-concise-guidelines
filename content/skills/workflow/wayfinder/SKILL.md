@@ -5,8 +5,8 @@ description: User-invoked decision mapping for large, uncertain initiatives that
 
 ## Boundary
 
-Use only when explicitly invoked for an initiative too large and uncertain for one session. Use $workshop, $interview, or $planning directly when the
-work fits one session. Produce decisions, evidence, and clarified scope, not implementation.
+Use only when explicitly invoked for an initiative too large and uncertain for one session. Use $workshop, $interview, or $work-brief directly when
+the work fits one session. Produce decisions, evidence, and clarified scope, not implementation.
 
 ## Persistence
 
@@ -58,7 +58,7 @@ Every ticket answers one question or completes one prerequisite blocking a quest
 1. Inspect the repository, documentation, prior decisions, and knowledge. Use $project-knowledge when a matching pack or glossary exists.
 2. Establish the destination through $workshop, delegating to $interview when its trigger is met.
 3. Explore breadth-first. Classify each area as a precise ticket question, not yet specified, already decided, or out of scope.
-4. If no material uncertainty remains, create no map and offer $planning.
+4. If no material uncertainty remains, create no map and offer $work-brief.
 5. Create the map and precise tickets. Add child relationships, then blockers. Give each ticket one label: `wayfinder:research`,
    `wayfinder:prototype`, `wayfinder:interview`, or `wayfinder:task`.
 6. Start independent research tickets concurrently when delegation is available.
@@ -77,4 +77,4 @@ Every ticket answers one question or completes one prerequisite blocking a quest
 ## Completion
 
 Complete the map only when no child tickets remain open, `Not yet specified` is empty, the decisions make the route clear, and exclusions are
-recorded. Summarize the settled decisions and offer $planning. Do not begin implementation without the user's request.
+recorded. Summarize the settled decisions and offer $work-brief. Do not begin implementation without the user's request.
