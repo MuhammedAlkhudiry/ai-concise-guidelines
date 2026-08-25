@@ -84,9 +84,6 @@ hugeicons() {
 # Sentry installs its generated Zsh completions in the user data directory.
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
-# Unity CLI
-. "/Users/muhammed/.unity/env"
-
 # --- Runtime Manager ---------------------------------------------------------
 # mise owns global runtime activation for this setup. Keep this lightweight so a
 # missing mise binary does not break shell startup on a partially prepared host.
