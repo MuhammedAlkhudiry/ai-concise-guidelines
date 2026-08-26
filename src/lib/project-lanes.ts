@@ -631,6 +631,10 @@ export async function destroyProjectLane(
   const lane = selectProjectLane(getActiveProjects(), { projectId, laneId });
   await options.beforeDestroy?.();
   return withRegistryLock(async (registry) => {
+    if (!existsSync(lane.path)) {
+      delete registry.projects[projectId]?.[laneId];
+      return lane;
+    }
     const record = recordForLane(registry, lane);
     try {
       await runEnvironmentCommand(lane, registry, "destroy");

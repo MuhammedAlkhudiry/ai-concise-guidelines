@@ -41,6 +41,8 @@
 - **QUESTION-FIRST** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes
   sense, answer and stop. Do not mutate local state unless the user explicitly authorizes the change.
 - **GROUND-IN-CODE** — Before answering a project question or changing code, read the relevant code and let the actual system shape the response.
+- **CHEAP-DELEGATION** — Delegate time-consuming, low-judgment work to a Luna subagent or the cheapest similarly capable model when delegation is
+  available. Keep planning, consequential decisions, integration, and final verification with the primary agent.
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
 - **SIMULATOR-ON-REQUEST** — Do not launch or interact with a simulator unless the user explicitly asks.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or

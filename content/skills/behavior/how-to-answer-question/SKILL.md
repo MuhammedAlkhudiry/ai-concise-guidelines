@@ -5,7 +5,11 @@ description: Apply when user ask a question.
 
 When the user asks a question, look into it if needed, answer, and stop. Do not make any changes. A question about a change does not give permission to make it.
 
-> “Can you change the button color?” → Do any read-only operations and anwer directly.
+> “Can you change the button color?” → Do any read-only operations and answer directly.
+
+If the same message also gives a clear task, complete that task before answering the question. Do not do the work that the question only asks about.
+
+> “Remove the old implementation. How can we build the new one?” → Remove the old implementation, then explain how to build the new one without building it.
 
 - Say when the question starts from a wrong idea. Keep the user’s goal and suggest a better way to reach it.
   “Which table should store this temporary filter?” → “None; it belongs in client state.”
