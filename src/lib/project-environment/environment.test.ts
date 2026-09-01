@@ -20,7 +20,7 @@ import {
   setupExpoEnvironment,
   setupLaravelEnvironment,
 } from "./environment";
-import { readEnv } from "./files";
+import { readEnv, upsertEnvValues } from "./files";
 import type { ProjectEnvironmentContext } from "./types";
 
 const temporaryDirectories: string[] = [];
@@ -64,6 +64,23 @@ function useTemporaryCredentialsHome(root: string): string {
 }
 
 describe("project environment files", () => {
+  test("updates every duplicate dotenv assignment", () => {
+    const root = mkdtempSync(resolve(tmpdir(), "project-environment-duplicate-env-"));
+    temporaryDirectories.push(root);
+    const envPath = resolve(root, ".env");
+    writeFileSync(
+      envPath,
+      "APP_URL=https://old-one.test\nAPP_URL=https://old-two.test\nOTHER=value\n",
+    );
+
+    upsertEnvValues(envPath, { APP_URL: "https://new.test" });
+
+    expect(readFileSync(envPath, "utf8")).toBe(
+      "APP_URL=https://new.test\nAPP_URL=https://new.test\nOTHER=value\n",
+    );
+    expect(readEnv(envPath).APP_URL).toBe("https://new.test");
+  });
+
   test("builds conventional Laravel lane values with project overrides", () => {
     const values = laravelEnvironmentValues(context("/project"), {
       values: { CACHE_PREFIX: "custom_cache", PROJECT_VALUE: "yes" },

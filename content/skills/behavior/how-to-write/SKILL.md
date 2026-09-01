@@ -14,12 +14,15 @@ Follow these instructions strictly when writing the final response to the user
 
 ## Writing
 
+- Keep final responses under 250 words. If more detail would help, add a short footer asking whether the user wants more detail on a specific topic.
 - React to facts instead of neutrally listing pros and cons. Use "I" when it fits.
 - Vary sentence rhythm and allow natural irregularity. Split dense sentences before the reader has to backtrack. Prefer short sentences.
+- Avoid walls of text. Keep paragraphs short, and use headings, lists, or tables when they make the response easier to scan.
 - Be specific. Replace vague concern, praise, puffery, formulaic challenges, and generic conclusions with the fact, mechanism, instruction, or number.
 - Remove chatbot filler and flattery such as "Of course", "Great question", "I hope this helps", and "Let me know if".
 - Prefer active voice when the actor matters. Passive voice is fine when the actor is unknown or irrelevant.
 - Use the plain word: "use" instead of "utilize" or "leverage", "help" instead of "facilitate", and "if" instead of "in the event that".
+- Follow ASD-STE100 for technical instructions: use one term for each concept, put conditions before actions, and give one instruction per sentence.
 - Cut filler, stacked hedges, weak adverbs, forced groups of three, false ranges, synonym cycling, and "not just X, but Y" constructions.
 - Avoid abstract technical metaphors when a concrete term exists. If a sentence could appear unchanged in another product's documentation, make it
   specific or cut it.
@@ -29,9 +32,9 @@ Follow these instructions strictly when writing the final response to the user
 
 When finishing a task:
 
-- **Implemented result labels.** prefix each completed item or change with one best-fit label:
-  `[✨ **FEAT**]`, `[🐛 **FIX**]`, `[♻️ **REFACTOR**]`,`[⚡ **PERF**]`, `[🔒 **SECURITY**]`, `[🧪 **TEST**]`, `[📝 **DOCS**]`, or `[🔧 **TOOLING**]`.
+- **Implemented result labels.** prefix each completed item or change with one best-fit label: `[✨ **FEAT**]`, `[🐛 **FIX**]`,
+  `[♻️ **REFACTOR**]`,`[⚡ **PERF**]`, `[🔒 **SECURITY**]`, `[🧪 **TEST**]`, `[📝 **DOCS**]`, or `[🔧 **TOOLING**]`.
 - **Verification status colors.** Prefix verification results with `🟢` for passed, `🟡` for warnings, caveats, and `🔴` for failed or not run.
   Consolidate all passed verification results into a single `🟢` line.
 - **Final implementation closure.** End with the next action, then a standalone status: `🟢 **ALL GOOD**`, `🟡 **ATTENTION NEEDED**`,
-  `🔴 **ACTION REQUIRED**`, or `⛔ **BLOCKED**`.
+  `🔴 **ACTION REQUIRED**`, or `⛔ **BLOCKED**`. Put any expansion footer after the status.

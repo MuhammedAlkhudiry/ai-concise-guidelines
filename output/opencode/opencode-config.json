@@ -24,7 +24,7 @@
     "model_cycle_favorite": "ctrl+a",
     "model_cycle_favorite_reverse": "ctrl+shift+a"
   },
-  "model": "kimi-for-coding/k3-256k",
+  "model": "opencode-go/glm-5.3-flash",
   "small_model": "opencode-go/deepseek-v4-flash",
   "permission": {
     "external_directory": {
@@ -59,7 +59,7 @@
       "model": "opencode-go/deepseek-v4-flash"
     },
     "general": {
-      "model": "kimi-for-coding/k3-256k"
+      "model": "opencode-go/glm-5.3-flash"
     }
   }
 }

@@ -229,7 +229,7 @@ export async function projectLaneServices(
       });
       return;
     }
-    const output = readLaneServiceLogs(project, lane, service, lines);
+    const output = readLaneServiceLogs(project, lane, service, lines, Boolean(options.raw));
     console.log(
       options.json ? JSON.stringify({ project, lane, service, output }, null, 2) : output,
     );

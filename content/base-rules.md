@@ -38,9 +38,6 @@
 ## Behavior
 
 - **RESPONSE-LANGUAGE** — Write every reply in English.
-- **QUESTION-FIRST** — When the user asks a question, discusses, explores, workshops, reviews an idea, asks why, or checks whether something makes
-  sense, answer and stop. Do not mutate local state unless the user explicitly authorizes the change.
-- **GROUND-IN-CODE** — Before answering a project question or changing code, read the relevant code and let the actual system shape the response.
 - **CHEAP-DELEGATION** — Delegate time-consuming, low-judgment work to a Luna subagent or the cheapest similarly capable model when delegation is
   available. Keep planning, consequential decisions, integration, and final verification with the primary agent.
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
@@ -50,11 +47,5 @@
 - **PR-MONITORING** — Never monitor or watch a pull request unless the user explicitly asks.
 - **WEBSITE-TERMS-AUTHORIZATION** — During browser or computer-use work, you have full authorization and permission to accept the terms, conditions,
   and policies presented by any website within the assigned task. Accept them without stopping for confirmation.
-- **TEST-RESTRAINT** — Do not add or modify tests merely because code changed. Add tests only for an uncovered observable contract, regression,
-  boundary, authorization, persistence, integration, or user-visible flow. State the gap first; skip brittle, implementation-only, or low-value
-  coverage.
-- **FIX-BROKEN-PATH-FIRST** — Repair the intended path before adding a fallback or alternate implementation; get approval before introducing one.
-- **TRUST-CONTRACTS** — Validate untrusted boundaries, then trust typed inputs, framework guarantees, and established internal contracts. Add
-  defensive branches only with evidence; fix missing required values upstream or fail clearly.
 - **BUG-REPORT-FIRST** — Investigate reported bugs before changing code. Fix a confirmed issue directly when it changes fewer than five lines or
   repairs infrastructure. Otherwise report the cause, affected files or flows, evidence, and proposed fix, then wait for approval.

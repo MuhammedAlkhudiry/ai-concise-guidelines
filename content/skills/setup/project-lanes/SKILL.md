@@ -26,8 +26,8 @@ and output.
 
 Use `lanes` for runtime provisioning, environment repair, and managed services. In a managed environment, never edit, recreate, or replace `.env`,
 `.env.testing`, or mobile `.env.local`, and never prefix their lane-derived values onto project commands. Repair them with `lanes repair`. Use the
-project's own task runner—normally `mise`—for application commands such as checks, tests, and coverage; never add a generic `lanes run` path.
-After backend changes that can affect queued execution, use `lanes services` to restart only the current lane's Horizon service before queue-related
+project's own task runner—normally `mise`—for application commands such as checks, tests, and coverage; never add a generic `lanes run` path. After
+backend changes that can affect queued execution, use `lanes services` to restart only the current lane's Horizon service before queue-related
 verification or handoff; do not restart unrelated services.
 
 Saved plans belong to the selected project, not to an individual runtime environment. The installed project catalog contains stable project metadata;

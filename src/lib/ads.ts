@@ -1249,23 +1249,44 @@ function nextDate(date: string): string {
   return previousDate(date, -1);
 }
 
-function zonedMidnightIso(date: string, timezone: string | null): string {
+export function zonedMidnightIso(date: string, timezone: string | null): string {
   if (!timezone) return `${date}T00:00:00.000Z`;
-  const target = new Date(`${date}T00:00:00.000Z`);
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const shown = dateInTimezone(target, timezone);
-    const delta = Date.parse(`${date}T00:00:00Z`) - Date.parse(`${shown}T00:00:00Z`);
-    target.setTime(target.getTime() + delta);
-    const hour = Number(
-      new Intl.DateTimeFormat("en-US", {
-        timeZone: timezone,
-        hour: "2-digit",
-        hourCycle: "h23",
-      }).format(target),
+  const desired = Date.parse(`${date}T00:00:00Z`);
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+  let target = desired;
+
+  // Treat the formatted local time as a UTC value and iteratively remove the
+  // timezone offset. This remains correct when the offset changes at midnight
+  // (for example, on a DST transition).
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const values = Object.fromEntries(
+      formatter
+        .formatToParts(new Date(target))
+        .filter(({ type }) => type !== "literal")
+        .map(({ type, value }) => [type, Number(value)]),
     );
-    target.setUTCHours(target.getUTCHours() - hour);
+    const shown = Date.UTC(
+      values.year,
+      values.month - 1,
+      values.day,
+      values.hour,
+      values.minute,
+      values.second,
+    );
+    const delta = desired - shown;
+    target += delta;
+    if (delta === 0) break;
   }
-  return target.toISOString();
+  return new Date(target).toISOString();
 }
 
 async function secretEnvironment(): Promise<Record<string, string>> {

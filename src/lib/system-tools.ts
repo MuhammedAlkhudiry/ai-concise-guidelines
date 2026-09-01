@@ -97,8 +97,8 @@ export const SYSTEM_TOOL_GROUPS = [
       },
       {
         name: "swift",
-        level: "required",
-        why: "Builds the native Lanes and Ads menu-bar apps during installation.",
+        level: "optional",
+        why: "Builds native menu-bar widgets with mise run install -- --widgets.",
         versionArgs: ["--version"],
         update: {
           note: "Update through Xcode or Xcode Command Line Tools.",

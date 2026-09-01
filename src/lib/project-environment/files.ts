@@ -75,13 +75,15 @@ function serializeEnvValue(value: string): string {
 export function upsertEnvValues(path: string, values: Record<string, string>): void {
   const lines = existsSync(path) ? readFileSync(path, "utf8").split(/\r?\n/) : [];
   const pending = new Map(Object.entries(values));
+  const matched = new Set<string>();
   const updated = lines.map((line) => {
     const match = /^([A-Z0-9_]+)=/.exec(line);
     if (!match || !pending.has(match[1])) return line;
     const value = `${match[1]}=${serializeEnvValue(pending.get(match[1])!)}`;
-    pending.delete(match[1]);
+    matched.add(match[1]);
     return value;
   });
+  for (const key of matched) pending.delete(key);
   for (const [key, value] of pending) updated.push(`${key}=${serializeEnvValue(value)}`);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${updated.join("\n").replace(/\n+$/, "")}\n`);

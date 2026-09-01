@@ -22,7 +22,9 @@ test("controls and reads logs for a launchd-backed lane service", () => {
   writeFileSync(
     join(appPath, "package.json"),
     JSON.stringify({
-      scripts: { dev: "echo service-ready:$EXPO_DEV_SERVER_PORT; sleep 30 #" },
+      scripts: {
+        dev: 'printf "\\033[31mservice-ready:$EXPO_DEV_SERVER_PORT\\r\\n"; sleep 30 #',
+      },
     }),
   );
   writeFileSync(join(appPath, ".env.local"), "EXPO_DEV_SERVER_PORT=9123\n");
@@ -100,9 +102,40 @@ test("controls and reads logs for a launchd-backed lane service", () => {
     const restarted = run(["services", "restart", "service-test", "lane-1", "frontend", "--json"]);
     expect(JSON.parse(restarted.stdout.toString()).lanes[0].services[1].state).toBe("running");
 
+    writeFileSync(join(appPath, ".env.local"), "EXPO_DEV_SERVER_PORT=9124\n");
+    const portChanged = run(["services", "status", "service-test", "lane-1", "--json"]);
+    expect(JSON.parse(portChanged.stdout.toString()).lanes[0].services[1]).toMatchObject({
+      state: "degraded",
+      detail: "Service inputs changed after launch; restart this lane service",
+    });
+    const portRestarted = run([
+      "services",
+      "restart",
+      "service-test",
+      "lane-1",
+      "frontend",
+      "--json",
+    ]);
+    expect(JSON.parse(portRestarted.stdout.toString()).lanes[0].services[1].state).toBe("running");
+
     const logs = run(["services", "logs", "service-test", "lane-1", "frontend", "--lines", "10"]);
     expect(logs.exitCode).toBe(0);
     expect(logs.stdout.toString()).toContain("service-ready:9123");
+    expect(logs.stdout.toString()).not.toContain("\u001b[31m");
+    expect(logs.stdout.toString()).not.toContain("\r");
+
+    const rawLogs = run([
+      "services",
+      "logs",
+      "service-test",
+      "lane-1",
+      "frontend",
+      "--lines",
+      "10",
+      "--raw",
+    ]);
+    expect(rawLogs.exitCode).toBe(0);
+    expect(rawLogs.stdout.toString()).toContain("\u001b[31mservice-ready:9123\r");
   } finally {
     const stopped = run(["services", "stop", "service-test", "lane-1", "frontend", "--json"]);
     expect(stopped.exitCode).toBe(0);

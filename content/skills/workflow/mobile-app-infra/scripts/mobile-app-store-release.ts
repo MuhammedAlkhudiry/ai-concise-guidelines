@@ -25,6 +25,7 @@ type EasConfig = {
 type AppleResource = {
   id: string;
   attributes?: Record<string, any>;
+  relationships?: Record<string, { data?: AppleResource | AppleResource[] | null }>;
 };
 
 const args = parseArgs(process.argv.slice(2));
@@ -93,11 +94,13 @@ async function submitRelease() {
     throw new Error(`App Store version ${versionString} does not exist. Run prepare first.`);
   }
 
-  const existing = (await getReviewSubmissions()).find((review) =>
+  const activeSubmissions = (await getReviewSubmissions()).filter((review) =>
     ["READY_FOR_REVIEW", "WAITING_FOR_REVIEW", "IN_REVIEW", "UNRESOLVED_ISSUES"].includes(
       review.attributes?.state,
     ),
   );
+
+  const existing = await findSubmissionForVersion(activeSubmissions, version.id);
 
   if (existing) {
     console.log({
@@ -106,6 +109,12 @@ async function submitRelease() {
       state: existing.attributes?.state,
     });
     return;
+  }
+
+  if (activeSubmissions.length > 0) {
+    throw new Error(
+      `Active App Store review submission ${activeSubmissions[0]!.id} does not contain version ${versionString}.`,
+    );
   }
 
   const review = await appleJson("https://api.appstoreconnect.apple.com/v1/reviewSubmissions", {
@@ -213,7 +222,7 @@ async function ensureLocalization(version: AppleResource, previousVersion: Apple
   const previous = previousVersion ? await getLocalizations(previousVersion.id) : [];
   const source = previous.find((item) => item.attributes?.locale === locale) ?? previous[0];
   const attributes: Record<string, unknown> = {
-    locale: source?.attributes?.locale ?? locale,
+    locale,
     whatsNew,
   };
 
@@ -319,12 +328,26 @@ async function getLatestVersionBefore(version: string): Promise<AppleResource | 
 
   return (
     versions
-      .filter((item) => item.attributes?.versionString !== version)
-      .sort(
-        (left, right) =>
+      .filter((item) => {
+        const candidate = item.attributes?.versionString;
+
+        return typeof candidate === "string" && compareVersions(candidate, version) < 0;
+      })
+      .sort((left, right) => {
+        const versionOrder = compareVersions(
+          String(right.attributes?.versionString),
+          String(left.attributes?.versionString),
+        );
+
+        if (versionOrder !== 0) {
+          return versionOrder;
+        }
+
+        return (
           Date.parse(String(right.attributes?.createdDate ?? "")) -
-          Date.parse(String(left.attributes?.createdDate ?? "")),
-      )[0] ?? null
+          Date.parse(String(left.attributes?.createdDate ?? ""))
+        );
+      })[0] ?? null
   );
 }
 
@@ -370,6 +393,62 @@ async function getReviewSubmissions(): Promise<AppleResource[]> {
   url.searchParams.set("limit", "10");
 
   return appleJson(url, { headers }).then((response) => response.data ?? []);
+}
+
+async function findSubmissionForVersion(
+  submissions: AppleResource[],
+  versionId: string,
+): Promise<AppleResource | null> {
+  for (const submission of submissions) {
+    const url = new URL(
+      `https://api.appstoreconnect.apple.com/v1/reviewSubmissions/${submission.id}/items`,
+    );
+    url.searchParams.set("include", "appStoreVersion");
+
+    const response = await appleJson(url, { headers });
+    const items: AppleResource[] = response.data ?? [];
+    const includesVersion = items.some((item) => {
+      const relatedVersion = item.relationships?.appStoreVersion?.data;
+      const relatedResource = Array.isArray(relatedVersion) ? relatedVersion[0] : relatedVersion;
+
+      return relatedResource?.id === versionId;
+    });
+
+    if (includesVersion) {
+      return submission;
+    }
+  }
+
+  return null;
+}
+
+function compareVersions(left: string, right: string) {
+  const leftParts = parseVersion(left);
+  const rightParts = parseVersion(right);
+
+  if (!leftParts || !rightParts) {
+    return 0;
+  }
+
+  const length = Math.max(leftParts.length, rightParts.length);
+
+  for (let index = 0; index < length; index += 1) {
+    const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
+
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+
+  return 0;
+}
+
+function parseVersion(value: string): number[] | null {
+  if (!/^\d+(?:\.\d+)*$/.test(value)) {
+    return null;
+  }
+
+  return value.split(".").map(Number);
 }
 
 function appleHeaders() {

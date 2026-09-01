@@ -124,7 +124,13 @@ async function verify(args: string[]): Promise<void> {
   runtime.artisan(value, "verify", [
     "tinker",
     "--execute",
-    "dump(DB::table('branch_settings')->where('key', 'url')->where('value', 'qa-kitchen-sink')->exists()); dump(config('filesystems.disks.s3.bucket'));",
+    [
+      "if (!DB::table('branch_settings')->where('key', 'url')->where('value', 'qa-kitchen-sink')->exists()) {",
+      "throw new RuntimeException('The qa-kitchen-sink branch URL is missing.');",
+      "}",
+      `$bucket = config('filesystems.disks.s3.bucket'); $expectedBucket = ${JSON.stringify(value.bucket)};`,
+      'if ($bucket !== $expectedBucket) { throw new RuntimeException("Configured S3 bucket [{$bucket}] does not belong to this lane."); }',
+    ].join(" "),
   ]);
   await runtime.verifyTypesense(value.typesense);
   if (runtime.shouldVerifyLiveServices()) await runtime.verifyViteDevelopmentServer(value);

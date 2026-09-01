@@ -212,6 +212,11 @@ async function getAppStoreStatus(
     versionUrl.searchParams.set("limit", "1");
 
     const versionResponse = await fetchJson(versionUrl, { headers });
+
+    if (!versionResponse.data?.[0]) {
+      return missing(`No iOS App Store version ${version} found.`);
+    }
+
     const reviewUrl = new URL("https://api.appstoreconnect.apple.com/v1/reviewSubmissions");
     reviewUrl.searchParams.set("filter[app]", appId);
     reviewUrl.searchParams.set("limit", "5");

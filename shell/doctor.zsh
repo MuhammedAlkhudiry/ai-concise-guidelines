@@ -165,7 +165,7 @@ check_file() {
 
 check_credentials_home() {
   local credentials_home="${SERVICE_CREDENTIALS_HOME:-}"
-  local credential_path mode
+  local invalid_path mode
 
   if [[ -z "$credentials_home" ]]; then
     print_missing "required" "credentials" "SERVICE_CREDENTIALS_HOME is not configured; run mise run install"
@@ -186,23 +186,29 @@ check_credentials_home() {
     return 1
   fi
 
-  for credential_path in "$credentials_home"/**/*(/N); do
-    mode="$(stat -f '%Lp' "$credential_path" 2>/dev/null || true)"
-    if [[ "$mode" != "700" ]]; then
-      print_missing "required" "credentials" "$credential_path must use mode 700 (found ${mode:-unknown})"
-      (( required_missing++ ))
-      return 1
-    fi
-  done
+  if ! invalid_path="$(find "$credentials_home" -mindepth 1 -type d ! -perm 700 -print -quit 2>/dev/null)"; then
+    print_missing "required" "credentials" "Unable to verify directory permissions under $credentials_home"
+    (( required_missing++ ))
+    return 1
+  fi
+  if [[ -n "$invalid_path" ]]; then
+    mode="$(stat -f '%Lp' "$invalid_path" 2>/dev/null || true)"
+    print_missing "required" "credentials" "$invalid_path must use mode 700 (found ${mode:-unknown})"
+    (( required_missing++ ))
+    return 1
+  fi
 
-  for credential_path in "$credentials_home"/**/*(.N); do
-    mode="$(stat -f '%Lp' "$credential_path" 2>/dev/null || true)"
-    if [[ "$mode" != "600" ]]; then
-      print_missing "required" "credentials" "$credential_path must use mode 600 (found ${mode:-unknown})"
-      (( required_missing++ ))
-      return 1
-    fi
-  done
+  if ! invalid_path="$(find "$credentials_home" -type f ! -perm 600 -print -quit 2>/dev/null)"; then
+    print_missing "required" "credentials" "Unable to verify file permissions under $credentials_home"
+    (( required_missing++ ))
+    return 1
+  fi
+  if [[ -n "$invalid_path" ]]; then
+    mode="$(stat -f '%Lp' "$invalid_path" 2>/dev/null || true)"
+    print_missing "required" "credentials" "$invalid_path must use mode 600 (found ${mode:-unknown})"
+    (( required_missing++ ))
+    return 1
+  fi
 
   print_ok "credentials" "$credentials_home (private paths verified)"
   (( required_ok++ ))
@@ -215,7 +221,7 @@ main() {
   check_tool mise required "Needed for the supported local task workflow and global runtime management."
   check_tool node required "Needed by the oxfmt CLI used in repo format checks."
   check_tool zsh required "Needed by all installed shared shell commands."
-  check_tool swift required "Builds the native Lanes and Ads menu-bar apps during installation."
+  check_tool swift optional "Builds native menu-bar widgets with mise run install -- --widgets."
 
   print_header "Shell and helper integrations"
   check_tool phpstorm optional "Used by the synced zsh config as the editor command."
@@ -256,6 +262,8 @@ main() {
   check_link doctor "$HOME/bin/doctor" "$MY_SETUP_ROOT/shell/doctor.zsh"
   check_link knowledge "$HOME/bin/knowledge" "$MY_SETUP_ROOT/shell/knowledge.zsh"
   check_link pk "$HOME/bin/pk" "$MY_SETUP_ROOT/shell/pk.zsh"
+  check_link ads "$HOME/bin/ads" "$MY_SETUP_ROOT/shell/ads.zsh"
+  check_link lanes "$HOME/bin/lanes" "$MY_SETUP_ROOT/shell/lanes.zsh"
   check_link sentry-cli "$HOME/bin/sentry-cli" "$MY_SETUP_ROOT/shell/sentry-cli.zsh"
   check_link claude-skills "$HOME/.claude/skills" "$HOME/.agents/skills"
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { Database } from "bun:sqlite";
 
@@ -159,6 +159,28 @@ function byteLength(value: string): number {
 
 function approxTokens(bytes: number): number {
   return Math.round(bytes / 4);
+}
+
+async function* readLines(file: string): AsyncGenerator<string> {
+  const decoder = new TextDecoder();
+  let pending = "";
+
+  for await (const chunk of createReadStream(file)) {
+    pending += decoder.decode(chunk, { stream: true });
+    let lineStart = 0;
+    let lineEnd = pending.indexOf("\n", lineStart);
+
+    while (lineEnd !== -1) {
+      yield pending.slice(lineStart, lineEnd);
+      lineStart = lineEnd + 1;
+      lineEnd = pending.indexOf("\n", lineStart);
+    }
+
+    pending = pending.slice(lineStart);
+  }
+
+  pending += decoder.decode();
+  if (pending) yield pending;
 }
 
 function shortText(value: string, limit = 72): string {
@@ -333,7 +355,7 @@ for (const file of files) {
   const sessionCommands = new Map<string, CommandSummary>();
   let sessionParsed = 0;
 
-  for (const line of readFileSync(file, "utf-8").split(/\n/)) {
+  for await (const line of readLines(file)) {
     if (!line) continue;
 
     summary.lines++;

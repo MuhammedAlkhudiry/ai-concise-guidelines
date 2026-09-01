@@ -392,7 +392,7 @@ async function mergeCodexMcpConfigAsync(): Promise<void> {
   print.success("Codex MCP config merged");
 }
 
-async function installShared(): Promise<void> {
+async function installShared(installWidgets: boolean): Promise<void> {
   await installLocalSecrets();
   await installLanesConfig();
 
@@ -440,10 +440,14 @@ async function installShared(): Promise<void> {
     await chmod(sourcePath, 0o755);
   }
 
-  await installLanesMenu();
-  await installPlansMenu();
-  await installAdsMenu();
-  await installAIUsageMenu();
+  if (installWidgets) {
+    await Promise.all([
+      installLanesMenu(),
+      installPlansMenu(),
+      installAdsMenu(),
+      installAIUsageMenu(),
+    ]);
+  }
 
   print.info(`Ensuring local command paths are in PATH via ${SHARED_PATHS.zshenv}...`);
   await ensureParentDir(SHARED_PATHS.zshenv);
@@ -816,7 +820,7 @@ async function normalizeRemoteSkillName(skillPath: string, skillName: string): P
 // Main
 // =============================================================================
 
-export async function install(): Promise<void> {
+export async function install(options: { widgets?: boolean } = {}): Promise<void> {
   if (!compactOutput) {
     console.log();
     printBox("My Setup - Installer");
@@ -862,7 +866,7 @@ export async function install(): Promise<void> {
     installOpencode(),
     installCodex(),
     installClaude(),
-    installShared(),
+    installShared(options.widgets === true),
   ]);
 
   if (!compactOutput) {
@@ -873,7 +877,7 @@ export async function install(): Promise<void> {
 }
 
 if (import.meta.main) {
-  install().catch((err: Error) => {
+  install({ widgets: process.argv.includes("--widgets") }).catch((err: Error) => {
     console.error(err);
     process.exit(1);
   });

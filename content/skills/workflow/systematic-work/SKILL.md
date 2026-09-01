@@ -14,6 +14,3 @@ description: Systematic exhaustive coverage and manual item-by-item work.
 
 “All” means the full discovered set, never examples, changed files, convenient subsets, or passing items. Verification proves only what it checks; it
 never proves inventory coverage.
-
-When the user asks for manual work, inspect, judge, and edit every item individually. Use search and structured tools for discovery and verification,
-but never scripts, codemods, generated edits, bulk transformations, or delegated edit sweeps. Repetition never relaxes individual judgment.

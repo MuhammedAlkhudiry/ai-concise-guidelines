@@ -354,7 +354,12 @@ function loadScreenshots(): Screenshot[] {
 
   const screenshots = readdirSync(screenshotsDir)
     .filter((file) => /^\d+\.png$/.test(file))
-    .sort((left, right) => left.localeCompare(right))
+    .sort((left, right) => {
+      const numericDifference =
+        Number(left.slice(0, -".png".length)) - Number(right.slice(0, -".png".length));
+
+      return numericDifference || left.localeCompare(right);
+    })
     .map((file) => {
       const buffer = readFileSync(resolve(screenshotsDir, file));
       const bytes = new Uint8Array(buffer.byteLength);

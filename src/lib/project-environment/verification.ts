@@ -94,13 +94,25 @@ export async function verifyViteDevelopmentServer(
   await waitForFile(hotPath);
   const appUrl = new URL(context.appUrl);
   const viteOrigin = new URL(readFileSync(hotPath, "utf8").trim());
-  assertEnvironment(viteOrigin.protocol === "https:", "Vite hot origin must use HTTPS");
-  assertEnvironment(viteOrigin.hostname === appUrl.hostname, "Vite hot origin must use lane host");
+  verifyViteHotOrigin(context, viteOrigin, appUrl);
   await verifyFetch(
     new URL("/@vite/client", viteOrigin).toString(),
     "Vite client",
     {},
     context.herdCertificateAuthority,
+  );
+}
+
+export function verifyViteHotOrigin(
+  context: ProjectEnvironmentContext,
+  viteOrigin: URL,
+  appUrl = new URL(context.appUrl),
+): void {
+  assertEnvironment(viteOrigin.protocol === "https:", "Vite hot origin must use HTTPS");
+  assertEnvironment(viteOrigin.hostname === appUrl.hostname, "Vite hot origin must use lane host");
+  assertEnvironment(
+    viteOrigin.port === context.vitePort,
+    `Vite hot origin must use lane port ${context.vitePort}`,
   );
 }
 

@@ -8,6 +8,7 @@ import {
   parsePeriod,
   parsePlatform,
   parseProject,
+  zonedMidnightIso,
 } from "./ads";
 
 describe("ads CLI contract inputs", () => {
@@ -38,6 +39,13 @@ describe("ads CLI contract inputs", () => {
     );
     expect(parseCampaign("all")).toBeUndefined();
     expect(() => parseCampaign("123 OR 1=1")).toThrow("Campaign ID may contain only");
+  });
+
+  test("converts local midnight across DST transitions", () => {
+    expect(zonedMidnightIso("2026-03-08", "America/New_York")).toBe("2026-03-08T05:00:00.000Z");
+    expect(zonedMidnightIso("2026-03-09", "America/New_York")).toBe("2026-03-09T04:00:00.000Z");
+    expect(zonedMidnightIso("2026-11-01", "America/New_York")).toBe("2026-11-01T04:00:00.000Z");
+    expect(zonedMidnightIso("2026-11-02", "America/New_York")).toBe("2026-11-02T05:00:00.000Z");
   });
 
   test("requires a platform when filtering stats by campaign", async () => {

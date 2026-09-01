@@ -326,6 +326,7 @@ export function readLaneServiceLogs(
   laneId: string,
   serviceId: string,
   lines = 30,
+  raw = false,
 ): string {
   const path = laneServiceLogPath(projectId, laneId, serviceId);
   if (!existsSync(path)) return "No captured output yet.";
@@ -337,6 +338,12 @@ export function readLaneServiceLogs(
     readSync(descriptor, buffer, 0, length, size - length);
   } finally {
     closeSync(descriptor);
+  }
+  if (raw) {
+    return (
+      buffer.toString("utf8").split("\n").slice(-Math.max(1, lines)).join("\n").trimEnd() ||
+      "No output captured yet."
+    );
   }
   const ansiSequence = new RegExp(`${String.fromCharCode(27)}\\[[0-?]*[ -/]*[@-~]`, "g");
   const value = buffer.toString("utf8").replace(ansiSequence, "").replaceAll("\r", "");
@@ -972,6 +979,8 @@ function serviceInputFingerprint(context: ServiceContext): string {
     const path = join(context.directory, name);
     if (existsSync(path)) hash.update(name).update("\0").update(readFileSync(path));
   }
+  const expoDevelopmentPort = laneServiceEnvironment(context.directory).EXPO_DEV_SERVER_PORT;
+  hash.update("EXPO_DEV_SERVER_PORT\0").update(expoDevelopmentPort ?? "");
   return hash.digest("hex");
 }
 

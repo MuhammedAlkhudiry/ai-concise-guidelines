@@ -8,18 +8,45 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 exec bun run - "$@" <<'EOF'
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rename, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
-import { tmpdir } from "node:os";
 
 const REGISTRY_BASE = "https://registry.npmjs.org";
 const STATIC_PACKAGE = "@hugeicons/static";
 const CORE_PACKAGE = "@hugeicons/core-free-icons";
 const CACHE_ROOT = join(process.env.XDG_CACHE_HOME ?? join(process.env.HOME ?? "", ".cache"), "hugeicons");
-const ICONS_DIR = join(CACHE_ROOT, "icons");
-const EXPORTS_FILE = join(CACHE_ROOT, "exports.txt");
-const VERSION_FILE = join(CACHE_ROOT, "version.txt");
-const READY_FILE = join(CACHE_ROOT, "ready.txt");
+const CURRENT_LINK = join(CACHE_ROOT, "current");
+const LEGACY_ICONS_DIR = join(CACHE_ROOT, "icons");
+const LEGACY_EXPORTS_FILE = join(CACHE_ROOT, "exports.txt");
+const LEGACY_READY_FILE = join(CACHE_ROOT, "ready.txt");
+let activeCacheRoot = CURRENT_LINK;
+
+function iconsDir(): string {
+  return join(activeCacheRoot, "icons");
+}
+
+function exportsFile(): string {
+  return join(activeCacheRoot, "exports.txt");
+}
+
+function versionFile(): string {
+  return join(activeCacheRoot, "version.txt");
+}
+
+async function hasCompleteCache(root: string): Promise<boolean> {
+  return (
+    (await pathExists(join(root, "icons"))) &&
+    (await pathExists(join(root, "exports.txt"))) &&
+    (await pathExists(join(root, "ready.txt")))
+  );
+}
+
+type CacheManifest = {
+  staticVersion: string;
+  coreVersion: string;
+  staticIntegrity?: string;
+  coreIntegrity?: string;
+};
 
 const args = process.argv.slice(2);
 const command = args[0] ?? "help";
@@ -91,19 +118,20 @@ async function downloadTo(url: string, file: string): Promise<void> {
   await writeFile(file, Buffer.from(await response.arrayBuffer()));
 }
 
-async function updateCache(version: string, staticTarball: string, coreTarball: string): Promise<void> {
+async function updateCache(manifest: CacheManifest, staticTarball: string, coreTarball: string): Promise<void> {
   await mkdir(CACHE_ROOT, { recursive: true });
-  const tempDir = await mkdtemp(join(tmpdir(), "hugeicons-"));
+  const tempDir = await mkdtemp(join(CACHE_ROOT, ".generation-"));
   const staticArchive = join(tempDir, "static.tgz");
   const coreArchive = join(tempDir, "core.tgz");
+  const stagedIconsDir = join(tempDir, "icons");
+  let published = false;
 
   try {
     await downloadTo(staticTarball, staticArchive);
     await downloadTo(coreTarball, coreArchive);
 
-    await rm(ICONS_DIR, { recursive: true, force: true });
-    await mkdir(ICONS_DIR, { recursive: true });
-    spawnOrFail(["tar", "-xzf", staticArchive, "-C", ICONS_DIR, "--strip-components=2", "package/icons"]);
+    await mkdir(stagedIconsDir, { recursive: true });
+    spawnOrFail(["tar", "-xzf", staticArchive, "-C", stagedIconsDir, "--strip-components=2", "package/icons"]);
 
     const tarList = spawnOrFail(["tar", "-tf", coreArchive]);
     const exportNames = tarList
@@ -112,18 +140,43 @@ async function updateCache(version: string, staticTarball: string, coreTarball: 
       .map((line) => basename(line, ".js"))
       .sort();
 
-    await writeFile(EXPORTS_FILE, exportNames.join("\n") + "\n");
-    await writeFile(VERSION_FILE, `${version}\n`);
-    await writeFile(READY_FILE, "ready\n");
+    await rm(staticArchive, { force: true });
+    await rm(coreArchive, { force: true });
+    await writeFile(join(tempDir, "exports.txt"), exportNames.join("\n") + "\n");
+    await writeFile(join(tempDir, "version.txt"), `${JSON.stringify(manifest)}\n`);
+    await writeFile(join(tempDir, "ready.txt"), "ready\n");
+
+    // Publish the complete generation by swapping one symlink. A failed or
+    // concurrent refresh therefore leaves the previously published cache
+    // usable, and readers never observe a half-written generation.
+    const nextLink = join(CACHE_ROOT, `.current-${basename(tempDir)}`);
+    await symlink(tempDir, nextLink);
+    try {
+      await rename(nextLink, CURRENT_LINK);
+      published = true;
+      activeCacheRoot = CURRENT_LINK;
+    } finally {
+      await rm(nextLink, { force: true });
+    }
   } finally {
-    await rm(tempDir, { recursive: true, force: true });
+    // Published generations are retained so readers that started before a
+    // concurrent swap can finish against their immutable generation.
+    if (!published) {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   }
 }
 
 async function ensureCache(): Promise<void> {
-  const cachedVersion = (await pathExists(VERSION_FILE))
-    ? (await readFile(VERSION_FILE, "utf8")).trim()
-    : "";
+  let cachedManifest: CacheManifest | null = null;
+  activeCacheRoot = CURRENT_LINK;
+  if (await pathExists(versionFile())) {
+    try {
+      cachedManifest = JSON.parse(await readFile(versionFile(), "utf8")) as CacheManifest;
+    } catch {
+      cachedManifest = null;
+    }
+  }
 
   try {
     const [staticMeta, coreMeta] = await Promise.all([
@@ -131,26 +184,43 @@ async function ensureCache(): Promise<void> {
       fetchJson(toRegistryUrl(CORE_PACKAGE)),
     ]);
 
-    const version = String(staticMeta.version ?? "");
+    const staticVersion = String(staticMeta.version ?? "");
+    const coreVersion = String(coreMeta.version ?? "");
     const staticTarball = String((staticMeta.dist as { tarball?: string } | undefined)?.tarball ?? "");
     const coreTarball = String((coreMeta.dist as { tarball?: string } | undefined)?.tarball ?? "");
+    const staticIntegrity = String((staticMeta.dist as { integrity?: string } | undefined)?.integrity ?? "");
+    const coreIntegrity = String((coreMeta.dist as { integrity?: string } | undefined)?.integrity ?? "");
 
-    if (!version || !staticTarball || !coreTarball) {
+    if (!staticVersion || !coreVersion || !staticTarball || !coreTarball) {
       throw new Error("Hugeicons package metadata is incomplete.");
     }
 
+    const manifest: CacheManifest = {
+      staticVersion,
+      coreVersion,
+      ...(staticIntegrity ? { staticIntegrity } : {}),
+      ...(coreIntegrity ? { coreIntegrity } : {}),
+    };
+
     if (
-      version !== cachedVersion ||
-      !(await pathExists(ICONS_DIR)) ||
-      !(await pathExists(EXPORTS_FILE)) ||
-      !(await pathExists(READY_FILE))
+      JSON.stringify(manifest) !== JSON.stringify(cachedManifest) ||
+      !(await hasCompleteCache(CURRENT_LINK))
     ) {
-      await updateCache(version, staticTarball, coreTarball);
+      await updateCache(manifest, staticTarball, coreTarball);
     }
 
     return;
   } catch (error) {
-    if ((await pathExists(ICONS_DIR)) && (await pathExists(EXPORTS_FILE)) && (await pathExists(READY_FILE))) {
+    if (await hasCompleteCache(CURRENT_LINK)) {
+      return;
+    }
+    // Preserve offline use of caches created before generations were added.
+    if (
+      (await pathExists(LEGACY_ICONS_DIR)) &&
+      (await pathExists(LEGACY_EXPORTS_FILE)) &&
+      (await pathExists(LEGACY_READY_FILE))
+    ) {
+      activeCacheRoot = CACHE_ROOT;
       return;
     }
     fatal(`Failed to refresh Hugeicons cache: ${(error as Error).message}`);
@@ -159,7 +229,7 @@ async function ensureCache(): Promise<void> {
 
 async function listIcons(): Promise<string[]> {
   await ensureCache();
-  const output = spawnOrFail(["find", ICONS_DIR, "-type", "f", "-name", "*.svg"]);
+  const output = spawnOrFail(["find", iconsDir(), "-type", "f", "-name", "*.svg"]);
   return output
     .split("\n")
     .filter(Boolean)
@@ -169,7 +239,7 @@ async function listIcons(): Promise<string[]> {
 
 async function readExports(): Promise<Set<string>> {
   await ensureCache();
-  const content = await readFile(EXPORTS_FILE, "utf8");
+  const content = await readFile(exportsFile(), "utf8");
   return new Set(content.split("\n").filter(Boolean));
 }
 
@@ -210,7 +280,7 @@ function toExportName(iconName: string): string {
 
 async function resolveIconPath(iconName: string): Promise<string> {
   await ensureCache();
-  const path = join(ICONS_DIR, `${iconName}.svg`);
+  const path = join(iconsDir(), `${iconName}.svg`);
   if (!(await pathExists(path))) {
     fatal(`Hugeicons icon not found: ${iconName}`);
   }
