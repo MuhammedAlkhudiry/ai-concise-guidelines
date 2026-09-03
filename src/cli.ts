@@ -5,7 +5,6 @@ import { join } from "node:path";
 import { cac } from "cac";
 import { execa } from "execa";
 
-import { generate } from "./commands/generate";
 import { install } from "./commands/install";
 
 const ROOT_DIR = join(import.meta.dir, "..");
@@ -32,7 +31,6 @@ cli
   .option("--compact", "Print only warnings, failures, and the final result")
   .option("--widgets", "Build, install, and restart the native menu-bar widgets")
   .action(async (options: { compact?: boolean; widgets?: boolean }) => {
-    await generate();
     await install({ widgets: options.widgets });
     await runScript("zsh", [join(ROOT_DIR, "shell", "doctor.zsh")], options.compact);
     if (options.compact) console.log("my-setup install: ok");

@@ -20,10 +20,11 @@ zsh-autosuggestions
 source "$ZSH/oh-my-zsh.sh"
 
 # --- Editor ------------------------------------------------------------------
-# Keeps the default editor and the quick `zsh` alias pointed at PhpStorm, which
-# is the personal editor contract declared in src/lib/system-tools.ts.
-alias zsh="phpstorm ~/.zshrc"
+# Keeps the default editor pointed at PhpStorm, which is the personal editor
+# contract declared in src/lib/system-tools.ts. `edit-zsh` opens the managed
+# shell config; the `zsh` command name is never shadowed so scripts run.
 export EDITOR=phpstorm
+alias edit-zsh="phpstorm $HOME/PhpstormProjects/my-setup/shell/zsh-custom.zsh"
 
 # --- Android/Java ------------------------------------------------------------
 # Exposes the local Android SDK and the Java runtime expected by mobile tooling.
@@ -54,35 +55,13 @@ alias t="a test --parallel --stop-on-failure"
 alias coverage="a test --parallel --coverage --stop-on-failure"
 
 # --- Installed Commands ------------------------------------------------------
-# This repo installs shell helpers into `~/bin` during `mise run install`.
-# The interactive functions below preserve stable command names while giving a
-# clear recovery message if the local install has not been run yet.
-_run_installed_command() {
-    local name="$1"
-    local command_path="$HOME/bin/$name"
-    shift
-
-    if [[ -x "$command_path" ]]; then
-        "$command_path" "$@"
-        return
-    fi
-
-    echo "$name executable not found at $command_path"
-    echo "Run mise run install from my-setup"
-    return 1
-}
-
-hugeicons() {
-    _run_installed_command hugeicons "$@"
-}
+# `mise run install` links shell helpers into `~/bin`, which `.zshenv` puts on
+# PATH for every shell, so no wrapper functions are needed here.
 
 # --- Tool Initialization -----------------------------------------------------
 # Homebrew may be installed outside the default shell PATH. Loading shellenv here
 # makes Homebrew-managed tools available before runtime managers and helpers run.
 [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-
-# Sentry installs its generated Zsh completions in the user data directory.
-fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 
 # --- Runtime Manager ---------------------------------------------------------
 # mise owns global runtime activation for this setup. Keep this lightweight so a
@@ -138,10 +117,6 @@ p() {
     cd "$target_dir"
 }
 
-doctor() {
-    _run_installed_command doctor "$@"
-}
-
 # --- OpenCode ----------------------------------------------------------------
 # Adds OpenCode's own install location and launcher environment, then exposes an
 # `ai` helper that can jump to a selected project before starting OpenCode.
@@ -170,6 +145,3 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # --- PATH Cleanup ------------------------------------------------------------
 # Deduplicates PATH after all sections have contributed their entries.
 typeset -U path PATH
-
-# --- Sentry ------------------------------------------------------------------
-fpath=("$HOME/.local/share/zsh/site-functions" $fpath)

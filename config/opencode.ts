@@ -1,5 +1,6 @@
 import { MODELS } from "./models";
 import { createOpencodeMcpConfig, createOpencodeMcpToolConfig } from "./mcp";
+import { createOpencodePermission } from "./permissions";
 
 export interface OpencodeConfig {
   $schema: string;
@@ -10,11 +11,7 @@ export interface OpencodeConfig {
   keybinds: Record<string, string>;
   model: string;
   small_model: string;
-  permission: {
-    external_directory: Record<string, string>;
-    read: Record<string, string>;
-    bash: Record<string, string>;
-  };
+  permission: ReturnType<typeof createOpencodePermission>;
   agent: {
     plan: {
       disable: boolean;
@@ -41,31 +38,7 @@ export function createOpencodeConfig(homeDir: string): OpencodeConfig {
     },
     model: MODELS.smart,
     small_model: MODELS.fast,
-    permission: {
-      external_directory: {
-        "*": "ask",
-        [`${homeDir}/PhpstormProjects/*`]: "allow",
-        "/tmp/*": "allow",
-        "/private/tmp/*": "allow",
-        "~/.config/*": "allow",
-        "~/.agents/*": "allow",
-      },
-      read: {
-        "**/.env*": "allow",
-      },
-      bash: {
-        "herd *": "allow",
-        "git *": "allow",
-        "grep *": "allow",
-        "rg *": "allow",
-        "find *": "allow",
-        "ls *": "allow",
-        "cat *": "allow",
-        "head *": "allow",
-        "tail *": "allow",
-        "wc *": "allow",
-      },
-    },
+    permission: createOpencodePermission(homeDir),
     agent: {
       plan: {
         disable: true,

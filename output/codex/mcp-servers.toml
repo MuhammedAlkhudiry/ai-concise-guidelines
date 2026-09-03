@@ -1,9 +1,0 @@
-# Managed by my-setup. Do not edit by hand.
-# Source of truth: config/mcp.ts
-
-[mcp_servers.maestro]
-command = "maestro"
-args = ["mcp"]
-startup_timeout_sec = 10
-tool_timeout_sec = 180
-enabled_tools = ["list_devices", "inspect_screen", "run", "take_screenshot", "open_maestro_viewer"]

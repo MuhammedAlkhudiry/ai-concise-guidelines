@@ -10,6 +10,7 @@ import {
   projectLaneSimulatorsStatus,
   projectLanesAudit,
   projectLanesDestroy,
+  projectLanesPrune,
   projectLanesProvision,
   projectLaneReload,
   projectLanesRepair,
@@ -174,6 +175,10 @@ cli
       throw new Error(`Unknown simulator operation: ${operation}`);
     },
   );
+
+cli
+  .command("prune [project]", "Remove task-environment registrations whose root no longer exists")
+  .action(projectLanesPrune);
 
 cli
   .command("reset <project> <environment>", "Reset environment data while preserving project files")

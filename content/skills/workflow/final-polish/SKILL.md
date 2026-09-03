@@ -7,17 +7,18 @@ description: Post-implementation hardening before human review.
 
 1. Review the diff for scope creep, churn, unjustified tests, missing coverage, regressions, and crossed producer-consumer contracts. Fix or report
    contract units that are `breaking`, `unsafe`, `stale`, or `ambiguous`.
-2. Run $simplify in self-contained subagents with the exact scope and no inherited turns, evaluating each pass before the next. Run $test-writing to
+2. Run $simplify in a subagent started from a self-contained brief with the exact scope, evaluating each pass before the next. Run $test-writing to
    audit coverage and close approved worthwhile gaps. These passes may edit.
-3. Run these exact-target, read-only reviews in parallel using self-contained subagents with no inherited turns:
+3. Run these exact-target, read-only reviews in parallel, each in a subagent started from its own self-contained brief:
    - $code-review as a Standards review.
    - $refactor-opportunities.
    - $ux-ui when the diff affects an interface; inspect the rendered result or report `BLOCKED`. Report unavailable passes instead of simulating them.
 4. Run $verification as the final fix loop. Fix task-related failures and report each check as `PASS`, `FAIL`, or `BLOCKED`.
-5. Run a final read-only reviewer gate in a self-contained subagent with no inherited turns. The main agent owns synthesis and final reporting.
+5. Run a final read-only reviewer gate in a subagent started from a self-contained brief. The main agent owns synthesis and final reporting.
 
 ## Rules
 
+- Give each subagent its full scope and context in the brief and tell it to treat inherited conversation as background, not as the task.
 - Include every report section and state empty, skipped, unavailable, or blocked results.
 - Use `READY FOR HUMAN REVIEW` only when no blocker remains.
 

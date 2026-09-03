@@ -147,6 +147,36 @@ check_installed_skills() {
   return 1
 }
 
+check_local_hygiene() {
+  local output check_status
+  local script="$MY_SETUP_ROOT/src/commands/doctor-checks.ts"
+
+  if [[ ! -f "$script" ]]; then
+    print_missing "required" "hygiene" "$script is missing"
+    (( required_missing++ ))
+    return 1
+  fi
+
+  output="$(bun "$script" 2>&1)"
+  check_status=$?
+  if (( check_status == 0 )); then
+    print_ok "hygiene" "$output"
+    return 0
+  fi
+
+  while IFS=$'\t' read -r level detail; do
+    [[ -z "$level" ]] && continue
+    print_missing "$level" "hygiene" "$detail"
+    if [[ "$level" == "required" ]]; then
+      (( required_missing++ ))
+    else
+      (( optional_missing++ ))
+    fi
+  done <<< "$output"
+  (( check_status == 1 )) && return 1
+  return 0
+}
+
 check_file() {
   local name="$1"
   local path="$2"
@@ -219,7 +249,7 @@ main() {
   check_tool bun required "Runtime used internally by mise run install."
   check_tool git required "Needed for remote skill checkout, hooks, and shared git helpers."
   check_tool mise required "Needed for the supported local task workflow and global runtime management."
-  check_tool node required "Needed by the oxfmt CLI used in repo format checks."
+  check_tool node required "Hosts npm itself and the npm-installed agent CLIs."
   check_tool zsh required "Needed by all installed shared shell commands."
   check_tool swift optional "Builds native menu-bar widgets with mise run install -- --widgets."
 
@@ -264,11 +294,14 @@ main() {
   check_link pk "$HOME/bin/pk" "$MY_SETUP_ROOT/shell/pk.zsh"
   check_link ads "$HOME/bin/ads" "$MY_SETUP_ROOT/shell/ads.zsh"
   check_link lanes "$HOME/bin/lanes" "$MY_SETUP_ROOT/shell/lanes.zsh"
-  check_link sentry-cli "$HOME/bin/sentry-cli" "$MY_SETUP_ROOT/shell/sentry-cli.zsh"
+  check_link codex-usage "$HOME/bin/codex-usage" "$MY_SETUP_ROOT/shell/codex-usage.zsh"
   check_link claude-skills "$HOME/.claude/skills" "$HOME/.agents/skills"
 
   print_header "Managed skills"
   check_installed_skills
+
+  print_header "Local hygiene"
+  check_local_hygiene
 
   print_summary
 

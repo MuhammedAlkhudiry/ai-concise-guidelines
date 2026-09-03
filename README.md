@@ -21,7 +21,6 @@ drift.
 - `config/` — Codex, OpenCode, MCP, remote-skill, model, and secret-template configuration.
 - `src/` — generator, installer, doctor support, project and personal knowledge commands, and tool-status logic.
 - `shell/` — synced Zsh configuration and installed helper commands.
-- `output/` — generated previews; never edit these files directly.
 - `src/lib/system-tools.ts` — authoritative host-tool inventory and update metadata.
 
-Make durable changes in the source directories, then use `mise run install` to regenerate and sync the installed state.
+Make durable changes in the source directories, then use `mise run install` to render and sync the installed state.

@@ -21,9 +21,9 @@ description: Product health checks, investigations, and reports.
 ## Source routing
 
 - **Sentry:** Use $sentry-cli and its current help. Verify the organization and project, then inspect full issue details and representative events.
-- **PostHog:** Use $posthog-cli for source access, $investigate-metric for material metric changes, and $diagnosing-sdk-health for SDK health.
+- **PostHog:** Use $cli-tools for PostHog source access, $investigate-metric for material metric changes, and $diagnosing-sdk-health for SDK health.
 - **Queues, schedulers, and servers:** Discover deployed surfaces from code and configuration. Use documented read-only application commands,
-  $laravel-forge-cli, or SSH as applicable. Measure live backlog, age, retries, failures, execution, services, and capacity.
+  $cli-tools for Laravel Forge, or SSH as applicable. Measure live backlog, age, retries, failures, execution, services, and capacity.
 - **Databases and managed services:** Use $service-access, the provider's current CLI or API help, and live schema or telemetry. Keep queries
   read-only and never report credentials.
 - **Redis:** Determine whether it serves cache, sessions, queues, or another role from project configuration before querying relevant read-only

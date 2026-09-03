@@ -1,10 +1,20 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 
 import { deleteTypesenseCollections, verifyTypesense } from "./typesense";
 
 const connection = { url: "http://127.0.0.1:8108/", apiKey: "secret" };
 
 describe("Typesense environment helpers", () => {
+  let consoleLog: ReturnType<typeof spyOn>;
+
+  beforeEach(() => {
+    consoleLog = spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleLog.mockRestore();
+  });
+
   test("verifies the configured health endpoint with its API key", async () => {
     const requests: Array<{ input: string; init?: RequestInit }> = [];
 

@@ -647,6 +647,21 @@ export async function destroyProjectLane(
   });
 }
 
+export async function pruneMissingProjectLanes(projectId?: string): Promise<Lane[]> {
+  const projects = selectedProjects(projectId);
+  return withRegistryLock(async (registry) => {
+    const pruned: Lane[] = [];
+    for (const project of projects) {
+      for (const lane of lanesForRegistry(project, registry)) {
+        if (lane.kind !== "task" || existsSync(lane.path)) continue;
+        delete registry.projects[project.id]?.[lane.id];
+        pruned.push(lane);
+      }
+    }
+    return pruned;
+  });
+}
+
 function selectedProjects(projectId?: string): ActiveProject[] {
   return projectId ? [getActiveProject(projectId)] : getActiveProjects();
 }

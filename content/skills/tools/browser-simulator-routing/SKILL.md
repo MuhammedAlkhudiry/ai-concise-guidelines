@@ -10,6 +10,9 @@ the task requirements change.
 
 Before browser automation, use a purpose-built connector, API, or CLI when the operation is semantic and does not require browser UI interaction.
 
+Prefer text snapshots such as the accessibility tree, DOM, or device snapshot over screenshots. When a screenshot is required, capture it at 1x scale
+and crop it to the region under inspection before attaching it.
+
 ## Browser
 
 - When the task depends on existing user browser state, including a signed-in session, open tabs, or extensions, prefer `$chrome:control-chrome`. Use

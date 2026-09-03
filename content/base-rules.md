@@ -1,8 +1,8 @@
 ## Environment
 
-- **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. Run `npm` and `bun` on the
-  host. For scripts and one-time automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and
-  one-time production data-fix scripts outside Git repositories. Commit only reusable scripts intended for recurring use.
+- **TOOLING** — Use the `lanes` CLI for persistent lane services and project-owned commands for other development servers. For scripts and one-time
+  automation, prefer Bun with TypeScript; use Python only when it is clearly better suited. Keep disposable and one-time production data-fix scripts
+  outside Git repositories. Commit only reusable scripts intended for recurring use.
 - **LANES-RUNTIME** — The harness owns task worktree creation and deletion. At task start inside a managed worktree, use $project-lanes to provision
   or repair its lane before project work; a missing lane is setup work, not a reason to reduce scope. Destroy the lane before worktree deletion.
   `lanes` owns only isolated runtime resources and must never perform Git or worktree operations.
@@ -27,19 +27,17 @@
 {{ACTIVE_PROJECTS}}
 
 - **PROJECT-KNOWLEDGE** — When a project has `docs/knowledge/` and a task depends on project-specific language, promised product behavior, rationale,
-  or history, run a narrow `knowledge find "<query>"` before broad code exploration and use its canonical glossary terms naturally. Read the complete
-  glossary only when editing language or when the query is insufficient. Treat code and runtime evidence as authority for current behavior and active
-  product contracts as authority for intended behavior; report conflicts and preserve the intended capability unless the user explicitly supersedes
-  the contract. Knowledge packs contain product contracts, boundaries, and scarce rationale; they do not contain language sections, source-file
-  inventories, or evidence sections.
-- **DOCUMENTATION-ROUTING** — Use Markdown to point to authoritative code, live help, schemas, metadata, or evidence. Do not restate discoverable
-  inventories, syntax, options, behavior, or implementation. Keep only durable decisions, boundaries, non-obvious guidance, and completion contracts.
+  or history, use $project-knowledge before broad code exploration.
+- **DOCUMENTATION-ROUTING** — When writing or editing Markdown, follow $writing-documentation: point to authoritative sources and keep only durable
+  decisions, boundaries, and completion contracts.
 
 ## Behavior
 
+- **RESPONSE-GUIDANCE** — Always load $how-to-respond.
 - **RESPONSE-LANGUAGE** — Write every reply in English.
-- **CHEAP-DELEGATION** — Delegate time-consuming, low-judgment work to a Luna subagent or the cheapest similarly capable model when delegation is
-  available. Keep planning, consequential decisions, integration, and final verification with the primary agent.
+- **CHEAP-DELEGATION** — Delegate time-consuming, low-judgment work to {{CHEAP_DELEGATE}}. Start every subagent from a self-contained brief that
+  states its exact scope and the context it needs; it must treat any inherited conversation as background, never as the task. Keep planning,
+  consequential decisions, integration, and final verification with the primary agent.
 - **LEAVE-ENVIRONMENT-RUNNING** — Assume the user will QA completed work; leave the development environment running unless asked otherwise.
 - **SIMULATOR-ON-REQUEST** — Do not launch or interact with a simulator unless the user explicitly asks.
 - **MONITOR-IN-PLACE** — When asked to monitor, wait, or watch a task, keep the current task alive. Do not create an automation, reminder, or

@@ -1,5 +1,7 @@
 import { execa } from "execa";
 
+import type { Lane } from "../lib/project-lanes";
+
 import {
   applyLaneSimulatorSlimming,
   auditProjectLanes,
@@ -17,6 +19,7 @@ import {
   verifyProjectLane,
   type SimulatorFleetReport,
   type SimulatorSlimmingMode,
+  pruneMissingProjectLanes,
 } from "../lib/project-lanes";
 import {
   laneServiceLogPath,
@@ -70,11 +73,25 @@ export async function projectLanesProvision(
   console.log(`${project}/${lane}\tPROVISIONED\t${provisioned.path}\tslot=${provisioned.number}`);
 }
 
+function reportPrunedLanes(pruned: Lane[], json: boolean): void {
+  if (json) return;
+  for (const lane of pruned) {
+    console.log(`${lane.project.id}/${lane.id}\tPRUNED\ttask; slot ${lane.number}; ${lane.path}; root missing`);
+  }
+}
+
+export async function projectLanesPrune(project?: string): Promise<void> {
+  const pruned = await pruneMissingProjectLanes(project);
+  reportPrunedLanes(pruned, false);
+  if (pruned.length === 0) console.log("No task environments with a missing root");
+}
+
 export async function projectLanesStatus(
   project?: string,
   json = false,
   verbose = false,
 ): Promise<void> {
+  reportPrunedLanes(await pruneMissingProjectLanes(project), json);
   const statuses = await listProjectLaneStatuses(project);
   if (json) {
     process.stdout.write(
@@ -118,6 +135,7 @@ export async function projectLanesAudit(
   mobile = false,
   compact = false,
 ): Promise<void> {
+  reportPrunedLanes(await pruneMissingProjectLanes(project), false);
   await auditProjectLanes(project, { mobile, compact });
   console.log(`lanes audit${project ? ` ${project}` : ""}: ok`);
 }

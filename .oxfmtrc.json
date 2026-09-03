@@ -14,5 +14,5 @@
       }
     }
   ],
-  "ignorePatterns": ["output/**", "node_modules/**"]
+  "ignorePatterns": ["node_modules/**"]
 }

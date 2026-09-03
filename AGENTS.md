@@ -1,22 +1,24 @@
 - **SCOPE** — This repository defines shared AI guidelines, skills, and agent configuration for Claude Code, Codex, and OpenCode.
 - **PERSONAL-ONLY** — Treat this repo as personal infrastructure for its owner only; do not design for sharing, multi-user setup, or user-configurable
   distribution.
-- **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `plugins/`, `shell/`), not generated artifacts.
+- **SOURCE-OF-TRUTH** — Make changes in source files (`content/`, `config/`, `src/`, `shell/`), never in installed copies under the home directory.
 
 ## Important Files
 
 - `content/skills/<category>/<name>/SKILL.md` — Source files for local skills; each skill belongs under a category folder.
 - `config/skills.ts` — Remote skill declarations fetched and installed by this repo.
-- `config/codex.ts`, `config/opencode.ts`, and `config/mcp.ts` — Source of truth for generated Codex, OpenCode, and MCP configuration.
+- `config/codex.ts`, `config/opencode.ts`, `config/claude.ts`, and `config/mcp.ts` — Source of truth for the managed Codex, OpenCode, Claude Code, and
+  MCP configuration keys.
+- `config/permissions.ts` — Shared command and path allowlist rendered into OpenCode, Claude Code, and Codex permission surfaces.
 - `src/cli.ts` and `src/commands/system-tools-cli.ts` — `my-setup` installation and external-tool maintenance CLI entrypoints.
-- `src/commands/generate.ts` — Generator for files under `output/`.
-- `src/commands/install.ts` — Local installer that syncs rules, config, skills, shell helpers, secrets, and shared bin commands.
+- `src/commands/install.ts` — Local installer that renders and syncs rules, config, permissions, skills, shell helpers, secrets, and shared bin
+  commands.
+- `src/commands/doctor-checks.ts` — Local hygiene checks run by `doctor`; extend it when the installer starts owning a new local surface.
 - `src/commands/lanes-cli.ts`, `src/lib/project-lanes.ts`, and `src/lib/lane-services.ts` — Standalone `lanes` command, canonical/task runtime
   registry, and service control plane.
 - `shell/zsh-custom.zsh` and `shell/doctor.zsh` — Synced shell config and local tool health checks.
 - `src/lib/system-tools.ts` — System-tool inventory, ownership, update commands, and notes; keep it aligned with `doctor`.
 - `config/active-projects.ts` — Active project defaults and canonical clone roots (see ACTIVE-PROJECTS).
-- `output/` — Generated preview artifacts only; do not edit by hand.
 
 - **ACTIVE-PROJECTS** — Active project defaults are declared in `config/active-projects.ts` and installed into the standalone local `lanes` catalog at
   `~/.config/lanes/projects.json`; disposable task environment registrations live in external state, not the project catalog.

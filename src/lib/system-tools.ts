@@ -74,7 +74,7 @@ export const SYSTEM_TOOL_GROUPS = [
       {
         name: "node",
         level: "required",
-        why: "Needed by the oxfmt CLI used in repo format checks.",
+        why: "Hosts npm itself and the npm-installed agent CLIs.",
         versionArgs: ["--version"],
         latest: {
           type: "command",

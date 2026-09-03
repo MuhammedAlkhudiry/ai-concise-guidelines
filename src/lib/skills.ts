@@ -191,6 +191,22 @@ function stripMarkdownCode(content: string): string {
     .join("\n");
 }
 
+const SKILL_REFERENCE_PATTERN =
+  /(?:^|[^A-Za-z0-9_$])\$([a-z][a-z0-9]*(?:-[a-z0-9]+)*(?::[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?)(?![A-Za-z0-9:-])/g;
+
+export function findUnknownSkillReferences(
+  content: string,
+  knownSkillNames: ReadonlySet<string>,
+): Array<{ line: number; name: string }> {
+  const unknown: Array<{ line: number; name: string }> = [];
+  for (const [lineIndex, line] of stripMarkdownCode(content).split("\n").entries()) {
+    for (const match of line.matchAll(SKILL_REFERENCE_PATTERN)) {
+      if (!knownSkillNames.has(match[1])) unknown.push({ line: lineIndex + 1, name: match[1] });
+    }
+  }
+  return unknown;
+}
+
 function validateCrossSkillReferences(
   skillsRoot: string,
   skills: Array<LocalSkill & { content: string }>,
@@ -198,21 +214,12 @@ function validateCrossSkillReferences(
 ): void {
   const knownSkillNames = new Set([...skills.map((skill) => skill.name), ...additionalSkillNames]);
   const unknownReferences: string[] = [];
-  const skillReferencePattern =
-    /(?:^|[^A-Za-z0-9_$])\$([a-z][a-z0-9]*(?:-[a-z0-9]+)*(?::[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?)(?![A-Za-z0-9:-])/g;
 
   for (const skill of skills) {
     for (const markdownPath of findMarkdownPaths(skill.dir)) {
-      const content = stripMarkdownCode(readFileSync(markdownPath, "utf-8"));
-      for (const [lineIndex, line] of content.split("\n").entries()) {
-        for (const match of line.matchAll(skillReferencePattern)) {
-          const referencedSkillName = match[1];
-          if (!knownSkillNames.has(referencedSkillName)) {
-            unknownReferences.push(
-              `${relative(skillsRoot, markdownPath)}:${lineIndex + 1} references $${referencedSkillName}`,
-            );
-          }
-        }
+      const content = readFileSync(markdownPath, "utf-8");
+      for (const { line, name } of findUnknownSkillReferences(content, knownSkillNames)) {
+        unknownReferences.push(`${relative(skillsRoot, markdownPath)}:${line} references $${name}`);
       }
     }
   }

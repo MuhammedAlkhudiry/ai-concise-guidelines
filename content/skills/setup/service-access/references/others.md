@@ -6,5 +6,5 @@
 
 ## PostHog
 
-- Use $posthog-cli for operations.
+- Use $cli-tools for PostHog operations.
 - Discover the installed credential template and current environment before requesting credentials; derive authentication repair from live agent help.

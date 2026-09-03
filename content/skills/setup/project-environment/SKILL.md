@@ -22,17 +22,15 @@ scripts or a `PROJECT-LANES.md`. Use $project-lanes for runtime lifecycle, readi
   managed task worktree receive `.env`, `.env.testing`, and mobile `.env.local` links into that store.
 - Preserve existing values during the first migration. Move declared real secrets into the project-level secret file without printing their values.
 - Derive lane URLs, database names, cache prefixes, buckets, ports, simulator names, local service credentials, and safe testing defaults centrally.
-- Treat managed environment links as lane-generated state. Never edit, recreate, or replace them, and never prefix their values onto project commands.
-  Repair them with `lanes repair`.
 - Keep ephemeral command outputs, such as coverage directories, inside the project task implementation. Do not turn project tasks into `lanes`
   subcommands.
 
 ## Contract
 
+Lane identity, canonical-clone protection, and managed environment-file rules are defined in $project-lanes.
+
 - Treat `PROJECT_LANE_ID` and `PROJECT_LANE_NUMBER` as authoritative; never infer identity from a path or branch. The id is `main` or a clear task
   name; the number is an internal resource slot, not user-facing identity.
-- Use identity `main` and slot `0` for the canonical clone. Its resources are stable project infrastructure and must never be removed by task-lane
-  cleanup.
 - Require `PROJECT_LANE_DEFINITION_ROOT` and the configured project root to agree.
 - Keep setup repeatable, non-destructive, isolated, and explicit when a contract is wrong. Do not mask a broken path with a fallback.
 - Setup owns lane storage repair; verification stays read-only. Preserve catalog assets during resets, scope object cleanup safely, and delete buckets

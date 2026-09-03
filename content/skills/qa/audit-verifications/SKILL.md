@@ -1,6 +1,6 @@
 ---
 name: audit-verifications
-description: Read-only audits of project verification coverage, effectiveness, reliability, and performance, including tests, static analysis, linting, CI, and missing checks or tools.
+description: Read-only audits of project verification coverage, effectiveness, reliability, and cost across tests, static analysis, lint, and CI.
 ---
 
 ## Workflow

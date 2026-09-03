@@ -26,16 +26,23 @@ import {
   type RemoteSkill,
   type RemoteSkillSource,
 } from "../../config/skills";
-import { CODEX_CONFIG } from "../../config/codex";
 import { ACTIVE_PROJECTS } from "../../config/active-projects";
+import { CLAUDE_LEGACY_DIRECTORIES, createClaudeManagedSettings } from "../../config/claude";
 import { CREDENTIALS_HOME_ENV, CREDENTIALS_ROOT } from "../../config/credentials";
+import { MCP_SERVERS } from "../../config/mcp";
 import { createOpencodeConfig } from "../../config/opencode";
+import { renderCodexRules } from "../../config/permissions";
+import {
+  codexManagedSectionValues,
+  codexManagedTopLevelValues,
+  renderCodexMcpServersToml,
+} from "../lib/codex-config";
 import { ensureDir, ensureParentDirSync, copyDirAsync, ensureParentDir } from "../lib/fs";
 import { createLanesConfig, readLanesConfig } from "../lib/lanes-config";
 import { migrateManagedCredentials } from "../lib/credentials";
 import { colors, compactOutput, print, printBox, printSeparator } from "../lib/print";
 import { getRemoteSkillRefreshDecision, recordRemoteSkillRefresh } from "../lib/remote-skills";
-import { discoverLocalSkills } from "../lib/skills";
+import { discoverLocalSkills, findUnknownSkillReferences } from "../lib/skills";
 import { validateRemoteSkillSources } from "../lib/validation";
 import { installAdsMenu } from "../apps/ads-menu/install";
 import { installAIUsageMenu } from "../apps/ai-usage-menu/install";
@@ -63,11 +70,13 @@ const OPENCODE_PATHS = {
 const CODEX_PATHS = {
   rules: join(HOME, ".codex/AGENTS.md"),
   config: join(HOME, ".codex/config.toml"),
+  execRules: join(HOME, ".codex/rules/default.rules"),
 };
 
 const CLAUDE_PATHS = {
   rules: join(HOME, ".claude/CLAUDE.md"),
   skills: join(HOME, ".claude/skills"),
+  settings: join(HOME, ".claude/settings.json"),
 };
 
 const SHARED_PATHS = {
@@ -100,16 +109,31 @@ const SHARED_BIN_COMMANDS = [
   { name: "pk", source: "pk.zsh" },
   { name: "ads", source: "ads.zsh" },
   { name: "lanes", source: "lanes.zsh" },
-  { name: "sentry-cli", source: "sentry-cli.zsh" },
+  { name: "codex-usage", source: "codex-usage.zsh" },
 ];
+
+export type RulesAgent = "codex" | "opencode" | "claude";
+
+const CHEAP_DELEGATE_PLACEHOLDER = "{{CHEAP_DELEGATE}}";
+const CHEAP_DELEGATE_BY_AGENT: Record<RulesAgent, string> = {
+  codex: "a Luna subagent",
+  claude: "a Haiku subagent",
+  opencode: "the configured small model",
+};
 
 // =============================================================================
 // Individual Operations
 // =============================================================================
 
-export function renderBaseRules(template: string, projects = ACTIVE_PROJECTS): string {
-  if (!template.includes(ACTIVE_PROJECTS_PLACEHOLDER)) {
-    throw new Error(`Base rules are missing ${ACTIVE_PROJECTS_PLACEHOLDER}`);
+export function renderBaseRules(
+  template: string,
+  projects = ACTIVE_PROJECTS,
+  agent: RulesAgent = "codex",
+): string {
+  for (const placeholder of [ACTIVE_PROJECTS_PLACEHOLDER, CHEAP_DELEGATE_PLACEHOLDER]) {
+    if (!template.includes(placeholder)) {
+      throw new Error(`Base rules are missing ${placeholder}`);
+    }
   }
 
   const activeProjects = projects
@@ -119,33 +143,53 @@ export function renderBaseRules(template: string, projects = ACTIVE_PROJECTS): s
     )
     .join("\n");
 
-  return template.replace(ACTIVE_PROJECTS_PLACEHOLDER, activeProjects);
+  return template
+    .replace(ACTIVE_PROJECTS_PLACEHOLDER, activeProjects)
+    .replace(CHEAP_DELEGATE_PLACEHOLDER, CHEAP_DELEGATE_BY_AGENT[agent]);
 }
 
-function copyRules(destination: string, agent: string): void {
-  print.info(`Copying ${agent} rules to ${destination}...`);
+function knownSkillNames(): Set<string> {
+  const remoteSkillNames = REMOTE_SKILL_SOURCES.flatMap((source) =>
+    source.skills.map((skill) => skill.name),
+  );
+  const additionalSkillNames = [...remoteSkillNames, ...OPTIONAL_EXTERNAL_SKILL_NAMES];
+  const localSkills = discoverLocalSkills(join(ROOT_DIR, "content", "skills"), {
+    additionalSkillNames,
+  });
+  return new Set([...localSkills.map((skill) => skill.name), ...additionalSkillNames]);
+}
 
+function readBaseRulesTemplate(): string {
   const sourceFile = join(ROOT_DIR, "content", "base-rules.md");
-  if (!existsSync(sourceFile)) {
-    print.error("Base rules file not found");
-    return;
+  const template = readFileSync(sourceFile, "utf-8");
+  const unknown = findUnknownSkillReferences(template, knownSkillNames());
+  if (unknown.length > 0) {
+    throw new Error(
+      `Base rules reference unknown skills:\n${unknown
+        .map(({ line, name }) => `- content/base-rules.md:${line} references $${name}`)
+        .join("\n")}`,
+    );
   }
+  return template;
+}
 
+function copyRules(destination: string, agent: RulesAgent, label: string): void {
+  print.info(`Copying ${label} rules to ${destination}...`);
   ensureParentDirSync(destination);
-  writeFileSync(destination, renderBaseRules(readFileSync(sourceFile, "utf-8")));
-  print.success(`${agent} rules copied`);
+  writeFileSync(destination, renderBaseRules(readBaseRulesTemplate(), ACTIVE_PROJECTS, agent));
+  print.success(`${label} rules copied`);
 }
 
 function copyOpencodeRules(): void {
-  copyRules(OPENCODE_PATHS.rules, "OpenCode");
+  copyRules(OPENCODE_PATHS.rules, "opencode", "OpenCode");
 }
 
 function copyCodexRules(): void {
-  copyRules(CODEX_PATHS.rules, "Codex");
+  copyRules(CODEX_PATHS.rules, "codex", "Codex");
 }
 
 function copyClaudeRules(): void {
-  copyRules(CLAUDE_PATHS.rules, "Claude Code");
+  copyRules(CLAUDE_PATHS.rules, "claude", "Claude Code");
 }
 
 function getManagedMcpServerNames(managedContent: string): Set<string> {
@@ -224,6 +268,11 @@ async function installSharedSkills(): Promise<void> {
     label: "shared skills",
     remoteSkillSources,
   });
+  const skillLock = join(HOME, ".agents", ".skill-lock.json");
+  if (existsSync(skillLock)) {
+    await rm(skillLock, { force: true });
+    print.success(`Removed ${skillLock} left over from npx skills add`);
+  }
 }
 
 async function installOpencode(): Promise<void> {
@@ -274,11 +323,71 @@ async function installCodex(): Promise<void> {
   copyCodexRules();
   await mergeCodexConfigAsync();
   await mergeCodexMcpConfigAsync();
+  await writeCodexRules();
+}
+
+async function writeCodexRules(): Promise<void> {
+  print.info(`Writing Codex execution rules to ${CODEX_PATHS.execRules}...`);
+  await ensureParentDir(CODEX_PATHS.execRules);
+  await writeFile(CODEX_PATHS.execRules, renderCodexRules());
+  print.success("Codex execution rules written");
 }
 
 async function installClaude(): Promise<void> {
   copyClaudeRules();
   await installManagedSymlink(SHARED_PATHS.skills, CLAUDE_PATHS.skills, "Claude Code skills");
+  await mergeClaudeSettingsAsync();
+  await removeClaudeLegacyDirectories();
+  await installClaudeMcpServers();
+}
+
+async function mergeClaudeSettingsAsync(): Promise<void> {
+  print.info(`Merging Claude Code settings into ${CLAUDE_PATHS.settings}...`);
+  await ensureParentDir(CLAUDE_PATHS.settings);
+  let existing: Record<string, unknown> = {};
+  if (existsSync(CLAUDE_PATHS.settings)) {
+    try {
+      existing = JSON.parse(await readFile(CLAUDE_PATHS.settings, "utf-8"));
+    } catch {
+      print.warning("Failed to parse existing Claude Code settings, creating new file");
+    }
+  }
+  const managed = createClaudeManagedSettings();
+  const merged = {
+    ...existing,
+    permissions: {
+      ...(existing.permissions as Record<string, unknown> | undefined),
+      allow: managed.permissions.allow,
+    },
+  };
+  await writeFile(CLAUDE_PATHS.settings, JSON.stringify(merged, null, 2) + "\n");
+  print.success("Claude Code settings merged");
+}
+
+async function removeClaudeLegacyDirectories(): Promise<void> {
+  for (const directory of CLAUDE_LEGACY_DIRECTORIES) {
+    const path = join(HOME, directory);
+    if (!existsSync(path)) continue;
+    await rm(path, { recursive: true, force: true });
+    print.success(`Removed unmanaged ${path}`);
+  }
+}
+
+async function installClaudeMcpServers(): Promise<void> {
+  if (!Bun.which("claude")) {
+    print.warning("claude CLI not found; skipped Claude Code MCP servers");
+    return;
+  }
+  for (const [name, server] of Object.entries(MCP_SERVERS)) {
+    const [command, ...args] = server.command;
+    await execa("claude", ["mcp", "remove", "-s", "user", name], { reject: false, stdio: "pipe" });
+    await execa(
+      "claude",
+      ["mcp", "add-json", "-s", "user", name, JSON.stringify({ type: "stdio", command, args })],
+      { stdio: "pipe" },
+    );
+  }
+  print.success(`Claude Code MCP servers installed (${Object.keys(MCP_SERVERS).length})`);
 }
 
 function upsertTomlTopLevelKey(configToml: string, key: string, value: string): string {
@@ -340,34 +449,20 @@ async function mergeCodexConfigAsync(): Promise<void> {
   const existing = existsSync(CODEX_PATHS.config)
     ? await readFile(CODEX_PATHS.config, "utf-8")
     : "";
-  const withModelVerbosity = upsertTomlTopLevelKey(
-    existing,
-    "model_verbosity",
-    JSON.stringify(CODEX_CONFIG.model_verbosity),
-  );
-  const withAgents = upsertTomlSectionKey(
-    withModelVerbosity,
-    "agents",
-    "max_threads",
-    String(CODEX_CONFIG.agents.max_threads),
-  );
-  const merged = upsertTomlSectionKey(
-    withAgents,
-    "features",
-    "default_mode_request_user_input",
-    String(CODEX_CONFIG.features.default_mode_request_user_input),
-  );
+  let merged = existing;
+  for (const [key, value] of Object.entries(codexManagedTopLevelValues())) {
+    merged = upsertTomlTopLevelKey(merged, key, value);
+  }
+  for (const [section, key, value] of codexManagedSectionValues()) {
+    merged = upsertTomlSectionKey(merged, section, key, value);
+  }
   await writeFile(CODEX_PATHS.config, merged);
   print.success("Codex config merged");
 }
 
 async function mergeCodexMcpConfigAsync(): Promise<void> {
   print.info(`Merging Codex MCP config into ${CODEX_PATHS.config}...`);
-  const sourceFile = join(ROOT_DIR, "output", "codex", "mcp-servers.toml");
-  if (!existsSync(sourceFile)) {
-    throw new Error("mcp-servers.toml not found. Run mise run install.");
-  }
-  const managedContent = (await readFile(sourceFile, "utf-8")).trimEnd();
+  const managedContent = renderCodexMcpServersToml().trimEnd();
   const startMarker = "# >>> my-setup mcp >>>";
   const endMarker = "# <<< my-setup mcp <<<";
   const managedBlock = `${startMarker}\n${managedContent}\n${endMarker}\n`;
@@ -414,7 +509,7 @@ async function installShared(installWidgets: boolean): Promise<void> {
     // Preserve missing commands and user-owned files.
   }
 
-  for (const command of ["context-health", "hosts"]) {
+  for (const command of ["context-health", "hosts", "sentry-cli"]) {
     const legacyCommand = join(SHARED_PATHS.binDir, command);
     try {
       const legacyTarget = await readlink(legacyCommand);

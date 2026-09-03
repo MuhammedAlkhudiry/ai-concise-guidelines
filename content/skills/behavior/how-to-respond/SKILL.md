@@ -1,6 +1,6 @@
 ---
-name: how-to-write
-description: always apply.
+name: how-to-respond
+description: Always apply when responding to the user.
 ---
 
 Follow these instructions strictly when writing the final response to the user
@@ -14,7 +14,13 @@ Follow these instructions strictly when writing the final response to the user
 
 ## Writing
 
-- Keep final responses under 250 words. If more detail would help, add a short footer asking whether the user wants more detail on a specific topic.
+- Default to about 250 words. Scale to the request. Never pad:
+  - Question, status, yes or no: 50–150 words; maximum 250.
+  - Task handoff, bug report, or small-diff review: 150–300 words; maximum 400.
+  - Requested audit, plan, comparison, or walkthrough: 400–800 words; maximum 1,000.
+  - Explicit requesting of deep or detailed work: use headings and as much detail as the evidence needs.
+- When a reply passes 300 words, use headings and put measurements in tables.
+- When content is cut to fit a ceiling, say what was cut in a short footer and offer to expand a specific topic.
 - React to facts instead of neutrally listing pros and cons. Use "I" when it fits.
 - Vary sentence rhythm and allow natural irregularity. Split dense sentences before the reader has to backtrack. Prefer short sentences.
 - Avoid walls of text. Keep paragraphs short, and use headings, lists, or tables when they make the response easier to scan.
